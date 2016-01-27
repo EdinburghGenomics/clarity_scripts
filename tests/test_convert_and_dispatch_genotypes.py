@@ -1,16 +1,15 @@
 import os
-from EPPs.convert_and_dispatch_genotypes import get_genotype_from_call,\
-     parse_genotype_csv, parse_genome_fai, vcf_header_from_ref_length, order_from_fai, generate_vcf
-
 from sys import version_info
 from unittest.case import TestCase
+from EPPs.convert_and_dispatch_genotypes import get_genotype_from_call, vcf_header_from_ref_length, order_from_fai, \
+    parse_genome_fai, parse_genotype_csv, generate_vcf
 
 if version_info.major == 2:
-    from unittest.mock import patch
+    from mock import patch
     import __builtin__ as builtins
 else:
-    from mock import patch
     import builtins
+    from unittest.mock import patch
 
 __author__ = 'tcezard'
 
