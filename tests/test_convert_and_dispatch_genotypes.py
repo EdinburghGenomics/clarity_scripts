@@ -1,14 +1,16 @@
 import os
-from unittest.case import TestCase
-from unittest.mock import patch, mock_open
 from EPPs.convert_and_dispatch_genotypes import get_genotype_from_call,\
      parse_genotype_csv, parse_genome_fai, vcf_header_from_ref_length, order_from_fai, generate_vcf
 
 from sys import version_info
+from unittest.case import TestCase
+
 if version_info.major == 2:
-    import __builtin__ as builtins  # pylint:disable=import-error
+    from unittest.mock import patch
+    import __builtin__ as builtins
 else:
-    import builtins  # pylint:disable=import-error
+    from mock import patch
+    import builtins
 
 __author__ = 'tcezard'
 
