@@ -1,7 +1,7 @@
 import os
 from unittest.case import TestCase
-from EPPs.convert_and_dispatch_genotypes import convert_genotype_csv, get_genotype_from_call, vcf_header_from_fai_file, \
-    order_from_fai
+from EPPs.convert_and_dispatch_genotypes import get_genotype_from_call,\
+    parse_genotype_csv, parse_genome_fai, vcf_header_from_ref_length
 
 __author__ = 'tcezard'
 
@@ -9,7 +9,7 @@ __author__ = 'tcezard'
 class Test_small_tools(TestCase):
     def setUp(self):
         self.genotype_csv = os.path.join(os.path.dirname(__file__), 'test_data','E03159_WGS_32_panel_9504430.csv')
-        self.genotype_csv = os.path.join(os.path.dirname(__file__), 'test_data','E03159_WGS_32_panel.csv')
+        #self.genotype_csv = os.path.join(os.path.dirname(__file__), 'test_data','E03159_WGS_32_panel.csv')
         self.small_reference_fai = os.path.join(os.path.dirname(__file__), 'test_data','genotype_32_SNPs_genome_600bp.fa.fai')
         self.reference_fai = os.path.join(os.path.dirname(__file__), 'test_data','GRCh37.fa.fai')
 
@@ -51,7 +51,7 @@ Y	8602518	rs3913290	C	.	.	.	GT	./."""
         #print(text)
         #self.assertEqual(text,vcf_text)
 
-        text=convert_genotype_csv(self.genotype_csv, self.small_reference_fai, 600)
+        #text=convert_genotype_csv(self.genotype_csv, self.small_reference_fai, 600)
 
         #print(text)
 
@@ -65,24 +65,13 @@ Y	8602518	rs3913290	C	.	.	.	GT	./."""
 
 
     def test_vcf_header_from_fai_file(self):
-        vcf_headers = ['##contig=<ID=C___2728408_10,length=1201>', '##contig=<ID=C___1563023_10,length=1201>',
-                       '##contig=<ID=C__15935210_10,length=1201>', '##contig=<ID=C__33211212_10,length=1201>',
-                       '##contig=<ID=C___3227711_10,length=1201>', '##contig=<ID=C__30044763_10,length=1201>',
-                       '##contig=<ID=C__11821218_10,length=1201>', '##contig=<ID=C___1670459_10,length=1201>',
-                       '##contig=<ID=C__29619553_10,length=1201>', '##contig=<ID=C___1007630_10,length=1201>',
-                       '##contig=<ID=C__26546714_10,length=1201>', '##contig=<ID=C___7421900_10,length=1201>',
-                       '##contig=<ID=C__27402849_10,length=1201>', '##contig=<ID=C___2953330_10,length=1201>',
-                       '##contig=<ID=C__16205730_10,length=1201>', '##contig=<ID=C___8850710_10,length=1201>',
-                       '##contig=<ID=C___1801627_20,length=1201>', '##contig=<ID=C___7431888_10,length=1201>',
-                       '##contig=<ID=C___1250735_20,length=1201>', '##contig=<ID=C___1902433_10,length=1201>',
-                       '##contig=<ID=C__31386842_10,length=1201>', '##contig=<ID=C__26524789_10,length=1201>',
-                       '##contig=<ID=C___8924366_10,length=1201>', '##contig=<ID=C_____43852_10,length=1201>',
-                       '##contig=<ID=C__11522992_10,length=1201>', '##contig=<ID=C__10076371_10,length=1201>',
-                       '##contig=<ID=C___7457509_10,length=1201>', '##contig=<ID=C___1122315_10,length=1201>',
-                       '##contig=<ID=C__11710129_10,length=1201>', '##contig=<ID=C___1027548_20,length=1201>',
-                       '##contig=<ID=C___8938211_20,length=1201>', '##contig=<ID=C___1083232_10,length=1201>']
-        tested_vcf_header = vcf_header_from_fai_file(self.small_reference_fai)
-        assert vcf_headers == tested_vcf_header
+        expected_vcf_headers = [
+            '##contig=<ID=test1,length=48>', '##contig=<ID=test2,length=656>',
+            '##contig=<ID=test3,length=35>', '##contig=<ID=test4,length=10>'
+        ]
+        reference_length=[('test1', '48'), ('test2', '656'), ('test3', '35'), ('test4', '10')]
+        tested_vcf_header = vcf_header_from_ref_length(reference_length)
+        assert expected_vcf_headers == tested_vcf_header
 
     def test_order_from_fai(self):
         records = {
@@ -99,6 +88,27 @@ Y	8602518	rs3913290	C	.	.	.	GT	./."""
                           ('C__33211212_10', '21')
                       ]
         }
-        expected_records = ['C___2728408_10\t2', 'C___2728408_10\t60', 'C___2728408_10\t76', 'C___2728408_10\t93',
-                            'C__33211212_10\t21', 'C__33211212_10\t43', 'C__33211212_10\t60', 'C__33211212_10\t76']
-        assert order_from_fai(records, self.small_reference_fai) == expected_records
+        #expected_records = ['C___2728408_10\t2', 'C___2728408_10\t60', 'C___2728408_10\t76', 'C___2728408_10\t93',
+        #                    'C__33211212_10\t21', 'C__33211212_10\t43', 'C__33211212_10\t60', 'C__33211212_10\t76']
+        #assert order_from_fai(records, self.small_reference_fai) == expected_records
+
+    def test_parse_genome_fai(self):
+        refence_length = parse_genome_fai(self.small_reference_fai)
+        expected_ref_length = [('C___2728408_10', '1201'), ('C___1563023_10', '1201'), ('C__15935210_10', '1201'),
+                      ('C__33211212_10', '1201'), ('C___3227711_10', '1201'), ('C__30044763_10', '1201'),
+                      ('C__11821218_10', '1201'), ('C___1670459_10', '1201'), ('C__29619553_10', '1201'),
+                      ('C___1007630_10', '1201'), ('C__26546714_10', '1201'), ('C___7421900_10', '1201'),
+                      ('C__27402849_10', '1201'), ('C___2953330_10', '1201'), ('C__16205730_10', '1201'),
+                      ('C___8850710_10', '1201'), ('C___1801627_20', '1201'), ('C___7431888_10', '1201'),
+                      ('C___1250735_20', '1201'), ('C___1902433_10', '1201'), ('C__31386842_10', '1201'),
+                      ('C__26524789_10', '1201'), ('C___8924366_10', '1201'), ('C_____43852_10', '1201'),
+                      ('C__11522992_10', '1201'), ('C__10076371_10', '1201'), ('C___7457509_10', '1201'),
+                      ('C___1122315_10', '1201'), ('C__11710129_10', '1201'), ('C___1027548_20', '1201'),
+                      ('C___8938211_20', '1201'), ('C___1083232_10', '1201')]
+
+        assert refence_length == expected_ref_length
+
+    def test_parse_genotype_csv(self):
+        all_records, all_samples = parse_genotype_csv(self.genotype_csv, flank_length=600)
+        assert all_samples == ['9504430']
+        assert len(all_records) == 32

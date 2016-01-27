@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import genologics
 
@@ -40,7 +41,7 @@ SNPs_definition = {"C___2728408_10": ["rs3010325",  "1",  "59569829",  "C", "T",
                    "C___8938211_20": ["rs3913290",  "Y",  "8602518",   "C", "T", "Forward"],
                    "C___1083232_10": ["rs2032598",  "Y",  "14850341",  "T", "C", "Reverse"]}
 
-HEADERS_CALL="Call"
+HEADERS_CALL=["Call"]
 #Actual Header in the file
 HEADERS_SAMPLE_ID = ["StudyID", 'Sample ID']
 HEADERS_ASSAY_ID=["SNPName", "Assay Name"]
@@ -69,50 +70,50 @@ def get_genotype_from_call(ref_allele, alternate_allele, call):
     return genotype
 
 
-def vcf_header_from_fai_file(genome_fai):
-    """Generate a vcf header from an fai file"""
+def vcf_header_from_ref_length(reference_lengths):
+    """Generate a vcf header from ref names and length from the fai file"""
     header_entries = []
-    with open(genome_fai) as open_file:
-        reader = csv.reader(open_file, delimiter='\t')
-        for row in reader:
-            header_entries.append('##contig=<ID=%s,length=%s>'%(row[0], row[1]))
+    for ref_name, length in reference_lengths:
+        header_entries.append('##contig=<ID=%s,length=%s>'%(ref_name, length))
     return header_entries
 
-def order_from_fai(all_records, genome_fai):
-    ordered_records = []
-    with open(genome_fai) as open_file:
-        reader = csv.reader(open_file, delimiter='\t')
-        for row in reader:
-            snps = all_records.get(row[0], [])
-            #Sort the SNPs by position within a ref
-            snps.sort(key=lambda snp: int(snp[1]))
-            #convert the array to str
-            ordered_records.extend(['\t'.join(s) for s in snps])
-    return ordered_records
 
-def convert_genotype_csv(csv_file, genome_fai, flank_length=0):
+def order_from_fai(all_records, reference_lengths):
+    ordered_snp_ids = []
+    for ref_name, length in reference_lengths:
+        #Extract all the record on a particular reference
+        snps = [rec for rec in all_records.values() if rec[0]==ref_name]
+        #Sort the SNPs by position within a reference
+        snps.sort(key=lambda snp: int(snp[1]))
+        #get the snp id as the key
+        ordered_snp_ids.extend([rec[2] for rec in snps])
+
+    return ordered_snp_ids
+
+def parse_genotype_csv(csv_file, flank_length=0):
     all_samples = set()
     with open(csv_file) as open_file:
         reader = csv.DictReader(open_file, delimiter='\t')
         all_records = defaultdict(dict)
         fields = set(reader.fieldnames)
-        for h in  HEADERS_SAMPLE_ID:
-            if h in fields:
+        for h in fields:
+            if h in HEADERS_SAMPLE_ID:
                 header_sample_id = h
-        for h in  HEADERS_ASSAY_ID:
-            if h in fields:
+            elif h in HEADERS_ASSAY_ID:
                 header_assay_id = h
+            elif h in HEADERS_CALL:
+                header_call = h
         for line in reader:
             sample = line[header_sample_id]
-            if sample.lower() =='blank':
+            if sample.lower() == 'blank':
                 #Entries with blank as sample name are entries with water and no DNA
                 continue
             assay_id = line[header_assay_id]
             SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
             #alt_allele is the alternate allele from the dbsnp definition
             #It will be replaced by the alt allele from the call if it exists
-            genotype = get_genotype_from_call(ref_allele, alt_allele, line.get(HEADERS_CALL))
-            if not 'SNPs' in all_records[SNPs_id]:
+            genotype = get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
+            if not 'SNP' in all_records[SNPs_id]:
                 if flank_length:
                     SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
                 else:
@@ -123,22 +124,42 @@ def convert_genotype_csv(csv_file, genome_fai, flank_length=0):
             all_records[SNPs_id][sample]=genotype
             all_samples.add(sample)
 
-    all_samples = sorted(all_samples)
-    SNPs_list = defaultdict(list)
-    for SNPs_id in  all_records:
-        record = all_records.get(SNPs_id)
-        out = record.get('SNP')
-        out.extend([record.get(sample) for sample in all_samples])
-        SNPs_list[out[0]].append(out)
+    return all_records, list(all_samples)
 
-    all_lines = ["##fileformat=VCFv4.1",
+def parse_genome_fai(genome_fai):
+    reference_lengths = []
+    with open(genome_fai) as open_file:
+        reader = csv.reader(open_file, delimiter='\t')
+        for row in reader:
+            reference_lengths.append((row[0], row[1]))
+    return reference_lengths
+
+
+def generate_vcf(all_records, sample, vcf_header, snps_ids):
+    with open(sample+'.vcf', 'w') as open_file:
+        open_file.write('\n'.join(vcf_header))
+        for snps_id in snps_ids:
+            out = list(all_records[snps_id].get('SNP'))
+            out.append(all_records[snps_id].get(sample))
+            open_file.write('\t'.join(out) + '\n')
+
+def convert_genotype_csv_and_upload(csv_file, genome_fai, flank_length=0):
+    all_records, all_samples = parse_genotype_csv(csv_file,flank_length)
+    reference_lengths = parse_genome_fai(genome_fai)
+    vcf_header = ["##fileformat=VCFv4.1",
                  '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
-    all_lines.extend(vcf_header_from_fai_file(genome_fai))
-    vcf_header.extend(all_samples)
-    all_lines.append('\t'.join(vcf_header))
-    all_lines.extend(order_from_fai(SNPs_list, genome_fai))
-    return '\n'.join(all_lines)
-
+    vcf_header.extend(vcf_header_from_ref_length(reference_lengths))
+    snps_ids = order_from_fai(order_from_fai)
+    sample2vcf={}
+    for sample in all_samples:
+        vcf_file = generate_vcf(all_records, sample, vcf_header, snps_ids)
+        sample2vcf[sample]=vcf_file
+    sample2vcflink={}
+    for sample in sample2vcf:
+        vcf_link = upload_vcf_to_LIMS(sample2vcf.get(sample))
+        sample2vcflink[sample] = vcf_link
+        if success:
+            os.remove(vcf_file)
 
 def main():
     args = _parse_args()
