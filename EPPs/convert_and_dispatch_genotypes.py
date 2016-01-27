@@ -1,8 +1,6 @@
 import argparse
 import os
-
-import genologics
-
+from genologics.lims import Lims
 from collections import defaultdict
 import csv
 
@@ -82,7 +80,7 @@ def order_from_fai(all_records, reference_lengths):
     ordered_snp_ids = []
     for ref_name, length in reference_lengths:
         #Extract all the record on a particular reference
-        snps = [rec for rec in all_records.values() if rec[0]==ref_name]
+        snps = [rec.get('SNP') for rec in all_records.values() if rec['SNP'][0]==ref_name]
         #Sort the SNPs by position within a reference
         snps.sort(key=lambda snp: int(snp[1]))
         #get the snp id as the key
@@ -111,7 +109,6 @@ def parse_genotype_csv(csv_file, flank_length=0):
             assay_id = line[header_assay_id]
             SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
             #alt_allele is the alternate allele from the dbsnp definition
-            #It will be replaced by the alt allele from the call if it exists
             genotype = get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
             if not 'SNP' in all_records[SNPs_id]:
                 if flank_length:
@@ -136,33 +133,50 @@ def parse_genome_fai(genome_fai):
 
 
 def generate_vcf(all_records, sample, vcf_header, snps_ids):
-    with open(sample+'.vcf', 'w') as open_file:
-        open_file.write('\n'.join(vcf_header))
+    vcf_file = sample+'.vcf'
+    with open(vcf_file, 'w') as open_file:
+        open_file.write('\n'.join(vcf_header) + '\n')
         for snps_id in snps_ids:
             out = list(all_records[snps_id].get('SNP'))
             out.append(all_records[snps_id].get(sample))
             open_file.write('\t'.join(out) + '\n')
+    return vcf_file
 
-def convert_genotype_csv_and_upload(csv_file, genome_fai, flank_length=0):
+
+def upload_vcf_to_LIMS(lims, vcf_file):
+    print('Upload {} to the lims'.format(vcf_file))
+    return 'http://lims/'+os.path.basename(vcf_file)
+
+
+def convert_genotype_csv_to_vcf(csv_file, genome_fai, flank_length=0):
     all_records, all_samples = parse_genotype_csv(csv_file,flank_length)
     reference_lengths = parse_genome_fai(genome_fai)
     vcf_header = ["##fileformat=VCFv4.1",
                  '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
     vcf_header.extend(vcf_header_from_ref_length(reference_lengths))
-    snps_ids = order_from_fai(order_from_fai)
+    snps_ids = order_from_fai(all_records,reference_lengths)
     sample2vcf={}
     for sample in all_samples:
         vcf_file = generate_vcf(all_records, sample, vcf_header, snps_ids)
         sample2vcf[sample]=vcf_file
+    return sample2vcf
+
+
+def upload_vcf_to_samples(sample2vcf, server_name, username, password):
+    lims = Lims(server_name, username, password)
     sample2vcflink={}
     for sample in sample2vcf:
-        vcf_link = upload_vcf_to_LIMS(sample2vcf.get(sample))
-        sample2vcflink[sample] = vcf_link
-        if success:
-            os.remove(vcf_file)
+        sample2vcflink[sample] = upload_vcf_to_LIMS(lims, sample2vcf.get(sample))
+    for sample in sample2vcflink:
+        print('update sample UDF with link to vcf: ' + sample2vcflink[sample])
+
 
 def main():
     args = _parse_args()
+    genome_fai = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'etc', 'genotype_32_SNPs_genome_600bp.fa.fai')
+    flank_length = 600
+    sample2vcf = convert_genotype_csv_to_vcf(args.input_genotypes, genome_fai, flank_length)
+    upload_vcf_to_samples(sample2vcf, args.server_name, args.username, args.password)
 
 
 def _parse_args():
@@ -170,9 +184,10 @@ def _parse_args():
     p.add_argument('--username', dest="username", type=str, help='The username of the person logged in')
     p.add_argument('--password', dest="password", type=str, help='The password used by the person logged in')
     p.add_argument('--process_id', dest='process_id', type=str, help='The id of the process this EPP is attached to')
+    p.add_argument('--server_name', dest='server_name', type=str, help='The name of the server where the API is')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, help='The file that contains the genotype for all the samples')
-
     return p.parse_args()
+
 
 if __name__ == "__main__":
     main()
