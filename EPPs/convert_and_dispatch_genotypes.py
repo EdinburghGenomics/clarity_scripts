@@ -1,5 +1,8 @@
 import argparse
+import logging
 import os
+import re
+
 from genologics.lims import Lims
 from collections import defaultdict
 import csv
@@ -142,10 +145,26 @@ def generate_vcf(all_records, sample, vcf_header, snps_ids):
             open_file.write('\t'.join(out) + '\n')
     return vcf_file
 
+def get_lims_sample(sample_name, lims):
+    samples = lims.get_samples(name=sample_name)
+    if len(samples) == 0:
+        sample_name_sub = re.sub("_(\d{2})$", ":\g<1>", sample_name)
+        samples = lims.get_samples(name=sample_name_sub)
+    if len(samples) == 0:
+        sample_name_sub = re.sub("__(\w)_(\d{2})", " _\g<1>:\g<2>", sample_name)
+        samples = lims.get_samples(name=sample_name_sub)
 
-def upload_vcf_to_LIMS(lims, vcf_file):
-    print('Upload {} to the lims'.format(vcf_file))
-    return 'http://lims/'+os.path.basename(vcf_file)
+    if len(samples) != 1:
+        logging.warning('%s Sample(s) found for name %s' % (len(samples), sample_name))
+        return None
+
+    return samples[0]
+
+
+
+def upload_vcf_to_LIMS(lims, sample, vcf_file):
+    lims_file = lims.upload_new_file(sample, vcf_file)
+    return lims_file.id
 
 
 def convert_genotype_csv_to_vcf(csv_file, genome_fai, flank_length=0):
@@ -164,12 +183,13 @@ def convert_genotype_csv_to_vcf(csv_file, genome_fai, flank_length=0):
 
 def upload_vcf_to_samples(sample2vcf, server_name, username, password):
     lims = Lims(server_name, username, password)
-    sample2vcflink={}
-    for sample in sample2vcf:
-        sample2vcflink[sample] = upload_vcf_to_LIMS(lims, sample2vcf.get(sample))
-    for sample in sample2vcflink:
-        print('update sample UDF with link to vcf: ' + sample2vcflink[sample])
-
+    sample2fileid={}
+    for sample_name in sample2vcf:
+        sample = get_lims_sample(lims, sample_name)
+        if sample:
+            file = sample2fileid[sample] = upload_vcf_to_LIMS(lims, sample, sample2vcf.get(sample_name))
+            if file:
+                sample.udf['Genotyping results file id'] = file.id
 
 def main():
     args = _parse_args()
