@@ -3,6 +3,7 @@ import logging
 import os
 import re
 
+from genologics.entities import Process
 from genologics.lims import Lims
 from collections import defaultdict
 import csv
@@ -180,9 +181,18 @@ def convert_genotype_csv_to_vcf(csv_file, genome_fai, flank_length=0):
         sample2vcf[sample]=vcf_file
     return sample2vcf
 
+def validate_sample_names(lims, process_id, sample2vcf):
+    p = Process(lims, id=process_id)
+    sample_names = [s.name for s in p.all_inputs()]
+    matching_sample_names = set(sample_names).intersection(set(sample2vcf.keys()))
+    non_matching_samples = set(sample_names).difference(set(sample2vcf.keys()))
+    valid_lims_samples = []
+    print(valid_lims_samples)
+    print(non_matching_samples)
 
-def upload_vcf_to_samples(sample2vcf, server_name, username, password):
-    lims = Lims(server_name, username, password)
+def upload_vcf_to_samples(process_id, sample2vcf, server_name, username, password):
+
+
     sample2fileid={}
     for sample_name in sample2vcf:
         sample = get_lims_sample(lims, sample_name)
@@ -191,12 +201,21 @@ def upload_vcf_to_samples(sample2vcf, server_name, username, password):
             if file:
                 sample.udf['Genotyping results file id'] = file.id
 
+
+def clean_up_vcf_files(sample2vcf):
+    for vcf_file in sample2vcf.values():
+        os.remove(vcf_file)
+
 def main():
     args = _parse_args()
     genome_fai = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'etc', 'genotype_32_SNPs_genome_600bp.fa.fai')
     flank_length = 600
     sample2vcf = convert_genotype_csv_to_vcf(args.input_genotypes, genome_fai, flank_length)
-    upload_vcf_to_samples(sample2vcf, args.server_name, args.username, args.password)
+    process_id = '24-' + args.process_id
+    lims = Lims(args.server_name, args.username, args.password)
+    valid_lims_samples = validate_sample_names(lims, process_id, sample2vcf)
+    #upload_vcf_to_samples(sample2vcf, valid_lims_samples)
+    clean_up_vcf_files(sample2vcf)
 
 
 def _parse_args():
