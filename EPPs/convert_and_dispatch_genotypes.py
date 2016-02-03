@@ -185,22 +185,33 @@ def upload_vcf_to_samples(geno_conv, process_id, server_name, username, password
     lims = Lims(server_name, username, password)
     p = Process(lims, id=process_id)
     invalid_lims_samples = []
+    valid_samples = []
     for artifact in p.all_inputs():
-        if artifact.name in geno_conv.sample_names:
-            vcf_file = geno_conv.generate_vcf(artifact.name)
-        elif artifact.udf.get('User Sample Name') in geno_conv.sample_names:
-            vcf_file = geno_conv.generate_vcf(artifact.udf.get('User Sample Name'), new_name=artifact.name)
+        vcf_file = None
+        # Assume only one sample per artifact
+        lims_sample = artifact.samples[0]
+        if lims_sample.name in geno_conv.sample_names:
+            vcf_file = geno_conv.generate_vcf(lims_sample.name)
+        elif lims_sample.udf.get('User Sample Name') in geno_conv.sample_names:
+            vcf_file = geno_conv.generate_vcf(lims_sample.udf.get('User Sample Name'), new_name=artifact.name)
         else:
-            invalid_lims_samples.append(artifact)
+            invalid_lims_samples.append(lims_sample)
         if vcf_file:
-            #Assume only one sample per artifact
-            lims_sample = artifact.samples[0]
+            valid_samples.append(lims_sample)
             if not no_upload:
                 file = lims.upload_new_file(lims_sample, vcf_file)
                 if file:
                     lims_sample.udf['Genotyping results file id'] = file.id
                     lims_sample.put()
             os.remove(vcf_file)
+    if invalid_lims_samples:
+        print("%s Samples are missing genotype"%len(invalid_lims_samples))
+    if len(geno_conv.sample_names) - len(valid_samples) > 0:
+        #TODO send a message to the EPP
+        print("%s genotypes have not been assigned"%(len(geno_conv.sample_names) - len(valid_samples)))
+
+
+
 
 
 
