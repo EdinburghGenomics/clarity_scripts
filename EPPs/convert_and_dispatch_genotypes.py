@@ -43,108 +43,127 @@ SNPs_definition = {"C___2728408_10": ["rs3010325",  "1",  "59569829",  "C", "T",
                    "C___8938211_20": ["rs3913290",  "Y",  "8602518",   "C", "T", "Forward"],
                    "C___1083232_10": ["rs2032598",  "Y",  "14850341",  "T", "C", "Reverse"]}
 
-HEADERS_CALL=["Call"]
-#Actual Header in the file
+HEADERS_CALL = ["Call"]
+# Actual Header in the file
 HEADERS_SAMPLE_ID = ["StudyID", 'Sample ID']
-HEADERS_ASSAY_ID=["SNPName", "Assay Name"]
+HEADERS_ASSAY_ID = ["SNPName", "Assay Name"]
 
-vcf_header=['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT']
+vcf_header = ['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT']
+start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
 
+class Genotype_conversion(object):
+    def __init__(self, input_genotypes, genome_fai, flank_length=0):
+        self.all_records, self.sample_names = self.parse_genotype_csv(input_genotypes, flank_length)
+        reference_lengths = self.parse_genome_fai(genome_fai)
+        self.vcf_header_contigs = self.vcf_header_from_ref_length(reference_lengths)
+        self.snps_order = self.order_from_fai(self.all_records,reference_lengths)
 
-def get_genotype_from_call(ref_allele, alternate_allele, call):
-    """Uses the SNPs definition to convert the genotype call to a vcf compatible genotype"""
-    genotype = './.'
-    if call.lower() == 'undefined' or call.lower() == 'undetermined':
+    @staticmethod
+    def get_genotype_from_call(ref_allele, alternate_allele, call):
+        """Uses the SNPs definition to convert the genotype call to a vcf compatible genotype"""
+        genotype = './.'
+        if call.lower() == 'undefined' or call.lower() == 'undetermined':
+            return genotype
+        if call == 'Both':
+            call = ref_allele + alternate_allele
+        callset = set(call)
+        if ref_allele in callset and len(callset) == 1:
+            genotype = '0/0'
+        elif ref_allele in callset and alternate_allele in callset:
+            genotype = '0/1'
+            callset.remove(ref_allele)
+        elif alternate_allele in callset and len(callset) == 1:
+            genotype = '1/1'
+        else:
+            raise ValueError("Call {} does not match any of the alleles (ref:{}, alt:{})".format(call, ref_allele,
+                                                                                                 alternate_allele))
         return genotype
-    if call == 'Both':
-        call=ref_allele + alternate_allele
-    callset = set(call)
-    if ref_allele in callset and len(callset) == 1:
-        genotype='0/0'
-    elif ref_allele in callset and alternate_allele in callset:
-        genotype='0/1'
-        callset.remove(ref_allele)
-    elif alternate_allele in callset and len(callset) == 1:
-        genotype='1/1'
-    else:
-        raise ValueError("Call {} does not match any of the alleles (ref:{}, alt:{})".format(call, ref_allele,
-                                                                                             alternate_allele))
-    return genotype
+
+    @staticmethod
+    def vcf_header_from_ref_length(reference_lengths):
+        """Generate a vcf header from ref names and length from the fai file"""
+        header_entries = []
+        for ref_name, length in reference_lengths:
+            header_entries.append('##contig=<ID=%s,length=%s>'%(ref_name, length))
+        return header_entries
 
 
-def vcf_header_from_ref_length(reference_lengths):
-    """Generate a vcf header from ref names and length from the fai file"""
-    header_entries = []
-    for ref_name, length in reference_lengths:
-        header_entries.append('##contig=<ID=%s,length=%s>'%(ref_name, length))
-    return header_entries
+    @staticmethod
+    def order_from_fai(all_records, reference_lengths):
+        ordered_snp_ids = []
+        for ref_name, length in reference_lengths:
+            #Extract all the record on a particular reference
+            snps = [rec.get('SNP') for rec in all_records.values() if rec['SNP'][0]==ref_name]
+            #Sort the SNPs by position within a reference
+            snps.sort(key=lambda snp: int(snp[1]))
+            #get the snp id as the key
+            ordered_snp_ids.extend([rec[2] for rec in snps])
+        return ordered_snp_ids
 
 
-def order_from_fai(all_records, reference_lengths):
-    ordered_snp_ids = []
-    for ref_name, length in reference_lengths:
-        #Extract all the record on a particular reference
-        snps = [rec.get('SNP') for rec in all_records.values() if rec['SNP'][0]==ref_name]
-        #Sort the SNPs by position within a reference
-        snps.sort(key=lambda snp: int(snp[1]))
-        #get the snp id as the key
-        ordered_snp_ids.extend([rec[2] for rec in snps])
+    @staticmethod
+    def parse_genotype_csv(csv_file, flank_length=0):
+        all_samples = set()
+        with open(csv_file) as open_file:
+            reader = csv.DictReader(open_file, delimiter='\t')
+            all_records = defaultdict(dict)
+            fields = set(reader.fieldnames)
+            for h in fields:
+                if h in HEADERS_SAMPLE_ID:
+                    header_sample_id = h
+                elif h in HEADERS_ASSAY_ID:
+                    header_assay_id = h
+                elif h in HEADERS_CALL:
+                    header_call = h
+            for line in reader:
+                sample = line[header_sample_id]
+                if sample.lower() == 'blank':
+                    #Entries with blank as sample name are entries with water and no DNA
+                    continue
+                assay_id = line[header_assay_id]
+                SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
+                #alt_allele is the alternate allele from the dbsnp definition
+                genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
+                if not 'SNP' in all_records[SNPs_id]:
+                    if flank_length:
+                        SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
+                    else:
+                        SNP=[reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
+                    all_records[SNPs_id]['SNP']=SNP
+                if sample in all_records[SNPs_id]:
+                    raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
+                all_records[SNPs_id][sample]=genotype
+                all_samples.add(sample)
 
-    return ordered_snp_ids
-
-def parse_genotype_csv(csv_file, flank_length=0):
-    all_samples = set()
-    with open(csv_file) as open_file:
-        reader = csv.DictReader(open_file, delimiter='\t')
-        all_records = defaultdict(dict)
-        fields = set(reader.fieldnames)
-        for h in fields:
-            if h in HEADERS_SAMPLE_ID:
-                header_sample_id = h
-            elif h in HEADERS_ASSAY_ID:
-                header_assay_id = h
-            elif h in HEADERS_CALL:
-                header_call = h
-        for line in reader:
-            sample = line[header_sample_id]
-            if sample.lower() == 'blank':
-                #Entries with blank as sample name are entries with water and no DNA
-                continue
-            assay_id = line[header_assay_id]
-            SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
-            #alt_allele is the alternate allele from the dbsnp definition
-            genotype = get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
-            if not 'SNP' in all_records[SNPs_id]:
-                if flank_length:
-                    SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                else:
-                    SNP=[reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                all_records[SNPs_id]['SNP']=SNP
-            if sample in all_records[SNPs_id]:
-                raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
-            all_records[SNPs_id][sample]=genotype
-            all_samples.add(sample)
-
-    return all_records, list(all_samples)
-
-def parse_genome_fai(genome_fai):
-    reference_lengths = []
-    with open(genome_fai) as open_file:
-        reader = csv.reader(open_file, delimiter='\t')
-        for row in reader:
-            reference_lengths.append((row[0], row[1]))
-    return reference_lengths
+        return all_records, list(all_samples)
 
 
-def generate_vcf(all_records, sample, vcf_header, snps_ids):
-    vcf_file = sample+'.vcf'
-    with open(vcf_file, 'w') as open_file:
-        open_file.write('\n'.join(vcf_header) + '\n')
-        for snps_id in snps_ids:
-            out = list(all_records[snps_id].get('SNP'))
-            out.append(all_records[snps_id].get(sample))
-            open_file.write('\t'.join(out) + '\n')
-    return vcf_file
+    @staticmethod
+    def parse_genome_fai(genome_fai):
+        reference_lengths = []
+        with open(genome_fai) as open_file:
+            reader = csv.reader(open_file, delimiter='\t')
+            for row in reader:
+                reference_lengths.append((row[0], row[1]))
+        return reference_lengths
+
+
+    def generate_vcf(self, sample, new_name=None):
+        if not new_name:
+            new_name = sample
+        vcf_file = new_name+'.vcf'
+        lines = []
+        lines.extend(start_vcf_header)
+        lines.extend(self.vcf_header_contigs)
+        lines.append('\t'.join(list(vcf_header) + [new_name]))
+        for snps_id in self.snps_order:
+            out = list(self.all_records[snps_id].get('SNP'))
+            out.append(self.all_records[snps_id].get(sample))
+            lines.append('\t'.join(out))
+        with open(vcf_file, 'w') as open_file:
+            open_file.write('\n'.join(lines))
+        return vcf_file
+
 
 def get_lims_sample(sample_name, lims):
     samples = lims.get_samples(name=sample_name)
@@ -162,60 +181,36 @@ def get_lims_sample(sample_name, lims):
     return samples[0]
 
 
-
-def upload_vcf_to_LIMS(lims, sample, vcf_file):
-    lims_file = lims.upload_new_file(sample, vcf_file)
-    return lims_file.id
-
-
-def convert_genotype_csv_to_vcf(csv_file, genome_fai, flank_length=0):
-    all_records, all_samples = parse_genotype_csv(csv_file,flank_length)
-    reference_lengths = parse_genome_fai(genome_fai)
-    vcf_header = ["##fileformat=VCFv4.1",
-                 '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
-    vcf_header.extend(vcf_header_from_ref_length(reference_lengths))
-    snps_ids = order_from_fai(all_records,reference_lengths)
-    sample2vcf={}
-    for sample in all_samples:
-        vcf_file = generate_vcf(all_records, sample, vcf_header, snps_ids)
-        sample2vcf[sample]=vcf_file
-    return sample2vcf
-
-def validate_sample_names(lims, process_id, sample2vcf):
+def upload_vcf_to_samples(geno_conv, process_id, server_name, username, password, no_upload=False):
+    lims = Lims(server_name, username, password)
     p = Process(lims, id=process_id)
-    sample_names = [s.name for s in p.all_inputs()]
-    matching_sample_names = set(sample_names).intersection(set(sample2vcf.keys()))
-    non_matching_samples = set(sample_names).difference(set(sample2vcf.keys()))
-    valid_lims_samples = []
-    print(valid_lims_samples)
-    print(non_matching_samples)
+    invalid_lims_samples = []
+    for artifact in p.all_inputs():
+        if artifact.name in geno_conv.sample_names:
+            vcf_file = geno_conv.generate_vcf(artifact.name)
+        elif artifact.udf.get('User Sample Name') in geno_conv.sample_names:
+            vcf_file = geno_conv.generate_vcf(artifact.udf.get('User Sample Name'), new_name=artifact.name)
+        else:
+            invalid_lims_samples.append(artifact)
+        if vcf_file:
+            #Assume only one sample per artifact
+            lims_sample = artifact.samples[0]
+            if not no_upload:
+                file = lims.upload_new_file(lims_sample, vcf_file)
+                if file:
+                    lims_sample.udf['Genotyping results file id'] = file.id
+                    lims_sample.put()
+            os.remove(vcf_file)
 
-def upload_vcf_to_samples(process_id, sample2vcf, server_name, username, password):
 
-
-    sample2fileid={}
-    for sample_name in sample2vcf:
-        sample = get_lims_sample(lims, sample_name)
-        if sample:
-            file = sample2fileid[sample] = upload_vcf_to_LIMS(lims, sample, sample2vcf.get(sample_name))
-            if file:
-                sample.udf['Genotyping results file id'] = file.id
-
-
-def clean_up_vcf_files(sample2vcf):
-    for vcf_file in sample2vcf.values():
-        os.remove(vcf_file)
 
 def main():
     args = _parse_args()
     genome_fai = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'etc', 'genotype_32_SNPs_genome_600bp.fa.fai')
     flank_length = 600
-    sample2vcf = convert_genotype_csv_to_vcf(args.input_genotypes, genome_fai, flank_length)
+    geno_conv = Genotype_conversion(args.input_genotypes, genome_fai, flank_length)
     process_id = '24-' + args.process_id
-    lims = Lims(args.server_name, args.username, args.password)
-    valid_lims_samples = validate_sample_names(lims, process_id, sample2vcf)
-    #upload_vcf_to_samples(sample2vcf, valid_lims_samples)
-    clean_up_vcf_files(sample2vcf)
+    upload_vcf_to_samples(geno_conv, process_id, args.server_name, args.username, args.password, no_upload=args.no_upload)
 
 
 def _parse_args():
@@ -225,6 +220,7 @@ def _parse_args():
     p.add_argument('--process_id', dest='process_id', type=str, help='The id of the process this EPP is attached to')
     p.add_argument('--server_name', dest='server_name', type=str, help='The name of the server where the API is')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, help='The file that contains the genotype for all the samples')
+    p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')
     return p.parse_args()
 
 
