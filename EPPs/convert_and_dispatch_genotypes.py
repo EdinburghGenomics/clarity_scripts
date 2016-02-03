@@ -2,6 +2,12 @@ import argparse
 import logging
 import os
 import re
+from sys import version_info
+
+if version_info.major == 2:
+    import urlparse
+else:
+    from urllib import parse as urlparse
 
 from genologics.entities import Process
 from genologics.lims import Lims
@@ -220,16 +226,18 @@ def main():
     genome_fai = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'etc', 'genotype_32_SNPs_genome_600bp.fa.fai')
     flank_length = 600
     geno_conv = Genotype_conversion(args.input_genotypes, genome_fai, flank_length)
-    process_id = '24-' + args.process_id
-    upload_vcf_to_samples(geno_conv, process_id, args.server_name, args.username, args.password, no_upload=args.no_upload)
+    r1 = urlparse.urlsplit(args.step_uri)
+    server_http = '%s://%s'%(r1.scheme, r1.netloc)
+    #Assume the step_uri contains the step id at the end
+    step_id = r1.path.split('/')[-1]
+    upload_vcf_to_samples(geno_conv, step_id, server_http, args.username, args.password, no_upload=args.no_upload)
 
 
 def _parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--username', dest="username", type=str, help='The username of the person logged in')
     p.add_argument('--password', dest="password", type=str, help='The password used by the person logged in')
-    p.add_argument('--process_id', dest='process_id', type=str, help='The id of the process this EPP is attached to')
-    p.add_argument('--server_name', dest='server_name', type=str, help='The name of the server where the API is')
+    p.add_argument('--step_uri', dest='step_uri', type=str, help='The uri of the step this EPP is attached to')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, help='The file that contains the genotype for all the samples')
     p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')
     return p.parse_args()
