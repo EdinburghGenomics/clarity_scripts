@@ -215,8 +215,7 @@ def upload_vcf_to_samples(geno_conv, lims, p, no_upload=False):
     if len(geno_conv.sample_names) - len(valid_samples) > 0:
         #TODO send a message to the EPP
         messages.append("%s genotypes have not been assigned"%(len(geno_conv.sample_names) - len(valid_samples)))
-    print ', '.join(messages)
-
+    print(', '.join(messages))
 
 def main():
     args = _parse_args()
