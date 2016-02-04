@@ -6,7 +6,7 @@ from sys import version_info
 
 if version_info.major == 2:
     import urlparse
-    import StringIO
+    from StringIO import StringIO
 else:
     from urllib import parse as urlparse
     from io import StringIO
