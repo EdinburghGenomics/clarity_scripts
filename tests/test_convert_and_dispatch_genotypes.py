@@ -31,7 +31,9 @@ class Test_Genotype_conversion(TestCase):
         header_lines = ['##header line1', '##header line2']
         snp_ids = ['id4','id2','id3','id1']
         sample_id = '9504430'
-        geno_conv = Genotype_conversion(self.genotype_csv, self.small_reference_fai, flank_length=600)
+
+        with open(self.genotype_csv) as open_csv:
+            geno_conv = Genotype_conversion(open_csv, self.small_reference_fai, flank_length=600)
         with patch.object(builtins, 'open') as patched_open:
             vcf_file = geno_conv.generate_vcf(sample_id)
             assert vcf_file == sample_id + '.vcf'
@@ -80,8 +82,9 @@ class Test_Genotype_conversion(TestCase):
         assert refence_length == expected_ref_length
 
     def test_parse_genotype_csv(self):
-        all_records, all_samples = Genotype_conversion.parse_genotype_csv(self.genotype_csv, flank_length=600)
-        assert all_samples == ['9504430']
-        assert len(all_records) == 32
+        with open(self.genotype_csv) as open_csv:
+            all_records, all_samples = Genotype_conversion.parse_genotype_csv(open_csv, flank_length=600)
+            assert all_samples == ['9504430']
+            assert len(all_records) == 32
 
 

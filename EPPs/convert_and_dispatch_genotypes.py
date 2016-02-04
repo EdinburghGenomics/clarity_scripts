@@ -6,10 +6,12 @@ from sys import version_info
 
 if version_info.major == 2:
     import urlparse
+    import StringIO
 else:
     from urllib import parse as urlparse
+    from io import StringIO
 
-from genologics.entities import Process
+from genologics.entities import Process, Artifact
 from genologics.lims import Lims
 from collections import defaultdict
 import csv
@@ -58,8 +60,8 @@ vcf_header = ['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT']
 start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
 
 class Genotype_conversion(object):
-    def __init__(self, input_genotypes, genome_fai, flank_length=0):
-        self.all_records, self.sample_names = self.parse_genotype_csv(input_genotypes, flank_length)
+    def __init__(self, input_genotypes_content, genome_fai, flank_length=0):
+        self.all_records, self.sample_names = self.parse_genotype_csv(input_genotypes_content, flank_length)
         reference_lengths = self.parse_genome_fai(genome_fai)
         self.vcf_header_contigs = self.vcf_header_from_ref_length(reference_lengths)
         self.snps_order = self.order_from_fai(self.all_records,reference_lengths)
@@ -108,38 +110,37 @@ class Genotype_conversion(object):
 
 
     @staticmethod
-    def parse_genotype_csv(csv_file, flank_length=0):
+    def parse_genotype_csv(open_csv, flank_length=0):
         all_samples = set()
-        with open(csv_file) as open_file:
-            reader = csv.DictReader(open_file, delimiter='\t')
-            all_records = defaultdict(dict)
-            fields = set(reader.fieldnames)
-            for h in fields:
-                if h in HEADERS_SAMPLE_ID:
-                    header_sample_id = h
-                elif h in HEADERS_ASSAY_ID:
-                    header_assay_id = h
-                elif h in HEADERS_CALL:
-                    header_call = h
-            for line in reader:
-                sample = line[header_sample_id]
-                if sample.lower() == 'blank':
-                    #Entries with blank as sample name are entries with water and no DNA
-                    continue
-                assay_id = line[header_assay_id]
-                SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
-                #alt_allele is the alternate allele from the dbsnp definition
-                genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
-                if not 'SNP' in all_records[SNPs_id]:
-                    if flank_length:
-                        SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                    else:
-                        SNP=[reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                    all_records[SNPs_id]['SNP']=SNP
-                if sample in all_records[SNPs_id]:
-                    raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
-                all_records[SNPs_id][sample]=genotype
-                all_samples.add(sample)
+        reader = csv.DictReader(open_csv, delimiter='\t')
+        all_records = defaultdict(dict)
+        fields = set(reader.fieldnames)
+        for h in fields:
+            if h in HEADERS_SAMPLE_ID:
+                header_sample_id = h
+            elif h in HEADERS_ASSAY_ID:
+                header_assay_id = h
+            elif h in HEADERS_CALL:
+                header_call = h
+        for line in reader:
+            sample = line[header_sample_id]
+            if sample.lower() == 'blank':
+                #Entries with blank as sample name are entries with water and no DNA
+                continue
+            assay_id = line[header_assay_id]
+            SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
+            #alt_allele is the alternate allele from the dbsnp definition
+            genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
+            if not 'SNP' in all_records[SNPs_id]:
+                if flank_length:
+                    SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
+                else:
+                    SNP=[reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
+                all_records[SNPs_id]['SNP']=SNP
+            if sample in all_records[SNPs_id]:
+                raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
+            all_records[SNPs_id][sample]=genotype
+            all_samples.add(sample)
 
         return all_records, list(all_samples)
 
@@ -187,9 +188,7 @@ def get_lims_sample(sample_name, lims):
     return samples[0]
 
 
-def upload_vcf_to_samples(geno_conv, process_id, server_name, username, password, no_upload=False):
-    lims = Lims(server_name, username, password)
-    p = Process(lims, id=process_id)
+def upload_vcf_to_samples(geno_conv, lims, p, no_upload=False):
     invalid_lims_samples = []
     valid_samples = []
     for artifact in p.all_inputs():
@@ -217,20 +216,24 @@ def upload_vcf_to_samples(geno_conv, process_id, server_name, username, password
         print("%s genotypes have not been assigned"%(len(geno_conv.sample_names) - len(valid_samples)))
 
 
-
-
-
-
 def main():
     args = _parse_args()
     genome_fai = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'etc', 'genotype_32_SNPs_genome_600bp.fa.fai')
     flank_length = 600
-    geno_conv = Genotype_conversion(args.input_genotypes, genome_fai, flank_length)
     r1 = urlparse.urlsplit(args.step_uri)
     server_http = '%s://%s'%(r1.scheme, r1.netloc)
     #Assume the step_uri contains the step id at the end
     step_id = r1.path.split('/')[-1]
-    upload_vcf_to_samples(geno_conv, step_id, server_http, args.username, args.password, no_upload=args.no_upload)
+    lims = Lims(server_http, args.username, args.password)
+    p = Process(lims, id=step_id)
+
+    if args.genotypes_artifact_id:
+        a = Artifact(lims, id=args.genotypes_artifact_id)
+        input_genotypes_content = StringIO(lims.get_file_contents(uri=a.files[0].uri))
+    else:
+        input_genotypes_content = open(args.input_genotypes)
+    geno_conv = Genotype_conversion(input_genotypes_content, genome_fai, flank_length)
+    upload_vcf_to_samples(geno_conv, lims, p, no_upload=args.no_upload)
 
 
 def _parse_args():
@@ -238,7 +241,8 @@ def _parse_args():
     p.add_argument('--username', dest="username", type=str, help='The username of the person logged in')
     p.add_argument('--password', dest="password", type=str, help='The password used by the person logged in')
     p.add_argument('--step_uri', dest='step_uri', type=str, help='The uri of the step this EPP is attached to')
-    p.add_argument('--input_genotypes', dest='input_genotypes', type=str, help='The file that contains the genotype for all the samples')
+    p.add_argument('--input_genotypes', dest='input_genotypes', type=str, help='The file that contains the genotype for all the samples (For testing only)')
+    p.add_argument('--genotypes_artifact_id', dest='genotypes_artifact_id', type=str, help='The id of the output artifact that contains the output file')
     p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')
     return p.parse_args()
 
