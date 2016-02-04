@@ -209,11 +209,13 @@ def upload_vcf_to_samples(geno_conv, lims, p, no_upload=False):
                     lims_sample.udf['Genotyping results file id'] = file.id
                     lims_sample.put()
             os.remove(vcf_file)
+    messages = []
     if invalid_lims_samples:
-        print("%s Samples are missing genotype"%len(invalid_lims_samples))
+        messages.append("%s Samples are missing genotype"%len(invalid_lims_samples))
     if len(geno_conv.sample_names) - len(valid_samples) > 0:
         #TODO send a message to the EPP
-        print("%s genotypes have not been assigned"%(len(geno_conv.sample_names) - len(valid_samples)))
+        messages.append("%s genotypes have not been assigned"%(len(geno_conv.sample_names) - len(valid_samples)))
+    print ', '.join(messages)
 
 
 def main():
