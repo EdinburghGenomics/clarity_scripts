@@ -120,14 +120,14 @@ def main():
 
     for container in valid_containers:
         route_allowed=True
-        for artifact in list(c.placements.values()):
+        for artifact in list(container.placements.values()):
             if artifact in step_associated_artifacts or has_workflow_stage(artifact, sample_discard_wf_stage_name):
                 pass
             else:
                 # This container will have to wait
                 route_allowed=False
         if route_allowed:
-            lims.route_artifacts(list(c.placements.values()), stage_uri=discard_plate_stage_uri)
+            lims.route_artifacts(list(container.placements.values()), stage_uri=discard_plate_stage_uri)
 
 
 
