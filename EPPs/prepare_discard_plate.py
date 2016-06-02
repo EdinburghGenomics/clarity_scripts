@@ -31,9 +31,9 @@ invalid_suffixes = [
     '-QPCR',
     '-CST'
 ]
-discard_wf_name="Discard"
-sample_discard_wf_stage_name = "Sample Discard"
-plate_discard_wf_stage_name="Discard plate"
+discard_wf_name="Discard Plates EG 1.0"
+sample_discard_wf_stage_name = "Find Derived Sample Plates EG 1.0"
+plate_discard_wf_stage_name="Discard Plates EG 1.0"
 
 def fetch_all_artifacts_for_samples(lims, samples):
     """
