@@ -90,7 +90,7 @@ def find_plate_to_route(lims, step_id):
     #Find the Discard plate workflow uri
     discard_plate_stage = get_workflow_stage(lims, workflow_name=discard_wf_name,
                                              stage_name=plate_discard_wf_stage_name)
-    logger.info("Found discard_plate_stage_uri "+discard_plate_stage.uri)
+    logger.info("Found Stage %s uri: %s"%(plate_discard_wf_stage_name, discard_plate_stage.uri))
     #get the process currently running
     p = Process(lims, id=step_id)
 
@@ -101,18 +101,18 @@ def find_plate_to_route(lims, step_id):
     #fetch the sample associated with these artifacts
     samples = [a.samples[0] for a in step_artifacts]
     lims.get_batch(samples)
-    logger.info("Found %d Samples"%len(samples))
+    logger.info("Found %d Samples in the step"%len(samples))
     #fetch the all the artifacts associated with these samples
     step_associated_artifacts = fetch_all_artifacts_for_samples(lims, samples)
-    logger.info("Found %d step_associated_artifacts"%len(step_associated_artifacts))
+    logger.info("Found %d Analytes (derived samples)"%len(step_associated_artifacts))
     #list all the containers and retrive them
     containers = list(set([a.container for a in step_associated_artifacts]))
     batch_limit(lims, containers)
-    logger.info("Found %d containers"%len(containers))
+    logger.info("Found %d containers "%len(containers))
 
     #filter the containers to keep the one that are valid
     valid_containers = [c for c in containers if is_valid_container(c)]
-    logger.info("Found %d valid_containers"%len(valid_containers))
+    logger.info("Found %d valid containers to discard"%len(valid_containers))
 
     #Get all the artifacts in the valid containers and retrieve the one that were not retrieved already
     container_artifacts = set()
@@ -121,7 +121,7 @@ def find_plate_to_route(lims, step_id):
 
     non_step_atifacts = container_artifacts.difference(set(step_associated_artifacts))
     batch_limit(lims, non_step_atifacts)
-    logger.info("Found %d non_step_atifacts"%len(non_step_atifacts))
+    logger.info("Found %d other to associated with the container but not associated with discarded samples"%len(non_step_atifacts))
 
     artifacts_to_route = []
     container_to_route = []
