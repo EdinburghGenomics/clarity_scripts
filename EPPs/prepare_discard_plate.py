@@ -39,7 +39,6 @@ logger = logging.getLogger(__name__)
 
 def batch_limit(lims, list_instance, max_query=100):
     for start in range(0,len(list_instance), max_query):
-        print("retrieve %s"%len(list_instance[start:start+max_query]))
         lims.get_batch(list_instance[start:start+max_query])
 
 def fetch_all_artifacts_for_samples(lims, samples):
@@ -52,7 +51,6 @@ def fetch_all_artifacts_for_samples(lims, samples):
     artifacts = []
     for start in range(0,len(lims_ids), max_query):
         artifacts.extend(lims.get_artifacts(samplelimsid=lims_ids[start:start+max_query], type="Analyte"))
-    print("Found %s artifacts. Now need to batch retrieve them"%len(artifacts))
     batch_limit(lims, artifacts)
     return artifacts
 
@@ -122,7 +120,6 @@ def find_plate_to_route(lims, step_id):
         container_artifacts.update( set(c.placements.values()) )
 
     non_step_atifacts = container_artifacts.difference(set(step_associated_artifacts))
-    logger.info("Found %d non_step_atifacts"%len(non_step_atifacts))
     batch_limit(lims, non_step_atifacts)
     logger.info("Found %d non_step_atifacts"%len(non_step_atifacts))
 
@@ -139,6 +136,7 @@ def find_plate_to_route(lims, step_id):
         if route_allowed:
             artifacts_to_route.extend(list(container.placements.values()))
             container_to_route.append(container)
+            logger.info('Will route container: %s'%container.name)
     logger.info("Route %s containers with %s artifacts"%(len(container_to_route), len(artifacts_to_route)))
     print("Route %s containers with %s artifacts"%(len(container_to_route), len(artifacts_to_route)))
     lims.route_artifacts(artifacts_to_route, stage_uri=discard_plate_stage.uri)
@@ -156,12 +154,15 @@ def main():
     lims = Lims(server_http, args.username, args.password)
 
     #setup logging
+    level = logging.INFO
+    logger.setLevel(level)
     formatter = logging.Formatter(
             fmt='[%(asctime)s] [%(levelname)s] %(message)s',
             datefmt='%Y-%b-%d %H:%M:%S'
         )
     handler = logging.FileHandler(args.log_file)
     handler.setFormatter(formatter)
+    handler.setLevel(level)
     logger.addHandler(handler)
     return(find_plate_to_route(lims, step_id))
 
