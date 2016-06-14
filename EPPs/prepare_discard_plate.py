@@ -65,10 +65,10 @@ def is_valid_container(container):
 
 def has_workflow_stage(artifact, workflow_step_name):
     """
-    Checks that the atifact has been through the given workflow.
+    Checks that the artifact's sample's root artifact has been through the given workflow.
     :return True if it has False otherwise
     """
-    for w in artifact.workflow_stages:
+    for w in artifact.samples[0].artifact.workflow_stages:
         if w.name == workflow_step_name:
             return True
     return False
@@ -127,12 +127,15 @@ def find_plate_to_route(lims, step_id):
     container_to_route = []
     for container in valid_containers:
         route_allowed=True
+        logger.info('Test container %s, with %s artifacts'%(container.name, len(container.placements.values())))
         for artifact in list(container.placements.values()):
             if artifact in step_associated_artifacts or has_workflow_stage(artifact, sample_discard_wf_stage_name):
                 pass
+                logger.info('container: %s might route because artifact %s in step_associated_artifacts (%s) or has been discard before (%s)'%(container.name, artifact.name, artifact in step_associated_artifacts, has_workflow_stage(artifact, sample_discard_wf_stage_name)))
             else:
                 # This container will have to wait
                 route_allowed=False
+                logger.info('container: %s wont route because artifact %s in step_associated_artifacts (%s) or has been discard before (%s)'%(container.name, artifact.name, artifact in step_associated_artifacts, has_workflow_stage(artifact, sample_discard_wf_stage_name)))
         if route_allowed:
             artifacts_to_route.extend(list(container.placements.values()))
             container_to_route.append(container)
