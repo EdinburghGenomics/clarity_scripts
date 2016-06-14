@@ -112,7 +112,7 @@ def find_plate_to_route(lims, step_id):
 
     #filter the containers to keep the one that are valid
     valid_containers = [c for c in containers if is_valid_container(c)]
-    logger.info("Found %d valid containers to discard"%len(valid_containers))
+    logger.info("Found %d valid containers to potentially discard"%len(valid_containers))
 
     #Get all the artifacts in the valid containers and retrieve the one that were not retrieved already
     container_artifacts = set()
@@ -120,7 +120,7 @@ def find_plate_to_route(lims, step_id):
         container_artifacts.update( set(c.placements.values()) )
 
     non_step_atifacts = container_artifacts.difference(set(step_associated_artifacts))
-    batch_limit(lims, non_step_atifacts)
+    batch_limit(lims, list(non_step_atifacts))
     logger.info("Found %d other to associated with the container but not associated with discarded samples"%len(non_step_atifacts))
 
     artifacts_to_route = []
