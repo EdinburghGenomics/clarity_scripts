@@ -68,8 +68,8 @@ def has_workflow_stage(artifact, workflow_step_name):
     Checks that the artifact's sample's root artifact has been through the given workflow.
     :return True if it has False otherwise
     """
-    for w in artifact.samples[0].artifact.workflow_stages:
-        if w.name == workflow_step_name:
+    for w, status in artifact.samples[0].artifact.workflow_stages_and_statuses:
+        if w.name == workflow_step_name and status == 'COMPLETED':
             return True
     return False
 
