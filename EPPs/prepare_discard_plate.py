@@ -69,7 +69,7 @@ def has_workflow_stage(artifact, workflow_step_name):
     :return True if it has False otherwise
     """
     for w, status, name in artifact.samples[0].artifact.workflow_stages_and_statuses:
-        if name == workflow_step_name and status == 'COMPLETED':
+        if name == workflow_step_name and status == 'COMPLETE':
             return True
     return False
 
