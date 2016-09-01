@@ -15,8 +15,8 @@ __author__ = 'tcezard'
 
 class Test_Genotype_conversion(TestCase):
     def setUp(self):
-        self.genotype_csv = os.path.join(os.path.dirname(__file__), 'test_data','E03159_WGS_32_panel_9504430.csv')
-        #self.genotype_csv = os.path.join(os.path.dirname(__file__), 'test_data','E03159_WGS_32_panel.csv')
+        self.genotype_csv = os.path.join(os.path.dirname(__file__), 'test_data', 'E03159_WGS_32_panel_9504430.csv')
+        self.genotype_aif = os.path.join(os.path.dirname(__file__), 'test_data', 'QuantStudio 12K AIF_export.txt')
         self.small_reference_fai = os.path.join(os.path.dirname(__file__), 'test_data','genotype_32_SNPs_genome_600bp.fa.fai')
         self.reference_fai = os.path.join(os.path.dirname(__file__), 'test_data','GRCh37.fa.fai')
         self.test_records = {
@@ -33,7 +33,7 @@ class Test_Genotype_conversion(TestCase):
         sample_id = '9504430'
 
         with open(self.genotype_csv) as open_csv:
-            geno_conv = Genotype_conversion(open_csv, self.small_reference_fai, flank_length=600)
+            geno_conv = Genotype_conversion(open_csv, self.small_reference_fai, 'igmm', flank_length=600)
         with patch.object(builtins, 'open') as patched_open:
             vcf_file = geno_conv.generate_vcf(sample_id)
             assert vcf_file == sample_id + '.vcf'
@@ -86,5 +86,13 @@ class Test_Genotype_conversion(TestCase):
             all_records, all_samples = Genotype_conversion.parse_genotype_csv(open_csv, flank_length=600)
             assert all_samples == ['9504430']
             assert len(all_records) == 32
+
+    def test_parse_QuantStudio_AIF_genotype(self):
+        pass
+        #need a proper test file
+        #res = Genotype_conversion.parse_QuantStudio_AIF_genotype(self.genotype_aif, flank_length=600)
+        #print(res)
+
+
 
 
