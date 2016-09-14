@@ -1,5 +1,5 @@
+import argparse
 import sys
-import getopt
 
 if sys.version_info.major == 2:
     import urlparse
@@ -9,12 +9,7 @@ else:
 from genologics.lims import Lims
 from genologics.entities import Process
 
-HOSTNAME = ""
-VERSION = ""
-BASE_URI = ""
 
-api = None
-args = None
 
 
 def get_workflow_stage(lims, workflow_name, stage_name=None):
@@ -29,20 +24,18 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
     return stages[0]
 
 
-def assignWorkflow():
-    usernameargs = args["username"]
-    passwordargs = args["password"]
-    step_uri = args["uri"]
+def assign_to_create_prod_cst_workflow(usename, password, step_uri):
     r1 = urlparse.urlsplit(step_uri)
     server_http = '%s://%s' % (r1.scheme, r1.netloc)
+    l = Lims(server_http, username=usename, password=usename)
 
     # Assume the step_uri contains the step id at the end
     step_id = r1.path.split('/')[-1]
-    l = Lims(server_http, username=usernameargs, password=passwordargs)
+
     # Get the process from the id
     p = Process(l, id=step_id)
-    # Get the artifacts
-    artifacts = p.all_inputs()
+    # Get the output artifacts
+    artifacts = p.all_outputs(unique=True, resolve=True)
     #Find the workflow stage
     stage = get_workflow_stage(l, "TruSeq PCR-Free DNA Sample Prep", "Create Production CST Batch")
     # route the artifacts
@@ -50,24 +43,14 @@ def assignWorkflow():
 
 
 def main():
-    global api
-    global args
 
-    args = {}
+    p = argparse.ArgumentParser()
+    p.add_argument('--username', dest="username", type=str, required=True, help='The username of the person logged in')
+    p.add_argument('--password', dest="password", type=str, required=True, help='The password used by the person logged in')
+    p.add_argument('--step_uri', dest='step_uri', type=str, required=True, help='The uri of the step this EPP is attached to')
+    args = p.parse_args()
 
-    opts, extraparams = getopt.getopt(sys.argv[1:], "l:u:p:")
-
-    for o, p in opts:
-        if o == '-l':
-            args["uri"] = p
-        elif o == '-u':
-            args["username"] = p
-        elif o == '-p':
-            args["password"] = p
-
-    ## at this point, we have the parameters the EPP plugin passed, and we have network plumbing
-    ## so let's get this show on the road!
-    assignWorkflow()
+    assign_to_create_prod_cst_workflow(args.username, args.password, args.uri)
 
 
 if __name__ == "__main__":
