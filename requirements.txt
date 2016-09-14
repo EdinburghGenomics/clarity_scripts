@@ -1,2 +1,1 @@
-#Take the latest version of the genologics package from github
 genologics==0.3.6b0.post0
