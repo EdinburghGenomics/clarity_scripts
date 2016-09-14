@@ -52,6 +52,7 @@ SNPs_definition = {"C___2728408_10": ["rs3010325",  "1",  "59569829",  "C", "T",
                    "C___1027548_20": ["rs768983",   "Y",  "6818291",   "C", "T", "Reverse"],
                    "C___8938211_20": ["rs3913290",  "Y",  "8602518",   "C", "T", "Forward"],
                    "C___1083232_10": ["rs2032598",  "Y",  "14850341",  "T", "C", "Reverse"]}
+
 NCBI_2_SNPid = {"rs3010325" : "C___2728408_10",
                 "rs2136241" : "C___1563023_10",
                 "rs2259397" : "C__15935210_10",
@@ -93,7 +94,64 @@ HEADERS_ASSAY_ID = ["SNPName", "Assay Name"]
 vcf_header = ['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT']
 start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
 
+
+class Genotype_call():
+
+    def __init__(self, sample, assay_id, allele1, allele2):
+        self.sample = sample
+        self.assay_id = assay_id
+        self.ref_allele = ref_allele
+        self.alt_allele = alt_allele
+
+    def vcf_line(self):
+        SNPs_id, reference_name, reference_position, \
+        ref_allele, alt_allele, design_strand = SNPs_definition.get(self.assay_id)
+        callset = {self.ref_allele, self.alt_allele}
+        if ref_allele in callset and len(callset) == 1:
+            genotype = '0/0'
+        elif ref_allele in callset and alt_allele in callset:
+            genotype = '0/1'
+            callset.remove(ref_allele)
+        elif alternate_allele in callset and len(callset) == 1:
+            genotype = '1/1'
+        else:
+            raise ValueError("Call {} does not match any of the alleles (ref:{}, alt:{})".format(call, ref_allele,
+                                                                                                 alternate_allele))
+        return genotype
+
+    @classmethod
+    def parse_quantstudio_line(cls, line_as_dict):
+        pass
+
+    @classmethod
+    def parse_igmm_line(cls, line_as_dict):
+        sample = line_as_dict['Sample ID']
+        if sample.lower() == 'blank':
+            # Entries with blank as sample name are entries with water and no DNA
+            return None
+        assay_id = line_as_dict["Assay Name"]
+        line_as_dict.get("Call")
+        return Genotype_call(sample, assay_id, call=line_as_dict.get("Call"))
+        SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(
+            assay_id)
+        # alt_allele is the alternate allele from the dbsnp definition
+        genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
+        if not 'SNP' in all_records[SNPs_id]:
+            if flank_length:
+                SNP = [assay_id, str(flank_length + 1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
+            else:
+                SNP = [reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
+            all_records[SNPs_id]['SNP'] = SNP
+        if sample in all_records[SNPs_id]:
+            raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
+
+
+
+class Genotyped_sample():
+    def add_call(self, call):
+
 class Genotype_conversion(object):
+
     def __init__(self, input_genotypes_content, genome_fai, geno_format, flank_length=0):
         if geno_format == 'igmm':
             self.all_records, self.sample_names = self.parse_genotype_csv(input_genotypes_content, flank_length)
@@ -189,33 +247,45 @@ class Genotype_conversion(object):
         with open(input_file) as open_file:
             in_results = False
             for line in open_file:
-                if not line.strip() or line.startswith('#'):
+                if not line.strip() or line.startswith('*') or not in_results:
                     continue
-                result_lines.append(line.strip())
+                elif in_results:
+                    result_lines.append(line.strip())
+                elif line.startswith('[Results]'):
+                    in_results = True
 
         sp_header = result_lines[0].split('\t')
         for h in sp_header:
-            if h in ['Sample ID']:
+            if h in ['Sample Name']:
                 header_sample_id = h
-            elif h in ['NCBI SNP Reference']:
-                header_ncbi_id = h
-            elif h in ['Allele 1 Call']:
-                header_call1 = h
-            elif h in ['Allele 2 Call']:
-                header_call2 = h
+            elif h in ['Assay ID']:
+                header_assay_id = h
+            elif h in ['Allele1 Name']:
+                header_allele1 = h
+            elif h in ['Allele2 Name']:
+                header_allele2 = h
+            elif h in ['Call']:
+                header_call = h
         all_samples = set()
         all_records = defaultdict(dict)
-
         for line in result_lines[1:]:
             sp_line = line.split('\t')
             sample = sp_line[sp_header.index(header_sample_id)]
             if sample.lower() == 'blank':
                 #Entries with blank as sample name are entries with water and no DNA
                 continue
-            assay_id = NCBI_2_SNPid[sp_line[sp_header.index(header_ncbi_id)]]
+            assay_id = sp_line[sp_header.index(header_assay_id)]
             SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
-            #alt_allele is the alternate allele from the dbsnp definition
-            call = sp_line[sp_header.index(header_call1)] + sp_line[sp_header.index(header_call2)]
+            allele_1 = sp_line[sp_header.index(header_allele1)]
+            allele_2 = sp_line[sp_header.index(header_allele2)]
+
+
+            call = sp_line[header_call]
+            if not call == 'Undetermined':
+                type, c = call.split()
+                e1, e2 = c.split('/')
+                tmp = []
+                if e1 == allele_1:
             if sp_line[sp_header.index(header_call1)] in ['NOAMP', 'UND']:
                 call = 'undefined'
             genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(call))
