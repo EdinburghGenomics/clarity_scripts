@@ -27,7 +27,7 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
 def assign_to_create_prod_cst_workflow(usename, password, step_uri):
     r1 = urlparse.urlsplit(step_uri)
     server_http = '%s://%s' % (r1.scheme, r1.netloc)
-    l = Lims(server_http, username=usename, password=usename)
+    l = Lims(server_http, username=usename, password=password)
 
     # Assume the step_uri contains the step id at the end
     step_id = r1.path.split('/')[-1]
@@ -50,7 +50,7 @@ def main():
     p.add_argument('--step_uri', dest='step_uri', type=str, required=True, help='The uri of the step this EPP is attached to')
     args = p.parse_args()
 
-    assign_to_create_prod_cst_workflow(args.username, args.password, args.uri)
+    assign_to_create_prod_cst_workflow(args.username, args.password, args.step_uri)
 
 
 if __name__ == "__main__":
