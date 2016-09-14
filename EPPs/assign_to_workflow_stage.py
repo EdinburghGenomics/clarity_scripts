@@ -46,6 +46,10 @@ def assign_workflow_stage(usename, password, step_uri, workflow_name, stage_name
         stage = get_workflow_stage(l, workflow_name, stage_name)
     else:
         stage = get_workflow_stage(l, workflow_name)
+    if not stage:
+        raise ValueError(
+            'Stage specify by workflow: %s and stage: %s does not exist in %s'%(workflow_name,stage_name,server_http)
+        )
     # route the artifacts
     l.route_artifacts(artifacts, stage_uri=stage.uri)
 
