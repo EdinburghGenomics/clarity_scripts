@@ -67,12 +67,12 @@ def main():
                    help='The name of the workflow we should route the artifacts to.')
     p.add_argument('--stage', dest='stage', type=str,
                    help='The name of the stage in the workflow we should route the artifacts to.')
-    p.add_argument('--source', dest='source', type=str, required=True, choice=['input', 'output', 'submitted'],
+    p.add_argument('--source', dest='source', type=str, required=True, choices=['input', 'output', 'submitted'],
                    help='The name of the stage in the workflow we should route the artifacts to.')
 
     args = p.parse_args()
 
-    assign_workflow_stage(args.username, args.password, args.step_uri, args.workflow_name, args.stage_name, args.source)
+    assign_workflow_stage(args.username, args.password, args.step_uri, args.workflow, args.stage, args.source)
 
 
 if __name__ == "__main__":
