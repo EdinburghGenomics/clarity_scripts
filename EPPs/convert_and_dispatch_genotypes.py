@@ -20,71 +20,40 @@ __author__ = 'tcezard'
 
 logger = logging.getLogger(__name__)
 
-SNPs_definition = {"C___2728408_10": ["rs3010325",  "1",  "59569829",  "C", "T", "Reverse"],
-                   "C___1563023_10": ["rs2136241",  "1",  "163289571", "C", "T", "Reverse"],
-                   "C__15935210_10": ["rs2259397",  "1",  "208068579", "T", "C", "Reverse"],
-                   "C__33211212_10": ["rs7564899",  "2",  "11200347",  "G", "A", "Forward"],
-                   "C___3227711_10": ["rs4971536",  "2",  "21084332",  "C", "T", "Reverse"],
-                   "C__30044763_10": ["rs10194978", "2",  "50525067",  "G", "A", "Forward"],
-                   "C__11821218_10": ["rs4855056",  "3",  "181638250", "A", "G", "Forward"],
-                   "C___1670459_10": ["rs6554653",  "5",  "11870138",  "C", "T", "Reverse"],
-                   "C__29619553_10": ["rs9396715",  "6",  "9914294",   "T", "C", "Reverse"],
-                   "C___1007630_10": ["rs441460",   "6",  "25548288",  "G", "A", "Reverse"],
-                   "C__26546714_10": ["rs7773994",  "6",  "37572144",  "T", "G", "Forward"],
-                   "C___7421900_10": ["rs1415762",  "6",  "125039942", "C", "T", "Forward"],
-                   "C__27402849_10": ["rs6927758",  "6",  "163719115", "C", "T", "Reverse"],
-                   "C___2953330_10": ["rs7796391",  "7",  "126113335", "A", "G", "Reverse"],
-                   "C__16205730_10": ["rs2336695",  "8",  "1033625",   "A", "G", "Forward"],
-                   "C___8850710_10": ["rs1157213",  "8",  "104215466", "T", "C", "Forward"],
-                   "C___1801627_20": ["rs10869955", "9",  "80293657",  "C", "A", "Reverse"],
-                   "C___7431888_10": ["rs1533486",  "10", "1511786",   "T", "G", "Forward"],
-                   "C___1250735_20": ["rs4751955",  "10", "117923225", "A", "G", "Forward"],
-                   "C___1902433_10": ["rs10771010", "12", "23769449",  "T", "C", "Forward"],
-                   "C__31386842_10": ["rs12318959", "12", "28781965",  "C", "T", "Reverse"],
-                   "C__26524789_10": ["rs3742257",  "13", "43173198",  "T", "C", "Forward"],
-                   "C___8924366_10": ["rs1377935",  "14", "25843774",  "T", "C", "Reverse"],
-                   "C_____43852_10": ["rs946065",   "14", "55932919",  "C", "A", "Forward"],
-                   "C__11522992_10": ["rs6598531",  "15", "99130113",  "T", "G", "Forward"],
-                   "C__10076371_10": ["rs4783229",  "16", "82622140",  "T", "C", "Reverse"],
-                   "C___7457509_10": ["rs1567612",  "18", "35839365",  "G", "A", "Forward"],
-                   "C___1122315_10": ["rs11660213", "18", "42481985",  "A", "G", "Reverse"],
-                   "C__11710129_10": ["rs11083515", "19", "39697974",  "A", "G", "Forward"],
-                   "C___1027548_20": ["rs768983",   "Y",  "6818291",   "C", "T", "Reverse"],
-                   "C___8938211_20": ["rs3913290",  "Y",  "8602518",   "C", "T", "Forward"],
-                   "C___1083232_10": ["rs2032598",  "Y",  "14850341",  "T", "C", "Reverse"]}
-
-NCBI_2_SNPid = {"rs3010325" : "C___2728408_10",
-                "rs2136241" : "C___1563023_10",
-                "rs2259397" : "C__15935210_10",
-                "rs7564899" : "C__33211212_10",
-                "rs4971536" : "C___3227711_10",
-                "rs10194978": "C__30044763_10",
-                "rs4855056" : "C__11821218_10",
-                "rs6554653" : "C___1670459_10",
-                "rs9396715" : "C__29619553_10",
-                "rs441460"  : "C___1007630_10",
-                "rs7773994" : "C__26546714_10",
-                "rs1415762" : "C___7421900_10",
-                "rs6927758" : "C__27402849_10",
-                "rs7796391" : "C___2953330_10",
-                "rs2336695" : "C__16205730_10",
-                "rs1157213" : "C___8850710_10",
-                "rs10869955": "C___1801627_20",
-                "rs1533486" : "C___7431888_10",
-                "rs4751955" : "C___1250735_20",
-                "rs10771010": "C___1902433_10",
-                "rs12318959": "C__31386842_10",
-                "rs3742257" : "C__26524789_10",
-                "rs1377935" : "C___8924366_10",
-                "rs946065"  : "C_____43852_10",
-                "rs6598531" : "C__11522992_10",
-                "rs4783229" : "C__10076371_10",
-                "rs1567612" : "C___7457509_10",
-                "rs11660213": "C___1122315_10",
-                "rs11083515": "C__11710129_10",
-                "rs768983"  : "C___1027548_20",
-                "rs3913290" : "C___8938211_20",
-                "rs2032598" : "C___1083232_10"}
+SNPs_definitions = {
+    'C___2728408_10': {'V':'C', 'M':'T', 'snp_id':'rs3010325', 'chr':'1', 'pos':'59569829', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C___1563023_10': {'V':'C', 'M':'T', 'snp_id':'rs2136241', 'chr':'1', 'pos':'163289571', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C__15935210_10': {'V':'C', 'M':'T', 'snp_id':'rs2259397', 'chr':'1', 'pos':'208068579', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Reverse'},
+    'C__33211212_10': {'V':'A', 'M':'G', 'snp_id':'rs7564899', 'chr':'2', 'pos':'11200347', 'ref_base':'G', 'alt_base':'A', 'design_strand':'Forward'},
+    'C___3227711_10': {'V':'C', 'M':'T', 'snp_id':'rs4971536', 'chr':'2', 'pos':'21084332', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C__30044763_10': {'V':'A', 'M':'G', 'snp_id':'rs10194978', 'chr':'2', 'pos':'50525067', 'ref_base':'G', 'alt_base':'A', 'design_strand':'Forward'},
+    'C__11821218_10': {'V':'A', 'M':'G', 'snp_id':'rs4855056', 'chr':'3', 'pos':'181638250', 'ref_base':'A', 'alt_base':'G', 'design_strand':'Forward'},
+    'C___1670459_10': {'V':'C', 'M':'T', 'snp_id':'rs6554653', 'chr':'5', 'pos':'11870138', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C___1007630_10': {'V':'A', 'M':'G', 'snp_id':'rs441460', 'chr':'6', 'pos':'2554828', 'ref_base':'G', 'alt_base':'A', 'design_strand':'Reverse'},
+    'C__29619553_10': {'V':'C', 'M':'T', 'snp_id':'rs9396715', 'chr':'6', 'pos':'9914294', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Reverse'},
+    'C__26546714_10': {'V':'G', 'M':'T', 'snp_id':'rs7773994', 'chr':'6', 'pos':'37572144', 'ref_base':'T', 'alt_base':'G', 'design_strand':'Forward'},
+    'C___7421900_10': {'V':'C', 'M':'T', 'snp_id':'rs1415762', 'chr':'6', 'pos':'125039942', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Forward'},
+    'C__27402849_10': {'V':'C', 'M':'T', 'snp_id':'rs6927758', 'chr':'6', 'pos':'163719115', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C___2953330_10': {'V':'A', 'M':'G', 'snp_id':'rs7796391', 'chr':'7', 'pos':'126113335', 'ref_base':'A', 'alt_base':'G', 'design_strand':'Reverse'},
+    'C__16205730_10': {'V':'A', 'M':'G', 'snp_id':'rs2336695', 'chr':'8', 'pos':'1033625', 'ref_base':'A', 'alt_base':'G', 'design_strand':'Forward'},
+    'C___8850710_10': {'V':'C', 'M':'T', 'snp_id':'rs1157213', 'chr':'8', 'pos':'10421546', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Forward'},
+    'C___1801627_20': {'V':'A', 'M':'C', 'snp_id':'rs10869955', 'chr':'9', 'pos':'80293657', 'ref_base':'C', 'alt_base':'A', 'design_strand':'Reverse'},
+    'C___7431888_10': {'V':'G', 'M':'T', 'snp_id':'rs1533486', 'chr':'10', 'pos':'1511786', 'ref_base':'T', 'alt_base':'G', 'design_strand':'Forward'},
+    'C___1250735_20': {'V':'A', 'M':'G', 'snp_id':'rs4751955', 'chr':'10', 'pos':'117923225', 'ref_base':'A', 'alt_base':'G', 'design_strand':'Forward'},
+    'C___1902433_10': {'V':'C', 'M':'T', 'snp_id':'rs10771010', 'chr':'12', 'pos':'23769449', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Forward'},
+    'C__31386842_10': {'V':'C', 'M':'T', 'snp_id':'rs12318959', 'chr':'12', 'pos':'28781965', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C__26524789_10': {'V':'C', 'M':'T', 'snp_id':'rs3742257', 'chr':'13', 'pos':'43173198', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Forward'},
+    'C___8924366_10': {'V':'C', 'M':'T', 'snp_id':'rs1377935', 'chr':'14', 'pos':'25843774', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Reverse'},
+    'C_____43852_10': {'V':'A', 'M':'C', 'snp_id':'rs946065', 'chr':'14', 'pos':'55932919', 'ref_base':'C', 'alt_base':'A', 'design_strand':'Forward'},
+    'C__11522992_10': {'V':'G', 'M':'T', 'snp_id':'rs6598531', 'chr':'15', 'pos':'99130113', 'ref_base':'T', 'alt_base':'G', 'design_strand':'Forward'},
+    'C__10076371_10': {'V':'C', 'M':'T', 'snp_id':'rs4783229', 'chr':'16', 'pos':'82622140', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Reverse'},
+    'C___7457509_10': {'V':'A', 'M':'G', 'snp_id':'rs1567612', 'chr':'18', 'pos':'35839365', 'ref_base':'G', 'alt_base':'A', 'design_strand':'Forward'},
+    'C___1122315_10': {'V':'A', 'M':'G', 'snp_id':'rs11660213', 'chr':'18', 'pos':'42481985', 'ref_base':'A', 'alt_base':'G', 'design_strand':'Reverse'},
+    'C__11710129_10': {'V':'A', 'M':'G', 'snp_id':'rs11083515', 'chr':'19', 'pos':'39697974', 'ref_base':'A', 'alt_base':'G', 'design_strand':'Forward'},
+    'C___1027548_20': {'V':'T', 'M':'C', 'snp_id':'rs768983', 'chr':'Y', 'pos':'6818291', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Reverse'},
+    'C___8938211_20': {'V':'T', 'M':'C', 'snp_id':'rs3913290', 'chr':'Y', 'pos':'8602518', 'ref_base':'C', 'alt_base':'T', 'design_strand':'Forward'},
+    'C___1083232_10': {'V':'T', 'M':'C', 'snp_id':'rs2032598', 'chr':'Y', 'pos':'14850341', 'ref_base':'T', 'alt_base':'C', 'design_strand':'Reverse'}
+}
 
 HEADERS_CALL = ["Call"]
 # Actual Header in the file
@@ -95,68 +64,18 @@ vcf_header = ['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT']
 start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
 
 
-class Genotype_call():
-
-    def __init__(self, sample, assay_id, allele1, allele2):
-        self.sample = sample
-        self.assay_id = assay_id
-        self.ref_allele = ref_allele
-        self.alt_allele = alt_allele
-
-    def vcf_line(self):
-        SNPs_id, reference_name, reference_position, \
-        ref_allele, alt_allele, design_strand = SNPs_definition.get(self.assay_id)
-        callset = {self.ref_allele, self.alt_allele}
-        if ref_allele in callset and len(callset) == 1:
-            genotype = '0/0'
-        elif ref_allele in callset and alt_allele in callset:
-            genotype = '0/1'
-            callset.remove(ref_allele)
-        elif alternate_allele in callset and len(callset) == 1:
-            genotype = '1/1'
-        else:
-            raise ValueError("Call {} does not match any of the alleles (ref:{}, alt:{})".format(call, ref_allele,
-                                                                                                 alternate_allele))
-        return genotype
-
-    @classmethod
-    def parse_quantstudio_line(cls, line_as_dict):
-        pass
-
-    @classmethod
-    def parse_igmm_line(cls, line_as_dict):
-        sample = line_as_dict['Sample ID']
-        if sample.lower() == 'blank':
-            # Entries with blank as sample name are entries with water and no DNA
-            return None
-        assay_id = line_as_dict["Assay Name"]
-        line_as_dict.get("Call")
-        return Genotype_call(sample, assay_id, call=line_as_dict.get("Call"))
-        SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(
-            assay_id)
-        # alt_allele is the alternate allele from the dbsnp definition
-        genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
-        if not 'SNP' in all_records[SNPs_id]:
-            if flank_length:
-                SNP = [assay_id, str(flank_length + 1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-            else:
-                SNP = [reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-            all_records[SNPs_id]['SNP'] = SNP
-        if sample in all_records[SNPs_id]:
-            raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
-
-
-
-class Genotyped_sample():
-    def add_call(self, call):
-
 class Genotype_conversion(object):
 
     def __init__(self, input_genotypes_content, genome_fai, geno_format, flank_length=0):
+        self.all_records = defaultdict(dict)
+        self.sample_names = set()
+        self.input_genotypes_content = input_genotypes_content
+        self.genome_fai = genome_fai
+        self.flank_length = flank_length
         if geno_format == 'igmm':
-            self.all_records, self.sample_names = self.parse_genotype_csv(input_genotypes_content, flank_length)
-        elif geno_format == 'aif':
-            self.all_records, self.sample_names = self.parse_QuantStudio_AIF_genotype(input_genotypes_content, flank_length)
+            self.parse_genotype_csv()
+        elif geno_format == 'quantStudio':
+            self.parse_QuantStudio_flex_genotype()
         else:
             raise ValueError('Unexpected format %s'%geno_format)
         reference_lengths = self.parse_genome_fai(genome_fai)
@@ -205,11 +124,9 @@ class Genotype_conversion(object):
             ordered_snp_ids.extend([rec[2] for rec in snps])
         return ordered_snp_ids
 
-
-    @staticmethod
-    def parse_genotype_csv(open_csv, flank_length=0):
+    def parse_genotype_csv(self):
         all_samples = set()
-        reader = csv.DictReader(open_csv, delimiter='\t')
+        reader = csv.DictReader(self.input_genotypes_content, delimiter='\t')
         all_records = defaultdict(dict)
         fields = set(reader.fieldnames)
         for h in fields:
@@ -225,49 +142,30 @@ class Genotype_conversion(object):
                 #Entries with blank as sample name are entries with water and no DNA
                 continue
             assay_id = line[header_assay_id]
-            SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
-            #alt_allele is the alternate allele from the dbsnp definition
-            genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(header_call))
-            if not 'SNP' in all_records[SNPs_id]:
-                if flank_length:
-                    SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                else:
-                    SNP=[reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                all_records[SNPs_id]['SNP']=SNP
-            if sample in all_records[SNPs_id]:
-                raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
-            all_records[SNPs_id][sample]=genotype
-            all_samples.add(sample)
+            self.add_genotype(sample, assay_id, line.get(header_call))
+
 
         return all_records, list(all_samples)
 
-    @staticmethod
-    def parse_QuantStudio_AIF_genotype(input_file, flank_length=0):
+    def parse_QuantStudio_flex_genotype(self):
         result_lines = []
-        with open(input_file) as open_file:
-            in_results = False
-            for line in open_file:
-                if not line.strip() or line.startswith('*') or not in_results:
-                    continue
-                elif in_results:
-                    result_lines.append(line.strip())
-                elif line.startswith('[Results]'):
-                    in_results = True
-
+        in_results = False
+        for line in self.input_genotypes_content:
+            if not line.strip() or line.startswith('*'):
+                continue
+            elif in_results:
+                result_lines.append(line.strip())
+            elif line.startswith('[Results]'):
+                in_results = True
         sp_header = result_lines[0].split('\t')
         for h in sp_header:
             if h in ['Sample Name']:
                 header_sample_id = h
             elif h in ['Assay ID']:
                 header_assay_id = h
-            elif h in ['Allele1 Name']:
-                header_allele1 = h
-            elif h in ['Allele2 Name']:
-                header_allele2 = h
             elif h in ['Call']:
                 header_call = h
-        all_samples = set()
-        all_records = defaultdict(dict)
+
         for line in result_lines[1:]:
             sp_line = line.split('\t')
             sample = sp_line[sp_header.index(header_sample_id)]
@@ -275,32 +173,32 @@ class Genotype_conversion(object):
                 #Entries with blank as sample name are entries with water and no DNA
                 continue
             assay_id = sp_line[sp_header.index(header_assay_id)]
-            SNPs_id, reference_name, reference_position, ref_allele, alt_allele, design_strand = SNPs_definition.get(assay_id)
-            allele_1 = sp_line[sp_header.index(header_allele1)]
-            allele_2 = sp_line[sp_header.index(header_allele2)]
+            snp_def = SNPs_definitions.get(assay_id)
+            call = sp_line[sp_header.index(header_call)]
 
-
-            call = sp_line[header_call]
             if not call == 'Undetermined':
                 type, c = call.split()
                 e1, e2 = c.split('/')
-                tmp = []
-                if e1 == allele_1:
-            if sp_line[sp_header.index(header_call1)] in ['NOAMP', 'UND']:
-                call = 'undefined'
-            genotype = Genotype_conversion.get_genotype_from_call(ref_allele, alt_allele, line.get(call))
-            if not 'SNP' in all_records[SNPs_id]:
-                if flank_length:
-                    SNP=[assay_id, str(flank_length+1), SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                else:
-                    SNP=[reference_name, reference_position, SNPs_id, ref_allele, alt_allele, ".", ".", ".", "GT"]
-                all_records[SNPs_id]['SNP']=SNP
-            if sample in all_records[SNPs_id]:
-                raise Exception('Sample {} found more than once for SNPs {}'.format(sample, SNPs_id))
-            all_records[SNPs_id][sample]=genotype
-            all_samples.add(sample)
+                a1 = snp_def.get(e1.split('_')[-1])
+                a2 = snp_def.get(e2.split('_')[-1])
+                call = a1+a2
+            self.add_genotype(sample, assay_id, call)
 
-        return all_records, list(all_samples)
+    def add_genotype(self, sample, assay_id, call):
+        snp_def = SNPs_definitions.get(assay_id)
+        genotype = self.get_genotype_from_call(snp_def['ref_base'], snp_def['alt_base'], call)
+        if not 'SNP' in self.all_records[snp_def['snp_id']]:
+            if self.flank_length:
+                snp = [assay_id, str(self.flank_length + 1), snp_def['snp_id'],
+                       snp_def['ref_base'], snp_def['alt_base'], ".", ".", ".", "GT"]
+            else:
+                snp = [snp_def['chr'], snp_def['pos'], snp_def['snp_id'],
+                       snp_def['ref_base'], snp_def['alt_base'], ".", ".", ".", "GT"]
+            self.all_records[snp_def['snp_id']]['SNP'] = snp
+        if sample in self.all_records[snp_def['snp_id']]:
+            raise Exception('Sample {} found more than once for SNPs {}'.format(sample, snp_def['snp_id']))
+        self.all_records[snp_def['snp_id']][sample] = genotype
+        self.sample_names.add(sample)
 
 
     @staticmethod
@@ -434,7 +332,7 @@ def _parse_args():
     p.add_argument('--username', dest="username", type=str, help='The username of the person logged in')
     p.add_argument('--password', dest="password", type=str, help='The password used by the person logged in')
     p.add_argument('--step_uri', dest='step_uri', type=str, help='The uri of the step this EPP is attached to')
-    p.add_argument('--format', dest='format', type=str, choice=['igmm', 'aif'], help='The format of the genotype file')
+    p.add_argument('--format', dest='format', type=str, choice=['igmm', 'quantStudio'], help='The format of the genotype file')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, help='The file that contains the genotype for all the samples (For testing only)')
     p.add_argument('--genotypes_artifact_id', dest='genotypes_artifact_id', type=str, help='The id of the output artifact that contains the output file')
     p.add_argument('--log_file', dest='log_file', type=str, help='log file uploaded back to the LIMS')
