@@ -2,13 +2,14 @@ import re
 import sys
 import csv
 import argparse
-import logging
+from logging import FileHandler
 from os import remove
 from os.path import join, dirname, abspath
 from collections import defaultdict
 from genologics.entities import Process, Artifact
 from genologics.lims import Lims
 from egcg_core.config import Configuration
+from egcg_core.app_logging import logging_default as log_cfg
 
 if sys.version_info.major == 2:
     import urlparse
@@ -21,7 +22,7 @@ else:
 etc_path = join(dirname(dirname(abspath(__file__))), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
 
-logger = logging.getLogger(__name__)
+logger = log_cfg.get_logger(__name__)
 SNPs_definitions = snp_cfg['GRCh37_32_SNPs']
 
 # Accepted valid headers in the SNP CSV file
@@ -276,20 +277,11 @@ def main():
     # Assume the step_uri contains the step id at the end
     step_id = r1.path.split('/')[-1]
     lims = Lims(server_http, args.username, args.password)
-    # setup logging
-    level = logging.INFO
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-        fmt='[%(asctime)s] [%(levelname)s] %(message)s',
-        datefmt='%Y-%b-%d %H:%M:%S'
-    )
+
     if args.log_file:
-        handler = logging.FileHandler(args.log_file)
+        log_cfg.add_handler(FileHandler(args.log_file))
     else:
-        handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
-    handler.setLevel(level)
-    logger.addHandler(handler)
+        log_cfg.add_stdout_handler()
 
     p = Process(lims, id=step_id)
 

@@ -1,8 +1,9 @@
 import argparse
-import logging
+from logging import FileHandler
 import sys
 from genologics.entities import Process
 from genologics.lims import Lims
+from egcg_core.app_logging import logging_default as log_cfg
 
 if sys.version_info.major == 2:
     import urlparse
@@ -18,7 +19,7 @@ sample_discard_wf_stage_name = 'Find Derived Sample Plates EG 1.0'
 plate_discard_wf_stage_name = 'Discard Plates EG 1.0'
 
 
-logger = logging.getLogger(__name__)
+logger = log_cfg.get_logger(__name__)
 
 
 def batch_limit(lims, list_instance, max_query=100):
@@ -153,17 +154,7 @@ def main():
     step_id = r1.path.split('/')[-1]
     lims = Lims(server_http, args.username, args.password)
 
-    # setup logging
-    level = logging.INFO
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-            fmt='[%(asctime)s] [%(levelname)s] %(message)s',
-            datefmt='%Y-%b-%d %H:%M:%S'
-        )
-    handler = logging.FileHandler(args.log_file)
-    handler.setFormatter(formatter)
-    handler.setLevel(level)
-    logger.addHandler(handler)
+    log_cfg.add_handler(FileHandler(args.log_file))
     return find_plate_to_route(lims, step_id)
 
 

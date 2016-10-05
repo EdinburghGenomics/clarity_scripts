@@ -10,8 +10,6 @@ else:
     import builtins
     from unittest.mock import patch
 
-__author__ = 'tcezard'
-
 
 class TestGenotypeConversion(TestCase):
     def setUp(self):
@@ -92,7 +90,7 @@ class TestGenotypeConversion(TestCase):
             assert self.geno_conversion.sample_names == {'9504430'}
             assert len(self.geno_conversion.all_records) == 32
 
-    def test_parse_QuantStudio_AIF_genotype(self):
+    def test_parse_quantstudio_aif_genotype(self):
         pass
         with open(self.genotype_quantStudio) as open_file:
             geno_conversion = GenotypeConversion(open_file, self.small_reference_fai, 'quantStudio', flank_length=600)

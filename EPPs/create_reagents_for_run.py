@@ -1,17 +1,16 @@
-import argparse
-import logging
-import sys
 import os
-from xml.etree import ElementTree
+import sys
+import argparse
 import time
+from logging import FileHandler
+from xml.etree import ElementTree
 from genologics.entities import ReagentLot
 from genologics.lims import Lims
-
+from egcg_core.app_logging import logging_default as log_cfg
 if sys.version_info.major == 2:
     import urlparse
 else:
     from urllib import parse as urlparse
-
 
 reagent_kit_map = {
     'PDR': 'Patterned Denaturation Reagent',
@@ -29,7 +28,7 @@ reagent_kit_map = {
 
 run_path = ''
 
-logger = logging.getLogger(__name__)
+logger = log_cfg.get_logger(__name__)
 
 
 def find_run_parameters(run_name):
@@ -67,23 +66,13 @@ def create_reagent_for_run(lims, run_name):
 def main():
     args = _parse_args()
     r1 = urlparse.urlsplit(args.step_uri)
-    server_http = '%s://%s'%(r1.scheme, r1.netloc)
+    server_http = '%s://%s' % (r1.scheme, r1.netloc)
 
     # Assume the step_uri contains the step id at the end
     step_id = r1.path.split('/')[-1]
     lims = Lims(server_http, args.username, args.password)
 
-    # setup logging
-    level = logging.INFO
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-            fmt='[%(asctime)s] [%(levelname)s] %(message)s',
-            datefmt='%Y-%b-%d %H:%M:%S'
-        )
-    handler = logging.FileHandler(args.log_file)
-    handler.setFormatter(formatter)
-    handler.setLevel(level)
-    logger.addHandler(handler)
+    log_cfg.add_handler(FileHandler(args.log_file))
     return create_reagent_for_run(lims, run_name)
 
 
