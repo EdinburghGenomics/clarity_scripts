@@ -107,7 +107,12 @@ class Genotype_conversion(object):
         if geno_format == 'igmm':
             self.parse_genotype_csv()
         elif geno_format == 'quantStudio':
-            self.parse_QuantStudio_flex_genotype()
+            if self.input_accufill:
+                self.parse_QuantStudio_flex_genotype()
+            else:
+                msg = 'Missing Accufill log file to confirm Array ids please provide with --accufill_log'
+                logging.error(msg)
+                raise ValueError(msg)
         else:
             raise ValueError('Unexpected format %s' % geno_format)
         reference_lengths = self._parse_genome_fai()
@@ -205,35 +210,35 @@ class Genotype_conversion(object):
                 elif h in ['Call']:
                     header_call = h
 
-        #Check the barcode is valid according to the accufill log file
-        if not parameters['Barcode'] in self.valid_array_barcodes:
-            msg = 'Array barcode %s is not in the list of valid barcodes (%s)' % (
-                parameters['Barcode'],
-                ', '.join(self.valid_array_barcodes)
-            )
-            logger.critical(msg)
-            raise ValueError(msg)
-        else:
-            logger.info('Validate array barcode %s'%(parameters['Barcode']))
+            #Check the barcode is valid according to the accufill log file
+            if not parameters['Barcode'] in self.valid_array_barcodes:
+                msg = 'Array barcode %s is not in the list of valid barcodes (%s)' % (
+                    parameters['Barcode'],
+                    ', '.join(self.valid_array_barcodes)
+                )
+                logger.critical(msg)
+                raise ValueError(msg)
+            else:
+                logger.info('Validate array barcode %s'%(parameters['Barcode']))
 
 
-        for line in result_lines[1:]:
-            sp_line = line.split('\t')
-            sample = sp_line[sp_header.index(header_sample_id)]
-            if sample.lower() == 'blank':
-                # Entries with blank as sample name are entries with water and no DNA
-                continue
-            assay_id = sp_line[sp_header.index(header_assay_id)]
-            snp_def = SNPs_definitions.get(assay_id)
-            call = sp_line[sp_header.index(header_call)]
+            for line in result_lines[1:]:
+                sp_line = line.split('\t')
+                sample = sp_line[sp_header.index(header_sample_id)]
+                if sample.lower() == 'blank':
+                    # Entries with blank as sample name are entries with water and no DNA
+                    continue
+                assay_id = sp_line[sp_header.index(header_assay_id)]
+                snp_def = SNPs_definitions.get(assay_id)
+                call = sp_line[sp_header.index(header_call)]
 
-            if not call == 'Undetermined':
-                type, c = call.split()
-                e1, e2 = c.split('/')
-                a1 = snp_def.get(e1.split('_')[-1])
-                a2 = snp_def.get(e2.split('_')[-1])
-                call = a1 + a2
-            self.add_genotype(sample, assay_id, call)
+                if not call == 'Undetermined':
+                    type, c = call.split()
+                    e1, e2 = c.split('/')
+                    a1 = snp_def.get(e1.split('_')[-1])
+                    a2 = snp_def.get(e2.split('_')[-1])
+                    call = a1 + a2
+                self.add_genotype(sample, assay_id, call)
 
     def add_genotype(self, sample, assay_id, call):
         snp_def = SNPs_definitions.get(assay_id)
