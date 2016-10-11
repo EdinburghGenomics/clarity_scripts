@@ -2,8 +2,8 @@ from EPPs.common import EPP, argparser, get_workflow_stage
 
 
 class AssignWorkflowStage(EPP):
-    def __init__(self, step_uri, username, password, workflow_name, stage_name, source):
-        super().__init__(step_uri, username, password)
+    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source):
+        super().__init__(step_uri, username, password, log_file)
         self.workflow_name = workflow_name
         self.stage_name = stage_name
         self.source = source
@@ -39,7 +39,9 @@ def main():
                    help='The name of the stage in the workflow we should route the artifacts to.')
 
     args = p.parse_args()
-    action = AssignWorkflowStage(args.step_uri, args.username, args.password, args.workflow, args.stage, args.source)
+    action = AssignWorkflowStage(
+        args.step_uri, args.username, args.password, args.log_file, args.workflow, args.stage, args.source
+    )
     action.run()
 
 
