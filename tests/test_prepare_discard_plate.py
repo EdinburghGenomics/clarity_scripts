@@ -1,11 +1,5 @@
-from tests.test_common import fake_all_inputs, TestEPP, Mock, patch
+from tests.test_common import fake_all_inputs, TestEPP, Mock, patch, FakeEntity
 from EPPs import prepare_discard_plate
-
-
-class FakeEntity(Mock):
-    def __init__(self, name, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = name
 
 
 class FakeContainer(FakeEntity):

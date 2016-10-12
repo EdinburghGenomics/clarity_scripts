@@ -1,7 +1,7 @@
 import pytest
 from os.path import join
-from tests.test_common import TestCommon
-from EPPs.convert_and_dispatch_genotypes import GenotypeConversion
+from tests.test_common import TestCommon, TestEPP, patch, Mock, FakeEntity
+from EPPs.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
 
 
 class TestGenotypeConversion(TestCommon):
@@ -89,3 +89,42 @@ class TestGenotypeConversion(TestCommon):
         assert find(valid_this_fieldnames, observed_fieldnames) == '__this__'
         assert find(valid_that_fieldnames, observed_fieldnames) == 'that'
         assert find(valid_other_fieldnames, observed_fieldnames) == 'OTHER'
+
+
+fake_all_inputs = Mock(
+    return_value=[
+        Mock(samples=[FakeEntity(name='this', udf={'User Sample Name': '9504430'}, put=Mock())])
+    ]
+)
+
+
+class TestUploadVcfToSamples(TestEPP):
+    def setUp(self):
+        self.epp = UploadVcfToSamples(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            self.log_file,
+            'igmm',
+            file=self.genotype_csv
+        )
+        self.epp._lims = Mock()
+        self.epp._process = Mock(all_inputs=fake_all_inputs)
+
+    def test_upload(self):
+        patched_log = patch('EPPs.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
+        patched_generate_vcf = patch('EPPs.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf')
+        patched_remove = patch('EPPs.convert_and_dispatch_genotypes.remove')
+
+        exp_log_msgs = (
+            ('Matching against %s artifacts', 1),
+            ('Matching %s against user sample name %s', 'this', '9504430'),
+            ('Matched and uploaded %s artifacts against %s genotype results', 1, 1),
+            ('%s artifacts did not match', 0),
+            ('%s genotyping results were not used', 0)
+        )
+
+        with patched_log as p, patched_generate_vcf, patched_remove:
+            self.epp._run()
+            for m in exp_log_msgs:
+                p.assert_any_call(*m)

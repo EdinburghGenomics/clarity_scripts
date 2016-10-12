@@ -18,6 +18,12 @@ def fake_all_inputs(unique=False, resolve=False):
     )
 
 
+class FakeEntity(Mock):
+    def __init__(self, name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = name
+
+
 class TestCommon(TestCase):
     assets = join(dirname(abspath(__file__)), 'assets')
     genotype_csv = join(assets, 'E03159_WGS_32_panel_9504430.csv')
