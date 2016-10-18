@@ -1,33 +1,33 @@
-GRCh37:
-    C___2728408_10: ["rs3010325",  "1",  "59569829",  "C", "T", "Reverse"]
-    C___1563023_10: ["rs2136241",  "1",  "163289571", "C", "T", "Reverse"]
-    C__15935210_10: ["rs2259397",  "1",  "208068579", "T", "C", "Reverse"]
-    C__33211212_10: ["rs7564899",  "2",  "11200347",  "G", "A", "Forward"]
-    C___3227711_10: ["rs4971536",  "2",  "21084332",  "C", "T", "Reverse"]
-    C__30044763_10: ["rs10194978", "2",  "50525067",  "G", "A", "Forward"]
-    C__11821218_10: ["rs4855056",  "3",  "181638250", "A", "G", "Forward"]
-    C___1670459_10: ["rs6554653",  "5",  "11870138",  "C", "T", "Reverse"]
-    C__29619553_10: ["rs9396715",  "6",  "9914294",   "T", "C", "Reverse"]
-    C___1007630_10: ["rs441460",   "6",  "25548288",  "G", "A", "Reverse"]
-    C__26546714_10: ["rs7773994",  "6",  "37572144",  "T", "G", "Forward"]
-    C___7421900_10: ["rs1415762",  "6",  "125039942", "C", "T", "Forward"]
-    C__27402849_10: ["rs6927758",  "6",  "163719115", "C", "T", "Reverse"]
-    C___2953330_10: ["rs7796391",  "7",  "126113335", "A", "G", "Reverse"]
-    C__16205730_10: ["rs2336695",  "8",  "1033625",   "A", "G", "Forward"]
-    C___8850710_10: ["rs1157213",  "8",  "104215466", "T", "C", "Forward"]
-    C___1801627_20: ["rs10869955", "9",  "80293657",  "C", "A", "Reverse"]
-    C___7431888_10: ["rs1533486",  "10", "1511786",   "T", "G", "Forward"]
-    C___1250735_20: ["rs4751955",  "10", "117923225", "A", "G", "Forward"]
-    C___1902433_10: ["rs10771010", "12", "23769449",  "T", "C", "Forward"]
-    C__31386842_10: ["rs12318959", "12", "28781965",  "C", "T", "Reverse"]
-    C__26524789_10: ["rs3742257",  "13", "43173198",  "T", "C", "Forward"]
-    C___8924366_10: ["rs1377935",  "14", "25843774",  "T", "C", "Reverse"]
-    C_____43852_10: ["rs946065",   "14", "55932919",  "C", "A", "Forward"]
-    C__11522992_10: ["rs6598531",  "15", "99130113",  "T", "G", "Forward"]
-    C__10076371_10: ["rs4783229",  "16", "82622140",  "T", "C", "Reverse"]
-    C___7457509_10: ["rs1567612",  "18", "35839365",  "G", "A", "Forward"]
-    C___1122315_10: ["rs11660213", "18", "42481985",  "A", "G", "Reverse"]
-    C__11710129_10: ["rs11083515", "19", "39697974",  "A", "G", "Forward"]
-    C___1027548_20: ["rs768983",   "Y",  "6818291",   "C", "T", "Reverse"]
-    C___8938211_20: ["rs3913290",  "Y",  "8602518",   "C", "T", "Forward"]
-    C___1083232_10: ["rs2032598",  "Y",  "14850341",  "T", "C", "Reverse"]
+GRCh37_32_SNPs:
+    C___2728408_10: { V: 'C', M: 'T', snp_id: 'rs3010325',  chr: '1',  pos: '59569829',  ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C___1563023_10: { V: 'C', M: 'T', snp_id: 'rs2136241',  chr: '1',  pos: '163289571', ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C__15935210_10: { V: 'C', M: 'T', snp_id: 'rs2259397',  chr: '1',  pos: '208068579', ref_base: 'T', alt_base: 'C', design_strand: 'Reverse' }
+    C__33211212_10: { V: 'A', M: 'G', snp_id: 'rs7564899',  chr: '2',  pos: '11200347',  ref_base: 'G', alt_base: 'A', design_strand: 'Forward' }
+    C___3227711_10: { V: 'C', M: 'T', snp_id: 'rs4971536',  chr: '2',  pos: '21084332',  ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C__30044763_10: { V: 'A', M: 'G', snp_id: 'rs10194978', chr: '2',  pos: '50525067',  ref_base: 'G', alt_base: 'A', design_strand: 'Forward' }
+    C__11821218_10: { V: 'A', M: 'G', snp_id: 'rs4855056',  chr: '3',  pos: '181638250', ref_base: 'A', alt_base: 'G', design_strand: 'Forward' }
+    C___1670459_10: { V: 'C', M: 'T', snp_id: 'rs6554653',  chr: '5',  pos: '11870138',  ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C___1007630_10: { V: 'A', M: 'G', snp_id: 'rs441460',   chr: '6',  pos: '2554828',   ref_base: 'G', alt_base: 'A', design_strand: 'Reverse' }
+    C__29619553_10: { V: 'C', M: 'T', snp_id: 'rs9396715',  chr: '6',  pos: '9914294',   ref_base: 'T', alt_base: 'C', design_strand: 'Reverse' }
+    C__26546714_10: { V: 'G', M: 'T', snp_id: 'rs7773994',  chr: '6',  pos: '37572144',  ref_base: 'T', alt_base: 'G', design_strand: 'Forward' }
+    C___7421900_10: { V: 'C', M: 'T', snp_id: 'rs1415762',  chr: '6',  pos: '125039942', ref_base: 'C', alt_base: 'T', design_strand: 'Forward' }
+    C__27402849_10: { V: 'C', M: 'T', snp_id: 'rs6927758',  chr: '6',  pos: '163719115', ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C___2953330_10: { V: 'A', M: 'G', snp_id: 'rs7796391',  chr: '7',  pos: '126113335', ref_base: 'A', alt_base: 'G', design_strand: 'Reverse' }
+    C__16205730_10: { V: 'A', M: 'G', snp_id: 'rs2336695',  chr: '8',  pos: '1033625',   ref_base: 'A', alt_base: 'G', design_strand: 'Forward' }
+    C___8850710_10: { V: 'C', M: 'T', snp_id: 'rs1157213',  chr: '8',  pos: '10421546',  ref_base: 'T', alt_base: 'C', design_strand: 'Forward' }
+    C___1801627_20: { V: 'A', M: 'C', snp_id: 'rs10869955', chr: '9',  pos: '80293657',  ref_base: 'C', alt_base: 'A', design_strand: 'Reverse' }
+    C___7431888_10: { V: 'G', M: 'T', snp_id: 'rs1533486',  chr: '10', pos: '1511786',   ref_base: 'T', alt_base: 'G', design_strand: 'Forward' }
+    C___1250735_20: { V: 'A', M: 'G', snp_id: 'rs4751955',  chr: '10', pos: '117923225', ref_base: 'A', alt_base: 'G', design_strand: 'Forward' }
+    C___1902433_10: { V: 'C', M: 'T', snp_id: 'rs10771010', chr: '12', pos: '23769449',  ref_base: 'T', alt_base: 'C', design_strand: 'Forward' }
+    C__31386842_10: { V: 'C', M: 'T', snp_id: 'rs12318959', chr: '12', pos: '28781965',  ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C__26524789_10: { V: 'C', M: 'T', snp_id: 'rs3742257',  chr: '13', pos: '43173198',  ref_base: 'T', alt_base: 'C', design_strand: 'Forward' }
+    C___8924366_10: { V: 'C', M: 'T', snp_id: 'rs1377935',  chr: '14', pos: '25843774',  ref_base: 'T', alt_base: 'C', design_strand: 'Reverse' }
+    C_____43852_10: { V: 'A', M: 'C', snp_id: 'rs946065',   chr: '14', pos: '55932919',  ref_base: 'C', alt_base: 'A', design_strand: 'Forward' }
+    C__11522992_10: { V: 'G', M: 'T', snp_id: 'rs6598531',  chr: '15', pos: '99130113',  ref_base: 'T', alt_base: 'G', design_strand: 'Forward' }
+    C__10076371_10: { V: 'C', M: 'T', snp_id: 'rs4783229',  chr: '16', pos: '82622140',  ref_base: 'T', alt_base: 'C', design_strand: 'Reverse' }
+    C___7457509_10: { V: 'A', M: 'G', snp_id: 'rs1567612',  chr: '18', pos: '35839365',  ref_base: 'G', alt_base: 'A', design_strand: 'Forward' }
+    C___1122315_10: { V: 'A', M: 'G', snp_id: 'rs11660213', chr: '18', pos: '42481985',  ref_base: 'A', alt_base: 'G', design_strand: 'Reverse' }
+    C__11710129_10: { V: 'A', M: 'G', snp_id: 'rs11083515', chr: '19', pos: '39697974',  ref_base: 'A', alt_base: 'G', design_strand: 'Forward' }
+    C___1027548_20: { V: 'T', M: 'C', snp_id: 'rs768983',   chr: 'Y',  pos: '6818291',   ref_base: 'C', alt_base: 'T', design_strand: 'Reverse' }
+    C___8938211_20: { V: 'T', M: 'C', snp_id: 'rs3913290',  chr: 'Y',  pos: '8602518',   ref_base: 'C', alt_base: 'T', design_strand: 'Forward' }
+    C___1083232_10: { V: 'T', M: 'C', snp_id: 'rs2032598',  chr: 'Y',  pos: '14850341',  ref_base: 'T', alt_base: 'C', design_strand: 'Reverse' }
