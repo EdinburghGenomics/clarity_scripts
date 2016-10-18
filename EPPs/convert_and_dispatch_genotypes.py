@@ -1,122 +1,56 @@
-import argparse
-import logging
-import os
-import re
-import sys
-from sys import version_info
-
-if version_info.major == 2:
-    import urlparse
-    from StringIO import StringIO
-else:
-    from urllib import parse as urlparse
-    from io import StringIO
-
-from genologics.entities import Process, Artifact
-from genologics.lims import Lims
-from collections import defaultdict
 import csv
+from os import remove
+from os.path import join, dirname, abspath
+from io import StringIO
+from collections import defaultdict
+from genologics.entities import Artifact
+from egcg_core.config import Configuration
+from egcg_core.app_logging import AppLogger, logging_default as log_cfg
+from EPPs.common import EPP, argparser
 
-__author__ = 'tcezard'
 
-logger = logging.getLogger(__name__)
+etc_path = join(dirname(dirname(abspath(__file__))), 'etc')
+snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
+default_fai = join(etc_path, 'genotype_32_SNPs_genome_600bp.fa.fai')
+default_flank_length = 600
 
-SNPs_definitions = {
-    'C___2728408_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs3010325', 'chr': '1', 'pos': '59569829', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C___1563023_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs2136241', 'chr': '1', 'pos': '163289571', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C__15935210_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs2259397', 'chr': '1', 'pos': '208068579', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Reverse'},
-    'C__33211212_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs7564899', 'chr': '2', 'pos': '11200347', 'ref_base': 'G',
-                       'alt_base': 'A', 'design_strand': 'Forward'},
-    'C___3227711_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs4971536', 'chr': '2', 'pos': '21084332', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C__30044763_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs10194978', 'chr': '2', 'pos': '50525067', 'ref_base': 'G',
-                       'alt_base': 'A', 'design_strand': 'Forward'},
-    'C__11821218_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs4855056', 'chr': '3', 'pos': '181638250', 'ref_base': 'A',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C___1670459_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs6554653', 'chr': '5', 'pos': '11870138', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C___1007630_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs441460', 'chr': '6', 'pos': '2554828', 'ref_base': 'G',
-                       'alt_base': 'A', 'design_strand': 'Reverse'},
-    'C__29619553_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs9396715', 'chr': '6', 'pos': '9914294', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Reverse'},
-    'C__26546714_10': {'V': 'G', 'M': 'T', 'snp_id': 'rs7773994', 'chr': '6', 'pos': '37572144', 'ref_base': 'T',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C___7421900_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs1415762', 'chr': '6', 'pos': '125039942', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Forward'},
-    'C__27402849_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs6927758', 'chr': '6', 'pos': '163719115', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C___2953330_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs7796391', 'chr': '7', 'pos': '126113335', 'ref_base': 'A',
-                       'alt_base': 'G', 'design_strand': 'Reverse'},
-    'C__16205730_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs2336695', 'chr': '8', 'pos': '1033625', 'ref_base': 'A',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C___8850710_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs1157213', 'chr': '8', 'pos': '10421546', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Forward'},
-    'C___1801627_20': {'V': 'A', 'M': 'C', 'snp_id': 'rs10869955', 'chr': '9', 'pos': '80293657', 'ref_base': 'C',
-                       'alt_base': 'A', 'design_strand': 'Reverse'},
-    'C___7431888_10': {'V': 'G', 'M': 'T', 'snp_id': 'rs1533486', 'chr': '10', 'pos': '1511786', 'ref_base': 'T',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C___1250735_20': {'V': 'A', 'M': 'G', 'snp_id': 'rs4751955', 'chr': '10', 'pos': '117923225', 'ref_base': 'A',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C___1902433_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs10771010', 'chr': '12', 'pos': '23769449', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Forward'},
-    'C__31386842_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs12318959', 'chr': '12', 'pos': '28781965', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C__26524789_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs3742257', 'chr': '13', 'pos': '43173198', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Forward'},
-    'C___8924366_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs1377935', 'chr': '14', 'pos': '25843774', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Reverse'},
-    'C_____43852_10': {'V': 'A', 'M': 'C', 'snp_id': 'rs946065', 'chr': '14', 'pos': '55932919', 'ref_base': 'C',
-                       'alt_base': 'A', 'design_strand': 'Forward'},
-    'C__11522992_10': {'V': 'G', 'M': 'T', 'snp_id': 'rs6598531', 'chr': '15', 'pos': '99130113', 'ref_base': 'T',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C__10076371_10': {'V': 'C', 'M': 'T', 'snp_id': 'rs4783229', 'chr': '16', 'pos': '82622140', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Reverse'},
-    'C___7457509_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs1567612', 'chr': '18', 'pos': '35839365', 'ref_base': 'G',
-                       'alt_base': 'A', 'design_strand': 'Forward'},
-    'C___1122315_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs11660213', 'chr': '18', 'pos': '42481985', 'ref_base': 'A',
-                       'alt_base': 'G', 'design_strand': 'Reverse'},
-    'C__11710129_10': {'V': 'A', 'M': 'G', 'snp_id': 'rs11083515', 'chr': '19', 'pos': '39697974', 'ref_base': 'A',
-                       'alt_base': 'G', 'design_strand': 'Forward'},
-    'C___1027548_20': {'V': 'T', 'M': 'C', 'snp_id': 'rs768983', 'chr': 'Y', 'pos': '6818291', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Reverse'},
-    'C___8938211_20': {'V': 'T', 'M': 'C', 'snp_id': 'rs3913290', 'chr': 'Y', 'pos': '8602518', 'ref_base': 'C',
-                       'alt_base': 'T', 'design_strand': 'Forward'},
-    'C___1083232_10': {'V': 'T', 'M': 'C', 'snp_id': 'rs2032598', 'chr': 'Y', 'pos': '14850341', 'ref_base': 'T',
-                       'alt_base': 'C', 'design_strand': 'Reverse'}
-}
+logger = log_cfg.get_logger(__name__)
+SNPs_definitions = snp_cfg['GRCh37_32_SNPs']
 
-HEADERS_CALL = ["Call"]
-# Actual Header in the file
-HEADERS_SAMPLE_ID = ["StudyID", 'Sample ID']
-HEADERS_ASSAY_ID = ["SNPName", "Assay Name"]
+# Accepted valid headers in the SNP CSV file
+HEADERS_CALL = ['Call']
+HEADERS_SAMPLE_ID = ['StudyID', 'Sample ID']
+HEADERS_ASSAY_ID = ['SNPName', 'Assay Name']
 
 vcf_header = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
 start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
 
 
-class Genotype_conversion(object):
-    def __init__(self, input_genotypes_content, genome_fai, geno_format, flank_length=0):
+class GenotypeConversion(AppLogger):
+    def __init__(self, input_genotypes_content, mode, fai=default_fai, flank_length=default_flank_length):
         self.all_records = defaultdict(dict)
         self.sample_names = set()
         self.input_genotypes_content = input_genotypes_content
-        self.genome_fai = genome_fai
+        self.fai = fai
         self.flank_length = flank_length
-        if geno_format == 'igmm':
+
+        self.info("Parsing genotypes in '%s' mode", mode)
+        if mode == 'igmm':
             self.parse_genotype_csv()
-        elif geno_format == 'quantStudio':
-            self.parse_QuantStudio_flex_genotype()
+        elif mode == 'quantStudio':
+            self.parse_quantstudio_flex_genotype()
         else:
-            raise ValueError('Unexpected format %s' % geno_format)
-        reference_lengths = self.parse_genome_fai(genome_fai)
+            raise ValueError('Unexpected genotype format: %s' % mode)
+
+        self.info('Parsed %s samples', len(self.sample_names))
+
+        reference_lengths = self.parse_genome_fai(fai)
         self.vcf_header_contigs = self.vcf_header_from_ref_length(reference_lengths)
         self.snps_order = self.order_from_fai(self.all_records, reference_lengths)
 
     @staticmethod
     def get_genotype_from_call(ref_allele, alternate_allele, call):
-        """Uses the SNPs definition to convert the genotype call to a vcf compatible genotype"""
+        """Use the SNPs definition to convert the genotype call to a vcf compatible genotype"""
         genotype = './.'
         if call.lower() == 'undefined' or call.lower() == 'undetermined':
             return genotype
@@ -131,8 +65,8 @@ class Genotype_conversion(object):
         elif alternate_allele in callset and len(callset) == 1:
             genotype = '1/1'
         else:
-            raise ValueError("Call {} does not match any of the alleles (ref:{}, alt:{})".format(call, ref_allele,
-                                                                                                 alternate_allele))
+            msg = 'Call {call} does not match any of the alleles (ref:{ref_allele}, alt:{alternate_allele})'
+            raise ValueError(msg.format(call=call, ref_allele=ref_allele, alternate_allele=alternate_allele))
         return genotype
 
     @staticmethod
@@ -156,17 +90,13 @@ class Genotype_conversion(object):
         return ordered_snp_ids
 
     def parse_genotype_csv(self):
-        all_samples = set()
         reader = csv.DictReader(self.input_genotypes_content, delimiter='\t')
-        all_records = defaultdict(dict)
         fields = set(reader.fieldnames)
-        for h in fields:
-            if h in HEADERS_SAMPLE_ID:
-                header_sample_id = h
-            elif h in HEADERS_ASSAY_ID:
-                header_assay_id = h
-            elif h in HEADERS_CALL:
-                header_call = h
+
+        header_sample_id = self._find_field(HEADERS_SAMPLE_ID, fields)
+        header_assay_id = self._find_field(HEADERS_ASSAY_ID, fields)
+        header_call = self._find_field(HEADERS_CALL, fields)
+
         for line in reader:
             sample = line[header_sample_id]
             if sample.lower() == 'blank':
@@ -175,9 +105,14 @@ class Genotype_conversion(object):
             assay_id = line[header_assay_id]
             self.add_genotype(sample, assay_id, line.get(header_call))
 
-        return all_records, list(all_samples)
+    @staticmethod
+    def _find_field(valid_fieldnames, observed_fieldnames):
+        for f in observed_fieldnames:
+            if f in valid_fieldnames:
+                return f
+        raise ValueError('Could not find any valid fields in ' + str(observed_fieldnames))
 
-    def parse_QuantStudio_flex_genotype(self):
+    def parse_quantstudio_flex_genotype(self):
         result_lines = []
         in_results = False
         for line in self.input_genotypes_content:
@@ -188,13 +123,9 @@ class Genotype_conversion(object):
             elif line.startswith('[Results]'):
                 in_results = True
         sp_header = result_lines[0].split('\t')
-        for h in sp_header:
-            if h in ['Sample Name']:
-                header_sample_id = h
-            elif h in ['Assay ID']:
-                header_assay_id = h
-            elif h in ['Call']:
-                header_call = h
+        header_sample_id = self._find_field(['Sample Name'], sp_header)
+        header_assay_id = self._find_field(['Assay ID'], sp_header)
+        header_call = self._find_field(['Call'], sp_header)
 
         for line in result_lines[1:]:
             sp_line = line.split('\t')
@@ -207,7 +138,7 @@ class Genotype_conversion(object):
             call = sp_line[sp_header.index(header_call)]
 
             if not call == 'Undetermined':
-                type, c = call.split()
+                call_type, c = call.split()
                 e1, e2 = c.split('/')
                 a1 = snp_def.get(e1.split('_')[-1])
                 a2 = snp_def.get(e2.split('_')[-1])
@@ -217,7 +148,7 @@ class Genotype_conversion(object):
     def add_genotype(self, sample, assay_id, call):
         snp_def = SNPs_definitions.get(assay_id)
         genotype = self.get_genotype_from_call(snp_def['ref_base'], snp_def['alt_base'], call)
-        if not 'SNP' in self.all_records[snp_def['snp_id']]:
+        if 'SNP' not in self.all_records[snp_def['snp_id']]:
             if self.flank_length:
                 snp = [assay_id, str(self.flank_length + 1), snp_def['snp_id'],
                        snp_def['ref_base'], snp_def['alt_base'], ".", ".", ".", "GT"]
@@ -256,128 +187,84 @@ class Genotype_conversion(object):
         return vcf_file
 
 
-def get_lims_sample(sample_name, lims):
-    samples = lims.get_samples(name=sample_name)
-    if len(samples) == 0:
-        sample_name_sub = re.sub("_(\d{2})$", ":\g<1>", sample_name)
-        samples = lims.get_samples(name=sample_name_sub)
-    if len(samples) == 0:
-        sample_name_sub = re.sub("__(\w)_(\d{2})", " _\g<1>:\g<2>", sample_name)
-        samples = lims.get_samples(name=sample_name_sub)
-
-    if len(samples) != 1:
-        logger.warning('%s Sample(s) found for name %s' % (len(samples), sample_name))
-        return None
-
-    return samples[0]
-
-
-def upload_vcf_to_samples(geno_conv, lims, p, no_upload=False):
-    invalid_lims_samples = []
-    valid_samples = []
-    genotyping_sample_used = []
-    artifacts = p.all_inputs()
-    logger.info('Match against %s artifacts' % len(artifacts))
-    for artifact in artifacts:
-        vcf_file = None
-        # Assume only one sample per artifact
-        lims_sample = artifact.samples[0]
-        if lims_sample.name in geno_conv.sample_names:
-            logger.info('Matching %s' % lims_sample.name)
-            vcf_file = geno_conv.generate_vcf(lims_sample.name)
-            genotyping_sample_used.append(lims_sample.name)
-        elif lims_sample.udf.get('User Sample Name') in geno_conv.sample_names:
-            logger.info(
-                'Matching %s against user sample name %s' % (lims_sample.name, lims_sample.udf.get('User Sample Name')))
-            vcf_file = geno_conv.generate_vcf(lims_sample.udf.get('User Sample Name'), new_name=artifact.name)
-            genotyping_sample_used.append(lims_sample.udf.get('User Sample Name'))
+class UploadVcfToSamples(EPP):
+    def __init__(self, step_uri, username, password, log_file, mode, no_upload=False, artifact=None, file=None):
+        super().__init__(step_uri, username, password, log_file)
+        self.no_upload = no_upload
+        if artifact:
+            a = Artifact(self.lims, id=artifact)
+            input_genotypes_content = StringIO(self.lims.get_file_contents(uri=a.files[0].uri))
+        elif file:
+            input_genotypes_content = open(file)
         else:
-            logger.info('No match found for %s' % (lims_sample.name))
-            invalid_lims_samples.append(lims_sample)
-        if vcf_file:
-            valid_samples.append(lims_sample)
-            if not no_upload:
-                file = lims.upload_new_file(lims_sample, vcf_file)
-                if file:
-                    lims_sample.udf['Genotyping results file id'] = file.id
-                    lims_sample.put()
-            os.remove(vcf_file)
-    logger.info('Match and uploaded %s artifacts against %s genotype results' % (
-    len(set(valid_samples)), len(set(genotyping_sample_used))))
-    logger.info('%s artifacts did not match' % (len(set(invalid_lims_samples))))
-    logger.info('%s genotyping results were not used' % (
-    len(set(geno_conv.sample_names).difference(set(genotyping_sample_used)))))
+            raise ValueError('UploadVcfToSamples requires an artifact ID or a genotype file')
 
-    # Message to print to stdout
-    messages = []
-    if invalid_lims_samples:
-        messages.append("%s Samples are missing genotype" % len(invalid_lims_samples))
-    if len(geno_conv.sample_names) - len(valid_samples) > 0:
-        # TODO send a message to the EPP
-        messages.append("%s genotypes have not been assigned" % (len(geno_conv.sample_names) - len(valid_samples)))
-    print(', '.join(messages))
+        self.geno_conv = GenotypeConversion(input_genotypes_content, mode, default_fai, default_flank_length)
+
+    def _run(self):
+        invalid_lims_samples = []
+        valid_samples = []
+        genotyping_sample_used = []
+        artifacts = self.process.all_inputs()
+        self.info('Matching against %s artifacts', len(artifacts))
+        for artifact in artifacts:
+            vcf_file = None
+            # Assume only one sample per artifact
+            lims_sample = artifact.samples[0]
+            if lims_sample.name in self.geno_conv.sample_names:
+                self.info('Matching %s' % lims_sample.name)
+                vcf_file = self.geno_conv.generate_vcf(lims_sample.name)
+                genotyping_sample_used.append(lims_sample.name)
+            elif lims_sample.udf.get('User Sample Name') in self.geno_conv.sample_names:
+                self.info('Matching %s against user sample name %s', lims_sample.name, lims_sample.udf.get('User Sample Name'))
+                vcf_file = self.geno_conv.generate_vcf(lims_sample.udf.get('User Sample Name'), new_name=artifact.name)
+                genotyping_sample_used.append(lims_sample.udf.get('User Sample Name'))
+            else:
+                self.info('No match found for %s', lims_sample.name)
+                invalid_lims_samples.append(lims_sample)
+            if vcf_file:
+                valid_samples.append(lims_sample)
+                if not self.no_upload:
+                    file = self.lims.upload_new_file(lims_sample, vcf_file)
+                    if file:
+                        lims_sample.udf['Genotyping results file id'] = file.id
+                        lims_sample.put()
+                remove(vcf_file)
+
+        unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_sample_used))
+
+        self.info('Matched and uploaded %s artifacts against %s genotype results', len(set(valid_samples)), len(set(genotyping_sample_used)))
+        self.info('%s artifacts did not match', len(set(invalid_lims_samples)))
+        self.info('%s genotyping results were not used', len(unused_samples))
+
+        # Message to print to stdout
+        messages = []
+        if invalid_lims_samples:
+            messages.append('%s Samples are missing genotype' % len(invalid_lims_samples))
+        if len(self.geno_conv.sample_names) - len(valid_samples) > 0:
+            # TODO send a message to the EPP
+            messages.append('%s genotypes have not been assigned' % (len(self.geno_conv.sample_names) - len(valid_samples)))
+        print(', '.join(messages))
 
 
 def main():
     args = _parse_args()
-    genome_fai = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'etc', 'genotype_32_SNPs_genome_600bp.fa.fai')
-    flank_length = 600
-    r1 = urlparse.urlsplit(args.step_uri)
-    server_http = '%s://%s' % (r1.scheme, r1.netloc)
-    # Assume the step_uri contains the step id at the end
-    step_id = r1.path.split('/')[-1]
-    lims = Lims(server_http, args.username, args.password)
-    # setup logging
-    level = logging.INFO
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-        fmt='[%(asctime)s] [%(levelname)s] %(message)s',
-        datefmt='%Y-%b-%d %H:%M:%S'
-    )
-    if args.log_file:
-        handler = logging.FileHandler(args.log_file)
-    else:
-        handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
-    handler.setLevel(level)
-    logger.addHandler(handler)
-
-    p = Process(lims, id=step_id)
-
-    if args.genotypes_artifact_id:
-        a = Artifact(lims, id=args.genotypes_artifact_id)
-        input_genotypes_content = StringIO(lims.get_file_contents(uri=a.files[0].uri))
-    else:
-        input_genotypes_content = open(args.input_genotypes)
-    try:
-        logger.info('Parse the genotyping file in format %s' % args.format)
-        geno_conv = Genotype_conversion(input_genotypes_content, genome_fai, args.format, flank_length)
-        logger.info('%s samples parsed' % (len(geno_conv.sample_names)))
-        upload_vcf_to_samples(geno_conv, lims, p, no_upload=args.no_upload)
-
-    except Exception as e:
-        logger.critical('Encountered a %s exception: %s', e.__class__.__name__, str(e))
-        import traceback
-        stacktrace = traceback.format_exc()
-        logger.info('Stack trace below:\n' + stacktrace)
-        raise e
+    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file,
+                                args.format, args.no_upload, args.genotypes_artifact_id, args.input_genotypes)
+    action.run()
 
 
 def _parse_args():
-    p = argparse.ArgumentParser()
-    p.add_argument('--username', dest="username", type=str, help='The username of the person logged in')
-    p.add_argument('--password', dest="password", type=str, help='The password used by the person logged in')
-    p.add_argument('--step_uri', dest='step_uri', type=str, help='The uri of the step this EPP is attached to')
+    p = argparser()
     p.add_argument('--format', dest='format', type=str, choices=['igmm', 'quantStudio'],
                    help='The format of the genotype file')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str,
                    help='The file that contains the genotype for all the samples (For testing only)')
     p.add_argument('--genotypes_artifact_id', dest='genotypes_artifact_id', type=str,
                    help='The id of the output artifact that contains the output file')
-    p.add_argument('--log_file', dest='log_file', type=str, help='log file uploaded back to the LIMS')
     p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')
     return p.parse_args()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
