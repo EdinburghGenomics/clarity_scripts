@@ -1,13 +1,13 @@
 import csv
+import sys
 from os import remove
 from os.path import join, dirname, abspath
-from io import StringIO
 from collections import defaultdict
-from genologics.entities import Artifact
 from egcg_core.config import Configuration
 from egcg_core.app_logging import AppLogger, logging_default as log_cfg
-from EPPs.common import EPP, argparser
 
+sys.path.append(dirname(dirname(abspath(__file__))))
+from EPPs.common import EPP, argparser
 
 etc_path = join(dirname(dirname(abspath(__file__))), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
@@ -40,17 +40,17 @@ class GenotypeConversion(AppLogger):
             self.parse_genotype_csv()
         elif mode == 'quantStudio':
             if self.input_accufill:
-                self.parse_QuantStudio_flex_genotype()
+                self.parse_quantstudio_flex_genotype()
             else:
                 msg = 'Missing Accufill log file to confirm Array ids please provide with --accufill_log'
-                logging.error(msg)
+                self.critical(msg)
                 raise ValueError(msg)
         else:
             raise ValueError('Unexpected genotype format: %s' % mode)
 
         self.info('Parsed %s samples', len(self.sample_names))
 
-        reference_lengths = self.parse_genome_fai(fai)
+        reference_lengths = self._parse_genome_fai()
         self.vcf_header_contigs = self.vcf_header_from_ref_length(reference_lengths)
         self.snps_order = self.order_from_fai(self.all_records, reference_lengths)
 
@@ -95,6 +95,13 @@ class GenotypeConversion(AppLogger):
             ordered_snp_ids.extend([rec[2] for rec in snps])
         return ordered_snp_ids
 
+    @staticmethod
+    def _find_field(valid_fieldnames, observed_fieldnames):
+        for f in observed_fieldnames:
+            if f in valid_fieldnames:
+                return f
+        raise ValueError('Could not find any valid fields in ' + str(observed_fieldnames))
+
     def parse_genotype_csv(self):
         all_samples = set()
         all_records = defaultdict(dict)
@@ -114,13 +121,6 @@ class GenotypeConversion(AppLogger):
                         continue
                     assay_id = line[header_assay_id]
                     self.add_genotype(sample, assay_id, line.get(header_call))
-
-    @staticmethod
-    def _find_field(valid_fieldnames, observed_fieldnames):
-        for f in observed_fieldnames:
-            if f in valid_fieldnames:
-                return f
-        raise ValueError('Could not find any valid fields in ' + str(observed_fieldnames))
 
     def parse_quantstudio_flex_genotype(self):
         result_lines = []
@@ -155,7 +155,6 @@ class GenotypeConversion(AppLogger):
             else:
                 logger.info('Validate array barcode %s'%(parameters['Barcode']))
 
-
             for line in result_lines[1:]:
                 sp_line = line.split('\t')
                 sample = sp_line[sp_header.index(header_sample_id)]
@@ -166,13 +165,13 @@ class GenotypeConversion(AppLogger):
                 snp_def = SNPs_definitions.get(assay_id)
                 call = sp_line[sp_header.index(header_call)]
 
-            if not call == 'Undetermined':
-                call_type, c = call.split()
-                e1, e2 = c.split('/')
-                a1 = snp_def.get(e1.split('_')[-1])
-                a2 = snp_def.get(e2.split('_')[-1])
-                call = a1 + a2
-            self.add_genotype(sample, assay_id, call)
+                if not call == 'Undetermined':
+                    call_type, c = call.split()
+                    e1, e2 = c.split('/')
+                    a1 = snp_def.get(e1.split('_')[-1])
+                    a2 = snp_def.get(e2.split('_')[-1])
+                    call = a1 + a2
+                self.add_genotype(sample, assay_id, call)
 
     def add_genotype(self, sample, assay_id, call):
         snp_def = SNPs_definitions.get(assay_id)
@@ -235,10 +234,12 @@ class GenotypeConversion(AppLogger):
         return self._valid_array_barcodes
 
 class UploadVcfToSamples(EPP):
-    def __init__(self, step_uri, username, password, log_file, mode, no_upload=False, input_genotypes_files, accufill_log):
+    def __init__(self, step_uri, username, password, log_file, mode, input_genotypes_files, accufill_log=None,
+                 no_upload=False):
         super().__init__(step_uri, username, password, log_file)
         self.no_upload = no_upload
-        self.geno_conv = GenotypeConversion(input_genotypes_files, accufill_log, mode, default_fai, default_flank_length)
+        self.geno_conv = GenotypeConversion(input_genotypes_files, accufill_log, mode, default_fai,
+                                            default_flank_length)
 
     def _run(self):
         invalid_lims_samples = []
@@ -288,8 +289,8 @@ class UploadVcfToSamples(EPP):
 
 def main():
     args = _parse_args()
-    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file,
-                                args.format, args.no_upload, args.input_genotypes, args.accufill_log)
+    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file, args.format,
+                                args.input_genotypes, args.accufill_log, args.no_upload)
     action.run()
 
 
@@ -297,10 +298,8 @@ def _parse_args():
     p = argparser()
     p.add_argument('--format', dest='format', type=str, choices=['igmm', 'quantStudio'],
                    help='The format of the genotype file')
-    p.add_argument('--input_genotypes', dest='input_genotypes', type=str,
-                   help='The file that contains the genotype for all the samples (For testing only)')
-    p.add_argument('--genotypes_artifact_id', dest='genotypes_artifact_id', type=str,
-                   help='The id of the output artifact that contains the output file')
+    p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
+                   help='The file that contains the genotype for all the samples')
     p.add_argument('--accufill_log', dest='accufill_log', type=str, required=False,
                    help='The file that contains the location and name of each of the array')
     p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')

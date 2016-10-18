@@ -14,8 +14,8 @@ class TestGenotypeConversion(TestCommon):
     }
 
     def setUp(self):
-        self.geno_conversion = Genotype_conversion([self.genotype_csv], self.accufill_log,
-                                                   self.small_reference_fai, 'igmm', flank_length=600)
+        self.geno_conversion = GenotypeConversion([self.genotype_csv], self.accufill_log, 'igmm',
+                                                   self.small_reference_fai, flank_length=600)
 
     def test_generate_vcf(self):
         # header_lines = ['##header line1', '##header line2']
@@ -69,8 +69,8 @@ class TestGenotypeConversion(TestCommon):
         assert len(self.geno_conversion.all_records) == 32
 
     def test_parse_QuantStudio_AIF_genotype(self):
-        geno_conversion = Genotype_conversion([self.genotype_quantStudio], self.accufill_log,
-                                              self.small_reference_fai, 'quantStudio', flank_length=600)
+        geno_conversion = GenotypeConversion([self.genotype_quantStudio], self.accufill_log, 'quantStudio',
+                                              self.small_reference_fai, flank_length=600)
         assert geno_conversion.sample_names == {'V0001P001C01', 'V0001P001A01'}
         assert len(geno_conversion.all_records) == 32
 
@@ -100,8 +100,8 @@ class TestUploadVcfToSamples(TestEPP):
             'a_user',
             'a_password',
             self.log_file,
-            'igmm',
-            file=self.genotype_csv
+            mode='igmm',
+            input_genotypes_files=[self.genotype_csv]
         )
         self.epp._lims = Mock()
         self.epp._process = Mock(all_inputs=fake_all_inputs)
