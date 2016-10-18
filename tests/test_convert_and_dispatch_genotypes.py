@@ -1,6 +1,7 @@
 import pytest
 from os.path import join
-from tests.test_common import TestCommon, TestEPP, patch, Mock, FakeEntity
+from tests.test_common import TestCommon, TestEPP, FakeEntity
+from unittest.mock import Mock, patch
 from EPPs.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
 
 

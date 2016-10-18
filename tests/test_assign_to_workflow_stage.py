@@ -1,4 +1,5 @@
-from tests.test_common import fake_all_inputs, TestEPP, Mock, patch
+from tests.test_common import fake_all_inputs, TestEPP
+from unittest.mock import Mock, patch
 from EPPs import assign_to_workflow_stage
 
 

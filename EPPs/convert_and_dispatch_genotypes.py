@@ -1,17 +1,12 @@
-import sys
 import csv
 from os import remove
 from os.path import join, dirname, abspath
+from io import StringIO
 from collections import defaultdict
 from genologics.entities import Artifact
 from egcg_core.config import Configuration
 from egcg_core.app_logging import AppLogger, logging_default as log_cfg
 from EPPs.common import EPP, argparser
-
-if sys.version_info.major == 2:
-    from StringIO import StringIO
-else:
-    from io import StringIO
 
 
 etc_path = join(dirname(dirname(abspath(__file__))), 'etc')

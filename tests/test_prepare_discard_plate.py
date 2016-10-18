@@ -1,4 +1,5 @@
-from tests.test_common import fake_all_inputs, TestEPP, Mock, patch, FakeEntity
+from tests.test_common import fake_all_inputs, TestEPP, FakeEntity
+from unittest.mock import Mock, patch
 from EPPs import prepare_discard_plate
 
 

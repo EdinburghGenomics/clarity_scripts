@@ -1,13 +1,9 @@
-import sys
 import argparse
+from urllib import parse as urlparse
 from logging import FileHandler
 from genologics.lims import Lims
 from genologics.entities import Process
 from egcg_core.app_logging import AppLogger, logging_default
-if sys.version_info.major == 2:
-    import urlparse
-else:
-    from urllib import parse as urlparse
 
 
 class EPP(AppLogger):

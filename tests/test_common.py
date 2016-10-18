@@ -1,14 +1,7 @@
-import sys
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 from EPPs.common import EPP
-
-if sys.version_info.major == 2:
-    from mock import Mock, patch
-    import __builtin__ as builtins
-else:
-    import builtins
-    from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 
 def fake_all_inputs(unique=False, resolve=False):
