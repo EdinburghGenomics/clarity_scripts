@@ -1,10 +1,13 @@
 import csv
 import sys
 from os import remove
-from os.path import join, dirname, abspath
+from os.path import join, dirname, abspath, exists as file_exists
 from collections import defaultdict
+
+from io import StringIO
 from egcg_core.config import Configuration
 from egcg_core.app_logging import AppLogger, logging_default as log_cfg
+from genologics.entities import Artifact
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 from EPPs.common import EPP, argparser
@@ -27,19 +30,19 @@ start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=Strin
 
 
 class GenotypeConversion(AppLogger):
-    def __init__(self, input_genotypes_content_files, input_accufill, mode, fai=default_fai, flank_length=default_flank_length):
+    def __init__(self, input_genotypes_contents, accufill_content, mode, fai=default_fai, flank_length=default_flank_length):
         self.all_records = defaultdict(dict)
         self.sample_names = set()
-        self.input_genotypes_content_files = input_genotypes_content_files
+        self.input_genotypes_contents = input_genotypes_contents
         self.fai = fai
         self.flank_length = flank_length
-        self.input_accufill = input_accufill
+        self.accufill_content = accufill_content
         self._valid_array_barcodes = None
         self.info("Parsing genotypes in '%s' mode", mode)
         if mode == 'igmm':
             self.parse_genotype_csv()
         elif mode == 'quantStudio':
-            if self.input_accufill:
+            if self.accufill_content:
                 self.parse_quantstudio_flex_genotype()
             else:
                 msg = 'Missing Accufill log file to confirm Array ids please provide with --accufill_log'
@@ -103,42 +106,38 @@ class GenotypeConversion(AppLogger):
         raise ValueError('Could not find any valid fields in ' + str(observed_fieldnames))
 
     def parse_genotype_csv(self):
-        all_samples = set()
-        all_records = defaultdict(dict)
-        for input_genotypes_content_file in self.input_genotypes_content_files:
-            with open(input_genotypes_content_file) as open_file:
-                reader = csv.DictReader(open_file, delimiter='\t')
-                fields = set(reader.fieldnames)
+        for input_genotypes_content in self.input_genotypes_contents:
+            reader = csv.DictReader(input_genotypes_content, delimiter='\t')
+            fields = set(reader.fieldnames)
 
-                header_sample_id = self._find_field(HEADERS_SAMPLE_ID, fields)
-                header_assay_id = self._find_field(HEADERS_ASSAY_ID, fields)
-                header_call = self._find_field(HEADERS_CALL, fields)
+            header_sample_id = self._find_field(HEADERS_SAMPLE_ID, fields)
+            header_assay_id = self._find_field(HEADERS_ASSAY_ID, fields)
+            header_call = self._find_field(HEADERS_CALL, fields)
 
-                for line in reader:
-                    sample = line[header_sample_id]
-                    if sample.lower() == 'blank':
-                        # Entries with blank as sample name are entries with water and no DNA
-                        continue
-                    assay_id = line[header_assay_id]
-                    self.add_genotype(sample, assay_id, line.get(header_call))
+            for line in reader:
+                sample = line[header_sample_id]
+                if sample.lower() == 'blank':
+                    # Entries with blank as sample name are entries with water and no DNA
+                    continue
+                assay_id = line[header_assay_id]
+                self.add_genotype(sample, assay_id, line.get(header_call))
 
     def parse_quantstudio_flex_genotype(self):
         result_lines = []
         in_results = False
         parameters = {}
-        for input_genotypes_content_file in self.input_genotypes_content_files:
-            with open(input_genotypes_content_file) as open_file:
-                for line in open_file:
-                    if not line.strip():
-                        continue
-                    elif line.startswith('*'):
-                        k, v = line.strip().strip('*').split('=')
-                        parameters[k.strip()] = v.strip()
+        for input_genotypes_content in self.input_genotypes_contents:
+            for line in input_genotypes_content:
+                if not line.strip():
+                    continue
+                elif line.startswith('*'):
+                    k, v = line.strip().strip('*').split('=')
+                    parameters[k.strip()] = v.strip()
 
-                    elif in_results:
-                        result_lines.append(line.strip())
-                    elif line.startswith('[Results]'):
-                        in_results = True
+                elif in_results:
+                    result_lines.append(line.strip())
+                elif line.startswith('[Results]'):
+                    in_results = True
             sp_header = result_lines[0].split('\t')
             header_sample_id = self._find_field(['Sample Name'], sp_header)
             header_assay_id = self._find_field(['Assay ID'], sp_header)
@@ -216,13 +215,12 @@ class GenotypeConversion(AppLogger):
 
     def _parse_accufill_load_csv(self):
         all_arrays = set()
-        with open(self.input_accufill) as open_file:
-            reader = csv.DictReader(open_file, delimiter='\t')
-            header_holder = 'Plate Holder Position'
-            header_plate_barcode = 'Sample Plate Barcode'
-            header_array = 'OpenArray Plate Barcode'
-            for line in reader:
-                all_arrays.add((line[header_array], line[header_holder], line[header_plate_barcode]))
+        reader = csv.DictReader(self.accufill_content, delimiter='\t')
+        header_holder = 'Plate Holder Position'
+        header_plate_barcode = 'Sample Plate Barcode'
+        header_array = 'OpenArray Plate Barcode'
+        for line in reader:
+            all_arrays.add((line[header_array], line[header_holder], line[header_plate_barcode]))
         return all_arrays
 
 
@@ -233,13 +231,33 @@ class GenotypeConversion(AppLogger):
             self._valid_array_barcodes = list(set([a for a, h, p in array_info]))
         return self._valid_array_barcodes
 
+
 class UploadVcfToSamples(EPP):
-    def __init__(self, step_uri, username, password, log_file, mode, input_genotypes_files, accufill_log=None,
-                 no_upload=False):
+    def __init__(self, step_uri, username, password, log_file, mode, input_genotypes_files,
+                 accufill_log=None, no_upload=False):
         super().__init__(step_uri, username, password, log_file)
+        self.files_to_close = []
         self.no_upload = no_upload
-        self.geno_conv = GenotypeConversion(input_genotypes_files, accufill_log, mode, default_fai,
+        input_genotypes_contents = []
+        for s in input_genotypes_files:
+            input_genotypes_contents.append(self.open_or_download(s))
+        if accufill_log:
+            accufill_log_content = self.open_or_download(accufill_log)
+        else:
+            accufill_log_content = None
+
+        self.geno_conv = GenotypeConversion(input_genotypes_contents, accufill_log_content, mode, default_fai,
                                             default_flank_length)
+
+    def open_or_download(self, f):
+        if file_exists(f):
+            content = open(f)
+            self.files_to_close.append(f)
+        else:
+            a = Artifact(self.lims, id=f)
+            content = StringIO(self.lims.get_file_contents(uri=a.files[0].uri))
+        return content
+
 
     def _run(self):
         invalid_lims_samples = []
@@ -299,7 +317,7 @@ def _parse_args():
     p.add_argument('--format', dest='format', type=str, choices=['igmm', 'quantStudio'],
                    help='The format of the genotype file')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
-                   help='The file that contains the genotype for all the samples')
+                   help='The files or artifact id that contains the genotype for all the samples')
     p.add_argument('--accufill_log', dest='accufill_log', type=str, required=False,
                    help='The file that contains the location and name of each of the array')
     p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')

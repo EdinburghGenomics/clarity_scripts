@@ -4,6 +4,8 @@ from tests.test_common import TestCommon, TestEPP, FakeEntity
 from unittest.mock import Mock, patch
 from EPPs.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
 
+def open_files(list_of_files):
+    return [open(f) for f in list_of_files]
 
 class TestGenotypeConversion(TestCommon):
     test_records = {
@@ -14,7 +16,7 @@ class TestGenotypeConversion(TestCommon):
     }
 
     def setUp(self):
-        self.geno_conversion = GenotypeConversion([self.genotype_csv], self.accufill_log, 'igmm',
+        self.geno_conversion = GenotypeConversion(open_files([self.genotype_csv]), self.accufill_log, 'igmm',
                                                    self.small_reference_fai, flank_length=600)
 
     def test_generate_vcf(self):
@@ -69,8 +71,8 @@ class TestGenotypeConversion(TestCommon):
         assert len(self.geno_conversion.all_records) == 32
 
     def test_parse_QuantStudio_AIF_genotype(self):
-        geno_conversion = GenotypeConversion([self.genotype_quantStudio], self.accufill_log, 'quantStudio',
-                                              self.small_reference_fai, flank_length=600)
+        geno_conversion = GenotypeConversion(open_files([self.genotype_quantStudio]), open(self.accufill_log),
+                                             'quantStudio', self.small_reference_fai, flank_length=600)
         assert geno_conversion.sample_names == {'V0001P001C01', 'V0001P001A01'}
         assert len(geno_conversion.all_records) == 32
 
