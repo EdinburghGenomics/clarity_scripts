@@ -123,10 +123,10 @@ class GenotypeConversion(AppLogger):
                 self.add_genotype(sample, assay_id, line.get(header_call))
 
     def parse_quantstudio_flex_genotype(self):
-        result_lines = []
-        in_results = False
-        parameters = {}
         for input_genotypes_content in self.input_genotypes_contents:
+            result_lines = []
+            in_results = False
+            parameters = {}
             for line in input_genotypes_content:
                 if not line.strip():
                     continue
@@ -170,9 +170,9 @@ class GenotypeConversion(AppLogger):
                     a1 = snp_def.get(e1.split('_')[-1])
                     a2 = snp_def.get(e2.split('_')[-1])
                     call = a1 + a2
-                self.add_genotype(sample, assay_id, call)
+                self.add_genotype(sample, assay_id, call, parameters['Barcode'])
 
-    def add_genotype(self, sample, assay_id, call):
+    def add_genotype(self, sample, assay_id, call, array_barcode=None):
         snp_def = SNPs_definitions.get(assay_id)
         genotype = self.get_genotype_from_call(snp_def['ref_base'], snp_def['alt_base'], call)
         if 'SNP' not in self.all_records[snp_def['snp_id']]:
@@ -184,7 +184,9 @@ class GenotypeConversion(AppLogger):
                        snp_def['ref_base'], snp_def['alt_base'], ".", ".", ".", "GT"]
             self.all_records[snp_def['snp_id']]['SNP'] = snp
         if sample in self.all_records[snp_def['snp_id']]:
-            raise Exception('Sample {} found more than once for SNPs {}'.format(sample, snp_def['snp_id']))
+            msg = 'Sample {} found more than once for SNPs {} while parsing {}'.format(sample, snp_def['snp_id'], array_barcode)
+            self.critical(msg)
+            raise Exception(msg)
         self.all_records[snp_def['snp_id']][sample] = genotype
         self.sample_names.add(sample)
 
