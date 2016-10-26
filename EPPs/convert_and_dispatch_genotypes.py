@@ -306,6 +306,10 @@ class UploadVcfToSamples(EPP):
             messages.append('%s genotypes have not been assigned' % (len(self.geno_conv.sample_names) - len(valid_samples)))
         print(', '.join(messages))
 
+    def __del__(self):
+        for f in self.files_to_close:
+            f.close()
+
 
 def main():
     args = _parse_args()
