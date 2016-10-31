@@ -207,9 +207,15 @@ class GenotypeConversion(AppLogger):
         lines.extend(self.vcf_header_contigs)
         lines.append('\t'.join(list(vcf_header) + [new_name]))
         for snps_id in self.snps_order:
-            out = list(self.all_records[snps_id].get('SNP'))
-            out.append(self.all_records[snps_id].get(sample))
-            lines.append('\t'.join(out))
+            genotype = self.all_records[snps_id].get(sample)
+            if genotype:
+                out = list(self.all_records[snps_id].get('SNP'))
+                out.append(self.all_records[snps_id].get(sample))
+                lines.append('\t'.join(out))
+            else:
+                msg = 'SNP %s was not found for Sample '%(snps_id, sample)
+                self.critical(msg)
+                raise ValueError(msg)
         with open(vcf_file, 'w') as open_file:
             open_file.write('\n'.join(lines))
         return vcf_file
