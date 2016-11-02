@@ -116,7 +116,7 @@ class GenotypeConversion(AppLogger):
 
             for line in reader:
                 sample = line[header_sample_id]
-                if sample.lower() == 'blank':
+                if not sample or sample.lower() == 'blank':
                     # Entries with blank as sample name are entries with water and no DNA
                     continue
                 assay_id = line[header_assay_id]
@@ -157,7 +157,7 @@ class GenotypeConversion(AppLogger):
             for line in result_lines[1:]:
                 sp_line = line.split('\t')
                 sample = sp_line[sp_header.index(header_sample_id)]
-                if sample.lower() == 'blank':
+                if not sample or sample.lower() == 'blank':
                     # Entries with blank as sample name are entries with water and no DNA
                     continue
                 assay_id = sp_line[sp_header.index(header_assay_id)]
