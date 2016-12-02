@@ -4,10 +4,18 @@ from EPPs.common import EPP
 from unittest.mock import Mock
 
 
+
+def fake_artifact(id):
+    return Mock(
+        id='%s'%id,
+        workflow_stages_and_statuses=[(Mock(uri='a_uri'), 'COMPLETE', 'stage1')]
+    )
+
 def fake_all_inputs(unique=False, resolve=False):
+    '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
     return (
-        Mock(samples=[Mock(artifact='artifact_for_sample_1', id='1'), Mock(artifact='artifact_for_sample_2', id='2')]),
-        Mock(samples=[Mock(artifact='artifact_for_sample_2', id='3'), Mock(artifact='artifact_for_sample_3', id='4')])
+        Mock(samples=[Mock(artifact=fake_artifact(id='a1'), id='s1')]),
+        Mock(samples=[Mock(artifact=fake_artifact(id='a2'), id='s2')])
     )
 
 

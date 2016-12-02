@@ -43,11 +43,11 @@ class TestPrepareDiscardPlate(TestEPP):
             ('Found %d containers', 2),
             ('Found %d valid containers to potentially discard', 2),
             ('Found %d others associated with the container but not associated with discarded samples', 4),
-            ('Test container %s, with %s artifacts', 'Container 1', 2),
+            ('Test container %s, with %s artifacts', 'Container s1', 2),
             (
                 "Container: %s won't route because artifact %s in step_associated_artifacts (%s) or has been discarded before (%s)",
-                'Container 1',
-                'Container 1 placement 2',
+                'Container s1',
+                'Container s1 placement 2',
                 False,
                 False
             ),
