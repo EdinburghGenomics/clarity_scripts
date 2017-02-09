@@ -41,4 +41,5 @@ class TestAsignWorkflowStage(TestEPP):
         with patch('EPPs.assign_to_workflow_stage.get_workflow_stage', return_value=Mock(uri='a_uri')) as p:
             self.epp2._run()
             p.assert_called_with(self.epp2.lims, self.epp2.workflow_name, 'a_stage_name')
+            print(self.epp2.lims.route_artifacts.call_count)
             assert self.epp2.lims.route_artifacts.call_count == 0

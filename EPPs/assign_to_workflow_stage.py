@@ -2,12 +2,13 @@ from EPPs.common import EPP, argparser, get_workflow_stage
 
 
 class AssignWorkflowStage(EPP):
-    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source, remove, only_once=False):
+    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source, remove=False, only_once=False):
         super().__init__(step_uri, username, password, log_file)
         self.workflow_name = workflow_name
         self.stage_name = stage_name
         self.source = source
         self.remove = remove
+        self.only_once = only_once
 
     def _run(self):
         artifacts = None
@@ -31,10 +32,11 @@ class AssignWorkflowStage(EPP):
             artifacts = self.filter_artifacts_has_been_through_stage(artifacts, stage.uri)
 
         # Route the artifacts if there are any
-        if self.remove:
-            self.lims.route_artifacts(artifacts, stage_uri=stage.uri, unassign=True)
-        else:
-            self.lims.route_artifacts(artifacts, stage_uri=stage.uri)
+        if artifacts:
+            if self.remove:
+                self.lims.route_artifacts(artifacts, stage_uri=stage.uri, unassign=True)
+            else:
+                self.lims.route_artifacts(artifacts, stage_uri=stage.uri)
 
     @staticmethod
     def filter_artifacts_has_been_through_stage(artifacts, stage_uri):
