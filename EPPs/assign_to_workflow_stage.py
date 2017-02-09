@@ -2,11 +2,12 @@ from EPPs.common import EPP, argparser, get_workflow_stage
 
 
 class AssignWorkflowStage(EPP):
-    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source):
+    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source, remove):
         super().__init__(step_uri, username, password, log_file)
         self.workflow_name = workflow_name
         self.stage_name = stage_name
         self.source = source
+        self.remove = remove
 
     def _run(self):
         artifacts = None
@@ -26,8 +27,10 @@ class AssignWorkflowStage(EPP):
                 'Stage specified by workflow: %s and stage: %s does not exist in %s' % (self.workflow_name, self.stage_name, self.baseuri)
             )
         # Route the artifacts
-        self.lims.route_artifacts(artifacts, stage_uri=stage.uri)
-
+        if self.remove:
+            self.lims.route_artifacts(artifacts, stage_uri=stage.uri, unassign=True)
+        else:
+            self.lims.route_artifacts(artifacts, stage_uri=stage.uri)
 
 def main():
     p = argparser()
@@ -37,10 +40,12 @@ def main():
                    help='The name of the stage in the workflow we should route the artifacts to.')
     p.add_argument('--source', dest='source', type=str, required=True, choices=['input', 'output', 'submitted'],
                    help='The name of the stage in the workflow we should route the artifacts to.')
+    p.add_argument('--remove', dest='remove', action='store_true', default=False,
+                   help='Set the script to remove the artifacts instead of queueing.')
 
     args = p.parse_args()
     action = AssignWorkflowStage(
-        args.step_uri, args.username, args.password, args.log_file, args.workflow, args.stage, args.source
+        args.step_uri, args.username, args.password, args.log_file, args.workflow, args.stage, args.source, args.remove
     )
     action.run()
 
