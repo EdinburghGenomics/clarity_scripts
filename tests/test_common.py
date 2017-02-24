@@ -29,6 +29,7 @@ class TestCommon(TestCase):
     assets = join(dirname(abspath(__file__)), 'assets')
     genotype_csv = join(assets, 'E03159_WGS_32_panel_9504430.csv')
     genotype_quantStudio = join(assets, 'VGA55_QuantStudio 12K Flex_export.txt')
+    accufill_log = join(assets, 'OpenArrayLoad_Log.csv')
     small_reference_fai = join(assets, 'genotype_32_SNPs_genome_600bp.fa.fai')
     reference_fai = join(assets, 'GRCh37.fa.fai')
     log_file = join(assets, 'test_log_file.txt')
