@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import csv
 from os import remove
 from os.path import join, dirname, abspath
