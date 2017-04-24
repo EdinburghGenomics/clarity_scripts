@@ -1,5 +1,6 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
+
 from EPPs.common import EPP
 from unittest.mock import Mock
 
@@ -45,6 +46,7 @@ class TestEPP(TestCommon):
         )
         self.epp._process = Mock()
         self.epp._lims = Mock()
+
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'

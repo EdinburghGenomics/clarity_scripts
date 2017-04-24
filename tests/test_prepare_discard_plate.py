@@ -1,6 +1,6 @@
 from tests.test_common import fake_all_inputs, TestEPP, FakeEntity
 from unittest.mock import Mock, patch
-from EPPs import prepare_discard_plate
+from scripts import prepare_discard_plate
 
 
 class FakeContainer(FakeEntity):
@@ -33,8 +33,8 @@ class TestPrepareDiscardPlate(TestEPP):
         self.epp._process = Mock(all_inputs=fake_all_inputs)
 
     def test_discard(self):
-        patched_stage = patch('EPPs.prepare_discard_plate.get_workflow_stage', return_value=Mock(uri='a_uri'))
-        patched_log = patch('EPPs.prepare_discard_plate.FindPlateToRoute.info')
+        patched_stage = patch('scripts.prepare_discard_plate.get_workflow_stage', return_value=Mock(uri='a_uri'))
+        patched_log = patch('scripts.prepare_discard_plate.FindPlateToRoute.info')
 
         exp_log_messages = (
             ('Found Stage %s uri: %s', 'Discard Plates EG 1.0', 'a_uri'),

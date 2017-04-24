@@ -2,7 +2,7 @@ import pytest
 from os.path import join
 from tests.test_common import TestCommon, TestEPP, FakeEntity
 from unittest.mock import Mock, patch
-from EPPs.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
+from scripts.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
 
 def open_files(list_of_files):
     return [open(f) for f in list_of_files]
@@ -109,9 +109,9 @@ class TestUploadVcfToSamples(TestEPP):
         self.epp._process = Mock(all_inputs=fake_all_inputs)
 
     def test_upload(self):
-        patched_log = patch('EPPs.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
-        patched_generate_vcf = patch('EPPs.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf')
-        patched_remove = patch('EPPs.convert_and_dispatch_genotypes.remove')
+        patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
+        patched_generate_vcf = patch('scripts.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf')
+        patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
 
         exp_log_msgs = (
             ('Matching against %s artifacts', 1),
