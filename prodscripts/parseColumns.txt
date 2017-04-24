@@ -1,0 +1,17 @@
+UDF/2D Barcode
+UDF/User Sample Name
+UDF/Sample Type
+UDF/Prep Workflow
+UDF/Coverage (X)
+UDF/Required Yield (Gb)
+UDF/Yield for Quoted Coverage (Gb)
+UDF/Delivery
+UDF/Extraction Method
+UDF/Quantification Method
+UDF/User Quantification
+UDF/Volume
+UDF/Total Yield
+UDF/Elution Buffer
+UDF/Family ID
+UDF/Relationship
+UDF/Sex

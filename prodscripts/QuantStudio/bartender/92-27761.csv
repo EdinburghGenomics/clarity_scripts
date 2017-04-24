@@ -1,0 +1,3 @@
+%BTW% /AF=c:commandsample_labels.btw /D=%Trigger File Name% /PRN="EasyCoder F4 (203 dpi)" /R=3 /P /DD %END%
+Container ID,Sample LIMSID,Sample Name,Sample Type,Project Name
+LP121212-DNA,FOR203A105,LP121212-DNA_A02,,DF-XTraining

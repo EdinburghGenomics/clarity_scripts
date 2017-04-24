@@ -1,0 +1,10 @@
+INCLUDE.OUTPUT.RESULTFILES 
+<HEADER_BLOCK>
+</HEADER_BLOCK>
+<HEADER>
+Recipient Name, Address Line 1, Address Line 2, Address Line 3, Address Line 4, Address Line 5,
+</HEADER>
+<DATA>
+${PROCESS.UDF.Recipient Name},${PROCESS.UDF.Address Line 1}, ${PROCESS.UDF.Address Line 2}, ${PROCESS.UDF.Address Line 3}, ${PROCESS.UDF.Address Line 4}, ${PROCESS.UDF.Address Line 5},
+</DATA>
+
