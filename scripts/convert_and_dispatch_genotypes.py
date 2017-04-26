@@ -260,7 +260,7 @@ class UploadVcfToSamples(EPP):
     def open_or_download(self, f):
         if file_exists(f):
             content = open(f)
-            self.files_to_close.append(f)
+            self.files_to_close.append(content)
         else:
             a = Artifact(self.lims, id=f)
             content = StringIO(self.lims.get_file_contents(uri=a.files[0].uri))
