@@ -33,6 +33,9 @@ class StepEPP(AppLogger):
     def process(self):
         return Process(self.lims, id=self.step_id)
 
+    def step(self):
+        return self.process.step
+
     @cached_property
     def artifacts(self):
         '''This is the input artifacts of that step'''
