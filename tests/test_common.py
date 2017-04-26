@@ -1,9 +1,8 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 
-from EPPs.common import EPP
-from unittest.mock import Mock
-
+from EPPs.common import StepEPP
+from unittest.mock import Mock, PropertyMock, patch
 
 
 def fake_artifact(id):
@@ -18,7 +17,6 @@ def fake_all_inputs(unique=False, resolve=False):
         Mock(samples=[Mock(artifact=fake_artifact(id='a1'), id='s1')]),
         Mock(samples=[Mock(artifact=fake_artifact(id='a2'), id='s2')])
     )
-
 
 class FakeEntity(Mock):
     def __init__(self, name, *args, **kwargs):
@@ -37,16 +35,19 @@ class TestCommon(TestCase):
 
 
 class TestEPP(TestCommon):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock())
+        self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock())
+
     def setUp(self):
-        self.epp = EPP(
+        self.epp = StepEPP(
             'http://server:8080/some/extra/stuff',
             'a username',
             'a password',
             self.log_file
         )
-        self.epp._process = Mock()
-        self.epp._lims = Mock()
-
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'

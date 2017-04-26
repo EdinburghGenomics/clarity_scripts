@@ -1,7 +1,7 @@
 import sys
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
-from EPPs.common import EPP, argparser, get_workflow_stage
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 invalid_suffixes = {'-QNT', '-CFP', '-NRM', '-IMP', '-SSI', '-ALP', '-CAP', '-PCR', '-CPP', '-LQC', '-DQC1',
                     '-DIL1', '-DIL2', '-QPCR', '-CST'}
@@ -50,7 +50,7 @@ def has_workflow_stage(artifact, workflow_step_name):
     return False
 
 
-class FindPlateToRoute(EPP):
+class FindPlateToRoute(StepEPP):
     def _run(self):
         # Find the Discard plate workflow uri
         discard_plate_stage = get_workflow_stage(self.lims, workflow_name=discard_wf_name, stage_name=plate_discard_wf_stage_name)
@@ -121,7 +121,7 @@ class FindPlateToRoute(EPP):
 
 
 def main():
-    args = argparser().parse_args()
+    args = step_argparser().parse_args()
     log_cfg.add_handler(FileHandler(args.log_file))
     action = FindPlateToRoute(args.step_uri, args.username, args.password, args.log_file)
     return action.run()

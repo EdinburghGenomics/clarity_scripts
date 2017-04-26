@@ -5,7 +5,7 @@ from logging import FileHandler
 from xml.etree import ElementTree
 from genologics.entities import ReagentLot
 from egcg_core.app_logging import logging_default as log_cfg
-from EPPs.common import EPP, argparser
+from EPPs.common import StepEPP, step_argparser
 
 
 reagent_kit_map = {
@@ -38,7 +38,7 @@ def get_reagent_name_from_run_parameter(run_parameters):
         yield (name, lot)
 
 
-class CreateReagentForRun(EPP):
+class CreateReagentForRun(StepEPP):
     def __init__(self, step_uri, username, password, run_name):
         super().__init__(step_uri, username, password)
         self.run_name = run_name
@@ -63,7 +63,7 @@ class CreateReagentForRun(EPP):
 
 
 def main():
-    a = argparser()
+    a = step_argparser()
     a.add_argument('--run_name', type=str)
     args = a.parse_args()
     log_cfg.add_handler(FileHandler(args.log_file))

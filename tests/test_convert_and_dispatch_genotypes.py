@@ -1,8 +1,11 @@
 import pytest
 from os.path import join
+
+from EPPs.common import StepEPP
 from tests.test_common import TestCommon, TestEPP, FakeEntity
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, PropertyMock
 from scripts.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
+
 
 def open_files(list_of_files):
     return [open(f) for f in list_of_files]
@@ -88,15 +91,14 @@ class TestGenotypeConversion(TestCommon):
         assert find(valid_other_fieldnames, observed_fieldnames) == 'OTHER'
 
 
-fake_all_inputs = Mock(
-    return_value=[
-        Mock(samples=[FakeEntity(name='this', udf={'User Sample Name': '9504430'}, put=Mock())])
-    ]
-)
+
 
 
 class TestUploadVcfToSamples(TestEPP):
+
+
     def setUp(self):
+
         self.epp = UploadVcfToSamples(
             'http://server:8080/a_step_uri',
             'a_user',
@@ -105,8 +107,15 @@ class TestUploadVcfToSamples(TestEPP):
             mode='igmm',
             input_genotypes_files=[self.genotype_csv]
         )
-        self.epp._lims = Mock()
-        self.epp._process = Mock(all_inputs=fake_all_inputs)
+
+        fake_all_inputs = Mock(
+            return_value=[
+                Mock(samples=[FakeEntity(name='this', udf={'User Sample Name': '9504430'}, put=Mock())])
+            ]
+        )
+        self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(
+            return_value=Mock(all_inputs=fake_all_inputs)
+        ))
 
     def test_upload(self):
         patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
@@ -121,7 +130,7 @@ class TestUploadVcfToSamples(TestEPP):
             ('%s genotyping results were not used', 0)
         )
 
-        with patched_log as p, patched_generate_vcf, patched_remove:
+        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims, self.patched_process:
             self.epp._run()
             for m in exp_log_msgs:
                 p.assert_any_call(*m)

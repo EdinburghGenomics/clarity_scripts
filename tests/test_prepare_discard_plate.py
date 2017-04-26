@@ -1,5 +1,6 @@
+from EPPs.common import StepEPP
 from tests.test_common import fake_all_inputs, TestEPP, FakeEntity
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, PropertyMock
 from scripts import prepare_discard_plate
 
 
@@ -29,8 +30,8 @@ class TestPrepareDiscardPlate(TestEPP):
         self.epp = prepare_discard_plate.FindPlateToRoute(
             'http://server:8080/a_step_uri', 'a_user', 'a_password', 'a_workflow_name'
         )
-        self.epp._lims = Mock(get_artifacts=fake_artifacts)
-        self.epp._process = Mock(all_inputs=fake_all_inputs)
+        self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs)))
+        self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock(return_value=Mock(get_artifacts=fake_artifacts)))
 
     def test_discard(self):
         patched_stage = patch('scripts.prepare_discard_plate.get_workflow_stage', return_value=Mock(uri='a_uri'))
@@ -54,7 +55,7 @@ class TestPrepareDiscardPlate(TestEPP):
             ('Route %s containers with %s artifacts', 0, 0)
         )
 
-        with patched_log as l, patched_stage as p:
+        with patched_log as l, patched_stage as p, self.patched_lims, self.patched_process:
             self.epp._run()
             p.assert_called_with(self.epp.lims, workflow_name='Discard Plates EG 1.0', stage_name='Discard Plates EG 1.0')
             for m in exp_log_messages:
