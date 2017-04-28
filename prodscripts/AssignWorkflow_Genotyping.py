@@ -33,19 +33,15 @@ def assignWorkflow():
     BASE_URI = stepURI[0:apiLocation]
     l = Lims(baseuri=BASE_URI, username=usernameargs, password=passwordargs)
     p = Process(l, id=LIMSID)
-    artifacts = list(frozenset([s.artifact for a in p.all_inputs() for s in a.samples]))
+    artifacts = p.all_inputs()
     for art in artifacts:
         sample = art.samples[0]
-
-        if art.samples[0].udf.get("Proceed To SeqLab") == True:
-            stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
+        submitted_art = sample.artifact
+        if sample.udf.get("Species") == "Homo sapiens" and sample.udf.get(
+                "Skip genotyping for (human) sample?") == False or sample.udf.get(
+               "Species") == "Human" and sample.udf.get("Skip genotyping for (human) sample?") == False:
+            stage = get_workflow_stage(l, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
             l.route_artifacts([art], stage_uri=stage.uri)
-
-            #if sample.udf.get("Species") == "Homo sapiens" and sample.udf.get(
-            #        "Skip genotyping for (human) sample?") == False or sample.udf.get(
-            #        "Species") == "Human" and sample.udf.get("Skip genotyping for (human) sample?") == False:
-           #     stage = get_workflow_stage(l, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
-            #    l.route_artifacts([art], stage_uri=stage.uri)
 
 
 def main():

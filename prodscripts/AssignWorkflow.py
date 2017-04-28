@@ -41,9 +41,9 @@ def assignWorkflow():
             stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
             l.route_artifacts([submitted_art], stage_uri=stage.uri)
 
-        if sample.udf.get("Species") == "Homo sapiens" or sample.udf.get("Species") == "Human":
-            stage = get_workflow_stage(l, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
-            l.route_artifacts([submitted_art], stage_uri=stage.uri)
+        #if sample.udf.get("Species") == "Homo sapiens" or sample.udf.get("Species") == "Human":
+            #stage = get_workflow_stage(l, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
+            #l.route_artifacts([submitted_art], stage_uri=stage.uri)
 
 
 def main():
