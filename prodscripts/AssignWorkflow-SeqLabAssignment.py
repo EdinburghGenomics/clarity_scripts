@@ -44,6 +44,12 @@ def assignWorkflow():
             stage = get_workflow_stage(l, "TruSeq Nano DNA Sample Prep", "Visual QC")
             l.route_artifacts([art], stage_uri=stage.uri)
 
+        if sample.udf.get("Species") == "Homo sapiens" and sample.udf.get(
+                "Skip genotyping for (human) sample?") == False or sample.udf.get(
+               "Species") == "Human" and sample.udf.get("Skip genotyping for (human) sample?") == False:
+            stage = get_workflow_stage(l, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
+            l.route_artifacts([art], stage_uri=stage.uri)
+
 
 def main():
     global api
