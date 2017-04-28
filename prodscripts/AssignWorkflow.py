@@ -37,6 +37,7 @@ def assignWorkflow():
     for art in artifacts:
         sample = art.samples[0]
         submitted_art = sample.artifact
+        print("deployedagain")
         if art.samples[0].udf.get("Proceed To SeqLab") == True:
             stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
             l.route_artifacts([submitted_art], stage_uri=stage.uri)
