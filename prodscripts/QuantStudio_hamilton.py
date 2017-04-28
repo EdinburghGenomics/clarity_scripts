@@ -1,6 +1,6 @@
 __author__ = 'dcrawford'
 
-import EPPs.glsapiutil
+from EPPs import glsapiutil
 from xml.dom.minidom import parseString
 from optparse import OptionParser
 

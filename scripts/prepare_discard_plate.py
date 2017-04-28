@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
