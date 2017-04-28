@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __author__ = 'dcrawford'
 
 from EPPs import glsapiutil

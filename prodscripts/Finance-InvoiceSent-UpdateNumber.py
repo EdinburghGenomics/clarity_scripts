@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import getopt
 import sys
 from xml.dom.minidom import parseString

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from collections import defaultdict
 
 from EPPs.common import step_argparser, SendMailEPP
