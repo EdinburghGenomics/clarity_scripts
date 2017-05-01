@@ -12,8 +12,6 @@ def fake_all_inputs(unique=False, resolve=False):
 
 class TestAssignWorkflowPreSeqLab(TestEPP):
     def setUp(self):
-        "Proceed To SeqLab"
-        fake_all_inputs
         self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs)))
         self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock)
         self.epp = AssignWorkflowPreSeqLab(
