@@ -7,7 +7,6 @@ Changelog for clarity_scripts
 - Import of scripts from production server (cleanup and migration to python3)
 
 
-
 0.2 (2017-04-27)
 ----------------
  - add accufill check in convert_and_dispatch_genotypes

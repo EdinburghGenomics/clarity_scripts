@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 
