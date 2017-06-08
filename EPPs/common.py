@@ -103,8 +103,8 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
 
 def step_argparser():
     a = argparse.ArgumentParser()
-    a.add_argument('--username', type=str, help='The username of the person logged in')
-    a.add_argument('--password', type=str, help='The password used by the person logged in')
-    a.add_argument('--step_uri', type=str, help='The uri of the step this EPP is attached to')
-    a.add_argument('--log_file', type=str, help='Optional log file to write to', default=None)
+    a.add_argument('-u', '--username', type=str, help='The username of the person logged in')
+    a.add_argument('-p', '--password', type=str, help='The password used by the person logged in')
+    a.add_argument('-s', '--step_uri', type=str, help='The uri of the step this EPP is attached to')
+    a.add_argument('-l', '--log_file', type=str, help='Optional log file to append to', default=None)
     return a
