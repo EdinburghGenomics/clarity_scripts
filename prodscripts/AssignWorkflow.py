@@ -24,8 +24,8 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
         return
     return stages[0]
 
-def get_parent_process_date(art):
-    return art.parent_process.date_run
+def get_parent_process_id(art):
+    return art.parent_process.id_run
 
 
 
@@ -52,7 +52,7 @@ def assignWorkflow():
             fluidX_artifacts = l.get_artifacts(process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST", sample_name=art.sample[0].name, type='Analyte')
 
             if len(fluidX_artifacts) >1: #its possible that the FluidX Transfer has occurred more than once so must find the most recent occurrence of that step
-                fluidX_artifacts.sort(key=get_parent_process_date, reverse=true) #sorts the artifacts returned to place the most recent artifact at position 0 in list
+                fluidX_artifacts.sort(key=get_parent_process_id, reverse=True) #sorts the artifacts returned to place the most recent artifact at position 0 in list
                 fluidX_artifact=fluidX_artifacts[0]
             else:
                 fluidX_artifact=fluidX_artifacts[0]
