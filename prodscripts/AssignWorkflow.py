@@ -24,6 +24,11 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
         return
     return stages[0]
 
+def get_parent_process_date(art):
+    return art.parent_process.date_run
+
+
+
 
 def assignWorkflow():
     LIMSID = args["limsid"]
@@ -39,9 +44,21 @@ def assignWorkflow():
         sample = art.samples[0]
         submitted_art = sample.artifact
 
-        if art.samples[0].udf.get("Proceed To SeqLab") == True:
+        if art.samples[0].udf.get("Proceed To SeqLab") and not art.samples[0].udf.get("2D Barcode"): #checks to see if sample is in plate or fluidX tube
             stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
             l.route_artifacts([submitted_art], stage_uri=stage.uri)
+
+        elif art.samples[0].udf.get("Proceed To SeqLab") and art.samples[0].udf.get("2D Barcode"): #if is a fluidX tube will need to find the derived artifact created by the FluidX Transfer step
+            fluidX_artifacts = l.get_artifacts(process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST", sample_name=art.sample[0].name, type='Analyte')
+
+            if len(fluidX_artifacts) >1: #its possible that the FluidX Transfer has occurred more than once so must find the most recent occurrence of that step
+                fluidX_artifacts.sort(key=get_parent_process_date, reverse=true) #sorts the artifacts returned to place the most recent artifact at position 0 in list
+                fluidX_artifact=fluidX_artifacts[0]
+            else:
+                fluidX_artifact=fluidX_artifacts[0]
+
+            stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
+            l.route_artifacts([fluidX_artifact], stage_uri=stage.uri)
 
 def main():
     global api
