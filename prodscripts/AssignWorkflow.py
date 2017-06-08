@@ -49,7 +49,7 @@ def assignWorkflow():
             l.route_artifacts([submitted_art], stage_uri=stage.uri)
 
         elif art.samples[0].udf.get("Proceed To SeqLab") and art.samples[0].udf.get("2D Barcode"): #if is a fluidX tube will need to find the derived artifact created by the FluidX Transfer step
-            fluidX_artifacts = l.get_artifacts(process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST", sample_name=art.sample[0].name, type='Analyte')
+            fluidX_artifacts = l.get_artifacts(process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST", sample_name=art.samples[0].name, type='Analyte')
 
             if len(fluidX_artifacts) >1: #its possible that the FluidX Transfer has occurred more than once so must find the most recent occurrence of that step
                 fluidX_artifacts.sort(key=get_parent_process_id, reverse=True) #sorts the artifacts returned to place the most recent artifact at position 0 in list
