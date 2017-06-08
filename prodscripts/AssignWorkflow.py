@@ -25,7 +25,7 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
     return stages[0]
 
 def get_parent_process_id(art):
-    return art.parent_process.id_run
+    return art.parent_process.id
 
 
 
