@@ -17,6 +17,7 @@ class AssignWorkflowPreSeqLab(StepEPP):
                 artifact_to_route.add(sample.artifact)
 
             elif sample.udf.get("Proceed To SeqLab") and sample.udf.get("2D Barcode"):
+                print(2D Barcode)
                 # if is a fluidX tube will need to find the derived artifact created by the FluidX Transfer step
                 fluidX_artifacts = self.lims.get_artifacts(
                     process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST",
@@ -35,6 +36,7 @@ class AssignWorkflowPreSeqLab(StepEPP):
         if artifact_to_route:
             # Only route artifacts if there are any
             stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
+            print(artifact_to_route)
             self.lims.route_artifacts(list(artifact_to_route), stage_uri=stage.uri)
 
 
