@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage, find_newest_artifact_originating_from
 
 
 def get_parent_process_id(art):
@@ -16,14 +16,14 @@ class AssignWorkflowSeqLabQuantStudio(StepEPP):
         artifact_to_route_nano = set()
         artifact_to_route_quant = set()
 
-        for art in self.artifacts:
+        for art in self.output_artifacts:
             sample = art.samples[0]
-            if art.samples[0].udf.get("Prep Workflow") == "TruSeq PCR-Free DNA Sample Prep":
+            if sample.udf.get("Prep Workflow") == "TruSeq PCR-Free DNA Sample Prep":
                 artifact_to_route_pcr_free.add(art)
             # assigns the normalised batch plate to the TruSeq PCR-Free workflow
 
 
-            if art.samples[0].udf.get("Prep Workflow") == "TruSeq Nano DNA Sample Prep":
+            elif sample.udf.get("Prep Workflow") == "TruSeq Nano DNA Sample Prep":
                 artifact_to_route_nano.add(art)
                 # assigns the normalised batch plate to the TruSeq Nano workflow
 
@@ -40,20 +40,12 @@ class AssignWorkflowSeqLabQuantStudio(StepEPP):
                     artifact_to_route_quant.add(sample.artifact)
 
                 elif sample.udf.get("2D Barcode"):
-                    # if is a fluidX tube will need to find the derived artifact created by the FluidX Transfer step
-                    fluidX_artifacts = self.lims.get_artifacts(
+                    artifact = find_newest_artifact_originating_from(
+                        self.lims,
                         process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST",
-                        sample_name=sample.name,
-                        type='Analyte'
+                        sample_name=sample.name
                     )
-
-                    if len(fluidX_artifacts) > 1:
-                        # its possible that the FluidX Transfer has occurred more than once
-                        # so must find the most recent occurrence of that step
-                        fluidX_artifacts.sort(key=get_parent_process_id, reverse=True)
-                        # sorts the artifacts returned to place the most recent artifact at position 0 in list
-
-                    artifact_to_route_quant.add(fluidX_artifacts[0])
+                    artifact_to_route_quant.add(artifact)
 
         if artifact_to_route_pcr_free:
             # Only route artifacts if there are any artifacts to go to PCR-Free

@@ -101,6 +101,32 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
     return stages[0]
 
 
+def find_newest_artifact_originating_from(lims, process_type, sample_name):
+    """
+    This function retrieve the newest artifact (Analyte) associated with the provided sample name
+    and orignating from the provided process_type
+    :param lims: The instance of the lims object
+    :param process_type: the type of process that created the artifact
+    :param sample_name: the name of the sample associated with this artifact.
+    """
+    def get_parent_process_id(art):
+        return art.parent_process.id
+
+    artifacts = lims.get_artifacts(
+        process_type=process_type,
+        sample_name=sample_name,
+        type='Analyte'
+    )
+    if len(artifacts) > 1:
+        # its possible that the process has occurred more than once
+        # so must find the most recent occurrence of that step
+        artifacts.sort(key=get_parent_process_id, reverse=True)
+        # sorts the artifacts returned to place the most recent artifact at position 0 in list
+
+    if artifacts:
+        return artifacts[0]
+
+
 def step_argparser():
     a = argparse.ArgumentParser()
     a.add_argument('-u', '--username', type=str, help='The username of the person logged in')

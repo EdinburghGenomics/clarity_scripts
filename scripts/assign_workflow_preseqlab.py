@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
-
-
-def get_parent_process_id(art):
-    return art.parent_process.id
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage, find_newest_artifact_originating_from
 
 
 class AssignWorkflowPreSeqLab(StepEPP):
@@ -17,20 +13,12 @@ class AssignWorkflowPreSeqLab(StepEPP):
                 artifact_to_route.add(sample.artifact)
 
             elif sample.udf.get("Proceed To SeqLab") and sample.udf.get("2D Barcode"):
-                # if is a fluidX tube will need to find the derived artifact created by the FluidX Transfer step
-                fluidX_artifacts = self.lims.get_artifacts(
+                artifact = find_newest_artifact_originating_from(
+                    self.lims,
                     process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST",
-                    sample_name=sample.name,
-                    type='Analyte'
+                    sample_name=sample.name
                 )
-
-                if len(fluidX_artifacts) >1:
-                    # its possible that the FluidX Transfer has occurred more than once
-                    # so must find the most recent occurrence of that step
-                    fluidX_artifacts.sort(key=get_parent_process_id, reverse=True)
-                    # sorts the artifacts returned to place the most recent artifact at position 0 in list
-
-                artifact_to_route.add(fluidX_artifacts[0])
+                artifact_to_route.add(artifact)
 
         if artifact_to_route:
             # Only route artifacts if there are any
