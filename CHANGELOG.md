@@ -1,11 +1,11 @@
 Changelog for clarity_scripts
 =============================
 
-0.3 (unreleased)
+0.3 (2017-06-09)
 ----------------
 
 - Import of scripts from production server (cleanup and migration to python3)
-
+- added and tested assign_workflow_preseqlab.py and assign_workflow_seqlab_quantstudio.py
 
 0.2 (2017-04-27)
 ----------------
