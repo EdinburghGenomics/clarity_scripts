@@ -1,7 +1,7 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 
-from EPPs.common import StepEPP
+from EPPs.common import StepEPP, find_newest_artifact_originating_from
 from unittest.mock import Mock, PropertyMock, patch
 
 
@@ -51,3 +51,29 @@ class TestEPP(TestCommon):
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'
+
+
+class TestFindNewestArtifactOriginatingFrom(TestCase):
+
+    def test_find_newest_artifact_originating_from(self):
+        lims = Mock(get_artifacts=Mock(return_value=[
+            Mock(id='fx1', parent_process=Mock(id='121')),
+            Mock(id='fx2', parent_process=Mock(id='123'))
+        ]))
+        process_type = 'Process 1.0'
+        sample_name = 's1'
+        artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
+        assert artifact.id == 'fx2'
+        lims.get_artifacts.assert_called_with(type='Analyte', process_type='Process 1.0', sample_name='s1')
+
+        lims = Mock(get_artifacts=Mock(return_value=[
+            Mock(id='fx1', parent_process=Mock(id='121')),
+        ]))
+        artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
+        assert artifact.id == 'fx1'
+
+        lims = Mock(get_artifacts=Mock(return_value=[]))
+        artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
+        assert artifact is None
+
+
