@@ -1,12 +1,17 @@
 import argparse
 from urllib import parse as urlparse
 from logging import FileHandler
+
+from cached_property import cached_property
+import os
+from egcg_core.config import cfg
+from egcg_core.notifications import email
 from genologics.lims import Lims
 from genologics.entities import Process
 from egcg_core.app_logging import AppLogger, logging_default
 
 
-class EPP(AppLogger):
+class StepEPP(AppLogger):
     _lims = None
     _process = None
 
@@ -20,17 +25,38 @@ class EPP(AppLogger):
         if log_file:
             logging_default.add_handler(FileHandler(log_file))
 
-    @property
+    @cached_property
     def lims(self):
-        if self._lims is None:
-            self._lims = Lims(self.baseuri, self.username, self.password)
-        return self._lims
+        return Lims(self.baseuri, self.username, self.password)
 
-    @property
+    @cached_property
     def process(self):
-        if self._process is None:
-            self._process = Process(self.lims, id=self.step_id)
-        return self._process
+        return Process(self.lims, id=self.step_id)
+
+    def step(self):
+        return self.process.step
+
+    @cached_property
+    def artifacts(self):
+        '''This is the input artifacts of that step'''
+        return self.process.all_inputs(unique=True, resolve=True)
+
+    @cached_property
+    def output_artifacts(self):
+        '''This is the output artifacts of that step'''
+        return self.process.all_outputs(unique=True, resolve=True)
+
+    @cached_property
+    def samples(self):
+        '''This is the samples associated with the input artifacts of that step'''
+        samples = [a.samples[0] for a in self.artifacts]
+        self.lims.get_batch(samples)
+        return samples
+
+    @cached_property
+    def projects(self):
+        '''This is the projects associated with the input artifacts of that step'''
+        return list(set([s.project for s in self.samples]))
 
     def _run(self):
         raise NotImplementedError
@@ -46,6 +72,23 @@ class EPP(AppLogger):
             raise e
 
 
+class SendMailEPP(StepEPP):
+
+    def get_email_template(self, name='default_email_template.html'):
+        return os.path.join( os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'etc', name )
+
+    def get_config(self, config_name=None, template_name='default_email_template.html'):
+        email_config = cfg.query('email_notify', 'default')
+        if config_name:
+            email_config.update(cfg.query('email_notify', config_name))
+        if not 'email_template' in email_config:
+            email_config['email_template'] = self.get_email_template(template_name)
+        return email_config
+
+    def send_mail(self, subject, msg, config_name=None, template_name='default_email_template.html'):
+        email.send_email(msg=msg, subject=subject, strict=True, **self.get_config(config_name, template_name))
+
+
 def get_workflow_stage(lims, workflow_name, stage_name=None):
     workflows = [w for w in lims.get_workflows() if w.name == workflow_name]
     if len(workflows) != 1:
@@ -58,10 +101,36 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
     return stages[0]
 
 
-def argparser():
+def find_newest_artifact_originating_from(lims, process_type, sample_name):
+    """
+    This function retrieve the newest artifact (Analyte) associated with the provided sample name
+    and orignating from the provided process_type
+    :param lims: The instance of the lims object
+    :param process_type: the type of process that created the artifact
+    :param sample_name: the name of the sample associated with this artifact.
+    """
+    def get_parent_process_id(art):
+        return art.parent_process.id
+
+    artifacts = lims.get_artifacts(
+        process_type=process_type,
+        sample_name=sample_name,
+        type='Analyte'
+    )
+    if len(artifacts) > 1:
+        # its possible that the process has occurred more than once
+        # so must find the most recent occurrence of that step
+        artifacts.sort(key=get_parent_process_id, reverse=True)
+        # sorts the artifacts returned to place the most recent artifact at position 0 in list
+
+    if artifacts:
+        return artifacts[0]
+
+
+def step_argparser():
     a = argparse.ArgumentParser()
-    a.add_argument('--username', type=str, help='The username of the person logged in')
-    a.add_argument('--password', type=str, help='The password used by the person logged in')
-    a.add_argument('--step_uri', type=str, help='The uri of the step this EPP is attached to')
-    a.add_argument('--log_file', type=str, help='Optional log file to write to', default=None)
+    a.add_argument('-u', '--username', type=str, help='The username of the person logged in')
+    a.add_argument('-p', '--password', type=str, help='The password used by the person logged in')
+    a.add_argument('-s', '--step_uri', type=str, help='The uri of the step this EPP is attached to')
+    a.add_argument('-l', '--log_file', type=str, help='Optional log file to append to', default=None)
     return a

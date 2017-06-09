@@ -18,7 +18,7 @@ setup(
     description='Clarity EPPs used in Edinburgh Genomics',
     long_description='Set of scripts used at Edinburgh Genomics to automate steps of in Clarity LIMS',
     install_requires=requirements,  # actual module requirements
-    scripts=glob.glob("scripts/*.py"),
+    scripts=glob.glob("scripts/*.py") + glob.glob("prodscripts/*.py"),
     zip_safe=False,
     author='Timothee Cezard',
     author_email='timothee.cezard@ed.ac.uk'

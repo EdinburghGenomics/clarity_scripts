@@ -1,7 +1,8 @@
-from EPPs.common import EPP, argparser, get_workflow_stage
+#!/usr/bin/env python
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 
-class AssignWorkflowStage(EPP):
+class AssignWorkflowStage(StepEPP):
     def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source, remove=False, only_once=False):
         super().__init__(step_uri, username, password, log_file)
         self.workflow_name = workflow_name
@@ -49,7 +50,7 @@ class AssignWorkflowStage(EPP):
 
 
 def main():
-    p = argparser()
+    p = step_argparser()
     p.add_argument('--workflow', dest='workflow', type=str, required=True,
                    help='The name of the workflow we should route the artifacts to.')
     p.add_argument('--stage', dest='stage', type=str,

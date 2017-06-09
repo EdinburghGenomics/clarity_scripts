@@ -1,0 +1,13 @@
+email_notify:
+  # mandatory section called default
+  default:
+    mailhost: smtp.test.me
+    port: 25
+    sender: sender@email.com
+    recipients:
+      - recipient1@email.com
+      - recipient2@email.com
+  # specific sections overriding default
+  project_only:
+    recipients:
+      - project@email.com

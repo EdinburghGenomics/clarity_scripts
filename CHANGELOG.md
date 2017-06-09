@@ -4,7 +4,7 @@ Changelog for clarity_scripts
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Import of scripts from production server (cleanup and migration to python3)
 
 
 0.2 (2017-04-27)

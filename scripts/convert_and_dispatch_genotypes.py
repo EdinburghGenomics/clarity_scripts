@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import csv
 import sys
 from os import remove
@@ -10,7 +11,7 @@ from egcg_core.app_logging import AppLogger, logging_default as log_cfg
 from genologics.entities import Artifact
 
 sys.path.append(dirname(dirname(abspath(__file__))))
-from EPPs.common import EPP, argparser
+from EPPs.common import StepEPP, step_argparser
 
 etc_path = join(dirname(dirname(abspath(__file__))), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
@@ -240,7 +241,7 @@ class GenotypeConversion(AppLogger):
         return self._valid_array_barcodes
 
 
-class UploadVcfToSamples(EPP):
+class UploadVcfToSamples(StepEPP):
     def __init__(self, step_uri, username, password, log_file, mode, input_genotypes_files,
                  accufill_log=None, no_upload=False):
         super().__init__(step_uri, username, password, log_file)
@@ -260,7 +261,7 @@ class UploadVcfToSamples(EPP):
     def open_or_download(self, f):
         if file_exists(f):
             content = open(f)
-            self.files_to_close.append(f)
+            self.files_to_close.append(content)
         else:
             a = Artifact(self.lims, id=f)
             content = StringIO(self.lims.get_file_contents(uri=a.files[0].uri))
@@ -325,7 +326,7 @@ def main():
 
 
 def _parse_args():
-    p = argparser()
+    p = step_argparser()
     p.add_argument('--format', dest='format', type=str, choices=['igmm', 'quantStudio'],
                    help='The format of the genotype file')
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',

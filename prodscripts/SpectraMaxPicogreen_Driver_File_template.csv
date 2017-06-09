@@ -1,0 +1,8 @@
+INCLUDE.OUTPUT.RESULTFILES
+OUTPUT.SEPARATOR,TAB
+<HEADER>
+Well Location, Group Name, Group Type, Sample Name, Descriptor1 Name, Descriptor1 Value, Descriptor1 Units, Descriptor2 Name, Descriptor2 Value, Descriptor2 Units
+</HEADER>
+<DATA>
+Column1, ${INPUT.UDF.Assay Role}, ${INPUT.UDF.Assay Role}, ${OUTPUT.CONTAINER.NAME}, ${INPUT.UDF.Descriptor1 Name}, ${INPUT.UDF.Descriptor1 Value}, ${INPUT.UDF.Descriptor1 Units}, Dilution Factor, ${PROCESS.UDF.Dilution Factor for Samples}, ${INPUT.UDF.Descriptor2 Units} 
+</DATA>
