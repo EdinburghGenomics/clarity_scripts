@@ -52,20 +52,20 @@ class AssignWorkflowSeqLabQuantStudio(StepEPP):
 
                         artifact_to_route_quant.add(fluidX_artifacts[0])
 
-                if artifact_to_route_pcr_free:
-                    # Only route artifacts if there are any artifacts to go to PCR-Free
-                    stage = get_workflow_stage(self.lims, "TruSeq PCR-Free DNA Sample Prep", "Visual QC")
-                    self.lims.route_artifacts(list(artifact_to_route_pcr_free), stage_uri=stage.uri)
+        if artifact_to_route_pcr_free:
+            # Only route artifacts if there are any artifacts to go to PCR-Free
+            stage = get_workflow_stage(self.lims, "TruSeq PCR-Free DNA Sample Prep", "Visual QC")
+            self.lims.route_artifacts(list(artifact_to_route_pcr_free), stage_uri=stage.uri)
 
-                if artifact_to_route_nano:
-                    # Only route artifacts if there are any artifacts to go to Nano
-                    stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep", "Visual QC")
-                    self.lims.route_artifacts(list(artifact_to_route_nano), stage_uri=stage.uri
+        if artifact_to_route_nano:
+            # Only route artifacts if there are any artifacts to go to Nano
+            stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep", "Visual QC")
+            self.lims.route_artifacts(list(artifact_to_route_nano), stage_uri=stage.uri
 
-                if artifact_to_route_quant:
-                    # Only route artifacts if there are any artifacts to go to Nano
-                    stage = get_workflow_stage(self.lims, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
-                    self.lims.route_artifacts(list(artifact_to_route_quant), stage_uri=stage.uri)
+        if artifact_to_route_quant:
+            # Only route artifacts if there are any artifacts to go to Nano
+            stage = get_workflow_stage(self.lims, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
+            self.lims.route_artifacts(list(artifact_to_route_quant), stage_uri=stage.uri)
 
 def main():
     p = step_argparser()
