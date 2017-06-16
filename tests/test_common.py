@@ -1,22 +1,23 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
-
-from EPPs.common import StepEPP
 from unittest.mock import Mock, PropertyMock, patch
+from EPPs.common import StepEPP
 
 
 def fake_artifact(id):
     return Mock(
-        id='%s'%id,
+        id=str(id),
         workflow_stages_and_statuses=[(Mock(uri='a_uri'), 'COMPLETE', 'stage1')]
     )
 
+
 def fake_all_inputs(unique=False, resolve=False):
-    '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
+    """Return a list of mocked artifacts which contain samples which contain artifacts ... Simple!"""
     return (
         Mock(samples=[Mock(artifact=fake_artifact(id='a1'), id='s1')]),
         Mock(samples=[Mock(artifact=fake_artifact(id='a2'), id='s2')])
     )
+
 
 class FakeEntity(Mock):
     def __init__(self, name, *args, **kwargs):
@@ -35,7 +36,6 @@ class TestCommon(TestCase):
 
 
 class TestEPP(TestCommon):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock())
