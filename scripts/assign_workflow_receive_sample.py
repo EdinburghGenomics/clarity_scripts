@@ -6,32 +6,33 @@ def get_parent_process_id(art):
     return art.parent_process.id
 
 
-class AssignWorkflowUserPreparedLibrary(StepEPP):
+class AssignWorkflowReceiveSample(StepEPP):
     #Assign plate created in User Prepared Library to either Nano or PCR Free workflow
 
     def _run(self):
-        artifact_to_route_pcr_free = set()
-        artifact_to_route_nano = set()
+        artifact_to_route_userprepared = set()
+        artifact_to_route_preseqlab = set()
+
 
         for art in self.output_artifacts:
             sample = art.samples[0]
-            if sample.udf.get("Prep Workflow") == "TruSeq PCR-Free DNA Sample Prep":
+            if sample.udf.get("User Prepared Library") == "Yes":
                 artifact_to_route_pcr_free.add(art)
-            # assigns the normalised batch plate to the TruSeq PCR-Free workflow
+            # assigns the received sample to User Prepared Library Batch if is a user prepared library
 
 
-            elif sample.udf.get("Prep Workflow") == "TruSeq Nano DNA Sample Prep":
+            elif sample.udf.get("User Prepared Library") == "No":
                 artifact_to_route_nano.add(art)
-                # assigns the normalised batch plate to the TruSeq Nano workflow
+                # assigns the received sample to PreSeqLab if NOT an user prepared library
 
-        if artifact_to_route_pcr_free:
+        if artifact_to_route_userprepared:
             # Only route artifacts if there are any artifacts to go to PCR-Free
-            stage = get_workflow_stage(self.lims, "TruSeq PCR-Free DNA Sample Prep", "SEMI-AUTOMATED - Make and Read qPCR Quant")
+            stage = get_workflow_stage(self.lims, "User Prepared Library Batch EG1.0 WF", "User Prepared Library Batch EG 1.0 ST")
             self.lims.route_artifacts(list(artifact_to_route_pcr_free), stage_uri=stage.uri)
 
-        if artifact_to_route_nano:
+        if artifact_to_route_preseqlab:
             # Only route artifacts if there are any artifacts to go to Nano
-            stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep", "SEMI-AUTOMATED - Make LQC & Caliper GX QC")
+            stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Spectramax Picogreen EG 6.0")
             self.lims.route_artifacts(list(artifact_to_route_nano), stage_uri=stage.uri)
 
 
@@ -39,7 +40,7 @@ class AssignWorkflowUserPreparedLibrary(StepEPP):
 def main():
     p = step_argparser()
     args = p.parse_args()
-    action = AssignWorkflowUserPreparedLibrary(args.step_uri, args.username, args.password, args.log_file)
+    action = AssignWorkflowReceiveSample(args.step_uri, args.username, args.password, args.log_file)
     action.run()
 
 
