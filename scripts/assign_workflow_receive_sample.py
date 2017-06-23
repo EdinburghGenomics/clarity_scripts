@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage,
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 class AssignWorkflowReceiveSample(StepEPP):
     #Assign received plate to either User Prepared Library Batch or Spectramax Picogreen

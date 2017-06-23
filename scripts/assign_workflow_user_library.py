@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage,
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 class AssignWorkflowUserPreparedLibrary(StepEPP):
     #Assign plate created in User Prepared Library to either Nano or PCR Free workflow
