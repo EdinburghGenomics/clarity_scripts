@@ -10,7 +10,7 @@ from EPPs.common import StepEPP, step_argparser
 class SpectramaxOutput(StepEPP):
     def __init__(self, step_uri, username, password, log_file, spectramax_xml):
         super().__init__(step_uri, username, password, log_file)
-        self.spectramax_xml = self.open_or_download_file(spectramax_xml)
+        self.spectramax_xml = self.open_or_download_file(spectramax_xml, encoding='utf-16', crlf=True)
 
     @cached_property
     def plates(self):

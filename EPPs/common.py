@@ -59,15 +59,32 @@ class StepEPP(AppLogger):
         """This is the projects associated with the input artifacts of that step"""
         return list(set([s.project for s in self.samples]))
 
-    def open_or_download_file(self, file_or_uid):
+    def open_or_download_file(self, file_or_uid, encoding=None, crlf=False):
         if os.path.isfile(file_or_uid):
             f = open(file_or_uid)
         else:
             a = Artifact(self.lims, id=file_or_uid)
-            f = StringIO(self.lims.get_file_contents(uri=a.files[0].uri))
+            f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
 
         self.open_files.append(f)
         return f
+
+    # TODO: remove this when we switch to pyclarity_lims
+    def get_file_contents(self, id=None, uri=None, encoding=None, crlf=False):
+        """Returns the contents of the file of <ID> or <uri>"""
+        if id:
+            url = self.lims.get_uri('files', id, 'download')
+        elif uri:
+            url = uri.rstrip('/') + '/download'
+        else:
+            raise ValueError('id or uri required')
+
+        r = self.lims.request_session.get(url, auth=(self.username, self.password), timeout=16)
+        self.lims.validate_response(r)
+        if encoding:
+            r.encoding = encoding
+
+        return r.text.replace('\r\n', '\n') if crlf else r.text
 
     def _run(self):
         raise NotImplementedError
