@@ -7,21 +7,21 @@ def get_parent_process_id(art):
 
 
 class AssignWorkflowReceiveSample(StepEPP):
-    #Assign plate created in User Prepared Library to either Nano or PCR Free workflow
+    #Assign received plate to either User Prepared Library Batch or Spectramax Picogreen
 
     def _run(self):
         artifact_to_route_userprepared = set()
         artifact_to_route_preseqlab = set()
 
 
-        for art in self.output_artifacts:
+        for art in self.artifacts:
             sample = art.samples[0]
             if sample.udf.get("User Prepared Library") == "Yes":
                 artifact_to_route_pcr_free.add(art)
             # assigns the received sample to User Prepared Library Batch if is a user prepared library
 
 
-            elif sample.udf.get("User Prepared Library") == "No":
+            elif not sample.udf.get("User Prepared Library"):
                 artifact_to_route_nano.add(art)
                 # assigns the received sample to PreSeqLab if NOT an user prepared library
 
