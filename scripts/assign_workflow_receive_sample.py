@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage, find_newest_artifact_originating_from
-
-
-def get_parent_process_id(art):
-    return art.parent_process.id
-
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage,
 
 class AssignWorkflowReceiveSample(StepEPP):
     #Assign received plate to either User Prepared Library Batch or Spectramax Picogreen
