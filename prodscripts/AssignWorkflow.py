@@ -24,6 +24,11 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
         return
     return stages[0]
 
+def get_parent_process_id(art):
+    return art.parent_process.id
+
+
+
 
 def assignWorkflow():
     LIMSID = args["limsid"]
@@ -34,23 +39,26 @@ def assignWorkflow():
     BASE_URI = stepURI[0:apiLocation]
     l = Lims(baseuri=BASE_URI, username=usernameargs, password=passwordargs)
     p = Process(l, id=LIMSID)
-    artifacts = p.all_outputs(unique=True, resolve=True)
+    artifacts = p.all_inputs()
     for art in artifacts:
         sample = art.samples[0]
-        if art.samples[0].udf.get("Prep Workflow") == "TruSeq PCR-Free DNA Sample Prep":
-            stage = get_workflow_stage(l, "TruSeq PCR-Free DNA Sample Prep", "Visual QC")
-            l.route_artifacts([art], stage_uri=stage.uri)
+        submitted_art = sample.artifact
 
-        if art.samples[0].udf.get("Prep Workflow") == "TruSeq Nano DNA Sample Prep":
-            stage = get_workflow_stage(l, "TruSeq Nano DNA Sample Prep", "Visual QC")
-            l.route_artifacts([art], stage_uri=stage.uri)
+        if art.samples[0].udf.get("Proceed To SeqLab") and not art.samples[0].udf.get("2D Barcode"): #checks to see if sample is in plate or fluidX tube
+            stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
+            l.route_artifacts([submitted_art], stage_uri=stage.uri)
 
-        if sample.udf.get("Species") == "Homo sapiens" and sample.udf.get(
-                "Skip genotyping for (human) sample?") == False or sample.udf.get(
-               "Species") == "Human" and sample.udf.get("Skip genotyping for (human) sample?") == False:
-            stage = get_workflow_stage(l, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
-            l.route_artifacts([art], stage_uri=stage.uri)
+        elif art.samples[0].udf.get("Proceed To SeqLab") and art.samples[0].udf.get("2D Barcode"): #if is a fluidX tube will need to find the derived artifact created by the FluidX Transfer step
+            fluidX_artifacts = l.get_artifacts(process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST", sample_name=art.samples[0].name, type='Analyte')
 
+            if len(fluidX_artifacts) >1: #its possible that the FluidX Transfer has occurred more than once so must find the most recent occurrence of that step
+                fluidX_artifacts.sort(key=get_parent_process_id, reverse=True) #sorts the artifacts returned to place the most recent artifact at position 0 in list
+                fluidX_artifact=fluidX_artifacts[0]
+            else:
+                fluidX_artifact=fluidX_artifacts[0]
+
+            stage = get_workflow_stage(l, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
+            l.route_artifacts([fluidX_artifact], stage_uri=stage.uri)
 
 def main():
     global api
@@ -69,6 +77,7 @@ def main():
             args["username"] = p
         elif o == '-p':
             args["password"] = p
+
     ## at this point, we have the parameters the EPP plugin passed, and we have network plumbing
     ## so let's get this show on the road!
     assignWorkflow()

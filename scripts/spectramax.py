@@ -33,7 +33,7 @@ class SpectramaxOutput(StepEPP):
                     pass
                 else:
                     split_line = line.split('\t')
-                    self.samples[int(split_line[0])] = (split_line[1], split_line[3])
+                    self.samples[int(split_line[0])] = (split_line[1], float(split_line[3]))
 
             elif line.startswith('Plate:') and encountered_unknowns:
                 self.plates[line.split('\t')[1]] = {}
@@ -70,7 +70,7 @@ def main():
     p.add_argument('--spectramax_file', type=str, required=True, help='Spectramax output file from the step')
     args = p.parse_args()
     log_cfg.add_handler(FileHandler(args.log_file))
-    action = SpectramaxOutput(args.step_uri, args.username, args.password, args.log_file, args.spectramax_xml)
+    action = SpectramaxOutput(args.step_uri, args.username, args.password, args.log_file, args.spectramax_file)
     action.run()
 
 if __name__ == '__main__':
