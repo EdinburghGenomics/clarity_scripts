@@ -1,5 +1,4 @@
 from os.path import join, dirname, abspath
-from collections import OrderedDict
 from unittest.mock import Mock
 from tests.test_common import TestEPP, FakeEntity
 from scripts import spectramax
@@ -16,7 +15,7 @@ class TestSpectramaxOutput(TestEPP):
         )
 
     def test_parse_spectramax_file(self):
-        assert self.epp.plates == OrderedDict(a_plate={}, another_plate={}, yet_another_plate={})
+        assert list(self.epp.plates) == ['a_plate', 'another_plate', 'yet_another_plate']
         assert self.epp.samples == {
             1: ('A1', '55.107'), 2: ('A2', '47.653'), 10: ('B1', '43.105'), 11: ('B2', '44.311'),
             12: ('B3', '43.383'), 13: ('A1', '45.566'), 14: ('A2', '46.608'), 15: ('A3', '44.216'),
