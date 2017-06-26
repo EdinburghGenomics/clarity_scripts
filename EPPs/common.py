@@ -113,7 +113,7 @@ class SendMailEPP(StepEPP):
         email_config = cfg.query('email_notify', 'default')
         if config_name:
             email_config.update(cfg.query('email_notify', config_name))
-        if not 'email_template' not in email_config:
+        if 'email_template' not in email_config:
             email_config['email_template'] = self.get_email_template(template_name)
         return email_config
 

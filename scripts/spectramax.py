@@ -1,50 +1,73 @@
 #!/usr/bin/env python
-import xml.etree.ElementTree as ETree
-from collections import defaultdict
-from cached_property import cached_property
+from collections import OrderedDict
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser
 
 
 class SpectramaxOutput(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, spectramax_xml):
+    def __init__(self, step_uri, username, password, log_file, spectramax_file):
         super().__init__(step_uri, username, password, log_file)
-        self.spectramax_xml = self.open_or_download_file(spectramax_xml, encoding='utf-16', crlf=True)
+        self.spectramax_file = spectramax_file
+        self.samples = {}
+        self.plates = OrderedDict()
+        self.samples_per_plate = None
+        self.parse_spectramax_file()
 
-    @cached_property
-    def plates(self):
-        root = ETree.parse(self.spectramax_xml)
-        return root.findall('PlateSections/PlateSection')
+    def parse_spectramax_file(self):
+        f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
+        encountered_unknowns = False
+        in_unknowns = False
 
-    def get_plate(self, plate_id):
-        plates = [p for p in self.plates if p.attrib['Name'] == plate_id]
-        assert len(plates) == 1, '%s -> %s' % (plate_id, plates)
-        return plates[0]
+        for line in f:
+            if line.startswith('Group: Unknowns'):
+                assert not in_unknowns
+                in_unknowns = True
+                encountered_unknowns = True
 
-    @staticmethod
-    def coordinate_map(plate):
-        wells = plate.findall('reducedData/Well')
-        return {w.attrib['Name']: w.find('reducedVal').text for w in wells}
+            elif line.startswith('~End'):
+                in_unknowns = False
+
+            elif in_unknowns:
+                if line.startswith('Sample') or line.startswith('Group Summaries'):
+                    pass
+                else:
+                    split_line = line.split('\t')
+                    self.samples[int(split_line[0])] = (split_line[1], split_line[3])
+
+            elif line.startswith('Plate:') and encountered_unknowns:
+                self.plates[line.split('\t')[1]] = {}
+
+        self.debug('Found %s samples and %s plates', len(self.samples), len(self.plates))
+        self.samples_per_plate = len(self.samples) / len(self.plates)
+
+    def plate_name_for_sample(self, sample_idx):
+        plate_idx = 0
+        samples_per_plate = self.samples_per_plate
+        while sample_idx > samples_per_plate:
+            plate_idx += 1
+            sample_idx -= samples_per_plate
+
+        return list(self.plates)[int(plate_idx)]
 
     def _run(self):
-        output_data = defaultdict(dict)
-        for container in self.process.step.placements.get_selected_containers():
-            plate_id = container.name
-            output_data[plate_id] = self.coordinate_map(self.get_plate(plate_id))
-        self.info('Updating step %s with data: %s' % (self.step_id, output_data))
+        for i, (coord, conc) in self.samples.items():
+            plate_name = self.plate_name_for_sample(i)
+            self.plates[plate_name][coord] = conc
+
+        self.info('Updating step %s with data: %s' % (self.step_id, self.plates))
 
         for artifact, (container, coord) in self.process.step.placements.get_placement_list():
             plate_id = container.name
             coord = coord.replace(':', '')
-            artifact.udf['Unadjusted Pico Conc (ng/ul)'] = output_data[plate_id][coord]
+            artifact.udf['Unadjusted Pico Conc (ng/ul)'] = self.plates[plate_id][coord]
             artifact.udf['Spectramax Well'] = coord
             artifact.put()
 
 
 def main():
     p = step_argparser()
-    p.add_argument('--spectramax_xml', type=str, required=True, help='Spectramax XML output file from the step')
+    p.add_argument('--spectramax_file', type=str, required=True, help='Spectramax output file from the step')
     args = p.parse_args()
     log_cfg.add_handler(FileHandler(args.log_file))
     action = SpectramaxOutput(args.step_uri, args.username, args.password, args.log_file, args.spectramax_xml)
