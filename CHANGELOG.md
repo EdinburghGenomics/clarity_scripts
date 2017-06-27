@@ -1,11 +1,12 @@
 Changelog for clarity_scripts
 =============================
 
-0.4 (unreleased)
+0.4 (2017-06-27)
 ----------------
 
-- Nothing changed yet.
-
+- Moved to automatic file closing to StepEPPP superclass
+- Added temporary copy of pyclarity_lims.lims.Lims.get_file_contents to StepEPP
+- Added assign_workflow_receive_sample, assign_workflow_user_library, spectramax
 
 0.3 (2017-06-09)
 ----------------
