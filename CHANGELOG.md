@@ -1,16 +1,16 @@
 Changelog for clarity_scripts
 =============================
 
-0.5 (unreleased)
-----------------
+0.4.1 (2017-07-14)
+------------------
 
-- Nothing changed yet.
+- Made Spectramax able to tolerate incomplete plates
 
 
 0.4 (2017-06-27)
 ----------------
 
-- Moved to automatic file closing to StepEPPP superclass
+- Moved automatic file closing to StepEPP superclass
 - Added temporary copy of pyclarity_lims.lims.Lims.get_file_contents to StepEPP
 - Added assign_workflow_receive_sample, assign_workflow_user_library, spectramax
 
