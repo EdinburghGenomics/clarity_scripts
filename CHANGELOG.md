@@ -1,6 +1,12 @@
 Changelog for clarity_scripts
 =============================
 
+0.5 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
 0.4.1 (2017-07-14)
 ------------------
 
