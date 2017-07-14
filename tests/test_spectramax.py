@@ -5,6 +5,20 @@ from scripts import spectramax
 
 
 class TestSpectramaxOutput(TestEPP):
+    exp_concs = {
+        1: ('A1', 55.107), 2: ('A2', 47.653), 9: ('B1', 43.105), 10: ('B2', 44.311), 11: ('B3', 43.383),
+        12: ('A1', 45.566), 13: ('A2', 46.608), 14: ('A3', 44.216), 15: ('B1', 41.752), 3: ('A3', 47.752),
+        4: ('B1', 42.683), 5: ('B2', 40.055), 6: ('A1', 40.211), 7: ('A2', 41.756), 8: ('A3', 41.704)
+    }
+
+    exp_plates = {
+        'a_plate': {'A1': 55.107, 'A2': 47.653, 'A3': 47.752, 'B1': 42.683, 'B2': 40.055},
+        'another_plate': {'A1': 40.211, 'A2': 41.756, 'A3': 41.704, 'B1': 43.105, 'B2': 44.311, 'B3': 43.383},
+        'yet_another_plate': {'A1': 45.566, 'A2': 46.608, 'A3': 44.216, 'B1': 41.752}
+    }
+
+    exp_plate_names = ['a_plate', 'another_plate', 'yet_another_plate']
+
     def setUp(self):
         self.epp = spectramax.SpectramaxOutput(
             'http://server:8080/a_step_uri',
@@ -15,61 +29,41 @@ class TestSpectramaxOutput(TestEPP):
         )
 
     def test_parse_spectramax_file(self):
-        assert list(self.epp.plates) == ['a_plate', 'another_plate', 'yet_another_plate']
-        assert self.epp.samples == {
-            1: ('A1', 55.107), 2: ('A2', 47.653), 10: ('B1', 43.105), 11: ('B2', 44.311),
-            12: ('B3', 43.383), 13: ('A1', 45.566), 14: ('A2', 46.608), 15: ('A3', 44.216),
-            16: ('B1', 41.752), 17: ('B2', 44.164), 18: ('B3', 43.852), 3: ('A3', 47.752),
-            4: ('B1', 42.683), 5: ('B2', 40.055), 6: ('B3', 43.631), 7: ('A1', 40.211),
-            8: ('A2', 41.756), 9: ('A3', 41.704)
-        }
+        self.epp.parse_spectramax_file()
+        assert self.epp.plate_names == self.exp_plate_names
+        assert self.epp.sample_concs == self.exp_concs
 
-    def test_plate_name_for_sample(self):
-        assert self.epp.plate_name_for_sample(14) == 'yet_another_plate'
+    def test_assign_samples_to_plates(self):
+        self.epp.plate_names = self.exp_plate_names
+        self.epp.sample_concs = self.exp_concs.copy()
+        self.epp.assign_samples_to_plates()
+        assert self.epp.plates == self.exp_plates
 
-    def test_run(self):
-        fake_placements = [
-            (Mock(udf={}), (FakeEntity(name='a_plate'), 'A1')),
-            (Mock(udf={}), (FakeEntity(name='a_plate'), 'A2')),
-            (Mock(udf={}), (FakeEntity(name='a_plate'), 'A3')),
-            (Mock(udf={}), (FakeEntity(name='a_plate'), 'B1')),
-            (Mock(udf={}), (FakeEntity(name='a_plate'), 'B2')),
-            (Mock(udf={}), (FakeEntity(name='a_plate'), 'B3')),
-            (Mock(udf={}), (FakeEntity(name='another_plate'), 'A1')),
-            (Mock(udf={}), (FakeEntity(name='another_plate'), 'A2')),
-            (Mock(udf={}), (FakeEntity(name='another_plate'), 'A3')),
-            (Mock(udf={}), (FakeEntity(name='another_plate'), 'B1')),
-            (Mock(udf={}), (FakeEntity(name='another_plate'), 'B2')),
-            (Mock(udf={}), (FakeEntity(name='another_plate'), 'B3')),
-            (Mock(udf={}), (FakeEntity(name='yet_another_plate'), 'A1')),
-            (Mock(udf={}), (FakeEntity(name='yet_another_plate'), 'A2')),
-            (Mock(udf={}), (FakeEntity(name='yet_another_plate'), 'A3')),
-            (Mock(udf={}), (FakeEntity(name='yet_another_plate'), 'B1')),
-            (Mock(udf={}), (FakeEntity(name='yet_another_plate'), 'B2')),
-            (Mock(udf={}), (FakeEntity(name='yet_another_plate'), 'B3'))
-        ]
+        self.epp.plates.clear()
+        del self.epp.sample_concs[6]
+        with self.assertRaises(AssertionError) as e:
+            self.epp.assign_samples_to_plates()
+        assert str(e.exception) == 'Badly formed spectramax file: tried to add coord A2 for sample 7 to plate a_plate'
 
-        self.epp.process = Mock(
-            step=Mock(placements=Mock(get_placement_list=Mock(return_value=fake_placements)))
-        )
+    def test_add_plates_to_step(self):
+        fake_placements = []
+        for plate in self.exp_plate_names:
+            for x in 'ABCDEFGH':
+                for y in range(1, 13):
+                    placement = (Mock(udf={}), (FakeEntity(name=plate), x + ':' + str(y)))
+                    fake_placements.append(placement)
 
-        exp = {
-            'a_plate': {
-                'A1': 55.107, 'A2': 47.653, 'A3': 47.752, 'B1': 42.683, 'B2': 40.055, 'B3': 43.631
-            },
-            'another_plate': {
-                'A1': 40.211, 'A2': 41.756, 'A3': 41.704, 'B1': 43.105, 'B2': 44.311, 'B3': 43.383
-            },
-            'yet_another_plate': {
-                'A1': 45.566, 'A2': 46.608, 'A3': 44.216, 'B1': 41.752, 'B2': 44.164, 'B3': 43.852
-            }
-        }
+        assert len(fake_placements) == 3 * 96
 
-        self.epp._run()
-        assert self.epp.plates == exp
+        self.epp.plates = self.exp_plates.copy()
+        self.epp.process = Mock(step=Mock(placements=Mock(get_placement_list=Mock(return_value=fake_placements))))
+        self.epp.add_plates_to_step()
+
         for artifact, (container, coord) in fake_placements:
-            assert artifact.udf == {
-                'Unadjusted Pico Conc (ng/ul)': exp[container.name][coord],
-                'Spectramax Well': coord
-            }
-            artifact.put.assert_called_once()
+            coord = coord.replace(':', '')
+            if coord in self.epp.plates[container.name]:
+                assert artifact.udf == {
+                    'Unadjusted Pico Conc (ng/ul)': self.epp.plates[container.name][coord],
+                    'Spectramax Well': coord
+                }
+                artifact.put.assert_called_once()

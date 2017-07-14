@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from collections import OrderedDict
+from collections import defaultdict
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser
@@ -9,10 +9,9 @@ class SpectramaxOutput(StepEPP):
     def __init__(self, step_uri, username, password, log_file, spectramax_file):
         super().__init__(step_uri, username, password, log_file)
         self.spectramax_file = spectramax_file
-        self.samples = {}
-        self.plates = OrderedDict()
-        self.samples_per_plate = None
-        self.parse_spectramax_file()
+        self.sample_concs = {}
+        self.plate_names = []
+        self.plates = defaultdict(dict)
 
     def parse_spectramax_file(self):
         f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
@@ -33,36 +32,48 @@ class SpectramaxOutput(StepEPP):
                     pass
                 else:
                     split_line = line.split('\t')
-                    self.samples[int(split_line[0])] = (split_line[1], float(split_line[3]))
+                    self.sample_concs[int(split_line[0])] = (split_line[1], float(split_line[3]))
 
             elif line.startswith('Plate:') and encountered_unknowns:
-                self.plates[line.split('\t')[1]] = {}
+                self.plate_names.append(line.split('\t')[1])
 
-        self.debug('Found %s samples and %s plates', len(self.samples), len(self.plates))
-        self.samples_per_plate = len(self.samples) / len(self.plates)
+        self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
 
-    def plate_name_for_sample(self, sample_idx):
-        plate_idx = 0
-        samples_per_plate = self.samples_per_plate
-        while sample_idx > samples_per_plate:
-            plate_idx += 1
-            sample_idx -= samples_per_plate
+    def assign_samples_to_plates(self):
+        plate_idx = -1
+        plate_name = None
+        for i in sorted(self.sample_concs):  # go through in ascending order...
+            coord, conc = self.sample_concs[i]
+            if coord == 'A1':  # ... and take an 'A1' coord as the start of a new plate
+                plate_idx += 1
+                plate_name = self.plate_names[plate_idx]
 
-        return list(self.plates)[int(plate_idx)]
-
-    def _run(self):
-        for i, (coord, conc) in self.samples.items():
-            plate_name = self.plate_name_for_sample(i)
+            if coord in self.plates[plate_name]:
+                raise AssertionError(
+                    'Badly formed spectramax file: tried to add coord %s for sample %s to plate %s' % (
+                        coord, i, plate_name
+                    )
+                )
             self.plates[plate_name][coord] = conc
 
-        self.info('Updating step %s with data: %s' % (self.step_id, self.plates))
+    def add_plates_to_step(self):
+        self.info('Updating step %s with data: %s', self.step_id, self.plates)
 
         for artifact, (container, coord) in self.process.step.placements.get_placement_list():
-            plate_id = container.name
             coord = coord.replace(':', '')
-            artifact.udf['Unadjusted Pico Conc (ng/ul)'] = self.plates[plate_id][coord]
+            plate_name = container.name
+            if coord not in self.plates[plate_name]:
+                self.warning('Could not find coordinate %s for plate %s in spectramax file', coord, plate_name)
+                continue
+
+            artifact.udf['Unadjusted Pico Conc (ng/ul)'] = self.plates[plate_name][coord]
             artifact.udf['Spectramax Well'] = coord
             artifact.put()
+
+    def _run(self):
+        self.parse_spectramax_file()
+        self.assign_samples_to_plates()
+        self.add_plates_to_step()
 
 
 def main():
