@@ -37,7 +37,7 @@ class SpectramaxOutput(StepEPP):
             elif line.startswith('Plate:') and encountered_unknowns:
                 self.plate_names.append(line.split('\t')[1])
 
-        self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plates))
+        self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
 
     def assign_samples_to_plates(self):
         plate_idx = -1
@@ -48,6 +48,12 @@ class SpectramaxOutput(StepEPP):
                 plate_idx += 1
                 plate_name = self.plate_names[plate_idx]
 
+            if coord in self.plates[plate_name]:
+                raise AssertionError(
+                    'Badly formed spectramax file: tried to add coord %s for sample %s to plate %s' % (
+                        coord, i, plate_name
+                    )
+                )
             self.plates[plate_name][coord] = conc
 
     def add_plates_to_step(self):

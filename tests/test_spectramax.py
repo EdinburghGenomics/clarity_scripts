@@ -39,6 +39,12 @@ class TestSpectramaxOutput(TestEPP):
         self.epp.assign_samples_to_plates()
         assert self.epp.plates == self.exp_plates
 
+        self.epp.plates.clear()
+        del self.epp.sample_concs[6]
+        with self.assertRaises(AssertionError) as e:
+            self.epp.assign_samples_to_plates()
+        assert str(e.exception) == 'Badly formed spectramax file: tried to add coord A2 for sample 7 to plate a_plate'
+
     def test_add_plates_to_step(self):
         fake_placements = []
         for plate in self.exp_plate_names:
