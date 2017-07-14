@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from collections import defaultdict
-
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser
@@ -13,7 +12,6 @@ class SpectramaxOutput(StepEPP):
         self.sample_concs = {}
         self.plate_names = []
         self.plates = defaultdict(dict)
-        self.parse_spectramax_file()
 
     def parse_spectramax_file(self):
         f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
@@ -41,18 +39,19 @@ class SpectramaxOutput(StepEPP):
 
         self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plates))
 
-    def _run(self):
+    def assign_samples_to_plates(self):
         plate_idx = -1
         plate_name = None
-        for i in sorted(self.sample_concs):
+        for i in sorted(self.sample_concs):  # go through in ascending order...
             coord, conc = self.sample_concs[i]
-            if coord == 'A1':
+            if coord == 'A1':  # ... and take an 'A1' coord as the start of a new plate
                 plate_idx += 1
                 plate_name = self.plate_names[plate_idx]
 
             self.plates[plate_name][coord] = conc
 
-        self.info('Updating step %s with data: %s' % (self.step_id, self.plates))
+    def add_plates_to_step(self):
+        self.info('Updating step %s with data: %s', self.step_id, self.plates)
 
         for artifact, (container, coord) in self.process.step.placements.get_placement_list():
             coord = coord.replace(':', '')
@@ -64,6 +63,11 @@ class SpectramaxOutput(StepEPP):
             artifact.udf['Unadjusted Pico Conc (ng/ul)'] = self.plates[plate_name][coord]
             artifact.udf['Spectramax Well'] = coord
             artifact.put()
+
+    def _run(self):
+        self.parse_spectramax_file()
+        self.assign_samples_to_plates()
+        self.add_plates_to_step()
 
 
 def main():
