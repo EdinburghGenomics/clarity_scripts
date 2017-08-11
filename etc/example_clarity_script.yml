@@ -11,3 +11,8 @@ email_notify:
   project_only:
     recipients:
       - project@email.com
+
+rest_api:
+  url: localhost
+  username: user
+  password: password
