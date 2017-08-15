@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import datetime
+
+from cached_property import cached_property
 from egcg_core import rest_communication
 
 from EPPs.common import StepEPP, step_argparser
@@ -61,6 +63,10 @@ metrics_mapping_push = [
 
 class PushRunElementInfo(StepEPP):
 
+    @cached_property
+    def now(self):
+        return datetime.datetime.now()
+
     def output_artifacts_per_sample(self, sample_name):
         return [
             io[1]['uri']
@@ -90,13 +96,13 @@ class PushRunElementInfo(StepEPP):
 
                 if run_element_to_upload:
                     # The date is set to now.
-                    run_element_to_upload['useable_date'] = datetime.datetime.strftime(reporting_app_date_format)
-                    rest_communication.patch_entry('run_elements',run_element_to_upload, 'run_element_id', artifact.udf.get("RE Id"))
+                    run_element_to_upload['useable_date'] = self.now.strftime(reporting_app_date_format)
+                    rest_communication.patch_entry('run_elements', run_element_to_upload, 'run_element_id', artifact.udf.get("RE Id"))
 
         # finish the action on the rest api
         rest_communication.patch_entry(
             'actions',
-            {'date_finished': datetime.datetime.strftime(reporting_app_date_format)},
+            {'date_finished': self.now.strftime(reporting_app_date_format)},
             'action_id',
             'lims_' + self.process.id
         )
