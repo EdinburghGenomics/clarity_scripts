@@ -1,16 +1,8 @@
 from pyclarity_lims.entities import Artifact
 
 from scripts.push_pull_run_element_info import PullRunElementInfo, PushRunElementInfo, reporting_app_date_format
-from tests.test_common import TestEPP, fake_artifact, NamedMock
-from unittest.mock import Mock, patch, PropertyMock, call
-
-
-def fake_all_output(unique=False, resolve=False):
-    '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
-    return (
-        Mock(id='ao1', samples=[Mock(artifact=fake_artifact(id='a1'), id='s1', udf={"Prep Workflow": "TruSeq PCR-Free DNA Sample Prep"})]),
-        Mock(id='ao2', samples=[Mock(artifact=fake_artifact(id='a2'), id='s2', udf={"Prep Workflow": "TruSeq Nano DNA Sample Prep"})]),
-    )
+from tests.test_common import TestEPP, NamedMock
+from unittest.mock import Mock, patch, PropertyMock
 
 
 class TestPullRunElementInfo(TestEPP):
