@@ -76,7 +76,6 @@ class PushRunElementInfo(StepEPP):
 
 
     def _run(self):
-        artifacts_to_upload = set()
         # batch retrieve input and output artifacts along with samples
         self.output_artifacts
         for sample in self.samples:
