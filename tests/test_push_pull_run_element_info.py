@@ -10,7 +10,7 @@ class TestPullRunElementInfo(TestEPP):
         self.patched_samples = patch.object(
             PullRunElementInfo,
             'samples',
-            new_callable=PropertyMock(return_value=[NamedMock(real_name='sample1')])
+            new_callable=PropertyMock(return_value=[NamedMock(real_name='sample1', udf={'Yield for Quoted Coverage (Gb)': 95})])
         )
         self.patched_lims = patch.object(PullRunElementInfo, 'lims', new_callable=PropertyMock)
         run_element = {
@@ -32,6 +32,7 @@ class TestPullRunElementInfo(TestEPP):
             'output_artifacts_per_sample',
             return_value=[Mock(spec=Artifact, udf={})]
         )
+
         self.epp = PullRunElementInfo(
             'http://server:8080/a_step_uri',
             'a_user',
@@ -59,6 +60,42 @@ class TestPullRunElementInfo(TestEPP):
 
             # check that the artifacts have been uploaded
             pl().put_batch.assert_called_once_with({poa.return_value[0]})
+
+    def test_assess_sample(self):
+        def patch_output_artifact(output_artifacts):
+            return patch.object(PullRunElementInfo, 'output_artifacts_per_sample', return_value=output_artifacts)
+
+        sample = NamedMock(real_name='sample1', udf={'Yield for Quoted Coverage (Gb)': 95})
+        patched_output_artifacts_per_sample = patch_output_artifact([
+                Mock(spec=Artifact, udf={'RE Yield Q30': 115, 'RE %Q30': 75, 'RE Review status': 'pass'}),
+                Mock(spec=Artifact, udf={'RE Yield Q30': 95, 'RE %Q30': 85, 'RE Review status': 'pass'}),
+                Mock(spec=Artifact, udf={'RE Yield Q30': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
+            ]
+        )
+        with patched_output_artifacts_per_sample as poa:
+            self.epp.assess_sample(sample)
+            assert poa.return_value[0].udf['RE Useable'] == 'no'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: To much good yield'
+
+            assert poa.return_value[1].udf['RE Useable'] == 'yes'
+            assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Good yield'
+
+            assert poa.return_value[2].udf['RE Useable'] == 'no'
+            assert poa.return_value[2].udf['RE Useable Comment'] == 'AR: Failed and not needed'
+
+
+        patched_output_artifacts_per_sample = patch_output_artifact([
+                Mock(spec=Artifact, udf={'RE Yield Q30': 115, 'RE %Q30': 85, 'RE Review status': 'pass'}),
+                Mock(spec=Artifact, udf={'RE Yield Q30': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
+            ]
+        )
+        with patched_output_artifacts_per_sample as poa:
+            self.epp.assess_sample(sample)
+            assert poa.return_value[0].udf['RE Useable'] == 'yes'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Good yield'
+
+            assert poa.return_value[1].udf['RE Useable'] == 'no'
+            assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Failed and not needed'
 
 
 

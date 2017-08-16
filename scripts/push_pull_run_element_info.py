@@ -10,19 +10,19 @@ from EPPs.config import load_config
 reporting_app_date_format = '%d_%m_%Y_%H:%M:%S'
 
 metrics_mapping_pull = [
-    ("RE Id", "run_element_id"),
-    ("RE Nb Reads", "passing_filter_reads"),
-    ("RE Yield", "clean_yield_in_gb"),
-    ("RE Yield Q30", "clean_yield_q30_in_gb"),
-    ("RE %Q30", "clean_pc_q30"),
-    ("RE Estimated Duplicate Rate", "lane_pc_optical_dups"),
-    ("RE %Adapter", "pc_adapter"),
-    ("RE Review status", "reviewed"),
-    ("RE Review Comment", "review_comments"),
-    ("RE Review date", "review_date"),
-    ("RE Useable", "useable"),
-    ("RE Useable Comment", "useable_comments"),
-    ("RE Useable date", "useable_date")
+    ('RE Id', 'run_element_id'),
+    ('RE Nb Reads', 'passing_filter_reads'),
+    ('RE Yield', 'clean_yield_in_gb'),
+    ('RE Yield Q30', 'clean_yield_q30_in_gb'),
+    ('RE %Q30', 'clean_pc_q30'),
+    ('RE Estimated Duplicate Rate', 'lane_pc_optical_dups'),
+    ('RE %Adapter', 'pc_adapter'),
+    ('RE Review status', 'reviewed'),
+    ('RE Review Comment', 'review_comments'),
+    ('RE Review date', 'review_date'),
+    ('RE previous Useable', 'useable'),
+    ('RE previous Useable Comment', 'useable_comments'),
+    ('RE previous Useable date', 'useable_date')
 ]
 
 class PullRunElementInfo(StepEPP):
@@ -52,13 +52,57 @@ class PullRunElementInfo(StepEPP):
                         artifacts[i].udf[art_field] = value
 
                         artifacts_to_upload.add(artifacts[i])
-
+            self.assess_sample(sample)
         self.lims.put_batch(artifacts_to_upload)
 
+    def assess_sample(self, sample):
+        artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
+        un_reviewed_artifacts = [a for a in artifacts if a.udf.get('RE Review status') not in ['pass', 'fail']]
+        if un_reviewed_artifacts:
+            # Skip sample that have some un-reviewed run elements as they could still be sequencing and change the outcome of the review
+            return
+
+        # Artifacts that pass the review
+        pass_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'pass']
+
+        # Artifacts that fail the review
+        fail_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'fail']
+
+        target_yield = float(sample.udf.get('Yield for Quoted Coverage (Gb)'))
+        good_re_yield = sum([float(a.udf.get('RE Yield Q30')) for a in pass_artifacts])
+
+        # Just the right amount of good yield: take it all
+        if target_yield < good_re_yield < target_yield * 2:
+            for a in pass_artifacts:
+                a.udf['RE Useable'] = 'yes'
+                a.udf['RE Useable Comment'] = 'AR: Good yield'
+            for a in fail_artifacts:
+                a.udf['RE Useable'] = 'no'
+                a.udf['RE Useable Comment'] = 'AR: Failed and not needed'
+
+        # Too much good yield limit to the best quality ones
+        elif good_re_yield > target_yield * 2:
+            # Too much yield: sort the good artifact by quality
+            pass_artifacts.sort(key=lambda x: x.udf.get('RE %Q30'), reverse=True)
+            current_yield = 0
+            for a in pass_artifacts:
+                current_yield += float(a.udf.get('RE Yield Q30'))
+                if current_yield < target_yield * 2:
+                    a.udf['RE Useable'] = 'yes'
+                    a.udf['RE Useable Comment'] = 'AR: Good yield'
+                else:
+                    a.udf['RE Useable'] = 'no'
+                    a.udf['RE Useable Comment'] = 'AR: To much good yield'
+            for a in fail_artifacts:
+                a.udf['RE Useable'] = 'no'
+                a.udf['RE Useable Comment'] = 'AR: Failed and not needed'
+
+        # Not enough good yield: manual decision
+        # Run element not passing review: manual decision
 
 metrics_mapping_push = [
-    ("RE Useable", "useable"),
-    ("RE Useable Comment", "useable_comments"),
+    ('RE Useable', 'useable'),
+    ('RE Useable Comment', 'useable_comments'),
 ]
 
 class PushRunElementInfo(StepEPP):
@@ -86,7 +130,7 @@ class PushRunElementInfo(StepEPP):
             artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
             assert len(run_elements) == len(artifacts)
             for artifact in artifacts:
-                run_element = run_elements_dict.get(artifact.udf.get("RE Id"))
+                run_element = run_elements_dict.get(artifact.udf.get('RE Id'))
                 run_element_to_upload = {}
                 for art_field, re_field in metrics_mapping_push:
                     value = artifact.udf.get(art_field)
@@ -96,7 +140,7 @@ class PushRunElementInfo(StepEPP):
                 if run_element_to_upload:
                     # The date is set to now.
                     run_element_to_upload['useable_date'] = self.now.strftime(reporting_app_date_format)
-                    rest_communication.patch_entry('run_elements', run_element_to_upload, 'run_element_id', artifact.udf.get("RE Id"))
+                    rest_communication.patch_entry('run_elements', run_element_to_upload, 'run_element_id', artifact.udf.get('RE Id'))
 
         # finish the action on the rest api
         rest_communication.patch_entry(
