@@ -39,7 +39,7 @@ class RunElementInfo(StepEPP):
 
     def get_documents(self, *args, **kwargs):
         try:
-            rest_communication.get_documents(*args, **kwargs)
+            return rest_communication.get_documents(*args, **kwargs)
         except ConnectionError as ce:
             print(ce)
             sys.exit(127)
@@ -54,7 +54,7 @@ class RunElementInfo(StepEPP):
 class PullRunElementInfo(RunElementInfo):
 
     def __init__(self, step_uri, username, password, log_file=None, pull_re=True):
-        super().__init__(step_uri, username, password, log_file=None)
+        super().__init__(step_uri, username, password, log_file)
         self.pull_re = pull_re
 
     def _run(self):
