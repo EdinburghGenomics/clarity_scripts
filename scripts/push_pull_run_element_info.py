@@ -90,7 +90,7 @@ class PullRunElementInfo(RunElementInfo):
         un_reviewed_artifacts = [a for a in artifacts if a.udf.get('RE Review status') not in ['pass', 'fail']]
         if un_reviewed_artifacts:
             # Skip sample that have some un-reviewed run elements as they could still be sequencing and change the outcome of the review
-            return
+            return artifacts_to_upload
 
         # Artifacts that pass the review
         pass_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'pass']
