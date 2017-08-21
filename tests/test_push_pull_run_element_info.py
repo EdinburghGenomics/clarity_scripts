@@ -25,7 +25,7 @@ class TestPullRunElementInfo(TestEPP):
             'review_comments': 'alright',
             'review_date': '12_02_2107_12:43:24'
         }
-        self.patched_rest_comm = patch('egcg_core.rest_communication.get_documents', return_value=[run_element])
+        self.patched_rest_comm = patch.object(PullRunElementInfo, 'get_documents', return_value=[run_element])
 
         self.patched_output_artifacts_per_sample = patch.object(
             PullRunElementInfo,
@@ -118,7 +118,7 @@ class TestPushRunElementInfo(TestEPP):
             'review_comments': 'alright',
             'review_date': '12_02_2107_12:43:24'
         }
-        self.patched_rest_get_doc = patch('egcg_core.rest_communication.get_documents', return_value=[run_element])
+        self.patched_rest_get_doc = patch.object(PushRunElementInfo, 'get_documents', return_value=[run_element])
         self.patched_rest_patch = patch('egcg_core.rest_communication.patch_entry')
 
         self.patched_output_artifacts_per_sample = patch.object(
@@ -146,7 +146,7 @@ class TestPushRunElementInfo(TestEPP):
                 {
                     'useable': 'no',
                     'useable_comments': 'too bad',
-                    'useable_date': self.epp.now.strftime(reporting_app_date_format)
+                    'useable_date': self.epp.current_time.strftime(reporting_app_date_format)
                 },
                 'run_element_id',
                 'id'
@@ -155,7 +155,7 @@ class TestPushRunElementInfo(TestEPP):
             # Check that the action was updated
             prp.assert_called_with(
                 'actions',
-                {'date_finished': self.epp.now.strftime(reporting_app_date_format) },
+                {'date_finished': self.epp.current_time.strftime(reporting_app_date_format) },
                 'action_id',
                 'lims_processid'
             )
