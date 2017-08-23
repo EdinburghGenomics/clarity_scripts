@@ -12,10 +12,10 @@ class AssignContainerName(StepEPP):
 
 
     def _run(self):
-        projects = self.projects(unique=True)
-        projectName=projects[0].name
-        print(projectName)
-        nameContainer(projectName)
+        #projects = self.projects(unique=True)
+        #projectName=projects[0].name
+        #print(projectName)
+        nameContainer('test2017-08-23')
 
 
 
