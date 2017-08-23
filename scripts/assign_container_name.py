@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+
+
+class AssignWorkflowStage(StepEPP):
+    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source, remove=False, only_once=False):
+        super().__init__(step_uri, username, password, log_file)
+        self.workflow_name = workflow_name
+        self.stage_name = stage_name
+        self.source = source
+        self.remove = remove
+        self.only_once = only_once
+
+
+    def nameContainer(self, projectName):
+        artifacts = self.process.all_outputs(unique=True)
+        artifacts[0].container.name = projectName
+        artifacts[0].container.name.put()
+
+
+
+    def _run(self):
+        projects = self.projects(unique=True)
+        projectName=projects[0].name
+        print(projectName)
+        nameContainer(projectName)
+
+
+
+
+def main():
+    p = step_argparser()
+    p.add_argument('--workflow', dest='workflow', type=str, required=True,
+                   help='The name of the workflow we should route the artifacts to.')
+    p.add_argument('--stage', dest='stage', type=str,
+                   help='The name of the stage in the workflow we should route the artifacts to.')
+    p.add_argument('--source', dest='source', type=str, required=True, choices=['input', 'output', 'submitted'],
+                   help='The name of the stage in the workflow we should route the artifacts to.')
+    p.add_argument('--only_once', dest='only_once', action='store_true', default=False,
+                   help='Prevent the sample that have gone into this workflow to be assigned again.')
+    p.add_argument('--remove', dest='remove', action='store_true', default=False,
+                   help='Set the script to remove the artifacts instead of queueing.')
+
+    args = p.parse_args()
+    action = AssignWorkflowStage(
+        args.step_uri, args.username, args.password, args.log_file,
+        args.workflow, args.stage, args.source, args.remove, args.only_once
+    )
+    action.run()
+
+
+if __name__ == '__main__':
+    main()
