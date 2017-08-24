@@ -16,7 +16,7 @@ class AssignContainerName(StepEPP):
             if p.output_type == 'Analyte':
                 print(p)
                 project = p.samples[0].project.name
-                newContainerName = FindAvailableContainer(self, project=project, count=1)
+                newContainerName = FindAvailableContainer(self, project=project, count=1, zeros='00')
                 p.container.name = newContainerName
                 p.container.put()
 
@@ -25,14 +25,19 @@ class AssignContainerName(StepEPP):
         print(newContainerName)
 
 
-def FindAvailableContainer(self, project, count):
-    if self.lims.get_artifacts(containername=project + 'P' + str(count)) == []:
-        newContainerName = project + 'P' + str(count)
+def FindAvailableContainer(self, project, count, zeros):
+    # checks to see if the first container name is available and then recurses until it finds an available container name
+    if self.lims.get_artifacts(containername=project + 'P' + zeros + str(count)) == []:
+        newContainerName = project + 'P' + zeros + str(count)
         return newContainerName
     else:
         count = count + 1
-        print(self.lims.get_artifacts(containername=project + 'P' + str(count)) == [])
-        newContainerName = FindAvailableContainer(self, project=project, count=count)
+        if count > 9 and count < 100:  # the plate naming convention has the number -count- preceeded by zeros to make up three digits e.g. 001, 010
+            zeros = '0'
+        elif count > 99:
+            zeros = ''
+
+        newContainerName = FindAvailableContainer(self, project=project, count=count, zeros=zeros)
 
         return newContainerName
 
@@ -45,4 +50,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main()in()
