@@ -38,3 +38,11 @@ class TestAssignContainerName(TestEPP):
 
     def test_assign_existing_arts(self):
         self._test_assign(['some artifacts', 'some more artifacts', []], 'a_project_P003')
+
+    def test_findAvailableContainer(self):
+
+        with patch.object(self.epp.lims, 'get_artifacts',side_effect=[['something'], ['something'], []]):
+            assert self.epp.findAvailableContainer(project='project1', count=1) == 'project1P003'
+
+        with patch.object(self.epp.lims, 'get_artifacts', side_effect=[['a']] * 500 + [[]]):
+            assert self.epp.findAvailableContainer(project='project1', count=1) == 'project1P501'
