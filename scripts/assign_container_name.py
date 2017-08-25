@@ -1,5 +1,5 @@
-#!/opt/gls/clarity/users/glsai/Applications/clarity_scripts/import_prod_script/bin/python3.4
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+#!/usr/bin/env python
+from EPPs.common import StepEPP, step_argparser,
 
 
 class AssignContainerName(StepEPP):
@@ -14,32 +14,30 @@ class AssignContainerName(StepEPP):
         # as this only needs to occur once as the step can only process a single rack of tubes from a single project.
         for p in processOutputs:
             if p.output_type == 'Analyte':
-                print(p)
+               
                 project = p.samples[0].project.name
-                newContainerName = FindAvailableContainer(self, project=project, count=1, zeros='00')
-                p.container.name = newContainerName
+                new_container_name = self.findAvailableContainer(project=project, count=1)
+                p.container.name = new_container_name
                 p.container.put()
 
                 break
 
-        print(newContainerName)
 
 
-def FindAvailableContainer(self, project, count, zeros):
-    # checks to see if the first container name is available and then recurses until it finds an available container name
-    if self.lims.get_artifacts(containername=project + 'P' + zeros + str(count)) == []:
-        newContainerName = project + 'P' + zeros + str(count)
-        return newContainerName
-    else:
-        count = count + 1
-        if count > 9 and count < 100:  # the plate naming convention has the number -count- preceeded by zeros to make up three digits e.g. 001, 010
-            zeros = '0'
-        elif count > 99:
-            zeros = ''
 
-        newContainerName = FindAvailableContainer(self, project=project, count=count, zeros=zeros)
+    def findAvailableContainer(self, project, count):
+        # checks to see if the first container name is available and then recurses until it finds an available container name
 
-        return newContainerName
+        if count>999:
+            raise ValueError('Cannot allocate more than 999 containers')
+
+        new_name=project+'P%03d' % (count)
+
+        if self.lims.get_artifacts(containername=project + 'P' + zeros + str(count)) == []:
+            return new_name
+        else:
+            return self.findAvailableContainer(project=project, count=count+1)
+
 
 
 def main():
@@ -50,4 +48,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()in()
+    main()
