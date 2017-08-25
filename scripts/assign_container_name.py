@@ -33,7 +33,7 @@ class AssignContainerName(StepEPP):
 
         new_name=project+'P%03d' % (count)
 
-        if self.lims.get_artifacts(containername=project + 'P' + zeros + str(count)) == []:
+        if self.lims.get_artifacts(containername=new_name) == []:
             return new_name
         else:
             return self.findAvailableContainer(project=project, count=count+1)
