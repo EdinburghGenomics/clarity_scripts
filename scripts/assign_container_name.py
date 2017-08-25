@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser,
+from EPPs.common import StepEPP, step_argparser
 
 
 class AssignContainerName(StepEPP):
