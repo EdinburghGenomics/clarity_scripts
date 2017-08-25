@@ -2,13 +2,10 @@
 import csv
 import sys
 from os import remove
-from os.path import join, dirname, abspath, exists as file_exists
+from os.path import join, dirname, abspath
 from collections import defaultdict
-
-from io import StringIO
 from egcg_core.config import Configuration
 from egcg_core.app_logging import AppLogger, logging_default as log_cfg
-from genologics.entities import Artifact
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 from EPPs.common import StepEPP, step_argparser
@@ -144,7 +141,7 @@ class GenotypeConversion(AppLogger):
             header_assay_id = self._find_field(['Assay ID'], sp_header)
             header_call = self._find_field(['Call'], sp_header)
 
-            #Check the barcode is valid according to the accufill log file
+            # Check the barcode is valid according to the accufill log file
             if not parameters['Barcode'] in self.valid_array_barcodes:
                 msg = 'Array barcode %s is not in the list of valid barcodes (%s)' % (
                     parameters['Barcode'],
@@ -153,7 +150,7 @@ class GenotypeConversion(AppLogger):
                 self.critical(msg)
                 raise ValueError(msg)
             else:
-                logger.info('Validate array barcode %s'%(parameters['Barcode']))
+                logger.info('Validate array barcode %s', parameters['Barcode'])
 
             for line in result_lines[1:]:
                 sp_line = line.split('\t')
@@ -214,13 +211,12 @@ class GenotypeConversion(AppLogger):
                 out.append(self.all_records[snps_id].get(sample))
                 lines.append('\t'.join(out))
             else:
-                msg = 'SNP %s was not found for Sample '%(snps_id, sample)
+                msg = 'SNP %s was not found for sample %s' % (snps_id, sample)
                 self.critical(msg)
                 raise ValueError(msg)
         with open(vcf_file, 'w') as open_file:
             open_file.write('\n'.join(lines))
         return vcf_file
-
 
     def _parse_accufill_load_csv(self):
         all_arrays = set()
@@ -231,7 +227,6 @@ class GenotypeConversion(AppLogger):
         for line in reader:
             all_arrays.add((line[header_array], line[header_holder], line[header_plate_barcode]))
         return all_arrays
-
 
     @property
     def valid_array_barcodes(self):
@@ -245,28 +240,17 @@ class UploadVcfToSamples(StepEPP):
     def __init__(self, step_uri, username, password, log_file, mode, input_genotypes_files,
                  accufill_log=None, no_upload=False):
         super().__init__(step_uri, username, password, log_file)
-        self.files_to_close = []
         self.no_upload = no_upload
         input_genotypes_contents = []
         for s in input_genotypes_files:
-            input_genotypes_contents.append(self.open_or_download(s))
+            input_genotypes_contents.append(self.open_or_download_file(s))
         if accufill_log:
-            accufill_log_content = self.open_or_download(accufill_log)
+            accufill_log_content = self.open_or_download_file(accufill_log)
         else:
             accufill_log_content = None
 
         self.geno_conv = GenotypeConversion(input_genotypes_contents, accufill_log_content, mode, default_fai,
                                             default_flank_length)
-
-    def open_or_download(self, f):
-        if file_exists(f):
-            content = open(f)
-            self.files_to_close.append(content)
-        else:
-            a = Artifact(self.lims, id=f)
-            content = StringIO(self.lims.get_file_contents(uri=a.files[0].uri))
-        return content
-
 
     def _run(self):
         invalid_lims_samples = []
@@ -312,10 +296,6 @@ class UploadVcfToSamples(StepEPP):
             # TODO send a message to the EPP
             messages.append('%s genotypes have not been assigned' % (len(self.geno_conv.sample_names) - len(valid_samples)))
         print(', '.join(messages))
-
-    def __del__(self):
-        for f in self.files_to_close:
-            f.close()
 
 
 def main():
