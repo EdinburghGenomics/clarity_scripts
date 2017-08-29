@@ -19,7 +19,7 @@ class TestPullRunElementInfo(TestEPP):
             'clean_yield_in_gb': 20,
             'clean_yield_q30_in_gb': 15,
             'clean_pc_q30': 75,
-            'lane_pc_optic  al_dups': 10,
+            'lane_pc_optical_dups': 10,
             'pc_adapter': 1.2,
             'reviewed': 'pass',
             'review_comments': 'alright',
@@ -54,7 +54,8 @@ class TestPullRunElementInfo(TestEPP):
                 'RE Yield': 20,
                 'RE Nb Reads': 120000000,
                 'RE Id': 'id',
-                'RE %Adapter': 1.2
+                'RE %Adapter': 1.2,
+                'RE Estimated Duplicate Rate': 10
             }
             assert dict(poa.return_value[0].udf) == expected_udfs
 
@@ -141,7 +142,7 @@ class TestPushRunElementInfo(TestEPP):
                 self.patched_output_artifacts_per_sample as poa:
             self.epp.run()
             # Check that the run element was updated
-            prp.assert_any_call_with(
+            prp.assert_any_call(
                 'run_elements',
                 {
                     'useable': 'no',
