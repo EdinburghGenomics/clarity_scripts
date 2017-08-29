@@ -150,7 +150,7 @@ class PushRunElementInfo(RunElementInfo):
         # batch retrieve input and output artifacts along with samples
         self.output_artifacts
         for sample in self.samples:
-            run_elements = self.get_documents('aggregate/run_elements', match={'sample_id': sample.name})
+            run_elements = self.get_documents('run_elements', where={'sample_id': sample.name})
             run_elements_dict = {}
             for run_element in run_elements:
                 run_elements_dict[run_element['run_element_id']] = run_element
