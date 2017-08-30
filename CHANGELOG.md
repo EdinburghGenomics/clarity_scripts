@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.5 (unreleased)
+0.5 (2017-08-30)
 ----------------
 
-- Nothing changed yet.
+- Added assign_container_name
 
 
 0.4.1 (2017-07-14)
