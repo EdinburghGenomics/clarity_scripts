@@ -1,34 +1,15 @@
 #!/usr/bin/env python
 import datetime
-
-import sys
 from cached_property import cached_property
-from egcg_core import rest_communication
-from requests.exceptions import ConnectionError
-
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP, RestCommunicationEPP, step_argparser
 from EPPs.config import load_config
 
 reporting_app_date_format = '%d_%m_%Y_%H:%M:%S'
 
-metrics_mapping_pull = [
-    ('RE Id', 'run_element_id'),
-    ('RE Nb Reads', 'passing_filter_reads'),
-    ('RE Yield', 'clean_yield_in_gb'),
-    ('RE Yield Q30', 'clean_yield_q30_in_gb'),
-    ('RE %Q30', 'clean_pc_q30'),
-    ('RE Estimated Duplicate Rate', 'lane_pc_optical_dups'),
-    ('RE %Adapter', 'pc_adapter'),
-    ('RE Review status', 'reviewed'),
-    ('RE Review Comment', 'review_comments'),
-    ('RE Review date', 'review_date'),
-    ('RE previous Useable', 'useable'),
-    ('RE previous Useable Comment', 'useable_comments'),
-    ('RE previous Useable date', 'useable_date')
-]
 
-
-class RunElementInfo(StepEPP):
+class StepPopulator(StepEPP, RestCommunicationEPP):
+    metrics_mapping = {}
+    endpoint = None
 
     def output_artifacts_per_sample(self, sample_name):
         return [
@@ -37,51 +18,62 @@ class RunElementInfo(StepEPP):
             if io[0]['uri'].samples[0].name == sample_name and io[1]['output-type'] == 'ResultFile'
         ]
 
-    def get_documents(self, *args, **kwargs):
-        try:
-            return rest_communication.get_documents(*args, **kwargs)
-        except ConnectionError as ce:
-            print(ce)
-            sys.exit(127)
+    def _run(self):
+        raise NotImplementedError
 
-    def patch_entry(self, *args, **kwargs):
-        try:
-            rest_communication.patch_entry(*args, **kwargs)
-        except ConnectionError as ce:
-            print(ce)
-            sys.exit(127)
 
-class PullRunElementInfo(RunElementInfo):
-
-    def __init__(self, step_uri, username, password, log_file=None, pull_re=True):
+class PullInfo(StepPopulator):
+    def __init__(self, step_uri, username, password, log_file=None, pull_data=True):
         super().__init__(step_uri, username, password, log_file)
-        self.pull_re = pull_re
+        self.pull_data = pull_data
 
     def _run(self):
         artifacts_to_upload = set()
         # batch retrieve input and output artifacts along with samples
-        self.output_artifacts
+        _ = self.output_artifacts
         for sample in self.samples:
-            if self.pull_re:
-                artifacts_to_upload.update(self.add_run_element_info(sample))
+            if self.pull_data:
+                artifacts_to_upload.update(self.add_artifact_info(sample))
             artifacts_to_upload.update(self.assess_sample(sample))
         self.lims.put_batch(artifacts_to_upload)
 
-    def add_run_element_info(self, sample):
-        run_elements = self.get_documents('aggregate/run_elements', match={'sample_id': sample.name})
+    def add_artifact_info(self, sample):
+        run_elements = self.get_documents(self.endpoint, match={'sample_id': sample.name})
         artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
         assert len(run_elements) == len(artifacts)
         artifacts_to_upload = set()
         for i in range(len(run_elements)):
-            for art_field, re_field in metrics_mapping_pull:
-                value = run_elements[i].get(re_field)
+            for art_field, api_field in self.metrics_mapping:
+                value = run_elements[i].get(api_field)
                 if value is not None:
-                    if re_field.endswith('date'):
+                    if api_field.endswith('date'):
                         value = datetime.datetime.strptime(value, reporting_app_date_format).strftime('%Y-%m-%d')
                     artifacts[i].udf[art_field] = value
-
                     artifacts_to_upload.add(artifacts[i])
+
         return artifacts_to_upload
+
+    def assess_sample(self, sample):
+        raise NotImplementedError
+
+
+class PullRunElementInfo(PullInfo):
+    endpoint = 'aggregate/run_elements'
+    metrics_mapping = [
+        ('RE Id', 'run_element_id'),
+        ('RE Nb Reads', 'passing_filter_reads'),
+        ('RE Yield', 'clean_yield_in_gb'),
+        ('RE Yield Q30', 'clean_yield_q30_in_gb'),
+        ('RE %Q30', 'clean_pc_q30'),
+        ('RE Estimated Duplicate Rate', 'lane_pc_optical_dups'),
+        ('RE %Adapter', 'pc_adapter'),
+        ('RE Review status', 'reviewed'),
+        ('RE Review Comment', 'review_comments'),
+        ('RE Review date', 'review_date'),
+        ('RE previous Useable', 'useable'),
+        ('RE previous Useable Comment', 'useable_comments'),
+        ('RE previous Useable date', 'useable_date')
+    ]
 
     def assess_sample(self, sample):
         artifacts_to_upload = set()
@@ -89,7 +81,7 @@ class PullRunElementInfo(RunElementInfo):
         artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
         un_reviewed_artifacts = [a for a in artifacts if a.udf.get('RE Review status') not in ['pass', 'fail']]
         if un_reviewed_artifacts:
-            # Skip sample that have some un-reviewed run elements as they could still be sequencing and change the outcome of the review
+            # Skip samples that have un-reviewed run elements - could still be sequencing and change review outcome
             return artifacts_to_upload
 
         # Artifacts that pass the review
@@ -135,47 +127,110 @@ class PullRunElementInfo(RunElementInfo):
         return artifacts_to_upload
 
 
-metrics_mapping_push = [
-    ('RE Useable', 'useable'),
-    ('RE Useable Comment', 'useable_comments'),
-]
+class PullSampleInfo(PullInfo):
+    endpoint = 'aggregate/samples'
 
-class PushRunElementInfo(RunElementInfo):
+    metrics_mapping = [
+        ('Sample ID', 'sample_id'),
+        ('User Sample ID', 'user_sample_id'),
+        ('Sample Yield', 'yield'),
+        ('Sample %Q30', 'qc_q30'),
+        ('Sample % Mapped', 'pc_mapped'),
+        ('Sample % Duplicates', 'pc_duplicates'),
+        ('Sample Mean Coverage', 'mean_coverage'),
+        ('Sample Species Found', 'species_found'),
+        ('Sample Sex Check Match', 'gender_match'),
+        ('Sample Genotype Match', 'genotype_match'),
+        ('Sample Freemix', 'freemix'),
+        ('Sample Review status', 'reviewed'),  # ####
+        ('Sample Review Comment', 'review_comments'),
+        ('Sample Review date', 'review_date'),
+        ('Sample previous Useable', 'useable'),
+        ('Sample previous Useable Comment', 'useable_comments'),
+        ('Sample previous Useable date', 'useable_date')
+    ]
+
+    def assess_sample(self, sample):
+        artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
+        un_reviewed_artifacts = [a for a in artifacts if a.udf.get('Sample Review status') not in ['pass', 'fail']]
+        if un_reviewed_artifacts:
+            # Skip unreviewed samples
+            return artifacts
+
+        for a in artifacts:
+            if a.udf.get('Sample Review status') == 'pass':
+                a.udf['Sample Useable'] = 'yes'
+                a.udf['Sample Useable Comment'] = 'AR: Review passed'
+
+            elif a.udf.get('Sample Review status') == 'fail':
+                a.udf['Sample Useable'] = 'no'
+                a.udf['Sample Useable Comment'] = 'AR: Review failed'
+
+        return artifacts
+
+
+class PushInfo(StepPopulator):
+    endpoint = None
+    api_id_field = None
+    udf_id_field = None
 
     @cached_property
     def current_time(self):
-        return datetime.datetime.now()
+        return datetime.datetime.now().strftime(reporting_app_date_format)
 
     def _run(self):
         # batch retrieve input and output artifacts along with samples
-        self.output_artifacts
+        _ = self.output_artifacts
         for sample in self.samples:
-            run_elements = self.get_documents('run_elements', where={'sample_id': sample.name})
-            run_elements_dict = {}
-            for run_element in run_elements:
-                run_elements_dict[run_element['run_element_id']] = run_element
-            artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
-            assert len(run_elements) == len(artifacts)
-            for artifact in artifacts:
-                run_element = run_elements_dict.get(artifact.udf.get('RE Id'))
-                run_element_to_upload = {}
-                for art_field, re_field in metrics_mapping_push:
-                    value = artifact.udf.get(art_field)
-                    if value is not None and value != run_element.get(re_field):
-                        run_element_to_upload[re_field] = value
+            data = self.get_documents('run_elements', where={'sample_id': sample.name})
 
-                if run_element_to_upload:
+            rest_api_data = {}
+            for d in data:
+                rest_api_data[d[self.api_id_field]] = d
+            artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
+            assert len(data) == len(artifacts)  # for sample review, this will be 1. For run review, this will be more
+
+            for artifact in artifacts:
+                data = rest_api_data.get(artifact.udf.get(self.udf_id_field))
+                payload = {}
+                for art_field, api_field in self.metrics_mapping:
+                    value = artifact.udf.get(art_field)
+                    if value is not None and value != data.get(api_field):
+                        payload[api_field] = value
+
+                if payload:
                     # The date is set to now.
-                    run_element_to_upload['useable_date'] = self.current_time.strftime(reporting_app_date_format)
-                    self.patch_entry('run_elements', run_element_to_upload, 'run_element_id', artifact.udf.get('RE Id'))
+                    payload['useable_date'] = self.current_time
+                    self.patch_entry(self.endpoint, payload, self.api_id_field, artifact.udf.get(self.udf_id_field))
 
         # finish the action on the rest api
         self.patch_entry(
             'actions',
-            {'date_finished': self.current_time.strftime(reporting_app_date_format)},
+            {'date_finished': self.current_time},
             'action_id',
             'lims_' + self.process.id
         )
+
+
+class PushRunElementInfo(PushInfo):
+    endpoint = 'run_elements'
+    api_id_field = 'run_element_id'
+    udf_id_field = 'RE Id'
+    metrics_mapping = [
+        ('RE Useable', 'useable'),
+        ('RE Useable Comment', 'useable_comments'),
+    ]
+
+
+class PushSampleInfo(PushInfo):
+    endpoint = 'samples'
+    api_id_field = 'sample_id'
+    udf_id_field = 'Sample ID'
+    metrics_mapping = [
+        ('Sample Useable', 'useable'),
+        ('Sample Useable Comment', 'useable_comments'),
+    ]
+
 
 def main():
     p = step_argparser()
@@ -197,7 +252,7 @@ def main():
         )
     elif args.assess:
         action = PullRunElementInfo(
-            args.step_uri, args.username, args.password, args.log_file, pull_re=False,
+            args.step_uri, args.username, args.password, args.log_file, pull_data=False,
         )
 
     action.run()
