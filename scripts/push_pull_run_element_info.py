@@ -38,13 +38,13 @@ class PullInfo(StepPopulator):
         self.lims.put_batch(artifacts_to_upload)
 
     def add_artifact_info(self, sample):
-        run_elements = self.get_documents(self.endpoint, match={'sample_id': sample.name})
+        rest_entities = self.get_documents(self.endpoint, match={'sample_id': sample.name})
         artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
-        assert len(run_elements) == len(artifacts)
+        assert len(rest_entities) == len(artifacts)
         artifacts_to_upload = set()
-        for i in range(len(run_elements)):
+        for i in range(len(rest_entities)):
             for art_field, api_field in self.metrics_mapping:
-                value = run_elements[i].get(api_field)
+                value = self.field_from_entity(rest_entities[i], api_field)
                 if value is not None:
                     if api_field.endswith('date'):
                         value = datetime.datetime.strptime(value, reporting_app_date_format).strftime('%Y-%m-%d')
@@ -52,6 +52,18 @@ class PullInfo(StepPopulator):
                     artifacts_to_upload.add(artifacts[i])
 
         return artifacts_to_upload
+
+    def field_from_entity(self, entity, api_field):
+        """
+        :param dict entity:
+        :param str api_field:
+        :rtype: str
+        """
+        queries = api_field.split('.')
+        _entity = entity.copy()
+        for q in queries:
+            _entity = _entity.get(q)
+        return _entity
 
     def assess_sample(self, sample):
         raise NotImplementedError
@@ -129,50 +141,56 @@ class PullRunElementInfo(PullInfo):
 
 class PullSampleInfo(PullInfo):
     endpoint = 'aggregate/samples'
-
     metrics_mapping = [
-        ('Sample ID', 'sample_id'),
-        ('User Sample ID', 'user_sample_id'),
-        ('Sample Yield', 'yield'),
-        ('Sample %Q30', 'qc_q30'),
-        ('Sample % Mapped', 'pc_mapped'),
-        ('Sample % Duplicates', 'pc_duplicates'),
-        ('Sample Mean Coverage', 'mean_coverage'),
-        ('Sample Species Found', 'species_found'),
-        ('Sample Sex Check Match', 'gender_match'),
-        ('Sample Genotype Match', 'genotype_match'),
-        ('Sample Freemix', 'freemix'),
-        ('Sample Review status', 'reviewed'),  # ####
-        ('Sample Review Comment', 'review_comments'),
-        ('Sample Review date', 'review_date'),
-        ('Sample previous Useable', 'useable'),
-        ('Sample previous Useable Comment', 'useable_comments'),
-        ('Sample previous Useable date', 'useable_date')
+        ('SR Yield (Gb)', 'clean_yield_in_gb'),
+        ('SR %Q30', 'clean_pc_q30'),
+        ('SR % Mapped', 'pc_mapped_reads'),
+        ('SR % Duplicates', 'pc_duplicate_reads'),
+        ('SR Mean Coverage', 'coverage.mean'),
+        ('SR Species Found', 'species_contamination'),
+        ('SR Sex Check Match', 'gender_match'),
+        ('SR Genotyping Match', 'genotype_match'),
+        ('SR Freemix', 'sample_contamination.freemix'),
+        ('SR Review Status', 'reviewed'),
+        ('SR Review Comments', 'review_comments'),
+        ('SR Review Date', 'review_date'),
+        ('SR previous Useable', 'useable'),
+        ('SR previous Useable Comments', 'useable_comments'),
+        ('SR previous Useable Date', 'useable_date')
     ]
 
     def assess_sample(self, sample):
         artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
-        un_reviewed_artifacts = [a for a in artifacts if a.udf.get('Sample Review status') not in ['pass', 'fail']]
+        un_reviewed_artifacts = [a for a in artifacts if a.udf.get('SR Review Status') not in ['pass', 'fail']]
         if un_reviewed_artifacts:
             # Skip unreviewed samples
             return artifacts
 
         for a in artifacts:
-            if a.udf.get('Sample Review status') == 'pass':
-                a.udf['Sample Useable'] = 'yes'
-                a.udf['Sample Useable Comment'] = 'AR: Review passed'
+            if a.udf.get('SR Review Status') == 'pass':
+                a.udf['SR Useable'] = 'yes'
+                a.udf['SR Useable Comments'] = 'AR: Review passed'
 
-            elif a.udf.get('Sample Review status') == 'fail':
-                a.udf['Sample Useable'] = 'no'
-                a.udf['Sample Useable Comment'] = 'AR: Review failed'
+            elif a.udf.get('SR Review Status') == 'fail':
+                a.udf['SR Useable'] = 'no'
+                a.udf['SR Useable Comments'] = 'AR: Review failed'
 
         return artifacts
+
+    def field_from_entity(self, entity, api_field):
+        # TODO: remove once Rest API has a sensible field for species found
+        if api_field == 'species_contamination':
+            return ', '.join(k for (k, v) in entity[api_field]['contaminant_unique_mapped'].items() if v > 500)
+
+        return super().field_from_entity(entity, api_field)
 
 
 class PushInfo(StepPopulator):
     endpoint = None
     api_id_field = None
-    udf_id_field = None
+
+    def review_entity_uid(self, artifact):
+        raise NotImplementedError
 
     @cached_property
     def current_time(self):
@@ -191,7 +209,7 @@ class PushInfo(StepPopulator):
             assert len(data) == len(artifacts)  # for sample review, this will be 1. For run review, this will be more
 
             for artifact in artifacts:
-                data = rest_api_data.get(artifact.udf.get(self.udf_id_field))
+                data = rest_api_data.get(self.review_entity_uid(artifact))
                 payload = {}
                 for art_field, api_field in self.metrics_mapping:
                     value = artifact.udf.get(art_field)
@@ -201,7 +219,7 @@ class PushInfo(StepPopulator):
                 if payload:
                     # The date is set to now.
                     payload['useable_date'] = self.current_time
-                    self.patch_entry(self.endpoint, payload, self.api_id_field, artifact.udf.get(self.udf_id_field))
+                    self.patch_entry(self.endpoint, payload, self.api_id_field, self.review_entity_uid(artifact))
 
         # finish the action on the rest api
         self.patch_entry(
@@ -215,21 +233,25 @@ class PushInfo(StepPopulator):
 class PushRunElementInfo(PushInfo):
     endpoint = 'run_elements'
     api_id_field = 'run_element_id'
-    udf_id_field = 'RE Id'
     metrics_mapping = [
         ('RE Useable', 'useable'),
         ('RE Useable Comment', 'useable_comments'),
     ]
 
+    def review_entity_uid(self, artifact):
+        return artifact.udf.get('RE Id')
+
 
 class PushSampleInfo(PushInfo):
     endpoint = 'samples'
     api_id_field = 'sample_id'
-    udf_id_field = 'Sample ID'
     metrics_mapping = [
-        ('Sample Useable', 'useable'),
-        ('Sample Useable Comment', 'useable_comments'),
+        ('SR Useable', 'useable'),
+        ('SR Useable Comments', 'useable_comments'),
     ]
+
+    def review_entity_uid(self, artifact):
+        return artifact.samples[0].name
 
 
 def main():

@@ -100,42 +100,47 @@ class TestPullRunElementInfo(TestPopulator):
             assert poa.return_value[1].udf['RE Useable'] == 'no'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Failed and not needed'
 
+    def test_field_from_entity(self):
+        entity = {'this': {'that': 'other'}}
+        assert self.epp.field_from_entity(entity, 'this.that') == 'other'
+        assert entity == {'this': {'that': 'other'}}  # not changed
+
 
 class TestPullSampleInfo(TestPullRunElementInfo):
     epp_cls = p.PullSampleInfo
     fake_rest_entity = {
         'sample_id': 'a_sample',
         'user_sample_id': 'a_user_sample_id',
-        'yield': 5,
-        'qc_q30': 70,
-        'pc_mapped': 75,
-        'pc_duplicates': 5,
-        'mean_coverage': 30,
-        'species_found': 'Thingius thingy',
+        'clean_yield_in_gb': 5,
+        'clean_pc_q30': 70,
+        'pc_mapped_reads': 75,
+        'pc_duplicate_reads': 5,
+        'coverage': {'mean': 30},
+        'species_contamination': {
+            'contaminant_unique_mapped': {'Homo sapiens': 70000, 'Thingius thingy': 501, 'Sus scrofa': 499}
+        },
         'gender_match': 'Match',
         'genotype_match': 'Match',
-        'freemix': 0.1,
+        'sample_contamination': {'freemix': 0.1},
         'reviewed': 'pass',
         'review_comments': 'alright',
         'review_date': '12_02_2017_12:43:24'
     }
     expected_udfs = {
-        'Sample ID': 'a_sample',
-        'User Sample ID': 'a_user_sample_id',
-        'Sample Yield': 5,
-        'Sample %Q30': 70,
-        'Sample % Mapped': 75,
-        'Sample % Duplicates': 5,
-        'Sample Mean Coverage': 30,
-        'Sample Species Found': 'Thingius thingy',
-        'Sample Sex Check Match': 'Match',
-        'Sample Genotype Match': 'Match',
-        'Sample Freemix': 0.1,
-        'Sample Review Comment': 'alright',
-        'Sample Review status': 'pass',
-        'Sample Review date': '2017-02-12',
-        'Sample Useable': 'yes',
-        'Sample Useable Comment': 'AR: Review passed'
+        'SR Yield (Gb)': 5,
+        'SR %Q30': 70,
+        'SR % Mapped': 75,
+        'SR % Duplicates': 5,
+        'SR Mean Coverage': 30,
+        'SR Species Found': 'Homo sapiens, Thingius thingy',
+        'SR Sex Check Match': 'Match',
+        'SR Genotyping Match': 'Match',
+        'SR Freemix': 0.1,
+        'SR Review Comments': 'alright',
+        'SR Review Status': 'pass',
+        'SR Review Date': '2017-02-12',
+        'SR Useable': 'yes',
+        'SR Useable Comments': 'AR: Review passed'
     }
 
     def test_assess_sample(self):
@@ -144,16 +149,20 @@ class TestPullSampleInfo(TestPullRunElementInfo):
 
         sample = NamedMock(real_name='a_sample')
         patched_output_artifacts_per_sample = patch_output_artifact([
-            Mock(spec=Artifact, udf={'Sample Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'Sample Review status': 'fail'}),
+            Mock(spec=Artifact, udf={'SR Review Status': 'pass'}),
+            Mock(spec=Artifact, udf={'SR Review Status': 'fail'}),
         ])
         with patched_output_artifacts_per_sample as poa:
             self.epp.assess_sample(sample)
-            assert poa.return_value[0].udf['Sample Useable'] == 'yes'
-            assert poa.return_value[0].udf['Sample Useable Comment'] == 'AR: Review passed'
+            assert poa.return_value[0].udf['SR Useable'] == 'yes'
+            assert poa.return_value[0].udf['SR Useable Comments'] == 'AR: Review passed'
 
-            assert poa.return_value[1].udf['Sample Useable'] == 'no'
-            assert poa.return_value[1].udf['Sample Useable Comment'] == 'AR: Review failed'
+            assert poa.return_value[1].udf['SR Useable'] == 'no'
+            assert poa.return_value[1].udf['SR Useable Comments'] == 'AR: Review failed'
+
+    def test_field_from_entity(self):
+        obs = self.epp.field_from_entity(self.fake_rest_entity, 'species_contamination')
+        assert obs == 'Homo sapiens, Thingius thingy'
 
 
 class TestPushRunElementInfo(TestPopulator):
@@ -172,7 +181,7 @@ class TestPushRunElementInfo(TestPopulator):
         self.patched_output_artifacts_per_sample = patch.object(
             self.epp_cls,
             'output_artifacts_per_sample',
-            return_value=[Mock(spec=Artifact, udf=self.fake_artifact_udfs)]
+            return_value=[Mock(spec=Artifact, udf=self.fake_artifact_udfs, samples=[NamedMock(real_name='a_sample')])]
         )
 
     def test_push(self):
@@ -196,7 +205,7 @@ class TestPushRunElementInfo(TestPopulator):
 
 class TestPushSampleInfo(TestPushRunElementInfo):
     epp_cls = p.PushSampleInfo
-    fake_artifact_udfs = {'Sample ID': 'a_sample', 'Sample Useable': 'no', 'Sample Useable Comment': 'too bad'}
+    fake_artifact_udfs = {'SR Useable': 'no', 'SR Useable Comments': 'too bad'}
     fake_rest_entity = {
         'sample_id': 'a_sample',
         'reviewed': 'pass',
