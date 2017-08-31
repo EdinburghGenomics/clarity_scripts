@@ -234,27 +234,23 @@ class PushSampleInfo(PushInfo):
 
 def main():
     p = step_argparser()
-    group = p.add_mutually_exclusive_group(required=True)
-    group.add_argument('--push', action='store_true')
-    group.add_argument('--assess', action='store_true')
-    group.add_argument('--pull_and_assess', action='store_true')
+    p.add_argument('--review_type', required=True, choices=('run', 'sample'))
+    p.add_argument('--action_type', required=True, choices=('pull', 'push'))
+    p.add_argument('--assess_only', action='store_true')
 
     load_config()
-
     args = p.parse_args()
-    if args.push:
-        action = PushRunElementInfo(
-            args.step_uri, args.username, args.password, args.log_file
-        )
-    elif args.pull_and_assess:
-        action = PullRunElementInfo(
-            args.step_uri, args.username, args.password, args.log_file
-        )
-    elif args.assess:
-        action = PullRunElementInfo(
-            args.step_uri, args.username, args.password, args.log_file, pull_data=False,
-        )
 
+    cls_args = [args.step_uri, args.username, args.password, args.log_file]
+    if args.assess_only:
+        assert args.action_type == 'pull'
+        cls_args.append(False)
+
+    reviewer_map = {
+        'run': {'pull': PullRunElementInfo, 'push': PushRunElementInfo},
+        'sample': {'pull': PullSampleInfo, 'push': PushSampleInfo}
+    }
+    action = reviewer_map[args.review_type][args.action_type](*cls_args)
     action.run()
 
 
