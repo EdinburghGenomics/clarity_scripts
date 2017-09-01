@@ -180,7 +180,8 @@ class PullSampleInfo(PullInfo):
     def field_from_entity(self, entity, api_field):
         # TODO: remove once Rest API has a sensible field for species found
         if api_field == 'species_contamination':
-            return ', '.join(k for (k, v) in entity[api_field]['contaminant_unique_mapped'].items() if v > 500)
+            species = entity[api_field]['contaminant_unique_mapped']
+            return ', '.join(k for k in sorted(species) if species[k] > 500)
 
         return super().field_from_entity(entity, api_field)
 
