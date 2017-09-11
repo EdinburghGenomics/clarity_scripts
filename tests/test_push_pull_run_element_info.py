@@ -60,6 +60,7 @@ class TestPullRunElementInfo(TestPopulator):
             self.epp.run()
 
             assert pg.call_count == 1
+            pg.assert_called_with(self.epp.endpoint, match={'sample_id': 'a_sample'})
 
             # Check that the udfs have been added
             assert dict(poa.return_value[0].udf) == self.expected_udfs
@@ -190,6 +191,7 @@ class TestPushRunElementInfo(TestPopulator):
             self.epp.run()
 
             assert pg.call_count == 1
+            pg.assert_called_with(self.epp.endpoint, where={'sample_id': 'a_sample'})
 
             # Check that the run element was updated
             prp.assert_any_call(

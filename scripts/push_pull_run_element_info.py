@@ -18,6 +18,18 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
             if io[0]['uri'].samples[0].name == sample_name and io[1]['output-type'] == 'ResultFile'
         ]
 
+    def check_rest_data_and_artifacts(self, sample_name, selector):
+        query_args = {selector: {'sample_id': sample_name}}
+        rest_entities = self.get_documents(self.endpoint, **query_args)
+        artifacts = self.output_artifacts_per_sample(sample_name=sample_name)
+        if len(rest_entities) != len(artifacts):  # in sample review this will be 1, in run review this will be more
+            raise AssertionError(
+                'Data mismatch for sample %s: got %s Rest entities, %s output artifacts' % (
+                    sample_name, len(rest_entities), len(artifacts)
+                )
+            )
+        return rest_entities, artifacts
+
     def _run(self):
         raise NotImplementedError
 
@@ -29,18 +41,17 @@ class PullInfo(StepPopulator):
 
     def _run(self):
         artifacts_to_upload = set()
-        # batch retrieve input and output artifacts along with samples
-        _ = self.output_artifacts
+        _ = self.output_artifacts  # batch retrieve input and output artifacts along with samples
         for sample in self.samples:
             if self.pull_data:
+                self.debug('Adding artifact info for %s', sample.name)
                 artifacts_to_upload.update(self.add_artifact_info(sample))
+            self.debug('Assessing sample %s', sample.name)
             artifacts_to_upload.update(self.assess_sample(sample))
         self.lims.put_batch(artifacts_to_upload)
 
     def add_artifact_info(self, sample):
-        rest_entities = self.get_documents(self.endpoint, match={'sample_id': sample.name})
-        artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
-        assert len(rest_entities) == len(artifacts)
+        rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name, 'match')
         artifacts_to_upload = set()
         for i in range(len(rest_entities)):
             for art_field, api_field in self.metrics_mapping:
@@ -63,6 +74,8 @@ class PullInfo(StepPopulator):
         _entity = entity.copy()
         for q in queries:
             _entity = _entity.get(q)
+            if _entity is None:
+                break
         return _entity
 
     def assess_sample(self, sample):
@@ -187,7 +200,6 @@ class PullSampleInfo(PullInfo):
 
 
 class PushInfo(StepPopulator):
-    endpoint = None
     api_id_field = None
 
     def review_entity_uid(self, artifact):
@@ -201,20 +213,18 @@ class PushInfo(StepPopulator):
         # batch retrieve input and output artifacts along with samples
         _ = self.output_artifacts
         for sample in self.samples:
-            data = self.get_documents('run_elements', where={'sample_id': sample.name})
-
+            self.error('Pushing data for sample %s', sample.name)
+            rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name, 'where')
             rest_api_data = {}
-            for d in data:
-                rest_api_data[d[self.api_id_field]] = d
-            artifacts = self.output_artifacts_per_sample(sample_name=sample.name)
-            assert len(data) == len(artifacts)  # for sample review, this will be 1. For run review, this will be more
+            for e in rest_entities:
+                rest_api_data[e[self.api_id_field]] = e
 
             for artifact in artifacts:
-                data = rest_api_data.get(self.review_entity_uid(artifact))
+                rest_entities = rest_api_data.get(self.review_entity_uid(artifact))
                 payload = {}
                 for art_field, api_field in self.metrics_mapping:
                     value = artifact.udf.get(art_field)
-                    if value is not None and value != data.get(api_field):
+                    if value is not None and value != rest_entities.get(api_field):
                         payload[api_field] = value
 
                 if payload:
