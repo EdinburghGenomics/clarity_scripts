@@ -3,6 +3,14 @@ from unittest.case import TestCase
 from unittest.mock import Mock, PropertyMock, patch
 from EPPs.common import StepEPP, find_newest_artifact_originating_from
 
+class NamedMock(Mock):
+    @property
+    def name(self):
+        return self.real_name
+
+
+class MockedSamples(NamedMock):
+    project = NamedMock(real_name='10015AT')
 
 def fake_artifact(id):
     return Mock(
