@@ -1,5 +1,5 @@
 from pyclarity_lims.entities import Artifact
-from scripts import push_pull_run_element_info as p
+from scripts import populate_review_step as p
 from tests.test_common import TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
 

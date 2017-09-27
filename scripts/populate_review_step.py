@@ -213,7 +213,7 @@ class PushInfo(StepPopulator):
         # batch retrieve input and output artifacts along with samples
         _ = self.output_artifacts
         for sample in self.samples:
-            self.error('Pushing data for sample %s', sample.name)
+            self.info('Pushing data for sample %s', sample.name)
             rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name, 'where')
             rest_api_data = {}
             for e in rest_entities:
