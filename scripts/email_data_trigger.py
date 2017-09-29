@@ -121,7 +121,7 @@ class SendDataRelease(StepEPP):
 
 def main():
     args = _parse_args()
-    action = SendDataRelease(args.step_uri, args.username, args.password, args.contacts, args.limsid)
+    action = SendDataRelease(args.step_uri, args.username, args.password, args.contacts, args.xlimsid)
     action.run()
 
 
