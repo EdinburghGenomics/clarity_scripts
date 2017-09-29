@@ -12,6 +12,8 @@ pDOM = None
 
 
 class SendDataRelease(StepEPP):
+    def _run(self):
+        getInfo()
     def getEmailContacts(self, contact_type):
         email_contacts_file = open(args.contacts)
         email_contacts_list = email_contacts_file.readlines()
@@ -118,7 +120,7 @@ class SendDataRelease(StepEPP):
 
 def main():
     args = _parse_args()
-    action = SendDataRelease(args.step_uri, args.username, args.password)
+    action = SendDataRelease(args.step_uri, args.username, args.password, args.contacts)
     action.run()
 
 
