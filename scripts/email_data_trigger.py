@@ -68,7 +68,7 @@ class SendDataRelease(StepEPP):
 
     def createMail(self):
         global projectName
-        LIMSID = args["limsid"]
+        LIMSID = args.limsid
         LIMSIDSHORT = LIMSID[3:]
         ## create message of the email
         msg = "Hi,\n\nPlease release the data for the samples in " + projectName + " as shown in the link below:\n\nhttp://egclarityprod.mvm.ed.ac.uk/clarity/work-details/" + LIMSIDSHORT + ".\n\nKind regards,\nClarity X"
@@ -78,10 +78,10 @@ class SendDataRelease(StepEPP):
         global projectName
         global pDOM
         ## get the XML for the process
-        stepURI = args["stepURI"]
+        stepURI = args.step_URI
         stepsLocation = stepURI.find('steps')
         BASE_URI = stepURI[0:stepsLocation]
-        pURI = BASE_URI + "processes/" + args["limsid"]
+        pURI = BASE_URI + "processes/" + args.limsid
 
         pXML = api.getResourceByURI(pURI)
         pDOM = parseString(pXML)
@@ -121,7 +121,7 @@ class SendDataRelease(StepEPP):
 
 def main():
     args = _parse_args()
-    action = SendDataRelease(args.step_uri, args.username, args.password, args.contacts)
+    action = SendDataRelease(args.step_uri, args.username, args.password, args.contacts, args.limsid)
     action.run()
 
 
@@ -129,6 +129,8 @@ def _parse_args():
     p = step_argparser()
     p.add_argument('--contacts', dest='contacts', type=str,
                    help='The file containing email contacts')
+    p.add_argument('--processID', dest='limsid', type=str,
+                   help='The LIMS ID for the process')
 
     return p.parse_args()
 
