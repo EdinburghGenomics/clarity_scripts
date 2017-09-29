@@ -19,6 +19,7 @@ class SendDataRelease(StepEPP):
         email_contacts_list = email_contacts_file.readlines()
         print(email_contacts_list)
 
+
         if contact_type == 'me':
             email_sender = email_contacts_list[email_contacts_list.index('SENDER\n') + 1].replace('\n',
                                                                                                   '')  # Look for the position of the word SENDER in the list
