@@ -129,7 +129,7 @@ def _parse_args():
     p = step_argparser()
     p.add_argument('--contacts', dest='contacts', type=str,
                    help='The file containing email contacts')
-    p.add_argument('--processID', dest='limsid', type=str,
+    p.add_argument('--limsID', dest='limsid', type=str,
                    help='The LIMS ID for the process')
 
     return p.parse_args()
