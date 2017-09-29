@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 from EPPs.common import StepEPP, step_argparser
+import smtplib
 
-DEBUG = False
-api = None
-args = None
+#DEBUG = False
+#api = None
+#args = None
 
 UDF = "bank"
 projectName = None
@@ -11,7 +13,7 @@ pDOM = None
 
 class SendDataRelease(StepEPP):
     def getEmailContacts(self, contact_type):
-        email_contacts_file = open(args["contacts"])
+        email_contacts_file = open(args.contacts)
         email_contacts_list = email_contacts_file.readlines()
         print(email_contacts_list)
 
