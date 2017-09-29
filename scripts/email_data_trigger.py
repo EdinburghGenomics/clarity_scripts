@@ -1,160 +1,65 @@
 #!/usr/bin/env python
-import sys
-import getopt
-import glsapiutil
-import xml.dom.minidom
-from xml.dom.minidom import parseString
-import smtplib
+from collections import defaultdict
 
-DEBUG = False
-api = None
-args = None
-
-UDF = "bank"
-projectName = None
-pDOM = None
+from EPPs.common import step_argparser, SendMailEPP
+from EPPs.config import load_config
 
 
-def getEmailContacts(contact_type):
-    email_contacts_file = open(args["contacts"])
-    email_contacts_list = email_contacts_file.readlines()
-    print(email_contacts_list)
+class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
-    if contact_type == 'me':
-        email_sender = email_contacts_list[email_contacts_list.index('SENDER\n') + 1].replace('\n',
-                                                                                              '')  # Look for the position of the word SENDER in the list
-        # and then assume the sender email is the next position and remove the \n from the end of the string
+    def _run(self):
+        # Get the number of sample per projects
+        sample_per_project = defaultdict(list)
+        for sample in self.samples:
+            sample_per_project[sample.project.name].append(sample.name)
 
-        print(email_sender)
-        return email_sender
+        # Create a list of project description like <project name>: <number of sample> sample(s)
+        project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
 
-    if contact_type == 'you':
-        email_recipients_list = email_contacts_list[email_contacts_list.index('RECIPIENTS\n') + 1].split(
-            ',')  # look for the position of the word RECIPIENTS in the list
-        # and then assume the recipients emails are the next postiion in the list then split into list with comma
-        del (email_recipients_list[len(email_recipients_list) - 1])  # this removes the \n at the end of the list
-        print(email_recipients_list)
-        return email_recipients_list
+        # Create the message
+        msg = '''Hi,
 
+Data has just been released to the user for {number_project} project(s).
+{project_list}
+Please check the following link for details:
+{link}
 
-def sendMail(body, to_address):
-    global projectName
+Kind regards,
+Clarity X
+    '''
+        # fill in message with parameters
+        msg = msg.format(
+            number_project=len(self.projects),
+            project_list='\n'.join(project_list),
+            link=self.baseuri + '/clarity/work-details/' + self.step_id[3:]
+        )
+        subject = ', '.join([p.name for p in self.projects]) + ': Edinburgh Genomics Clinical- Data Released'
 
-    # Import the email modules we'll need
-    from email.mime.text import MIMEText
+        # Send email to list of persons specified in the default section of config
+        self.send_mail(subject, msg)
 
-    # For this example, assume that
-    # the message contains only ASCII characters.
-    msg = MIMEText(body)
-
-    # me == the sender's email address
-    # you == the recipient's email address
-    # me = 'EGCG-Projects@ed.ac.uk'
-    me = getEmailContacts('me')
-    you = getEmailContacts('you')
-    # you = ['EGCG-Projects@ed.ac.uk']
-
-
-    msg['Subject'] = projectName + ': Edinburgh Genomics Clinical- Data Released'
-    msg['From'] = me
-    msg['To'] = ", ".join(you)
-
-    # Send the message via our own SMTP server, but don't include the
-    # envelope header.
-
-    # replace "localhost" below with the IP address of the mail server
-    s = smtplib.SMTP('smtp.staffmail.ed.ac.uk', 25)
-    s.sendmail(me, you, msg.as_string())
-    s.quit()
-
-
-def createMail():
-    global projectName
-    LIMSID = args["limsid"]
-    LIMSIDSHORT = LIMSID[3:]
-    ## create message of the email
-    msg = "Hi,\n\nPlease release the data for the samples in " + projectName + " as shown in the link below:\n\nhttp://egclarityprod.mvm.ed.ac.uk/clarity/work-details/" + LIMSIDSHORT + ".\n\nKind regards,\nClarity X"
-    sendMail(msg, "")
-
-
-def getInfo():
-    global projectName
-    global pDOM
-    ## get the XML for the process
-    stepURI = args["stepURI"]
-    stepsLocation = stepURI.find('steps')
-    BASE_URI = stepURI[0:stepsLocation]
-    pURI = BASE_URI + "processes/" + args["limsid"]
-
-    pXML = api.getResourceByURI(pURI)
-    pDOM = parseString(pXML)
-
-    # Navigate down through XML structure to obtain project UDFS
-    pnodes = pDOM.getElementsByTagName("input")
-
-    for p in pnodes:
-        attributeURI = p.getAttribute("uri")
-
-    aXML = api.getResourceByURI(attributeURI)
-    aDOM = parseString(aXML)
-
-    anodes = aDOM.getElementsByTagName("sample")
-
-    for a in anodes:
-        sampleURI = a.getAttribute("uri")
-
-    sXML = api.getResourceByURI(sampleURI)
-    sDOM = parseString(sXML)
-
-    snodes = sDOM.getElementsByTagName("project")
-
-    for s in snodes:
-        projectURI = s.getAttribute("uri")
-
-    pjXML = api.getResourceByURI(projectURI)
-    pjDOM = parseString(pjXML)
-
-    # Set the global variable "projectName" for use in the email
-    pjnodes = pjDOM.getElementsByTagName("name")
-    projectName = pjnodes[0].firstChild.nodeValue
-
-    # call createMail
-    createMail()
+        # Alternatively You can send the email to specific section of config
+        #self.send_mail(subject, msg, config_name='project_only')
 
 
 def main():
-    global api
-    global args
+    # Ge the default command line options
+    p = step_argparser()
 
-    args = {}
+    # Parse command line options
+    args = p.parse_args()
 
-    opts, extraparams = getopt.getopt(sys.argv[1:], "l:s:u:p:c:")
+    # Load the config from the default location
+    load_config()
 
-    for o, p in opts:
-        if o == '-l':
-            args["limsid"] = p
-        elif o == '-s':
-            args["stepURI"] = p
-        elif o == '-u':
-            args["username"] = p
-        elif o == '-p':
-            args["password"] = p
-        elif o == '-c':
-            args["contacts"] = p
-    stepURI = args["stepURI"]
-    apiLocation = stepURI.find('/api')
-    BASE_URI = stepURI[0:apiLocation]
-    BASE_URI
-    api = glsapiutil.glsapiutil()
-    api.setHostname(BASE_URI)
-    api.setVersion('v2')
-    api.setup(args["username"], args["password"])
+    # Setup the EPP
+    action = DataReleaseEmailAndUpdateEPP(
+        args.step_uri, args.username, args.password, args.log_file,
+    )
 
-    ## at this point, we have the parameters the EPP plugin passed, and we have network plumbing
-    ## so let's get this show on the road!
-    getInfo()
+    # Run the EPP
+    action.run()
 
 
 if __name__ == "__main__":
     main()
-
