@@ -72,6 +72,7 @@ class SendDataRelease(StepEPP):
         LIMSIDlocation= stepURI.find(steps/)+9
 
 
+
         LIMSIDSHORT = stepUR[LIMSIDlocation:]
         ## create message of the email
         msg = "Hi,\n\nPlease release the data for the samples in " + projectName + " as shown in the link below:\n\nhttp://egclarityprod.mvm.ed.ac.uk/clarity/work-details/" + LIMSIDSHORT + ".\n\nKind regards,\nClarity X"
