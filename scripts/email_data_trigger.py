@@ -17,16 +17,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
 
         # Create the message
-        msg = '''Hi,
-
-Data has just been released to the user for {number_project} project(s).
-{project_list}
-Please check the following link for details:
-{link}
-
-Kind regards,
-Clarity X
-    '''
+        msg = 'Test'
         # fill in message with parameters
         msg = msg.format(
             number_project=len(self.projects),
