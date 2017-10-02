@@ -17,7 +17,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
 
         # Create the message
-        msg = 'Hi Bioinformatics,\nPlease release the samples shown at the link below to the data contacts also shown at the link:\n'+link' \
+        msg = 'Hi Bioinformatics,\nPlease release the data for the samples shown at the link below to the Data Contacts also shown at the link:\n\n'+link'\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
@@ -25,7 +25,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
             project_list='\n'.join(project_list),
             link=self.baseuri + '/clarity/work-details/' + self.step_id[3:]
         )
-        subject = ', '.join([p.name for p in self.projects]) + ': Edinburgh Genomics Clinical- Data Released'
+        subject = ', '.join([p.name for p in self.projects]) + ': Please release data'
 
         # Send email to list of persons specified in the default section of config
         self.send_mail(subject, msg)
