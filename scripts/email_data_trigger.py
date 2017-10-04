@@ -15,6 +15,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
         # Create a list of project description like <project name>: <number of sample> sample(s)
         project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
+        process = Process(l, id=process_id)
         data_download_contact1= process.udf.get("Data Download Contact Name 1")
         # Create the message
 
