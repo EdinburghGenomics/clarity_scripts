@@ -17,6 +17,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
         data_download_contact1= process.udf.get("Data Download Contact Name 1")
         # Create the message
+
         msg = 'Hi Bioinformatics,'+data_download_contact1+'\n\nA data release is required. See the link below for the samples to be released and the data contact names:\n\n{link}\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
