@@ -15,7 +15,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
         # Create a list of project description like <project name>: <number of sample> sample(s)
         project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
-
+        print(project_list)
         count = 1
         data_download_contacts=""
         while count<=5:
@@ -30,7 +30,8 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         # Create the message
 
 
-        msg = 'Hi Bioinformatics,'+data_download_contacts+'\n\nA data release is required. See the link below for the samples to be released and the data contact names:\n\n{link}\n\nKind regards,\nClarityX'
+        msg = 'Hi Bioinformatics,\n\nPlease release the data for the samples from PROJECT shown at the link below:\n\n{link}\n\nThe data contacts are:\n\n'+
+        data_donwload_contacts+'Kind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
