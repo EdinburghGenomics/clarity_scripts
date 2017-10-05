@@ -30,7 +30,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         # Create the message
 
 
-        msg = 'Hi Bioinformatics,\n\nPlease release the data for the samples from PROJECT shown at the link below:\n\n{link}\n\nThe data contacts are:\n\n'+data_donwload_contacts+'\n\nKind regards,\nClarityX'
+        msg = 'Hi Bioinformatics,\n\nPlease release the data for the samples from PROJECT shown at the link below:\n\n{link}\n\nThe data contacts are:\n\n'+data_download_contacts+'\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
