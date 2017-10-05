@@ -19,8 +19,8 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         count = 1
         data_download_contacts=[]
         while count<=5:
-            if self.process.udf.get("Data Download Contact Name "+count):
-                data_download_contacts[count-1]= str(self.process.udf.get("Data Download Contact Name "+count))+" New User? "+str(self.process.udf.get("Is Contact 1 A New User?"))
+            if self.process.udf.get("Data Download Contact Name "+str(count)):
+                data_download_contacts[count-1]= str(self.process.udf.get("Data Download Contact Name "+str(count)))+" New User? "+str(self.process.udf.get("Is Contact 1 A New User?"))
         # Create the message
 
         msg = 'Hi Bioinformatics,'+data_download_contact1+'\n\nA data release is required. See the link below for the samples to be released and the data contact names:\n\n{link}\n\nKind regards,\nClarityX'
