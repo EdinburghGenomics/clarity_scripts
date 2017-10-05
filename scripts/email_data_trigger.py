@@ -37,6 +37,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         )
         subject = ', '.join([p.name for p in self.projects]) + ': Please release data'
 
+
         # Send email to list of persons specified in the default section of config
         self.send_mail(subject, msg)
 
