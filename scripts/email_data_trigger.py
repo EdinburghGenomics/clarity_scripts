@@ -9,8 +9,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
     def _run(self):
         if self.projects>1:
-            except:
-                print('More than one project present in step. Only one project per step permitted')
+            raise ValueError('More than one project present in step. Only one project per step permitted')
 
         print(sample_per_project)
         # Create a list of project description like <project name>: <number of sample> sample(s)
