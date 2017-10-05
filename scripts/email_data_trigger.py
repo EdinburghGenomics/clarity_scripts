@@ -8,10 +8,10 @@ from EPPs.config import load_config
 class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
     def _run(self):
-        # Get the number of sample per projects
-        sample_per_project = defaultdict(list)
-        for sample in self.samples:
-            sample_per_project[sample.project.name].append(sample.name)
+        if self.projects>1:
+            except:
+                print('More than one project present in step. Only one project per step permitted')
+
         print(sample_per_project)
         # Create a list of project description like <project name>: <number of sample> sample(s)
         project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
@@ -30,13 +30,14 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         # Create the message
 
 
-        msg = 'Hi Bioinformatics,\n\nPlease release the data for the samples from PROJECT shown at the link below:\n\n{link}\n\nThe data contacts are:\n\n'+data_download_contacts+'\n\nKind regards,\nClarityX'
+        msg = 'Hi Bioinformatics,\n\nPlease release the data for {sample_count} sample(s) from {project} shown at the link below:\n\n{link}\n\nThe data contacts are:\n\n{data_download_contacts}\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
-            number_project=len(self.projects),
-            project_list='\n'.join(project_list),
-            link=self.baseuri + '/clarity/work-details/' + self.step_id[3:]
+            link=self.baseuri + '/clarity/work-details/' + self.step_id[3:],
+            sample_count=len(self.samples),
+            project=self.project.name,
+            data_download_contacts=data_download_contacts
         )
         subject = ', '.join([p.name for p in self.projects]) + ': Please release data'
 
