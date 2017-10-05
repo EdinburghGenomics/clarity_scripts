@@ -18,9 +18,9 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
             if self.process.udf.get("Data Download Contact Name "+str(count)):
                 data_download_contacts=data_download_contacts+str(
                     self.process.udf.get("Data Download Contact Name "+str(count))
-                )+" New User? "+str(
-                    self.process.udf.get("Is Contact 1 A New User?")
-                )+"\n"
+                )+" ("+str(
+                    self.process.udf.get("Is Contact "+str(count)+" A New or Existing User?")
+                )+")\n"
             print(data_download_contacts)
             count=count+1
         # Create the message
@@ -32,7 +32,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         msg = msg.format(
             link=self.baseuri + '/clarity/work-details/' + self.step_id[3:],
             sample_count=len(self.samples),
-            project=self.project.name,
+            project=self.samples[0].project.name,
             data_download_contacts=data_download_contacts
         )
         subject = ', '.join([p.name for p in self.projects]) + ': Please release data'
