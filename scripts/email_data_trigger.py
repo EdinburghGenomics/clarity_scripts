@@ -21,7 +21,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
                 )+" ("+str(
                     self.process.udf.get("Is Contact "+str(count)+" A New or Existing User?")
                 )+")\n"
-            print(data_download_contacts)
+
             count=count+1
         # Create the message
 
