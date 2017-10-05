@@ -20,8 +20,12 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         data_download_contacts=""
         while count<=5:
             if self.process.udf.get("Data Download Contact Name "+str(count)):
-                data_download_contacts=data_download_contacts+str(self.process.udf.get("Data Download Contact Name "
-                                                                                       +str(count)))+" New User? "+str(self.process.udf.get("Is Contact 1 A New User?"))+"\n"
+                data_download_contacts=data_download_contacts+str(
+                    self.process.udf.get("Data Download Contact Name "+str(count))
+                )+" New User? "+str(
+                    self.process.udf.get("Is Contact 1 A New User?")
+                )+"\n"
+            print(data_download_contacts)
             count=count+1
         # Create the message
 
