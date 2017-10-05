@@ -11,10 +11,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         if len(self.projects)>1:
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
-        print(sample_per_project)
-        # Create a list of project description like <project name>: <number of sample> sample(s)
-        project_list = ['%s: %s sample(s)' % (len(sample_per_project[p]), p) for p in sample_per_project]
-        print(project_list)
+
         count = 1
         data_download_contacts=""
         while count<=5:
