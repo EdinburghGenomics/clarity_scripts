@@ -8,7 +8,7 @@ from EPPs.config import load_config
 class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
     def _run(self):
-        if self.projects>1:
+        if len(self.projects)>1:
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
         print(sample_per_project)
