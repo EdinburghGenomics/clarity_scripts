@@ -30,7 +30,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
         # fill in message with parameters
         msg = msg.format(
-            link=self.baseuri + '/clarity/work-details/' + self.step_id[3:],
+            link=self.platform.node() + '/clarity/work-details/' + self.step_id[3:],
             sample_count=len(self.samples),
             project=self.samples[0].project.name,
             data_download_contacts=data_download_contacts
