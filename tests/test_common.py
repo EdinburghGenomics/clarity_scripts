@@ -1,6 +1,8 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 from unittest.mock import Mock, PropertyMock, patch
+
+import EPPs
 from EPPs.common import StepEPP, find_newest_artifact_originating_from
 
 class NamedMock(Mock):
@@ -35,6 +37,7 @@ class FakeEntity(Mock):
 
 class TestCommon(TestCase):
     assets = join(dirname(abspath(__file__)), 'assets')
+    etc_path = join(abspath(dirname(EPPs.__file__)), 'etc')
     genotype_csv = join(assets, 'E03159_WGS_32_panel_9504430.csv')
     genotype_quantStudio = join(assets, 'VGA55_QuantStudio 12K Flex_export.txt')
     accufill_log = join(assets, 'OpenArrayLoad_Log.csv')

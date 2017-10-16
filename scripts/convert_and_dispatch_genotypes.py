@@ -9,8 +9,9 @@ from egcg_core.app_logging import AppLogger, logging_default as log_cfg
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 from EPPs.common import StepEPP, step_argparser
+import EPPs
 
-etc_path = join(dirname(dirname(abspath(__file__))), 'etc')
+etc_path = join(abspath(dirname(EPPs.__file__)), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
 default_fai = join(etc_path, 'genotype_32_SNPs_genome_600bp.fa.fai')
 default_flank_length = 600

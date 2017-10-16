@@ -11,42 +11,43 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         if len(self.projects)>1:
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
-
-        count = 1
-        data_download_contacts=""
-        while count<=5:
-            if self.process.udf.get("Data Download Contact Name "+str(count)):
-                data_download_contacts=data_download_contacts+str(
-                    self.process.udf.get("Data Download Contact Name "+str(count))
-                )+" ("+str(
-                    self.process.udf.get("Is Contact "+str(count)+" A New or Existing User?")
-                )+")\n"
-
-            count=count+1
+        data_download_contacts = []
+        # There are up to 5 contacts entered in the step.
+        for count in range(1,6):
+            udf_name1 = "Data Download Contact Name "+str(count)
+            udf_name2 = "Is Contact "+str(count)+" A New or Existing User?"
+            if self.process.udf.get(udf_name1):
+                data_download_contacts.append(
+                    '%s (%s)' % (self.process.udf.get(udf_name1), self.process.udf.get(udf_name2) )
+                )
         # Create the message
+        msg = '''Hi Bioinformatics,
 
+Please release the data for {sample_count} sample(s) from project {project} shown at the link below:
 
-        msg = 'Hi Bioinformatics,\n\nPlease release the data for {sample_count} sample(s) from project {project} shown at the link below:\n\n{link}\n\nThe data contacts are:\n\n{data_download_contacts}\n\nKind regards,\nClarityX'
+{link}
 
+The data contacts are:
+
+{data_download_contacts}
+
+Kind regards,
+ClarityX'''
         # fill in message with parameters
         msg = msg.format(
             link='https://'+platform.node() + '/clarity/work-details/' + self.step_id[3:],
             sample_count=len(self.samples),
-            project=self.samples[0].project.name,
-            data_download_contacts=data_download_contacts
+            project=self.projects[0].name,
+            data_download_contacts='\n'.join(data_download_contacts)
         )
         subject = ', '.join([p.name for p in self.projects]) + ': Please release data'
-
 
         # Send email to list of persons specified in the default section of config
         self.send_mail(subject, msg)
 
-        # Alternatively You can send the email to specific section of config
-        #self.send_mail(subject, msg, config_name='project_only')
-
 
 def main():
-    # Ge the default command line options
+    # Get the default command line options
     p = step_argparser()
 
     # Parse command line options
