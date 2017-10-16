@@ -3,7 +3,7 @@ from requests import ConnectionError
 from unittest.case import TestCase
 from unittest.mock import Mock, PropertyMock, patch
 import EPPs
-from EPPs.common import StepEPP, find_newest_artifact_originating_from, find_newest_artifact_originating_from
+from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from
 
 class NamedMock(Mock):
     @property
