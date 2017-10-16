@@ -1,6 +1,8 @@
 import os
+import sys
 import argparse
 from urllib import parse as urlparse
+from requests.exceptions import ConnectionError
 from logging import FileHandler
 from io import StringIO
 from cached_property import cached_property
@@ -8,6 +10,7 @@ from egcg_core.config import cfg
 from egcg_core.notifications import email
 from genologics.lims import Lims
 from genologics.entities import Process, Artifact
+from egcg_core import rest_communication
 from egcg_core.app_logging import AppLogger, logging_default
 
 
@@ -122,6 +125,24 @@ class SendMailEPP(StepEPP):
 
     def _run(self):
         raise NotImplementedError
+
+
+class RestCommunicationEPP:
+    @staticmethod
+    def _rest_interaction(func, *args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ConnectionError as ce:
+            print('%s: %s' % (ce.__class__.__name__, ce))
+            sys.exit(127)
+
+    @classmethod
+    def get_documents(cls, *args, **kwargs):
+        return cls._rest_interaction(rest_communication.get_documents, *args, **kwargs)
+
+    @classmethod
+    def patch_entry(cls, *args, **kwargs):
+        return cls._rest_interaction(rest_communication.patch_entry, *args, **kwargs)
 
 
 def get_workflow_stage(lims, workflow_name, stage_name=None):

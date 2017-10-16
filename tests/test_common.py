@@ -1,7 +1,9 @@
 from os.path import join, dirname, abspath
+from requests import ConnectionError
 from unittest.case import TestCase
 from unittest.mock import Mock, PropertyMock, patch
-from EPPs.common import StepEPP, find_newest_artifact_originating_from
+from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from
+
 
 class NamedMock(Mock):
     @property
@@ -11,6 +13,7 @@ class NamedMock(Mock):
 
 class MockedSamples(NamedMock):
     project = NamedMock(real_name='10015AT')
+
 
 def fake_artifact(id):
     return Mock(
@@ -47,22 +50,36 @@ class TestEPP(TestCommon):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock())
-        self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock())
+        self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(return_value=Mock(id='a_process_id')))
 
     def setUp(self):
-        self.epp = StepEPP(
-            'http://server:8080/some/extra/stuff',
-            'a username',
-            'a password',
-            self.log_file
-        )
+        self.epp = StepEPP('http://server:8080/some/extra/stuff', 'a username', 'a password', self.log_file)
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'
 
 
-class TestFindNewestArtifactOriginatingFrom(TestCase):
+class TestRestCommunicationEPP(TestCase):
+    @staticmethod
+    def fake_rest_interaction(*args, **kwargs):
+        if kwargs.get('dodgy'):
+            raise ConnectionError('Something broke!')
+        return args, kwargs
 
+    def test_interaction(self):
+        epp = RestCommunicationEPP()
+        assert epp._rest_interaction(self.fake_rest_interaction, 'this', 'that', other='another') == (
+            ('this', 'that'), {'other': 'another'}
+        )
+
+        with patch('sys.exit') as mocked_exit, patch('builtins.print') as mocked_print:
+            epp._rest_interaction(self.fake_rest_interaction, 'this', 'that', dodgy=True)
+
+        mocked_exit.assert_called_with(127)
+        mocked_print.assert_called_with('ConnectionError: Something broke!')
+
+
+class TestFindNewestArtifactOriginatingFrom(TestCase):
     def test_find_newest_artifact_originating_from(self):
         lims = Mock(get_artifacts=Mock(return_value=[
             Mock(id='fx1', parent_process=Mock(id='121')),
@@ -83,5 +100,3 @@ class TestFindNewestArtifactOriginatingFrom(TestCase):
         lims = Mock(get_artifacts=Mock(return_value=[]))
         artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
         assert artifact is None
-
-
