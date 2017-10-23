@@ -4,7 +4,8 @@ Changelog for clarity_scripts
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Populate steps with review metrics from the Reporting App database for samples and run elements
+- Generate email requesting data release
 
 
 0.5 (2017-08-30)
