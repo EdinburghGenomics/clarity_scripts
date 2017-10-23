@@ -1,7 +1,7 @@
 Changelog for clarity_scripts
 =============================
 
-0.6 (unreleased)
+0.6 (2017-10-23)
 ----------------
 
 - Populate steps with review metrics from the Reporting App database for samples and run elements
