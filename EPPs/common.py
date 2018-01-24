@@ -1,6 +1,8 @@
 import os
+import sys
 import argparse
 from urllib import parse as urlparse
+from requests.exceptions import ConnectionError
 from logging import FileHandler
 from io import StringIO
 from cached_property import cached_property
@@ -8,10 +10,15 @@ from egcg_core.config import cfg
 from egcg_core.notifications import email
 from genologics.lims import Lims
 from genologics.entities import Process, Artifact
+from egcg_core import rest_communication
 from egcg_core.app_logging import AppLogger, logging_default
+from os.path import join, dirname, abspath
+
+import EPPs
 
 
 class StepEPP(AppLogger):
+    _etc_path = join(dirname(abspath(EPPs.__file__)), 'etc')
     _lims = None
     _process = None
 
@@ -105,23 +112,41 @@ class StepEPP(AppLogger):
 
 
 class SendMailEPP(StepEPP):
-    @staticmethod
-    def get_email_template(name='default_email_template.html'):
-        return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'etc', name)
 
-    def get_config(self, config_name=None, template_name='default_email_template.html'):
+    def get_email_template(self, name=None):
+        return os.path.join(self._etc_path, name)
+
+    def get_config(self, config_name=None, template_name=None):
         email_config = cfg.query('email_notify', 'default')
         if config_name:
             email_config.update(cfg.query('email_notify', config_name))
-        #if 'email_template' not in email_config:
-        #   email_config['email_template'] = self.get_email_template(template_name)
+        if 'email_template' not in email_config and template_name:
+            email_config['email_template'] = self.get_email_template(template_name)
         return email_config
 
-    def send_mail(self, subject, msg, config_name=None, template_name='default_email_template.html'):
+    def send_mail(self, subject, msg, config_name=None, template_name=None):
         email.send_email(msg=msg, subject=subject, strict=True, **self.get_config(config_name, template_name))
 
     def _run(self):
         raise NotImplementedError
+
+
+class RestCommunicationEPP:
+    @staticmethod
+    def _rest_interaction(func, *args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ConnectionError as ce:
+            print('%s: %s' % (ce.__class__.__name__, ce))
+            sys.exit(127)
+
+    @classmethod
+    def get_documents(cls, *args, **kwargs):
+        return cls._rest_interaction(rest_communication.get_documents, *args, **kwargs)
+
+    @classmethod
+    def patch_entry(cls, *args, **kwargs):
+        return cls._rest_interaction(rest_communication.patch_entry, *args, **kwargs)
 
 
 def get_workflow_stage(lims, workflow_name, stage_name=None):
