@@ -10,6 +10,7 @@ from scripts.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcf
 def open_files(list_of_files):
     return [open(f) for f in list_of_files]
 
+
 class TestGenotypeConversion(TestCommon):
     test_records = {
         'id1': {'test_sample': '0/1', 'SNP': ['chr2', '120', 'id1', 'T', 'C', '.', '.', '.', 'GT']},
@@ -19,8 +20,9 @@ class TestGenotypeConversion(TestCommon):
     }
 
     def setUp(self):
-        self.geno_conversion = GenotypeConversion(open_files([self.genotype_csv]), self.accufill_log, 'igmm',
-                                                   self.small_reference_fai, flank_length=600)
+        self.geno_conversion = GenotypeConversion(
+            open_files([self.genotype_csv]), self.accufill_log, 'igmm',  self.small_reference_fai, flank_length=600
+        )
 
     def test_generate_vcf(self):
         # header_lines = ['##header line1', '##header line2']
@@ -91,14 +93,8 @@ class TestGenotypeConversion(TestCommon):
         assert find(valid_other_fieldnames, observed_fieldnames) == 'OTHER'
 
 
-
-
-
 class TestUploadVcfToSamples(TestEPP):
-
-
     def setUp(self):
-
         self.epp = UploadVcfToSamples(
             'http://server:8080/a_step_uri',
             'a_user',

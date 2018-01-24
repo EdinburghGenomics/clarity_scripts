@@ -1,24 +1,22 @@
 #!/usr/bin/env python
-from collections import defaultdict
 import platform
 from EPPs.common import step_argparser, SendMailEPP
 from EPPs.config import load_config
 
 
 class DataReleaseEmailAndUpdateEPP(SendMailEPP):
-
     def _run(self):
-        if len(self.projects)>1:
+        if len(self.projects) > 1:
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
         data_download_contacts = []
         # There are up to 5 contacts entered in the step.
-        for count in range(1,6):
-            udf_name1 = "Data Download Contact Name "+str(count)
-            udf_name2 = "Is Contact "+str(count)+" A New or Existing User?"
+        for count in range(1, 6):
+            udf_name1 = "Data Download Contact Name %s" % count
+            udf_name2 = "Is Contact %s A New or Existing User?" % count
             if self.process.udf.get(udf_name1):
                 data_download_contacts.append(
-                    '%s (%s)' % (self.process.udf.get(udf_name1), self.process.udf.get(udf_name2) )
+                    '%s (%s)' % (self.process.udf.get(udf_name1), self.process.udf.get(udf_name2))
                 )
         # Create the message
         msg = '''Hi Bioinformatics,
@@ -49,11 +47,7 @@ ClarityX'''
 def main():
     # Get the default command line options
     p = step_argparser()
-
-    # Parse command line options
     args = p.parse_args()
-
-    # Load the config from the default location
     load_config()
 
     # Setup the EPP
@@ -61,7 +55,6 @@ def main():
         args.step_uri, args.username, args.password, args.log_file,
     )
 
-    # Run the EPP
     action.run()
 
 

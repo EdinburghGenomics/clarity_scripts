@@ -5,12 +5,12 @@ from EPPs.common import StepEPP, step_argparser, get_workflow_stage, find_newest
 class AssignWorkflowPreSeqLab(StepEPP):
 
     def _run(self):
-        artifact_to_route = set()
+        artifacts_to_route = set()
         for art in self.artifacts:
             sample = art.samples[0]
             if sample.udf.get("Proceed To SeqLab") and not sample.udf.get("2D Barcode"):
                 # checks to see if sample is in plate or fluidX tube
-                artifact_to_route.add(sample.artifact)
+                artifacts_to_route.add(sample.artifact)
 
             elif sample.udf.get("Proceed To SeqLab") and sample.udf.get("2D Barcode"):
                 artifact = find_newest_artifact_originating_from(
@@ -18,12 +18,12 @@ class AssignWorkflowPreSeqLab(StepEPP):
                     process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST",
                     sample_name=sample.name
                 )
-                artifact_to_route.add(artifact)
+                artifacts_to_route.add(artifact)
 
-        if artifact_to_route:
+        if artifacts_to_route:
             # Only route artifacts if there are any
             stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Sequencing Plate Preparation EG 2.0")
-            self.lims.route_artifacts(list(artifact_to_route), stage_uri=stage.uri)
+            self.lims.route_artifacts(list(artifacts_to_route), stage_uri=stage.uri)
 
 
 def main():
@@ -34,4 +34,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

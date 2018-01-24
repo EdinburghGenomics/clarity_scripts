@@ -1,9 +1,7 @@
 import os
 import platform
-
 import pytest
 from egcg_core.config import cfg
-
 from scripts.email_data_trigger import DataReleaseEmailAndUpdateEPP
 from tests.test_common import TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
