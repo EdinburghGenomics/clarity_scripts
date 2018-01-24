@@ -16,7 +16,7 @@ class DataReleaseEmail(SendMailEPP):
         # Create the message
 
 
-        msg = 'Hi,\n\n Data for {sample_count} sample(s) has been released for {project} at:\n\n{link}\n\nKind regards,\nClarityX'
+        msg = 'Hi,\n\nData for {sample_count} sample(s) has been released for {project} at:\n\n{link}\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
@@ -33,10 +33,10 @@ class DataReleaseEmail(SendMailEPP):
         #self.send_mail(subject, msg, config_name='project_only')
 
         if self.process.udf.get("Request Customer Survey (Final Data Release)") == "Yes":
-            msg2 = 'Hi,\n\n The final data release has occurred for {project}. Please request a customer survey.\n\nKind regards,\nClarityX'
+            msg2 = 'Hi,\n\nThe final data release has occurred for {project}. Please request a customer survey.\n\nKind regards,\nClarityX'
 
             # fill in message with parameters
-            msg2 = msg.format(
+            msg2 = msg2.format(
                 link='https://'+platform.node() + '/clarity/work-details/' + self.step_id[3:],
                 sample_count=len(self.samples),
                 project=self.samples[0].project.name,
