@@ -13,7 +13,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
 
 
 
-        # Create the message
+        # Create the message to notify the lab team, projects and finance that samples have arrived at the facility
 
 
         msg = 'Hi,\n\n{sample_count} sample(s) have been received for project {project} at:\n\n{link}\n\nKind regards,\nClarityX'
@@ -33,8 +33,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
         # Alternatively You can send the email to specific section of config
         #self.send_mail(subject, msg, config_name='project_only')
 
-        # Create the message to request manifest parsing
-
+        # Create the message to request manifest parsing by the project team
 
         msg2 = 'Hi,\n\nThe manifest should now be parsed for project {project} go to the queue for step FluidX Manifest Parsing EG 1.0 ST at:\
                 \n\n{link}\n\nKind regards,\nClarityX'
@@ -45,7 +44,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
             project=self.samples[0].project.name,
         )
         subject2 = ', '.join([p.name for p in self.projects]) + ': Parse Manifest Required (FluidX)'
-        self.send_mail(subject2, msg2, config_name='projects-lab-finance_only')
+        self.send_mail(subject2, msg2, config_name='projects_only')
 
 def main():
     # Ge the default command line options
