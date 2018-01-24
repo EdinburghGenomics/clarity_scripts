@@ -27,7 +27,7 @@ class DataReleaseEmail(SendMailEPP):
         subject = ', '.join([p.name for p in self.projects]) + ': Data Released'
 
         # Send email to list of persons specified in the default section of config
-        self.send_mail(subject, msg, config_name='projects-finance_only')
+        self.send_mail(subject, msg, config_name='projects-facility-finance_only')
 
         # Alternatively You can send the email to specific section of config
         #self.send_mail(subject, msg, config_name='project_only')
@@ -42,7 +42,7 @@ class DataReleaseEmail(SendMailEPP):
                 project=self.samples[0].project.name,
             )
             subject2 = ', '.join([p.name for p in self.projects]) + ': Request Customer Survey - Final Data Released'
-            self.send_mail(subject2, msg2, config_name='projects-finance-bd_only')
+            self.send_mail(subject2, msg2, config_name='projects-facility-finance-bd_only')
 
 def main():
     # Ge the default command line options
