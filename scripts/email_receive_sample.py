@@ -28,7 +28,7 @@ class ReceiveSampleEmail(SendMailEPP):
 
 
         # Send email to list of persons specified in the default section of config
-        self.send_mail(subject, msg, config_name='projects-lab-finance_only')
+        self.send_mail(subject, msg, config_name='projects-facility-lab-finance_only')
 
         # Alternatively You can send the email to specific section of config
         #self.send_mail(subject, msg, config_name='project_only')
