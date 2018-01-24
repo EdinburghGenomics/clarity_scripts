@@ -16,7 +16,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
         # Create the message
 
 
-        msg = 'Hi,\n\n {sample_count} sample(s) have been received for project {project} at:\n\n{link}\n\nKind regards,\nClarityX'
+        msg = 'Hi,\n\n{sample_count} sample(s) have been received for project {project} at:\n\n{link}\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
@@ -36,7 +36,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
         # Create the message to request manifest parsing
 
 
-        msg2 = 'Hi,\n\n The manifest should now be parsed for project {project} go to the queue for step FluidX Manifest Parsing EG 1.0 ST at:\
+        msg2 = 'Hi,\n\nThe manifest should now be parsed for project {project} go to the queue for step FluidX Manifest Parsing EG 1.0 ST at:\
                 \n\n{link}\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
