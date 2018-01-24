@@ -13,7 +13,7 @@ class DataReleaseEmail(SendMailEPP):
 
 
 
-        # Create the message
+        # Create the message to notify team that dat has been released
 
 
         msg = 'Hi,\n\nData for {sample_count} sample(s) has been released for {project} at:\n\n{link}\n\nKind regards,\nClarityX'
@@ -32,6 +32,8 @@ class DataReleaseEmail(SendMailEPP):
         # Alternatively You can send the email to specific section of config
         #self.send_mail(subject, msg, config_name='project_only')
 
+        #if "Request Customer Survey (Final Data Release)" step UDF completed as "Yes" send an additional email to notify business team to send customer survey
+        # and reminder to finance that the final release has occurred
         if self.process.udf.get("Request Customer Survey (Final Data Release)") == "Yes":
             msg2 = 'Hi,\n\nThe final data release has occurred for {project}. Please request a customer survey.\n\nKind regards,\nClarityX'
 
