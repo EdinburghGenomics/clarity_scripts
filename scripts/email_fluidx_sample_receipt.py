@@ -16,7 +16,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
         # Create the message
 
 
-        msg = 'Hi,\n\n {sample_count} sample(s) have been received for {project} at:\n\n{link}\n\nKind regards,\nClarityX'
+        msg = 'Hi,\n\n {sample_count} sample(s) have been received for project {project} at:\n\n{link}\n\nKind regards,\nClarityX'
 
         # fill in message with parameters
         msg = msg.format(
@@ -45,7 +45,7 @@ class FluidXSampleReceiptEmail(SendMailEPP):
             project=self.samples[0].project.name,
         )
         subject2 = ', '.join([p.name for p in self.projects]) + ': Parse Manifest Required (FluidX)'
-
+        self.send_mail(subject2, msg2, config_name='projects-lab-finance_only')
 
 def main():
     # Ge the default command line options
