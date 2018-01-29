@@ -25,8 +25,14 @@ class FluidXSampleReceiptEmail(SendMailEPP):
         self.send_mail(subject, msg, config_name='projects-lab-finance_only')
 
         # Create the message to request manifest parsing by the project team
-        msg2 = 'Hi,\n\nThe manifest should now be parsed for project {project} go to the queue for step FluidX Manifest Parsing EG 1.0 ST at:\
-                \n\n{link}\n\nKind regards,\nClarityX'
+        msg2 = '''Hi,
+
+The manifest should now be parsed for project {project} go to the queue for step FluidX Manifest Parsing EG 1.0 ST at:
+
+{link}
+
+Kind regards,
+ClarityX'''
 
         # fill in message with parameters
         msg2 = msg2.format(

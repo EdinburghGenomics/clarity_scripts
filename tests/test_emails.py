@@ -178,18 +178,16 @@ class TestFluidXSampleReceiptEmail(TestEmailEPP):
 
 2 sample(s) have been received for project project1 at:
 
-{localmachine}/clarity/work-details/tep_uri
+https://{localmachine}/clarity/work-details/tep_uri
 
 Kind regards,
 ClarityX'''
             msg = msg.format(localmachine=platform.node())
-            print(mocked_send_email.mock_calls)
-
             # Two emails were sent
             assert mocked_send_email.call_count == 2
-            mocked_send_email.assert_any_call_with(
+            mocked_send_email.assert_any_call(
                 msg=msg,
-                subject='project1: Data Released',
+                subject='project1: FluidX Tube Received',
                 mailhost='smtp.test.me',
                 port=25,
                 sender='sender@email.com',
@@ -197,6 +195,25 @@ ClarityX'''
                 strict=True
             )
 
+            msg = '''Hi,
+
+The manifest should now be parsed for project project1 go to the queue for step FluidX Manifest Parsing EG 1.0 ST at:
+
+https://{localmachine}/clarity/queue/752
+
+Kind regards,
+ClarityX'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='project1: Parse Manifest Required (FluidX)',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['project@email.com'],
+                strict=True
+            )
 
 class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
@@ -208,17 +225,17 @@ class TestReceiveSampleEmail(TestEmailEPP):
 
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
             self.epp._run()
-            msg = ''''Hi,
+            msg = '''Hi,
+
 2 sample(s) have been received for project1 at:
 
-{localmachine}/clarity/work-details/tep_uri
+https://{localmachine}/clarity/work-details/tep_uri
 
 Kind regards,
 ClarityX'''
             msg = msg.format(localmachine=platform.node())
-            print(mocked_send_email.mock_calls)
 
-            mocked_send_email.assert_any_call_with(
+            mocked_send_email.assert_called_with(
                 msg=msg,
                 subject='project1: Plate Received',
                 mailhost='smtp.test.me',
