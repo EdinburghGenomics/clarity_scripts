@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.7 (unreleased)
-----------------
+0.6.1 (2018-02-02)
+------------------
 
-- Nothing changed yet.
+- New email notification for Data release, Sample receipt, FluidX receipt
 
 
 0.6 (2017-10-23)
