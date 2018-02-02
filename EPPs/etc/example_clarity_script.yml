@@ -8,8 +8,33 @@ email_notify:
       - recipient1@email.com
       - recipient2@email.com
   # specific sections overriding default
-  project_only:
+  projects_only:
     recipients:
+      - project@email.com
+  finance_only:
+    recipients:
+      - finance@email.com
+  projects-facility-finance_only:
+    recipients:
+      - finance@email.com
+      - facility@email.com
+      - project@email.com
+  projects-facility-finance-bd_only:
+    recipients:
+      - finance@email.com
+      - facility@email.com
+      - project@email.com
+      - bd@email.com
+  projects-lab-finance_only:
+    recipients:
+      - lab@email.com
+      - finance@email.com
+      - project@email.com
+  projects-facility-lab-finance_only:
+    recipients:
+      - lab@email.com
+      - facility@email.com
+      - finance@email.com
       - project@email.com
 
 rest_api:
