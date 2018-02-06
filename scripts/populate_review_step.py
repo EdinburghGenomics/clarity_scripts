@@ -116,7 +116,7 @@ class PullRunElementInfo(PullInfo):
         fail_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'fail']
 
         target_yield = float(sample.udf.get('Yield for Quoted Coverage (Gb)'))
-        good_re_yield = sum([float(a.udf.get('RE Yield Q30')) for a in pass_artifacts])
+        good_re_yield = sum([float(a.udf.get('RE Yield')) for a in pass_artifacts])
 
         # Just the right amount of good yield: take it all
         if target_yield < good_re_yield < target_yield * 2:
@@ -134,7 +134,7 @@ class PullRunElementInfo(PullInfo):
             pass_artifacts.sort(key=lambda x: x.udf.get('RE %Q30'), reverse=True)
             current_yield = 0
             for a in pass_artifacts:
-                current_yield += float(a.udf.get('RE Yield Q30'))
+                current_yield += float(a.udf.get('RE Yield'))
                 if current_yield < target_yield * 2:
                     a.udf['RE Useable'] = 'yes'
                     a.udf['RE Useable Comment'] = 'AR: Good yield'
