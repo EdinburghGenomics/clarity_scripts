@@ -30,6 +30,12 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
             )
         return rest_entities, artifacts
 
+    def delivered(self, sample_name):
+        d = {'yes': True, 'no': False}
+        query_args = {'where': {'sample_id': sample_name}}
+        sample = self.get_documents('samples', **query_args)[0]
+        return d.get(sample.get('delivered'))
+
     def _run(self):
         raise NotImplementedError
 
@@ -107,6 +113,13 @@ class PullRunElementInfo(PullInfo):
         un_reviewed_artifacts = [a for a in artifacts if a.udf.get('RE Review status') not in ['pass', 'fail']]
         if un_reviewed_artifacts:
             # Skip samples that have un-reviewed run elements - could still be sequencing and change review outcome
+            return artifacts_to_upload
+
+        # skip samples which have been delivered, and mark run elements from additional runs as such
+        if self.delivered(sample.name):
+            all_artifacts = [a for a in artifacts]
+            for a in all_artifacts:
+                a.udf['RE Useable Comment'] = 'AR: Delivered, no action needed'
             return artifacts_to_upload
 
         # Artifacts that pass the review
