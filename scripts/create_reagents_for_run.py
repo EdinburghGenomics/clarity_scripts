@@ -57,10 +57,18 @@ class CreateReagentForRun(StepEPP):
             else:
                 reagent_kits = self.lims.get_reagent_kits(name=reagent_kit_map[name])
                 if len(reagent_kits) != 1:
-                    raise Exception('Found %s reagent kits for name %s' % (len(reagent_kits), reagent_kit_map[name]))
-                reagent_lot = ReagentLot.create(self.lims, reagent_kit=reagent_kits[0], name=name, lot_number=lot, expiry_date=time.strftime('%Y-%m,-%d'), status='active')
+                    raise ValueError('Found %s reagent kits for name %s' % (len(reagent_kits), reagent_kit_map[name]))
 
-            print('Create reagent %s: %s' % (name, lot))
+                ReagentLot.create(
+                    self.lims,
+                    reagent_kit=reagent_kits[0],
+                    name=name,
+                    lot_number=lot,
+                    expiry_date=time.strftime('%Y-%m,-%d'),
+                    status='active'
+                )
+
+            print('Created reagent %s: %s' % (name, lot))
 
 
 def main():

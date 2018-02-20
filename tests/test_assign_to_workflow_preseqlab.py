@@ -1,14 +1,13 @@
-from EPPs.common import StepEPP
 from scripts.assign_workflow_preseqlab import AssignWorkflowPreSeqLab
 from tests.test_common import TestEPP, fake_artifact
-from unittest.mock import Mock, patch, PropertyMock, MagicMock
+from unittest.mock import Mock, patch, PropertyMock
 
 
 def fake_all_inputs(unique=False, resolve=False):
-    '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
+    """Return a list of mocked artifacts which contain samples which contain artifacts ... Simple!"""
     return (
-        Mock(samples=[Mock(artifact=fake_artifact(id='a1'), id='s1', udf={"Proceed To SeqLab": True})]),
-        Mock(samples=[Mock(artifact=fake_artifact(id='a2'), id='s2', udf={"Proceed To SeqLab": True, "2D Barcode": 'fluidX1'})])
+        Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1', udf={'Proceed To SeqLab': True})]),
+        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2', udf={'Proceed To SeqLab': True, '2D Barcode': 'fluidX1'})])
     )
 
 
@@ -42,4 +41,3 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
             pws.assert_called_with(self.epp.lims, 'PreSeqLab EG 6.0', 'Sequencing Plate Preparation EG 2.0')
             assert sorted([a.id for a in self.epp.lims.route_artifacts.call_args[0][0]]) == ['a1', 'fx2']
             assert self.epp.lims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
-
