@@ -4,12 +4,11 @@ from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
-invalid_suffixes = {'-QNT', '-CFP', '-NRM', '-IMP', '-SSI', '-ALP', '-CAP', '-PCR', '-CPP', '-LQC', '-DQC1',
-                    '-DIL1', '-DIL2', '-QPCR', '-CST'}
+valid_suffixes = {'-GTY', '-DNA'}
 
-discard_wf_name = 'Discard Plates EG 1.0'
-sample_discard_wf_stage_name = 'Find Derived Sample Plates EG 1.0'
-plate_discard_wf_stage_name = 'Discard Plates EG 1.0'
+discard_wf_name = 'Sample Disposal EG 1.0 WF'
+sample_discard_wf_stage_name = 'Request Sample Disposal EG 1.0 ST'
+plate_discard_wf_stage_name = 'Dispose of Samples EG 1.0 ST'
 
 
 def batch_limit(lims, list_instance, max_query=100):
@@ -32,12 +31,12 @@ def fetch_all_artifacts_for_samples(lims, samples):
 
 
 def is_valid_container(container):
-    for suffix in invalid_suffixes:
+    for suffix in valid_suffixes:
         if container.name.endswith(suffix):
-            return False
-    if container.type.name == 'Patterned Flowcell':
-        return False
-    return True
+            return True
+    #if container.type.name == 'Patterned Flowcell':
+     #   return False
+    return False
 
 
 def has_workflow_stage(artifact, workflow_step_name):
