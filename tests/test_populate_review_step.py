@@ -1,7 +1,7 @@
 from pyclarity_lims.entities import Artifact
 from scripts import populate_review_step as p
 from tests.test_common import TestEPP, NamedMock
-from unittest.mock import Mock, patch, PropertyMock
+from unittest.mock import Mock, patch, PropertyMock, call
 
 
 class TestPopulator(TestEPP):
@@ -59,8 +59,8 @@ class TestPullRunElementInfo(TestPopulator):
                 self.patched_output_artifacts_per_sample as poa:
             self.epp.run()
 
-            assert pg.call_count == 1
-            pg.assert_called_with(self.epp.endpoint, match={'sample_id': 'a_sample'})
+            assert pg.call_count == 2
+            assert pg.call_args_list == [call('aggregate/run_elements', match={'sample_id': 'a_sample'}), call('samples', where={'sample_id': 'a_sample'})]
 
             # Check that the udfs have been added
             assert dict(poa.return_value[0].udf) == self.expected_udfs
@@ -78,7 +78,7 @@ class TestPullRunElementInfo(TestPopulator):
             Mock(spec=Artifact, udf={'RE Yield': 95, 'RE %Q30': 85, 'RE Review status': 'pass'}),
             Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
         ])
-        with patched_output_artifacts_per_sample as poa:
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
             assert poa.return_value[0].udf['RE Useable'] == 'no'
             assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: To much good yield'
@@ -93,7 +93,7 @@ class TestPullRunElementInfo(TestPopulator):
             Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 85, 'RE Review status': 'pass'}),
             Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
         ])
-        with patched_output_artifacts_per_sample as poa:
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
             assert poa.return_value[0].udf['RE Useable'] == 'yes'
             assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Good yield'
@@ -107,7 +107,7 @@ class TestPullRunElementInfo(TestPopulator):
         assert entity == {'this': {'that': 'other'}}  # not changed
 
 
-class TestPullSampleInfo(TestPullRunElementInfo):
+class TestPullSampleInfo(TestPopulator):
     epp_cls = p.PullSampleInfo
     fake_rest_entity = {
         'sample_id': 'a_sample',
