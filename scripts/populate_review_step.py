@@ -36,6 +36,12 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
         sample = self.get_documents('samples', **query_args)[0]
         return d.get(sample.get('delivered'))
 
+    def processed(self, sample_name):
+        query_args = {'where': {'sample_id': sample_name}}
+        sample = self.get_documents('samples', **query_args)[0]
+        processing_status = sample.get('aggregated').get('most_recent_proc').get('status')
+        return processing_status == 'finished'
+
     def _run(self):
         raise NotImplementedError
 
@@ -115,19 +121,39 @@ class PullRunElementInfo(PullInfo):
             # Skip samples that have un-reviewed run elements - could still be sequencing and change review outcome
             return artifacts_to_upload
 
+        # Artifacts that pass the review
+        pass_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'pass']
+        # Artifacts that fail the review
+        fail_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'fail']
+        # Artifacts that are new
+        new_artifacts = [a for a in artifacts if a.udf.get('RE previous Useable') not in ['yes', 'no']]
+
         # skip samples which have been delivered, mark any new REs as such, not changing older RE comments
         if self.delivered(sample.name):
-            new_artifacts = [a for a in artifacts if not a.udf.get('RE Review status')]
+
             for a in new_artifacts:
                 a.udf['RE Useable Comment'] = 'AR: Delivered'
                 a.udf['RE Useable'] = 'no'
+
+            for a in pass_artifacts + fail_artifacts:
+                a.udf['RE Useable Comment'] = a.udf.get('RE previous Useable Comment')
+                a.udf['RE Useable'] = a.udf.get('RE previous Useable')
+
             artifacts_to_upload.update(artifacts)
 
-        # Artifacts that pass the review
-        pass_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'pass']
+        # skip samples which have been processed, mark any new REs as such, not changing older RE comments
+        if self.processed(sample.name):
 
-        # Artifacts that fail the review
-        fail_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'fail']
+            for a in new_artifacts:
+                a.udf['RE Useable Comment'] = 'AR: Sample already processed'
+                a.udf['RE Useable'] = 'no'
+
+            for a in pass_artifacts + fail_artifacts:
+                a.udf['RE Useable Comment'] = a.udf.get('RE previous Useable Comment')
+                a.udf['RE Useable'] = a.udf.get('RE previous Useable')
+
+            artifacts_to_upload.update(artifacts)
+
 
         target_yield = float(sample.udf.get('Required Yield (Gb)'))
         good_re_yield = sum([float(a.udf.get('RE Yield')) for a in pass_artifacts])

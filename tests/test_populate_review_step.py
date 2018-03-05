@@ -39,7 +39,8 @@ class TestPullRunElementInfo(TestPopulator):
         'pc_adapter': 1.2,
         'reviewed': 'pass',
         'review_comments': 'alright',
-        'review_date': '12_02_2107_12:43:24'
+        'review_date': '12_02_2107_12:43:24',
+        'aggregated': {'most_recent_proc': {'status': 'finished'}}
     }
     expected_udfs = {
         'RE Id': 'id',
@@ -59,8 +60,10 @@ class TestPullRunElementInfo(TestPopulator):
                 self.patched_output_artifacts_per_sample as poa:
             self.epp.run()
 
-            assert pg.call_count == 2
-            assert pg.call_args_list == [call('aggregate/run_elements', match={'sample_id': 'a_sample'}), call('samples', where={'sample_id': 'a_sample'})]
+            assert pg.call_count == 3
+            assert pg.call_args_list == [call('aggregate/run_elements', match={'sample_id': 'a_sample'}),
+                                         call('samples', where={'sample_id': 'a_sample'}),
+                                         call('samples', where={'sample_id': 'a_sample'})]
 
             # Check that the udfs have been added
             assert dict(poa.return_value[0].udf) == self.expected_udfs
