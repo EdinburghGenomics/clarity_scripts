@@ -115,12 +115,13 @@ class PullRunElementInfo(PullInfo):
             # Skip samples that have un-reviewed run elements - could still be sequencing and change review outcome
             return artifacts_to_upload
 
-        # skip samples which have been delivered, and mark run elements from additional runs as such
+        # skip samples which have been delivered, mark any new REs as such, not changing older RE comments
         if self.delivered(sample.name):
-            all_artifacts = [a for a in artifacts]
-            for a in all_artifacts:
-                a.udf['RE Useable Comment'] = 'AR: Delivered, no action needed'
-            return artifacts_to_upload
+            new_artifacts = [a for a in artifacts if not a.udf.get('RE Review status')]
+            for a in new_artifacts:
+                a.udf['RE Useable Comment'] = 'AR: Delivered'
+                a.udf['RE Useable'] = 'no'
+            artifacts_to_upload.update(artifacts)
 
         # Artifacts that pass the review
         pass_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'pass']
@@ -128,7 +129,7 @@ class PullRunElementInfo(PullInfo):
         # Artifacts that fail the review
         fail_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'fail']
 
-        target_yield = float(sample.udf.get('Yield for Quoted Coverage (Gb)'))
+        target_yield = float(sample.udf.get('Required Yield (Gb)'))
         good_re_yield = sum([float(a.udf.get('RE Yield')) for a in pass_artifacts])
 
         # Just the right amount of good yield: take it all

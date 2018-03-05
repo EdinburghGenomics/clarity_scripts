@@ -13,7 +13,7 @@ class TestPopulator(TestEPP):
             self.epp_cls,
             'samples',
             new_callable=PropertyMock(
-                return_value=[NamedMock(real_name='a_sample', udf={'Yield for Quoted Coverage (Gb)': 95})]
+                return_value=[NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95})]
             )
         )
         self.patched_lims = patch.object(self.epp_cls, 'lims', new_callable=PropertyMock)
@@ -72,7 +72,7 @@ class TestPullRunElementInfo(TestPopulator):
         def patch_output_artifact(output_artifacts):
             return patch.object(self.epp_cls, 'output_artifacts_per_sample', return_value=output_artifacts)
 
-        sample = NamedMock(real_name='a_sample', udf={'Yield for Quoted Coverage (Gb)': 95})
+        sample = NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95})
         patched_output_artifacts_per_sample = patch_output_artifact([
             Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 75, 'RE Review status': 'pass'}),
             Mock(spec=Artifact, udf={'RE Yield': 95, 'RE %Q30': 85, 'RE Review status': 'pass'}),
