@@ -39,7 +39,7 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
     def processed(self, sample_name):
         query_args = {'where': {'sample_id': sample_name}}
         sample = self.get_documents('samples', **query_args)[0]
-        processing_status = sample.get('aggregated').get('most_recent_proc').get('status')
+        processing_status = sample.get('aggregated', {}).get('most_recent_proc', {}).get('status')
         return processing_status == 'finished'
 
     def _run(self):

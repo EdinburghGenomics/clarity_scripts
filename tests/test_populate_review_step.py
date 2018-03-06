@@ -40,7 +40,6 @@ class TestPullRunElementInfo(TestPopulator):
         'reviewed': 'pass',
         'review_comments': 'alright',
         'review_date': '12_02_2107_12:43:24',
-        'aggregated': {'most_recent_proc': {'status': 'finished'}}
     }
     expected_udfs = {
         'RE Id': 'id',
