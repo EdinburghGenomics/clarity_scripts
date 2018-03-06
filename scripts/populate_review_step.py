@@ -102,6 +102,7 @@ class PullRunElementInfo(PullInfo):
         ('RE Yield', 'clean_yield_in_gb'),
         ('RE Yield Q30', 'clean_yield_q30_in_gb'),
         ('RE %Q30', 'clean_pc_q30'),
+        ('RE Coverage', 'coverage.mean'),
         ('RE Estimated Duplicate Rate', 'lane_pc_optical_dups'),
         ('RE %Adapter', 'pc_adapter'),
         ('RE Review status', 'reviewed'),
@@ -158,8 +159,12 @@ class PullRunElementInfo(PullInfo):
         target_yield = float(sample.udf.get('Required Yield (Gb)'))
         good_re_yield = sum([float(a.udf.get('RE Yield')) for a in pass_artifacts])
 
+        # Increase target coverage by 5% to resolve borderline cases
+        target_coverage = 1.05 * sample.udf.get('Coverage (X)')
+        obtained_coverage = float(sum([a.udf.get('RE Coverage') for a in pass_artifacts]))
+
         # Just the right amount of good yield: take it all
-        if target_yield < good_re_yield < target_yield * 2:
+        if target_yield < good_re_yield < target_yield * 2 or target_coverage > obtained_coverage:
             for a in pass_artifacts:
                 a.udf['RE Useable'] = 'yes'
                 a.udf['RE Useable Comment'] = 'AR: Good yield'

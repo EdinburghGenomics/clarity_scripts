@@ -13,7 +13,7 @@ class TestPopulator(TestEPP):
             self.epp_cls,
             'samples',
             new_callable=PropertyMock(
-                return_value=[NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95})]
+                return_value=[NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95, 'Coverage (X)': 30})]
             )
         )
         self.patched_lims = patch.object(self.epp_cls, 'lims', new_callable=PropertyMock)
@@ -46,6 +46,7 @@ class TestPullRunElementInfo(TestPopulator):
         'RE Nb Reads': 120000000,
         'RE Yield': 20,
         'RE Yield Q30': 15,
+        'RE Coverage': 34.2,
         'RE %Q30': 75,
         'RE Estimated Duplicate Rate': 10,
         'RE %Adapter': 1.2,
@@ -55,8 +56,15 @@ class TestPullRunElementInfo(TestPopulator):
     }
 
     def test_pull(self):
+
+        patched_output_artifacts_per_sample = patch.object(
+            self.epp_cls,
+            'output_artifacts_per_sample',
+            return_value=[Mock(spec=Artifact, udf={'RE Coverage': 34.2}, samples=[NamedMock(real_name='a_sample')])]
+        )
+
         with self.patched_lims as pl, self.patched_samples, self.patched_get_docs as pg, \
-                self.patched_output_artifacts_per_sample as poa:
+                patched_output_artifacts_per_sample as poa:
             self.epp.run()
 
             assert pg.call_count == 3
@@ -74,11 +82,11 @@ class TestPullRunElementInfo(TestPopulator):
         def patch_output_artifact(output_artifacts):
             return patch.object(self.epp_cls, 'output_artifacts_per_sample', return_value=output_artifacts)
 
-        sample = NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95})
+        sample = NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95, 'Coverage (X)': 30})
         patched_output_artifacts_per_sample = patch_output_artifact([
-            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 75, 'RE Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'RE Yield': 95, 'RE %Q30': 85, 'RE Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
+            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 75, 'RE Review status': 'pass', 'RE Coverage': 35.2}),
+            Mock(spec=Artifact, udf={'RE Yield': 95, 'RE %Q30': 85, 'RE Review status': 'pass', 'RE Coverage': 36.7}),
+            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail', 'RE Coverage': 34.1}),
         ])
         with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
@@ -92,8 +100,8 @@ class TestPullRunElementInfo(TestPopulator):
             assert poa.return_value[2].udf['RE Useable Comment'] == 'AR: Failed and not needed'
 
         patched_output_artifacts_per_sample = patch_output_artifact([
-            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 85, 'RE Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
+            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 85, 'RE Review status': 'pass', 'RE Coverage': 35.2}),
+            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail', 'RE Coverage': 33.6}),
         ])
         with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
