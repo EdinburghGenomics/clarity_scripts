@@ -5,7 +5,7 @@ from EPPs.config import load_config
 
 class UpdateFreezerLocation(StepEPP):
     def _run(self):
-        artifacts = self.process.all_inputs()
+
         samples = self.samples
 
         for sample in samples:
