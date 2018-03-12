@@ -8,7 +8,7 @@ from pyclarity_lims.entities import Protocol
 class AssignNextStep(
     StepEPP):  # finds the next step in the protocol and assigns it to the artifacts appearing in the Next Steps of the script -
     # assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps in the configuration
-    # assumes current step is not the last step in the protocol
+    # assumes that all artifacts should have the same next step
 
     def _run(self):
         current_step_name = self.process.step.configuration.name  # configuration gives the ProtocolStep entity. Will use ProtocolStep name as the ProtoclStep obtained
@@ -16,19 +16,32 @@ class AssignNextStep(
 
         protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
 
-        actions = self.process.step.actions  #  creates a StepActions entity for the current step
+        actions = self.process.step.actions  # obtain the actions of the step # creates a StepActions entity for the current step
 
-        next_actions = actions.next_actions  # creates a list of dict containing details of the next_actions for the step
+        next_actions = actions.next_actions  # obtain the next actions in the step #creates a list of dict for next_actions for the step
 
         steps = protocol.steps  # a list of all the ProtocolSteps in protocol
 
-        for step in steps:  # find the index of the current step in the list of all ProtocolSteps then assign the step_object as the next step in the list
-            if step.name == current_step_name:
-                step_object = steps[steps.index(step) + 1]
+        # print(steps)
 
-        for next_action in next_actions:  # for all artifacts in next_actions update the action to "next step" with the step as the next step in the protocol
-            next_action['action'] = 'nextstep'
-            next_action['step'] = step_object
+        for step in steps:  # find the index of the current step in the list of all ProtocolSteps
+            if step.name == current_step_name:
+                current_step_index = steps.index(step)
+
+        # if the current step index plus 1 matches the number of steps in the protocol (i.e. length of the steps list) then the current step must be the last step in
+        # the protocol so the next action should be complete. If the current step index plus 1 is less than the length then next action should be next step
+
+        if current_step_index + 1 == len(steps):  # where index values run 0 to X and length values run 1 to X
+            # print("current_step_index +1 == len(steps)")
+            for next_action in next_actions:  # for all artifacts in next_actions update the action to "complete" with the step as the next step in the protocol
+                next_action['action'] = 'complete'
+
+        elif current_step_index + 1 < len(steps):  # where index values run 0 to X and length values run 1 to X
+
+            step_object = steps[current_step_index + 1]
+            for next_action in next_actions:  # for all artifacts in next_actions update the action to "next step" with the step as the next step in the protocol
+                next_action['action'] = 'nextstep'
+                next_action['step'] = step_object
 
         actions.put()
 
