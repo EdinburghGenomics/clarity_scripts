@@ -11,8 +11,7 @@ class AssignNextStep(
     # assumes that all artifacts should have the same next step
 
     def _run(self):
-        current_step_name = self.process.step.configuration.name  # configuration gives the ProtocolStep entity. Will use ProtocolStep name as the ProtoclStep obtained
-        # this way is missing the url so doesn't match the ProtocolStep created from the Protocol entity
+        current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
 
         protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
 
@@ -25,7 +24,7 @@ class AssignNextStep(
         # print(steps)
 
         for step in steps:  # find the index of the current step in the list of all ProtocolSteps
-            if step.name == current_step_name:
+            if step == current_step:
                 current_step_index = steps.index(step)
 
         # if the current step index plus 1 matches the number of steps in the protocol (i.e. length of the steps list) then the current step must be the last step in
