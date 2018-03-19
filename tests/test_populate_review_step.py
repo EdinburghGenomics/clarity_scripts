@@ -30,13 +30,13 @@ class TestPopulator(TestEPP):
 class TestPullRunElementInfo(TestPopulator):
     epp_cls = p.PullRunElementInfo
     fake_rest_entity = {
+        'aggregated': {'clean_yield_in_gb': 20,
+                       'clean_yield_q30_in_gb': 15,
+                       'clean_pc_q30': 75,
+                       'pc_adaptor': 1.2},
         'run_element_id': 'id',
         'passing_filter_reads': 120000000,
-        'clean_yield_in_gb': 20,
-        'clean_yield_q30_in_gb': 15,
-        'clean_pc_q30': 75,
         'lane_pc_optical_dups': 10,
-        'pc_adapter': 1.2,
         'reviewed': 'pass',
         'review_comments': 'alright',
         'review_date': '12_02_2107_12:43:24',
@@ -52,7 +52,9 @@ class TestPullRunElementInfo(TestPopulator):
         'RE %Adapter': 1.2,
         'RE Review status': 'pass',
         'RE Review Comment': 'alright',
-        'RE Review date': '2107-02-12'
+        'RE Review date': '2107-02-12',
+        'RE Useable': 'yes',
+        'RE Useable Comment': 'AR: Good yield'
     }
 
     def test_pull(self):
@@ -68,7 +70,7 @@ class TestPullRunElementInfo(TestPopulator):
             self.epp.run()
 
             assert pg.call_count == 3
-            assert pg.call_args_list == [call('aggregate/run_elements', match={'sample_id': 'a_sample'}),
+            assert pg.call_args_list == [call('run_elements', where={'sample_id': 'a_sample'}),
                                          call('samples', where={'sample_id': 'a_sample'}),
                                          call('samples', where={'sample_id': 'a_sample'})]
 
@@ -90,8 +92,8 @@ class TestPullRunElementInfo(TestPopulator):
         ])
         with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
-            assert poa.return_value[0].udf['RE Useable'] == 'no'
-            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: To much good yield'
+            assert poa.return_value[0].udf['RE Useable'] == 'yes'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Good yield'
 
             assert poa.return_value[1].udf['RE Useable'] == 'yes'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Good yield'
@@ -123,15 +125,13 @@ class TestPullSampleInfo(TestPopulator):
         'sample_id': 'a_sample',
         'user_sample_id': 'a_user_sample_id',
         'clean_yield_in_gb': 5,
-        'clean_pc_q30': 70,
-        'pc_mapped_reads': 75,
-        'pc_duplicate_reads': 5,
-        'coverage': {'mean': 30},
-        'species_contamination': {
-            'contaminant_unique_mapped': {'Homo sapiens': 70000, 'Thingius thingy': 501, 'Sus scrofa': 499}
-        },
-        'gender_match': 'Match',
-        'genotype_match': 'Match',
+        'aggregated': {'clean_pc_q30': 70,
+                       'pc_mapped_reads': 75,
+                       'pc_duplicate_reads': 5,
+                       'mean_coverage': 30,
+                       'gender_match': 'Match',
+                       'genotype_match': 'Match'},
+        'matching_species': ['Homo sapiens', 'Thingius thingy'],
         'sample_contamination': {'freemix': 0.1},
         'reviewed': 'pass',
         'review_comments': 'alright',
@@ -172,7 +172,7 @@ class TestPullSampleInfo(TestPopulator):
             assert poa.return_value[1].udf['SR Useable Comments'] == 'AR: Review failed'
 
     def test_field_from_entity(self):
-        obs = self.epp.field_from_entity(self.fake_rest_entity, 'species_contamination')
+        obs = self.epp.field_from_entity(self.fake_rest_entity, 'matching_species')
         assert obs == 'Homo sapiens, Thingius thingy'
 
 
