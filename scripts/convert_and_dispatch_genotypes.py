@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 import csv
-import sys
 from os import remove
 from os.path import join, dirname, abspath
 from collections import defaultdict
 from egcg_core.config import Configuration
 from egcg_core.app_logging import AppLogger, logging_default as log_cfg
-
-sys.path.append(dirname(dirname(abspath(__file__))))
-from EPPs.common import StepEPP, step_argparser
 import EPPs
+from EPPs.common import StepEPP, step_argparser
 
 etc_path = join(abspath(dirname(EPPs.__file__)), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))

@@ -5,6 +5,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import EPPs
 from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from
 
+
 class NamedMock(Mock):
     @property
     def name(self):
@@ -15,18 +16,18 @@ class MockedSamples(NamedMock):
     project = NamedMock(real_name='10015AT')
 
 
-def fake_artifact(id):
+def fake_artifact(_id):
     return Mock(
-        id=str(id),
+        id=str(_id),
         workflow_stages_and_statuses=[(Mock(uri='a_uri'), 'COMPLETE', 'stage1')]
     )
 
 
 def fake_all_inputs(unique=False, resolve=False):
-    """Return a list of mocked artifacts which contain samples which contain artifacts ... Simple!"""
+    """Return a list of mocked artifacts which contain samples which contain artifacts... Simple!"""
     return (
-        Mock(samples=[Mock(artifact=fake_artifact(id='a1'), id='s1')]),
-        Mock(samples=[Mock(artifact=fake_artifact(id='a2'), id='s2')])
+        Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1')]),
+        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2')])
     )
 
 

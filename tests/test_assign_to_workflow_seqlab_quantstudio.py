@@ -1,14 +1,14 @@
 from scripts.assign_workflow_seqlab_quantstudio import AssignWorkflowSeqLabQuantStudio
 from tests.test_common import TestEPP, fake_artifact
-from unittest.mock import Mock, patch, PropertyMock, MagicMock, call
+from unittest.mock import Mock, patch, PropertyMock, call
 
 
 def fake_all_output(unique=False, resolve=False):
-    '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
+    """Return a list of mocked artifacts which contain samples which contain artifacts... Simple!"""
     return (
-        Mock(id='ao1', samples=[Mock(artifact=fake_artifact(id='a1'), id='s1', udf={"Prep Workflow": "TruSeq PCR-Free DNA Sample Prep", "Species": "Homo sapiens"})]),
-        Mock(id='ao2', samples=[Mock(artifact=fake_artifact(id='a2'), id='s2', udf={"Prep Workflow": "TruSeq Nano DNA Sample Prep"})]),
-        Mock(id='ao3', samples=[Mock(artifact=fake_artifact(id='a3'), id='s3', udf={"Prep Workflow": "TruSeq Nano DNA Sample Prep", "Species": "Homo sapiens", "2D Barcode": 'fluidX1'})])
+        Mock(id='ao1', samples=[Mock(artifact=fake_artifact('a1'), id='s1', udf={'Prep Workflow': 'TruSeq PCR-Free DNA Sample Prep', 'Species': 'Homo sapiens'})]),
+        Mock(id='ao2', samples=[Mock(artifact=fake_artifact('a2'), id='s2', udf={'Prep Workflow': 'TruSeq Nano DNA Sample Prep'})]),
+        Mock(id='ao3', samples=[Mock(artifact=fake_artifact('a3'), id='s3', udf={'Prep Workflow': 'TruSeq Nano DNA Sample Prep', 'Species': 'Homo sapiens', '2D Barcode': 'fluidX1'})])
     )
 
 
@@ -40,9 +40,9 @@ class TestAssignWorkflowSeqLabQuantStudio(TestEPP):
             self.epp._run()
 
             pws.assert_has_calls((
-                call(self.epp.lims, "TruSeq PCR-Free DNA Sample Prep", "Visual QC"),
-                call(self.epp.lims, "TruSeq Nano DNA Sample Prep", "Visual QC"),
-                call(self.epp.lims, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0"),
+                call(self.epp.lims, 'TruSeq PCR-Free DNA Sample Prep', 'Visual QC'),
+                call(self.epp.lims, 'TruSeq Nano DNA Sample Prep', 'Visual QC'),
+                call(self.epp.lims, 'QuantStudio EG1.0', 'QuantStudio Plate Preparation EG1.0'),
             ))
             # first routing (pcr free)
             route_args = self.epp.lims.route_artifacts.call_args_list[0]
@@ -56,4 +56,3 @@ class TestAssignWorkflowSeqLabQuantStudio(TestEPP):
             # third routing (quantstudio)
             route_args = self.epp.lims.route_artifacts.call_args_list[2]
             assert sorted([a.id for a in route_args[0][0]]) == ['a1', 'fx3']
-
