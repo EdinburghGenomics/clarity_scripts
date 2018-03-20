@@ -34,8 +34,6 @@ def is_valid_container(container):
     for suffix in valid_suffixes:
         if container.name.endswith(suffix):
             return True
-    #if container.type.name == 'Patterned Flowcell':
-     #   return False
     return False
 
 
