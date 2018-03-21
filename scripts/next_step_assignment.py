@@ -19,13 +19,13 @@ class AssignNextStep(
 
         next_actions = actions.next_actions  # obtain the next actions in the step #creates a list of dict for next_actions for the step
 
-        if review==True:
+        if self.review=='True':
             for next_action in next_actions:  # for all artifacts in next_actions update the action to "complete" with the step as the next step in the protocol
                 next_action['action'] = 'review'
 
             actions.put()
 
-        elif review==False:
+        elif self.review=='False':
             current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
 
             protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
@@ -49,7 +49,7 @@ class AssignNextStep(
 
             #elif current_step_index + 1 < len(steps):  # where index values run 0 to X and length values run 1 to X
             else:
-                step_object = steps.index(current_step) + 2
+                step_object = steps[steps.index(current_step) + 2]
                 for next_action in next_actions:  # for all artifacts in next_actions update the action to "next step" with the step as the next step in the protocol
                     next_action['action'] = 'nextstep'
                     next_action['step'] = step_object
@@ -60,7 +60,7 @@ class AssignNextStep(
 def main():
     # Get the default command line options
     p = step_argparser()
-    p.add_argument('-r', '--review', action='store_true', help='set the next step to review', default=False)
+    p.add_argument('-r', '--review', type=bool, help='set the next step to review', default='False')
     # Parse command line options
     args = p.parse_args()
 
