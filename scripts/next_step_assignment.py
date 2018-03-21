@@ -4,10 +4,9 @@ from EPPs.config import load_config
 # from pyclarity_lims.entities import ProtocolStep
 from pyclarity_lims.entities import Protocol
 
-
 class AssignNextStep(
-    StepEPP):  # finds the next step in the protocol and assigns it to the artifacts appearing in the Next Steps of the script -
-    # assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps in the configuration
+    StepEPP):  # This script assigns the next step for all samples in the step as either "review","complete" or "nextstep"
+    # for next step it assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps in the configuration
     # assumes that all artifacts should have the same next step
     def __init__(self, step_uri, username, password, log_file=None, review=False):
         super().__init__(step_uri, username, password, log_file)
@@ -19,35 +18,25 @@ class AssignNextStep(
 
         next_actions = actions.next_actions  # obtain the next actions in the step #creates a list of dict for next_actions for the step
 
+        #check to see if review argument flag is present, if 'true' then set all next actions to "review"
         if self.review==True:
             for next_action in next_actions:  # for all artifacts in next_actions update the action to "complete" with the step as the next step in the protocol
                 next_action['action'] = 'review'
 
             actions.put()
-
+        #if review argument flag is not present then either nextstep or complete are the options
         elif self.review==False:
             current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
 
             protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
 
-
-
             steps = protocol.steps  # a list of all the ProtocolSteps in protocol
-
-
-            #for step in steps:  # find the index of the current step in the list of all ProtocolSteps
-            #    if step == current_step:
-            #        current_step_index = steps.index(step)
-
-            # if the current step index plus 1 matches the number of steps in the protocol (i.e. length of the steps list) then the current step must be the last step in
-            # the protocol so the next action should be complete. If the current step index plus 1 is less than the length then next action should be next step
-
-            #if current_step_index + 1 == len(steps):  # where index values run 0 to X and length values run 1 to X
+        #if the step is the last step in the protocol then set the next action to complete
             if current_step==steps[-1]:
                 for next_action in next_actions:  # for all artifacts in next_actions update the action to "complete" with the step as the next step in the protocol
                     next_action['action'] = 'complete'
 
-            #elif current_step_index + 1 < len(steps):  # where index values run 0 to X and length values run 1 to X
+        #if the step is not the last step in the protocol then set the next action to the next step and assign the identiy of that step with the step_object
             else:
                 step_object = steps[steps.index(current_step) + 1]
                 for next_action in next_actions:  # for all artifacts in next_actions update the action to "next step" with the step as the next step in the protocol
@@ -55,7 +44,6 @@ class AssignNextStep(
                     next_action['step'] = step_object
 
             actions.put()
-
 
 def main():
     # Get the default command line options
@@ -74,7 +62,6 @@ def main():
 
     # Run the EPP
     action.run()
-
 
 if __name__ == "__main__":
     main()
