@@ -49,7 +49,7 @@ class AssignNextStep(
 
             #elif current_step_index + 1 < len(steps):  # where index values run 0 to X and length values run 1 to X
             else:
-                step_object = steps[steps.index(current_step) + 2]
+                step_object = steps[steps.index(current_step) + 1]
                 for next_action in next_actions:  # for all artifacts in next_actions update the action to "next step" with the step as the next step in the protocol
                     next_action['action'] = 'nextstep'
                     next_action['step'] = step_object
