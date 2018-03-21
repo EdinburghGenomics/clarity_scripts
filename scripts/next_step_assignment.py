@@ -43,7 +43,7 @@ class AssignNextStep(
             # the protocol so the next action should be complete. If the current step index plus 1 is less than the length then next action should be next step
 
             #if current_step_index + 1 == len(steps):  # where index values run 0 to X and length values run 1 to X
-            if current_step==steps[-1]
+            if current_step==steps[-1]:
                 for next_action in next_actions:  # for all artifacts in next_actions update the action to "complete" with the step as the next step in the protocol
                     next_action['action'] = 'complete'
 
