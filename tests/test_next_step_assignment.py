@@ -21,6 +21,13 @@ class TestAssignNextStep(TestEPP):
             'a_password',
             self.log_file
         )
+        self.epp_review = AssignNextStep(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            self.log_file,
+            review=True
+        )
 
     def test_assign_next_step(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])
@@ -34,9 +41,12 @@ class TestAssignNextStep(TestEPP):
                 {'action': 'nextstep', 'step': protocol.steps[1]}
             ]
             assert self.actions.next_actions == expected_next_actions
+            assert self.actions.put.call_count == 1
 
         protocol = Mock(steps=[Mock(), self.protostep, Mock()])
         patched_protocol = patch('scripts.next_step_assignment.Protocol', return_value=protocol)
+
+        self.actions.put.reset_mock()
         with self.patched_process, patched_protocol:
             self.epp._run()
             # Ensure next step is set to the third step in the protocol
@@ -45,6 +55,7 @@ class TestAssignNextStep(TestEPP):
                 {'action': 'nextstep', 'step': protocol.steps[2]}
             ]
             assert self.actions.next_actions == expected_next_actions
+            assert self.actions.put.call_count == 1
 
     def test_assign_complete(self):
         protocol = Mock(steps=[Mock(), Mock(), self.protostep])
@@ -58,3 +69,15 @@ class TestAssignNextStep(TestEPP):
                 {'action': 'complete'}
             ]
             assert self.actions.next_actions == expected_next_actions
+            assert self.actions.put.call_count == 1
+
+    def test_assign_review(self):
+        with self.patched_process:
+            self.epp_review._run()
+            # Ensure action is set to review
+            expected_next_actions = [
+                {'action': 'review'},
+                {'action': 'review'}
+            ]
+            assert self.actions.next_actions == expected_next_actions
+            assert self.actions.put.call_count == 1

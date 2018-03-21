@@ -6,9 +6,7 @@ from EPPs.config import load_config
 class UpdateFreezerLocation(StepEPP):
     def _run(self):
 
-        samples = self.samples
-
-        for sample in samples:
+        for sample in self.samples:
             sample.udf['Freezer'] = self.process.udf.get('New Freezer Location')
             sample.udf['Shelf'] = self.process.udf.get('New Freezer Location')
             sample.udf['Box'] = self.process.udf.get('New Freezer Location')
