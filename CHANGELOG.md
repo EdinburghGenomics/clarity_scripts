@@ -7,6 +7,14 @@ Changelog for clarity_scripts
 - Nothing changed yet.
 
 
+0.6.2 (2018-03-26)
+------------------
+
+- Updated EGCG-Core to 0.8.1
+- PEP8 refactor
+- New scripts: `next_step_assignment`, `remove_from_freezer`
+
+
 0.6.1 (2018-02-02)
 ------------------
 
