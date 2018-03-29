@@ -14,7 +14,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         data_download_contacts = []
         # There are up to 5 contacts entered in the step.
         for count in range(1,6):
-            udf_name1 = "Data Download Contact Name "+str(count)
+            udf_name1 = "Data Download Contact Username "+str(count)
             udf_name2 = "Is Contact "+str(count)+" A New or Existing User?"
             if self.process.udf.get(udf_name1):
                 data_download_contacts.append(
@@ -43,7 +43,7 @@ ClarityX'''
         subject = ', '.join([p.name for p in self.projects]) + ': Please release data'
 
         # Send email to list of persons specified in the default section of config
-        self.send_mail(subject, msg)
+        self.send_mail(subject, msg, config_name='projects-bioinformatics')
 
 
 def main():
