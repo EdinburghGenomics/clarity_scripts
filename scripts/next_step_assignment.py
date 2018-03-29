@@ -61,7 +61,7 @@ def main():
     # Get the default command line options
     p = step_argparser()
     p.add_argument('-r', '--review', action='store_true', help='set the next step to review', default=False)
-    p.add_argument('e', '--remove', action='store_true', help='set the next step to review', default=False)
+    p.add_argument('-e', '--remove', action='store_true', help='set the next step to review', default=False)
     # Parse command line options
     args = p.parse_args()
 
