@@ -13,7 +13,7 @@ class AssignWorkflowSampleReview(StepEPP):
                 artifact_to_route.add(art)
                 stage = get_workflow_stage(self.lims, "PostSeqLab EG 1.0 WF",
                                            "Data Release Trigger EG 1.0 ST")
-                self.lims.route_artifacts(list(art), stage_uri=stage.uri)
+                self.lims.route_artifacts(list(artifact_to_route), stage_uri=stage.uri)
             # assigns the normalised batch plate to the TruSeq PCR-Free workflow
 
 
