@@ -5,13 +5,14 @@ class AssignWorkflowSampleReview(StepEPP):
     #Assigns samples to Data Release Trigger if sample measurement UDF SR Useable = Yes
 
     def _run(self):
-
+        artifact_to_route = set()
 
         for art in self.output_artifacts:
 
-            if art.udf.get("SR Useable") == "Yes":
-                stage = get_workflow_stage(self.lims, "Data Release EG 2.0 PR",
-                                           "Data Release Trigger")
+            if art.udf.get("SR Useable") == "yes":
+                artifact_to_route.add(art)
+                stage = get_workflow_stage(self.lims, "PostSeqLab EG 1.0 WF",
+                                           "Data Release Trigger EG 1.0 ST")
                 self.lims.route_artifacts(list(art), stage_uri=stage.uri)
             # assigns the normalised batch plate to the TruSeq PCR-Free workflow
 
