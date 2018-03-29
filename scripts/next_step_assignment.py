@@ -10,9 +10,10 @@ class AssignNextStep(StepEPP):
     for next step it assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps
     in the configuration assumes that all artifacts should have the same next step
     """
-    def __init__(self, step_uri, username, password, log_file=None, review=False):
+    def __init__(self, step_uri, username, password, log_file=None, review=False, remove=False):
         super().__init__(step_uri, username, password, log_file)
         self.review = review
+        self.remove = remove
 
     def _run(self):
 
