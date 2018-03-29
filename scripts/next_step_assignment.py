@@ -28,6 +28,11 @@ class AssignNextStep(StepEPP):
             for next_action in next_actions:
                 next_action['action'] = 'review'
 
+        elif self.remove:
+            # for all artifacts in the next_actions update the action to "remove"
+            for next_action in next_actions:
+                next_action['action'] = 'remove'
+
         # If review argument flag is not present then either nextstep or complete are the options
         else:
             current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
@@ -56,6 +61,7 @@ def main():
     # Get the default command line options
     p = step_argparser()
     p.add_argument('-r', '--review', action='store_true', help='set the next step to review', default=False)
+    p.add_argument('e', '--remove', action='store_true', help='set the next step to review', default=False)
     # Parse command line options
     args = p.parse_args()
 
@@ -64,7 +70,7 @@ def main():
 
     # Setup the EPP
     action = AssignNextStep(
-        args.step_uri, args.username, args.password, args.log_file, args.review
+        args.step_uri, args.username, args.password, args.log_file, args.review, args.remove
     )
 
     # Run the EPP
