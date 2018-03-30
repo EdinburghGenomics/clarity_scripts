@@ -2,7 +2,8 @@
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 class AssignWorkflowSampleReview(StepEPP):
-    #Assigns samples to Data Release Trigger if sample measurement UDF SR Useable = Yes
+    #Checks if output artifact is "SR Useable = yes" then finds the submitted sample for that artifact
+    #  and assigns the submitted sample to Data Release Trigger
 
     def _run(self):
         artifact_to_route = set()
@@ -16,10 +17,6 @@ class AssignWorkflowSampleReview(StepEPP):
                                            "Data Release Trigger EG 1.0 ST")
                 self.lims.route_artifacts(list(artifact_to_route
                                                ), stage_uri=stage.uri)
-            # assigns the normalised batch plate to the TruSeq PCR-Free workflow
-
-
-
 
 def main():
     p = step_argparser()
