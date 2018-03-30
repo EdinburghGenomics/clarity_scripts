@@ -81,3 +81,14 @@ class TestAssignNextStep(TestEPP):
             ]
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
+
+    def test_assign_remove(self):
+        with self.patched_process:
+            self.epp_remove._run()
+            # Ensure action is set to remove
+            expected_next_actions = [
+                {'action': 'remove'},
+                {'action': 'remove'}
+            ]
+            assert self.actions.next_actions == expected_next_actions
+            assert self.actions.put.call_count == 1
