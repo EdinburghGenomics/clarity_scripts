@@ -75,8 +75,8 @@ class TestDataReleaseEmailAndUpdateEPP(TestEmailEPP):
         super().setUp()
         self.epp = self.create_epp(DataReleaseEmailAndUpdateEPP)
         self.patch_process = self.create_patch_process(DataReleaseEmailAndUpdateEPP, {
-                'Data Download Contact Name 1': 'John Doe',
-                'Data Download Contact Name 2': 'Jane Doe',
+                'Data Download Contact Username 1': 'John Doe',
+                'Data Download Contact Username 2': 'Jane Doe',
                 'Is Contact 1 A New or Existing User?': 'New User',
                 'Is Contact 2 A New or Existing User?': 'Existing User'
             })
@@ -106,7 +106,7 @@ ClarityX'''
                 mailhost='smtp.test.me',
                 port=25,
                 sender='sender@email.com',
-                recipients=['recipient1@email.com', 'recipient2@email.com'],
+                recipients=['project@email.com', 'bfx@email.com'],
                 strict=True
             )
 
@@ -258,7 +258,7 @@ class TestDataReleaseFacilityManager(TestEmailEPP):
             self.epp._run()
             msg = '''Hi Facility Manager,
 
-The data for 4 sample(s) is ready to be released for Validation. Please can you perform the following tasks:
+The data for 2 sample(s) is ready to be released for project1. Please can you perform the following tasks:
 
 1) Review the list of samples at:
 https://{localmachine}/clarity/work-details/tep_uri
@@ -268,8 +268,7 @@ https://{localmachine}/clarity/work-details/tep_uri
 3) Click "Next Steps
 
 Kind regards,
-Clarity X
-'''
+Clarity X'''
             msg = msg.format(localmachine=platform.node())
 
             mocked_send_email.assert_called_with(
