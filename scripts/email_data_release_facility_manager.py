@@ -4,7 +4,7 @@ from EPPs.common import step_argparser, SendMailEPP
 from EPPs.config import load_config
 
 
-class ReceiveSampleEmail(SendMailEPP):
+class DataReleaseFMEmail(SendMailEPP):
 
     def _run(self):
         if len(self.projects)>1: #  check if more than one project in step, only one permitted
@@ -26,7 +26,7 @@ class ReceiveSampleEmail(SendMailEPP):
         subject = self.projects[0].name + ': Plate Received'
 
         # Send email to list of persons specified in the projects-facility-lab-finance_only section of config
-        self.send_mail(subject, msg, config_name='projects-facility')
+        self.send_mail(subject, msg, config_name='projects_facility')
 
 
 def main():
@@ -40,7 +40,7 @@ def main():
     load_config()
 
     # Setup the EPP
-    action = ReceiveSampleEmail(
+    action = DataReleaseFMEmail(
         args.step_uri, args.username, args.password, args.log_file,
     )
 
