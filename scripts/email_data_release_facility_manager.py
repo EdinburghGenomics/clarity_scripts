@@ -26,7 +26,7 @@ class DataReleaseFMEmail(SendMailEPP):
         subject = self.projects[0].name + ': Review Data for Release'
 
         # Send email to list of persons specified in the projects-facility-lab-finance_only section of config
-        self.send_mail(subject, msg, config_name='projects_facility')
+        self.send_mail(subject, msg, config_name='projects-facility')
 
 
 def main():
