@@ -12,7 +12,7 @@ class DataReleaseFMEmail(SendMailEPP):
 
         # Create the message
         msg = 'Hi Facility Manager,\n\nThe data for {sample_count} sample(s) is ready to be released for {project}. Please can you perform the following tasks:\n' \
-              '\n1) Review the list of samples at:\n\n{link}\n' \
+              '\n1) Review the list of samples at:\n{link}\n' \
               '\n2) Provide electronic signature\n' \
               '\n3) Click "Next Steps\n' \
               '\nKind regards,\nClarity X'
