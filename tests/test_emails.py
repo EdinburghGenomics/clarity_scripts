@@ -9,6 +9,7 @@ from scripts.email_data_release import DataReleaseEmail
 from scripts.email_data_trigger import DataReleaseEmailAndUpdateEPP
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
+from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from tests.test_common import TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
 
@@ -242,5 +243,41 @@ ClarityX'''
                 port=25,
                 sender='sender@email.com',
                 recipients=['lab@email.com', 'facility@email.com', 'finance@email.com', 'project@email.com'],
+                strict=True
+            )
+
+class TestDataReleaseFacilityManager(TestEmailEPP):
+    def setUp(self):
+        super().setUp()
+        self.epp = self.create_epp(DataReleaseFMEmail)
+
+    def test_send_email(self):
+        self._test_only_one_project(self.epp)
+
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+            self.epp._run()
+            msg = '''Hi Facility Manager,
+
+The data for 4 sample(s) is ready to be released for Validation. Please can you perform the following tasks:
+
+1) Review the list of samples at:
+https://{localmachine}/clarity/work-details/tep_uri
+
+2) Provide electronic signature
+
+3) Click "Next Steps
+
+Kind regards,
+Clarity X
+'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='project1: Review Data for Release',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['facility@email.com', 'project@email.com'],
                 strict=True
             )
