@@ -7,14 +7,15 @@ class AssignWorkflowSampleReview(StepEPP):
 
     def _run(self):
         artifact_to_route = set()
+        stage = get_workflow_stage(self.lims, "PostSeqLab EG 1.0 WF",
+                                   "Data Release Trigger EG 1.0 ST")
 
         for art in self.output_artifacts:
 
             if art.udf.get("SR Useable") == "yes":
                 sample=art.samples[0]
                 artifact_to_route.add(sample.artifact)
-                stage = get_workflow_stage(self.lims, "PostSeqLab EG 1.0 WF",
-                                           "Data Release Trigger EG 1.0 ST")
+
                 self.lims.route_artifacts(list(artifact_to_route
                                                ), stage_uri=stage.uri)
 
