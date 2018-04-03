@@ -29,6 +29,15 @@ class TestAssignNextStep(TestEPP):
             review=True
         )
 
+        self.epp_remove = AssignNextStep(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            self.log_file,
+            remove=True
+        )
+
+
     def test_assign_next_step(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])
         patched_protocol = patch('scripts.next_step_assignment.Protocol', return_value=protocol)
