@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch, PropertyMock
 def fake_all_outputs(unique=False, resolve=False):
     '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
     return (
-        Mock(samples=[Mock(artifact=fake_artifact(id='a1'), id='s1')], udf={"SR Useable": 'yes'}),
-        Mock(samples=[Mock(artifact=fake_artifact(id='a2'), id='s2')],udf={"SR Useable":'yes'})
+        Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1')], udf={"SR Useable": 'yes'}),
+        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2')],udf={"SR Useable":'yes'})
     )
 
 

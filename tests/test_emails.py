@@ -3,7 +3,7 @@ import platform
 from egcg_core.config import cfg
 from EPPs.common import SendMailEPP
 from scripts.email_data_release import DataReleaseEmail
-from scripts.email_data_trigger import DataReleaseEmailAndUpdateEPP
+from scripts.email_data_trigger import DataReleaseTrigger
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
 from scripts.email_data_release_facility_manager import DataReleaseFMEmail
@@ -58,12 +58,12 @@ class TestEmailEPP(TestEPP):
         )
 
 
-class TestDataReleaseEmailAndUpdateEPP(TestEmailEPP):
+class TestDataReleaseTriggerEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
-        self.epp = self.create_epp(DataReleaseEmailAndUpdateEPP)
+        self.epp = self.create_epp(DataReleaseTrigger)
         self.patch_process = self.create_patch_process(
-            DataReleaseEmailAndUpdateEPP,
+            DataReleaseTrigger,
             {
                 'Data Download Contact Username 1': 'John Doe',
                 'Data Download Contact Username 2': 'Jane Doe',
@@ -240,9 +240,16 @@ class TestDataReleaseFacilityManager(TestEmailEPP):
         super().setUp()
         self.epp = self.create_epp(DataReleaseFMEmail)
 
-    def test_send_email(self):
-        self._test_only_one_project(self.epp)
+    def test_only_one_project(self):
+        try:
+            with self.assertRaises(ValueError):
+                with self.patch_project_multi:
+                    self.epp._run()
 
+        except NotImplementedError:
+            print('Skipping test for abstract class: ' + self.epp.__class__.__name__)
+
+    def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
             self.epp._run()
             msg = '''Hi Facility Manager,
