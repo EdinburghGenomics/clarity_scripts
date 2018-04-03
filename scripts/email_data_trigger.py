@@ -13,7 +13,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
 
         data_download_contacts = []
         # There are up to 5 contacts entered in the step.
-        for count in range(1,6):
+        for count in range(1, 6):
             udf_name1 = 'Data Download Contact Name %s' % count
             udf_name2 = 'Is Contact %s A New or Existing User?' % count
             if self.process.udf.get(udf_name1):
