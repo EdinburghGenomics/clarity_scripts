@@ -1,10 +1,31 @@
 Changelog for clarity_scripts
 =============================
 
-0.6 (unreleased)
+0.7 (unreleased)
 ----------------
 
 - Nothing changed yet.
+
+
+0.6.2 (2018-03-26)
+------------------
+
+- Updated EGCG-Core to 0.8.1
+- PEP8 refactor
+- New scripts: `next_step_assignment`, `remove_from_freezer`
+
+
+0.6.1 (2018-02-02)
+------------------
+
+- New email notification for Data release, Sample receipt, FluidX receipt
+
+
+0.6 (2017-10-23)
+----------------
+
+- Populate steps with review metrics from the Reporting App database for samples and run elements
+- Generate email requesting data release
 
 
 0.5 (2017-08-30)

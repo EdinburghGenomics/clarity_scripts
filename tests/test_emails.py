@@ -1,9 +1,6 @@
 import os
 import platform
-
-import pytest
 from egcg_core.config import cfg
-
 from EPPs.common import SendMailEPP
 from scripts.email_data_release import DataReleaseEmail
 from scripts.email_data_trigger import DataReleaseEmailAndUpdateEPP
@@ -15,51 +12,42 @@ from unittest.mock import Mock, patch, PropertyMock
 
 
 class TestEmailEPP(TestEPP):
+    patch_project_multi = patch.object(
+        SendMailEPP,
+        'projects',
+        new_callable=PropertyMock(return_value=[NamedMock(real_name='project1'), NamedMock(real_name='project2')])
+    )
+
+    patch_project_single = patch.object(
+        SendMailEPP,
+        'projects',
+        new_callable=PropertyMock(return_value=[NamedMock(real_name='project1')])
+    )
+
+    patch_samples = patch.object(
+        SendMailEPP,
+        'samples',
+        new_callable=PropertyMock(return_value=[NamedMock(real_name='sample1'), NamedMock(real_name='sample2')])
+    )
+
+    patch_email = patch('egcg_core.notifications.email.send_email')
 
     def setUp(self):
         super().setUp()
         cfg.load_config_file(os.path.join(self.etc_path, 'example_clarity_script.yml'))
-
-        project1 = NamedMock(real_name='project1')
-        project2 = NamedMock(real_name='project2')
-
-        self.patch_project_multi = patch.object(
-            SendMailEPP,
-            'projects',
-            new_callable=PropertyMock(return_value=[project1, project2])
-        )
-
-        project1 = NamedMock(real_name='project1')
-        self.patch_project_single = patch.object(
-            SendMailEPP,
-            'projects',
-            new_callable=PropertyMock(return_value=[project1])
-        )
         self.patch_process = self.create_patch_process(SendMailEPP)
 
-        sample1 = NamedMock(real_name='sample1')
-        sample2 = NamedMock(real_name='sample2')
-        self.patch_samples = patch.object(
-            SendMailEPP,
-            'samples',
-            new_callable=PropertyMock(return_value=[sample1, sample2])
-        )
+    def test_only_one_project(self):
+        try:
+            with self.assertRaises(ValueError):
+                with self.patch_project_multi:
+                    self.epp._run()
 
-        self.patch_email = patch('egcg_core.notifications.email.send_email')
-
-    def _test_only_one_project(self, epp):
-        with pytest.raises(ValueError):
-            with self.patch_project_multi:
-                epp._run()
-
+        except NotImplementedError:
+            print('Skipping test for abstract class: ' + self.epp.__class__.__name__)
 
     def create_epp(self, klass):
-        return klass(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        return klass('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
 
     @staticmethod
     def create_patch_process(klass, udfs=None):
@@ -81,12 +69,11 @@ class TestDataReleaseEmailAndUpdateEPP(TestEmailEPP):
                 'Data Download Contact Username 2': 'Jane Doe',
                 'Is Contact 1 A New or Existing User?': 'New User',
                 'Is Contact 2 A New or Existing User?': 'Existing User'
-            })
+            }
+        )
 
     def test_send_email(self):
-        self._test_only_one_project(self.epp)
-
-        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_email:
             self.epp._run()
             msg = '''Hi Bioinformatics,
 
@@ -102,7 +89,7 @@ Jane Doe (Existing User)
 Kind regards,
 ClarityX'''
             msg = msg.format(localmachine=platform.node())
-            mocked_send_email.assert_called_with(
+            mocked_email.assert_called_with(
                 msg=msg,
                 subject='project1: Please release data',
                 mailhost='smtp.test.me',
@@ -117,13 +104,17 @@ class TestDataReleaseEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
         self.epp = self.create_epp(DataReleaseEmail)
-        self.patch_process1 = self.create_patch_process(DataReleaseEmail, {'Request Customer Survey (Final Data Release)': 'No'})
-        self.patch_process2 = self.create_patch_process(DataReleaseEmail, {'Request Customer Survey (Final Data Release)': 'Yes'})
+        self.patch_process1 = self.create_patch_process(
+            DataReleaseEmail,
+            {'Request Customer Survey (Final Data Release)': 'No'}
+        )
+        self.patch_process2 = self.create_patch_process(
+            DataReleaseEmail,
+            {'Request Customer Survey (Final Data Release)': 'Yes'}
+        )
 
     def test_send_email(self):
-        self._test_only_one_project(self.epp)
-
-        with self.patch_project_single, self.patch_process1, self.patch_samples, self.patch_email as mocked_send_email:
+        with self.patch_project_single, self.patch_process1, self.patch_samples, self.patch_email as mocked_email:
             self.epp._run()
             msg = '''Hi,
 
@@ -135,7 +126,7 @@ Kind regards,
 ClarityX'''
             msg = msg.format(localmachine=platform.node())
 
-            mocked_send_email.assert_called_with(
+            mocked_email.assert_called_with(
                 msg=msg,
                 subject='project1: Data Released',
                 mailhost='smtp.test.me',
@@ -173,8 +164,6 @@ class TestFluidXSampleReceiptEmail(TestEmailEPP):
         self.epp = self.create_epp(FluidXSampleReceiptEmail)
 
     def test_send_email(self):
-        self._test_only_one_project(self.epp)
-
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
             self.epp._run()
             msg = '''Hi,
@@ -218,15 +207,14 @@ ClarityX'''
                 strict=True
             )
 
+
 class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
         self.epp = self.create_epp(ReceiveSampleEmail)
 
     def test_send_email(self):
-        self._test_only_one_project(self.epp)
-
-        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_email:
             self.epp._run()
             msg = '''Hi,
 
@@ -237,8 +225,7 @@ https://{localmachine}/clarity/work-details/tep_uri
 Kind regards,
 ClarityX'''
             msg = msg.format(localmachine=platform.node())
-
-            mocked_send_email.assert_called_with(
+            mocked_email.assert_called_with(
                 msg=msg,
                 subject='project1: Plate Received',
                 mailhost='smtp.test.me',

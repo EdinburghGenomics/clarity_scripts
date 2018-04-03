@@ -58,13 +58,15 @@ class FindPlateToRoute(StepEPP):
         step_artifacts = self.process.all_inputs()
         self.lims.get_batch(step_artifacts)
 
-        # Fetch the sample associated with these artifacts
+        # Fetch the samples associated with these artifacts
         samples = [a.samples[0] for a in step_artifacts]
         self.lims.get_batch(samples)
         self.info('Found %d Samples in the step', len(samples))
+
         # Fetch the all the artifacts associated with these samples
         step_associated_artifacts = fetch_all_artifacts_for_samples(self.lims, samples)
         self.info('Found %d Analytes (derived samples)', len(step_associated_artifacts))
+
         # List all the containers and retrieve them
         containers = list(set([a.container for a in step_associated_artifacts]))
         batch_limit(self.lims, containers)

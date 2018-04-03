@@ -1,1 +1,1 @@
-EGCG-Core==0.7.3
+EGCG-Core==0.8.1
