@@ -77,8 +77,8 @@ class TestDataReleaseEmailAndUpdateEPP(TestEmailEPP):
         self.patch_process = self.create_patch_process(
             DataReleaseEmailAndUpdateEPP,
             {
-                'Data Download Contact Name 1': 'John Doe',
-                'Data Download Contact Name 2': 'Jane Doe',
+                'Data Download Contact Username 1': 'John Doe',
+                'Data Download Contact Username 2': 'Jane Doe',
                 'Is Contact 1 A New or Existing User?': 'New User',
                 'Is Contact 2 A New or Existing User?': 'Existing User'
             })
