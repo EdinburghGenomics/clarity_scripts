@@ -92,8 +92,8 @@ class TestPullRunElementInfo(TestPopulator):
         ])
         with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
-            assert poa.return_value[0].udf['RE Useable'] == 'yes'
-            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Good yield'
+            assert poa.return_value[0].udf['RE Useable'] == 'no'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Too much good yield'
 
             assert poa.return_value[1].udf['RE Useable'] == 'yes'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Good yield'
@@ -109,6 +109,7 @@ class TestPullRunElementInfo(TestPopulator):
             self.epp.assess_sample(sample)
             assert poa.return_value[0].udf['RE Useable'] == 'yes'
             assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Good yield'
+
 
             assert poa.return_value[1].udf['RE Useable'] == 'no'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Failed and not needed'

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import datetime
+from egcg_core import util
 from cached_property import cached_property
 from EPPs.common import StepEPP, RestCommunicationEPP, step_argparser
 from EPPs.config import load_config
@@ -18,8 +19,8 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
             if io[0]['uri'].samples[0].name == sample_name and io[1]['output-type'] == 'ResultFile'
         ]
 
-    def check_rest_data_and_artifacts(self, sample_name, selector):
-        query_args = {selector: {'sample_id': sample_name}}
+    def check_rest_data_and_artifacts(self, sample_name):
+        query_args = {'where': {'sample_id': sample_name}}
         rest_entities = self.get_documents(self.endpoint, **query_args)
         artifacts = self.output_artifacts_per_sample(sample_name=sample_name)
         if len(rest_entities) != len(artifacts):  # in sample review this will be 1, in run review this will be more
@@ -39,7 +40,7 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
     def processed(self, sample_name):
         query_args = {'where': {'sample_id': sample_name}}
         sample = self.get_documents('samples', **query_args)[0]
-        processing_status = sample.get('aggregated', {}).get('most_recent_proc', {}).get('status')
+        processing_status = util.query_dict(sample, 'aggregated.most_recent_proc.status')
         return processing_status == 'finished'
 
     def _run(self):
@@ -63,7 +64,7 @@ class PullInfo(StepPopulator):
         self.lims.put_batch(artifacts_to_upload)
 
     def add_artifact_info(self, sample):
-        rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name, 'where')
+        rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name)
         artifacts_to_upload = set()
         for i in range(len(rest_entities)):
             for art_field, api_field in self.metrics_mapping:
@@ -163,18 +164,8 @@ class PullRunElementInfo(PullInfo):
         target_coverage = 1.05 * sample.udf.get('Coverage (X)')
         obtained_coverage = float(sum([a.udf.get('RE Coverage') for a in pass_artifacts]))
 
-        # Just the right amount of good yield: take it all
-        if target_yield < good_re_yield < target_yield * 2 or obtained_coverage > target_coverage:
-            for a in pass_artifacts:
-                a.udf['RE Useable'] = 'yes'
-                a.udf['RE Useable Comment'] = 'AR: Good yield'
-            for a in fail_artifacts:
-                a.udf['RE Useable'] = 'no'
-                a.udf['RE Useable Comment'] = 'AR: Failed and not needed'
-            artifacts_to_upload.update(artifacts)
-
         # Too much good yield limit to the best quality ones
-        elif good_re_yield > target_yield * 2:
+        if good_re_yield > target_yield * 2 and obtained_coverage > target_coverage:
             # Too much yield: sort the good artifact by quality
             pass_artifacts.sort(key=lambda x: x.udf.get('RE %Q30'), reverse=True)
             current_yield = 0
@@ -185,7 +176,17 @@ class PullRunElementInfo(PullInfo):
                     a.udf['RE Useable Comment'] = 'AR: Good yield'
                 else:
                     a.udf['RE Useable'] = 'no'
-                    a.udf['RE Useable Comment'] = 'AR: To much good yield'
+                    a.udf['RE Useable Comment'] = 'AR: Too much good yield'
+            for a in fail_artifacts:
+                a.udf['RE Useable'] = 'no'
+                a.udf['RE Useable Comment'] = 'AR: Failed and not needed'
+            artifacts_to_upload.update(artifacts)
+
+        # Just the right amount of good yield: take it all
+        elif target_yield < good_re_yield < target_yield * 2 or obtained_coverage > target_coverage:
+            for a in pass_artifacts:
+                a.udf['RE Useable'] = 'yes'
+                a.udf['RE Useable Comment'] = 'AR: Good yield'
             for a in fail_artifacts:
                 a.udf['RE Useable'] = 'no'
                 a.udf['RE Useable Comment'] = 'AR: Failed and not needed'
@@ -259,7 +260,7 @@ class PushInfo(StepPopulator):
         _ = self.output_artifacts
         for sample in self.samples:
             self.info('Pushing data for sample %s', sample.name)
-            rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name, 'where')
+            rest_entities, artifacts = self.check_rest_data_and_artifacts(sample.name)
             rest_api_data = {}
             for e in rest_entities:
                 rest_api_data[e[self.api_id_field]] = e
