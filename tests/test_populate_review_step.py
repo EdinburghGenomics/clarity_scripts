@@ -114,6 +114,30 @@ class TestPullRunElementInfo(TestPopulator):
             assert poa.return_value[1].udf['RE Useable'] == 'no'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Failed and not needed'
 
+        patched_output_artifacts_per_sample = patch_output_artifact([
+            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 85, 'RE Review status': 'pass', 'RE Coverage': 35.2}),
+            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail', 'RE Coverage': 33.6}),
+        ])
+
+        delivered = 'scripts.populate_review_step.PullRunElementInfo.delivered'
+        processed = 'scripts.populate_review_step.PullRunElementInfo.processed'
+        patched_delivered = patch(delivered, return_value=True)
+        pathed_processed = patch(processed, return_value=True)
+
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg, patched_delivered:
+            self.epp.assess_sample(sample)
+            assert poa.return_value[0].udf['RE Useable'] == 'no'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Delivered'
+            assert poa.return_value[1].udf['RE Useable'] == 'no'
+            assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Delivered'
+
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg, pathed_processed:
+            self.epp.assess_sample(sample)
+            assert poa.return_value[0].udf['RE Useable'] == 'no'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Sample already processed'
+            assert poa.return_value[1].udf['RE Useable'] == 'no'
+            assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Sample already processed'
+
     def test_field_from_entity(self):
         entity = {'this': {'that': 'other'}}
         assert self.epp.field_from_entity(entity, 'this.that') == 'other'

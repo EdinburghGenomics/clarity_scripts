@@ -127,7 +127,7 @@ class PullRunElementInfo(PullInfo):
         # Artifacts that fail the review
         fail_artifacts = [a for a in artifacts if a.udf.get('RE Review status') == 'fail']
         # Artifacts that are new
-        new_artifacts = [a for a in pass_artifacts if a.udf.get('RE previous Useable') not in ['yes', 'no']]
+        new_artifacts = [a for a in artifacts if a.udf.get('RE previous Useable') not in ['yes', 'no']]
 
         # skip samples which have been delivered, mark any new REs as such, not changing older RE comments
         if self.delivered(sample.name):
