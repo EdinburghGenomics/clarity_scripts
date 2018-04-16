@@ -16,8 +16,7 @@ class AssignWorkflowSampleReview(StepEPP):
                 sample=art.samples[0]
                 artifact_to_route.add(sample.artifact)
 
-                self.lims.route_artifacts(list(artifact_to_route
-                                               ), stage_uri=stage.uri)
+        self.lims.route_artifacts(list(artifact_to_route), stage_uri=stage.uri)
 
 def main():
     p = step_argparser()

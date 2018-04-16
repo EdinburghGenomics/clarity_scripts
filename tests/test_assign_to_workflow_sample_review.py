@@ -7,7 +7,8 @@ def fake_all_outputs(unique=False, resolve=False):
     '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
     return (
         Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1')], udf={"SR Useable": 'yes'}),
-        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2')],udf={"SR Useable":'yes'})
+        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2')],udf={"SR Useable": 'no'}),
+
     )
 
 
@@ -37,6 +38,7 @@ class TestAssignWorkflowSampleReview(TestEPP):
 
             pws.assert_called_with(self.epp.lims, 'PostSeqLab EG 1.0 WF', 'Data Release Trigger EG 1.0 ST')
             observed = sorted([a.id for a in self.epp.lims.route_artifacts.call_args[0][0]])
-            assert observed == ['a1', 'a2']
+            assert observed == ['a1']
             assert self.epp.lims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
 
+            #assert self.epp.lims.route_artifacts.call_args[1] != {'stage_uri': 'a_uri'}

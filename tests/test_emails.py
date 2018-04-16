@@ -240,14 +240,6 @@ class TestDataReleaseFacilityManager(TestEmailEPP):
         super().setUp()
         self.epp = self.create_epp(DataReleaseFMEmail)
 
-    def test_only_one_project(self):
-        try:
-            with self.assertRaises(ValueError):
-                with self.patch_project_multi:
-                    self.epp._run()
-
-        except NotImplementedError:
-            print('Skipping test for abstract class: ' + self.epp.__class__.__name__)
 
     def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
