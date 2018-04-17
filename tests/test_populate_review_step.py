@@ -1,7 +1,7 @@
 from pyclarity_lims.entities import Artifact
 from scripts import populate_review_step as p
 from tests.test_common import TestEPP, NamedMock
-from unittest.mock import Mock, patch, PropertyMock
+from unittest.mock import Mock, patch, PropertyMock, call
 
 
 class TestPopulator(TestEPP):
@@ -13,7 +13,7 @@ class TestPopulator(TestEPP):
             self.epp_cls,
             'samples',
             new_callable=PropertyMock(
-                return_value=[NamedMock(real_name='a_sample', udf={'Yield for Quoted Coverage (Gb)': 95})]
+                return_value=[NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95, 'Coverage (X)': 30})]
             )
         )
         self.patched_lims = patch.object(self.epp_cls, 'lims', new_callable=PropertyMock)
@@ -30,37 +30,49 @@ class TestPopulator(TestEPP):
 class TestPullRunElementInfo(TestPopulator):
     epp_cls = p.PullRunElementInfo
     fake_rest_entity = {
+        'aggregated': {'clean_yield_in_gb': 20,
+                       'clean_yield_q30_in_gb': 15,
+                       'clean_pc_q30': 75,
+                       'pc_adaptor': 1.2},
         'run_element_id': 'id',
         'passing_filter_reads': 120000000,
-        'clean_yield_in_gb': 20,
-        'clean_yield_q30_in_gb': 15,
-        'clean_pc_q30': 75,
         'lane_pc_optical_dups': 10,
-        'pc_adapter': 1.2,
         'reviewed': 'pass',
         'review_comments': 'alright',
-        'review_date': '12_02_2107_12:43:24'
+        'review_date': '12_02_2107_12:43:24',
     }
     expected_udfs = {
         'RE Id': 'id',
         'RE Nb Reads': 120000000,
         'RE Yield': 20,
         'RE Yield Q30': 15,
+        'RE Coverage': 34.2,
         'RE %Q30': 75,
         'RE Estimated Duplicate Rate': 10,
         'RE %Adapter': 1.2,
         'RE Review status': 'pass',
         'RE Review Comment': 'alright',
-        'RE Review date': '2107-02-12'
+        'RE Review date': '2107-02-12',
+        'RE Useable': 'yes',
+        'RE Useable Comment': 'AR: Good yield'
     }
 
     def test_pull(self):
+
+        patched_output_artifacts_per_sample = patch.object(
+            self.epp_cls,
+            'output_artifacts_per_sample',
+            return_value=[Mock(spec=Artifact, udf={'RE Coverage': 34.2}, samples=[NamedMock(real_name='a_sample')])]
+        )
+
         with self.patched_lims as pl, self.patched_samples, self.patched_get_docs as pg, \
-                self.patched_output_artifacts_per_sample as poa:
+                patched_output_artifacts_per_sample as poa:
             self.epp.run()
 
-            assert pg.call_count == 1
-            pg.assert_called_with(self.epp.endpoint, match={'sample_id': 'a_sample'})
+            assert pg.call_count == 3
+            assert pg.call_args_list == [call('run_elements', where={'sample_id': 'a_sample'}),
+                                         call('samples', where={'sample_id': 'a_sample'}),
+                                         call('samples', where={'sample_id': 'a_sample'})]
 
             # Check that the udfs have been added
             assert dict(poa.return_value[0].udf) == self.expected_udfs
@@ -72,16 +84,16 @@ class TestPullRunElementInfo(TestPopulator):
         def patch_output_artifact(output_artifacts):
             return patch.object(self.epp_cls, 'output_artifacts_per_sample', return_value=output_artifacts)
 
-        sample = NamedMock(real_name='a_sample', udf={'Yield for Quoted Coverage (Gb)': 95})
+        sample = NamedMock(real_name='a_sample', udf={'Required Yield (Gb)': 95, 'Coverage (X)': 30})
         patched_output_artifacts_per_sample = patch_output_artifact([
-            Mock(spec=Artifact, udf={'RE Yield Q30': 115, 'RE %Q30': 75, 'RE Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'RE Yield Q30': 95, 'RE %Q30': 85, 'RE Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'RE Yield Q30': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
+            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 75, 'RE Review status': 'pass', 'RE Coverage': 35.2}),
+            Mock(spec=Artifact, udf={'RE Yield': 95, 'RE %Q30': 85, 'RE Review status': 'pass', 'RE Coverage': 36.7}),
+            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail', 'RE Coverage': 34.1}),
         ])
-        with patched_output_artifacts_per_sample as poa:
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
             assert poa.return_value[0].udf['RE Useable'] == 'no'
-            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: To much good yield'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Too much good yield'
 
             assert poa.return_value[1].udf['RE Useable'] == 'yes'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Good yield'
@@ -90,16 +102,41 @@ class TestPullRunElementInfo(TestPopulator):
             assert poa.return_value[2].udf['RE Useable Comment'] == 'AR: Failed and not needed'
 
         patched_output_artifacts_per_sample = patch_output_artifact([
-            Mock(spec=Artifact, udf={'RE Yield Q30': 115, 'RE %Q30': 85, 'RE Review status': 'pass'}),
-            Mock(spec=Artifact, udf={'RE Yield Q30': 15, 'RE %Q30': 70, 'RE Review status': 'fail'}),
+            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 85, 'RE Review status': 'pass', 'RE Coverage': 35.2}),
+            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail', 'RE Coverage': 33.6}),
         ])
-        with patched_output_artifacts_per_sample as poa:
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg:
             self.epp.assess_sample(sample)
             assert poa.return_value[0].udf['RE Useable'] == 'yes'
             assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Good yield'
 
+
             assert poa.return_value[1].udf['RE Useable'] == 'no'
             assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Failed and not needed'
+
+        patched_output_artifacts_per_sample = patch_output_artifact([
+            Mock(spec=Artifact, udf={'RE Yield': 115, 'RE %Q30': 85, 'RE Review status': 'pass', 'RE Coverage': 35.2}),
+            Mock(spec=Artifact, udf={'RE Yield': 15, 'RE %Q30': 70, 'RE Review status': 'fail', 'RE Coverage': 33.6}),
+        ])
+
+        delivered = 'scripts.populate_review_step.PullRunElementInfo.delivered'
+        processed = 'scripts.populate_review_step.PullRunElementInfo.processed'
+        patched_delivered = patch(delivered, return_value=True)
+        pathed_processed = patch(processed, return_value=True)
+
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg, patched_delivered:
+            self.epp.assess_sample(sample)
+            assert poa.return_value[0].udf['RE Useable'] == 'no'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Delivered'
+            assert poa.return_value[1].udf['RE Useable'] == 'no'
+            assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Delivered'
+
+        with patched_output_artifacts_per_sample as poa, self.patched_get_docs as pg, pathed_processed:
+            self.epp.assess_sample(sample)
+            assert poa.return_value[0].udf['RE Useable'] == 'no'
+            assert poa.return_value[0].udf['RE Useable Comment'] == 'AR: Sample already processed'
+            assert poa.return_value[1].udf['RE Useable'] == 'no'
+            assert poa.return_value[1].udf['RE Useable Comment'] == 'AR: Sample already processed'
 
     def test_field_from_entity(self):
         entity = {'this': {'that': 'other'}}
@@ -107,21 +144,19 @@ class TestPullRunElementInfo(TestPopulator):
         assert entity == {'this': {'that': 'other'}}  # not changed
 
 
-class TestPullSampleInfo(TestPullRunElementInfo):
+class TestPullSampleInfo(TestPopulator):
     epp_cls = p.PullSampleInfo
     fake_rest_entity = {
         'sample_id': 'a_sample',
         'user_sample_id': 'a_user_sample_id',
         'clean_yield_in_gb': 5,
-        'clean_pc_q30': 70,
-        'pc_mapped_reads': 75,
-        'pc_duplicate_reads': 5,
-        'coverage': {'mean': 30},
-        'species_contamination': {
-            'contaminant_unique_mapped': {'Homo sapiens': 70000, 'Thingius thingy': 501, 'Sus scrofa': 499}
-        },
-        'gender_match': 'Match',
-        'genotype_match': 'Match',
+        'aggregated': {'clean_pc_q30': 70,
+                       'pc_mapped_reads': 75,
+                       'pc_duplicate_reads': 5,
+                       'mean_coverage': 30,
+                       'gender_match': 'Match',
+                       'genotype_match': 'Match'},
+        'matching_species': ['Homo sapiens', 'Thingius thingy'],
         'sample_contamination': {'freemix': 0.1},
         'reviewed': 'pass',
         'review_comments': 'alright',
@@ -162,7 +197,7 @@ class TestPullSampleInfo(TestPullRunElementInfo):
             assert poa.return_value[1].udf['SR Useable Comments'] == 'AR: Review failed'
 
     def test_field_from_entity(self):
-        obs = self.epp.field_from_entity(self.fake_rest_entity, 'species_contamination')
+        obs = self.epp.field_from_entity(self.fake_rest_entity, 'matching_species')
         assert obs == 'Homo sapiens, Thingius thingy'
 
 
