@@ -79,7 +79,7 @@ class TestGenotypeConversion(TestCommon):
         geno_conversion = GenotypeConversion(open_files([self.genotype_quantStudio]), open(self.accufill_log),
                                              'quantStudio', self.small_reference_fai, flank_length=600)
         assert geno_conversion.sample_names == {'V0001P001C01', 'V0001P001A01'}
-        assert len(geno_conversion.all_records) == 32
+        assert len(geno_conversion.all_records) == 26
 
     def test_find_field(self):
         observed_fieldnames = ('__this__', 'that', 'OTHER')
@@ -100,17 +100,20 @@ class TestUploadVcfToSamples(TestEPP):
             'a_user',
             'a_password',
             self.log_file,
-            mode='igmm',
-            input_genotypes_files=[self.genotype_csv]
+            input_genotypes_files=[self.genotype_quantStudio]
         )
 
         fake_all_inputs = Mock(
             return_value=[
-                Mock(samples=[FakeEntity(name='this', udf={'User Sample Name': '9504430'}, put=Mock())])
+                Mock(samples=[FakeEntity(name='V0001P001C01', udf={}, put=Mock())])
             ]
         )
+
+        def fake_output_per_input(inart, ResultFile):
+            return [Mock(samples=inart.samples, udf={}, put=Mock())]
+
         self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(
-            return_value=Mock(all_inputs=fake_all_inputs)
+            return_value=Mock(all_inputs=fake_all_inputs, outputs_per_input=fake_output_per_input)
         ))
 
     def test_upload(self):
@@ -120,13 +123,14 @@ class TestUploadVcfToSamples(TestEPP):
 
         exp_log_msgs = (
             ('Matching against %s artifacts', 1),
-            ('Matching %s against user sample name %s', 'this', '9504430'),
+            ('Matching V0001P001C01', ),
             ('Matched and uploaded %s artifacts against %s genotype results', 1, 1),
             ('%s artifacts did not match', 0),
-            ('%s genotyping results were not used', 0)
+            ('%s genotyping results were not used', 1)
         )
 
         with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims, self.patched_process:
             self.epp._run()
+            print(p.mock_calls)
             for m in exp_log_msgs:
                 p.assert_any_call(*m)
