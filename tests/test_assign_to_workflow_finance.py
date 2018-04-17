@@ -15,17 +15,17 @@ def fake_all_outputs(unique=False, resolve=False):
 class TestAssignWorkflowSampleReview(TestEPP):
     def setUp(self):
         self.patched_process = patch.object(
-            AssignWorkflowSampleReview,
+            AssignWorkflowFinance,
             'process',
             new_callable=PropertyMock(return_value=Mock(all_outputs=fake_all_outputs))
         )
-        self.patched_lims = patch.object(AssignWorkflowSampleReview, 'lims', new_callable=PropertyMock)
+        self.patched_lims = patch.object(AssignWorkflowFinance, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_sample_review.get_workflow_stage',
             return_value=Mock(uri='a_uri')
         )
 
-        self.epp = AssignWorkflowSampleReview(
+        self.epp = AssignWorkflowFinance(
             'http://server:8080/a_step_uri',
             'a_user',
             'a_password',
