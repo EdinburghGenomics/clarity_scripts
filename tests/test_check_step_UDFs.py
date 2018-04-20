@@ -1,26 +1,30 @@
-import os
-import platform
-from egcg_core.config import cfg
 from scripts.check_step_UDFs import CheckStepUDFs
-from tests.test_common import TestEPP, NamedMock
+from tests.test_common import TestEPP
 from unittest.mock import Mock, patch, PropertyMock
 
 
 class TestCheckStepUDFs(TestEPP):
-
     def setUp(self):
-        super().setUp()
-        self.epp = self.create_epp(CheckStepUDFs)
-        self.patch_process = self.create_patch_process(
-            TestCheckStepUDFs,
-            {
-                'Udfname1': 'John Doe',
-                'Udfname2': 'Jane Doe',
-            }
+
+        self.patched_process = patch.object(
+            CheckStepUDFs,
+            'process',
+            new_callable=PropertyMock(return_value=Mock(udf={
+
+                'udfname1': 'a',
+                'udfname2': 'a'
+            }))
         )
-    def test_check_syep_UDFs(self):
-        with self.patch_process:
+
+        self.epp = CheckStepUDFs(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            ['udfname1', 'udfname2'],
+            self.log_file
+        )
+
+    def test_check_step_UDFs(self):
+        with self.patched_process:
             self.epp._run()
-
-
 
