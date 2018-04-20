@@ -17,14 +17,15 @@ class CheckStepUDFs(StepEPP):
         for udfname in self.udfnames:
            if not self.process.udf.get(udfname):
                 print("Please complete step udf '%s'" %udfname)
-                exit(-1)
+                exit(1)
 
 def main():
     # Get the default command line options
     p = step_argparser()
     p.add_argument('-n', '--udfnames', nargs='*', help='udfs to be checked if completed')
-    #the -n argument can have as many entries as required, if there are spaces within the udfnames
-    #then they must be enclosed in speech marks " not quotes ' e.g. -n "udf name 1" "udf name 2" "udfname 3"
+    #the -n argument can have as many entries as required, if there are spaces within the udfnames and when running locally
+    #then they must be enclosed in speech marks " not quotes ' -n "udf name 1" "udf name 2" "udfname 3" BUT use quotes ' when configuring the EPP as speech marks close the
+    # bash command e.g.
 
     # Parse command line options
     args = p.parse_args()
