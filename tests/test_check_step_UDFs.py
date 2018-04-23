@@ -37,7 +37,7 @@ class TestCheckStepUDFs(TestEPP):
             assert self.epp._run() is None
 
     def test_check_step_UDFs(self):
-        with self.patched_process, patch('scripts.check_step_UDFs.exit') as mexit:
+        with self.patched_process, patch('sys.exit') as mexit:
             # One UDF is missing so run will execute sys.exit
             self.epp2._run()
             mexit.assert_called_once_with(1)

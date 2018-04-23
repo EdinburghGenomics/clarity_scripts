@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 from EPPs.common import step_argparser, StepEPP
 
@@ -17,7 +18,7 @@ class CheckStepUDFs(StepEPP):
         for udfname in self.udfnames:
            if not self.process.udf.get(udfname):
                 print("Please complete step udf '%s'" %udfname)
-                exit(1)
+                sys.exit(1)
 
 def main():
     # Get the default command line options
