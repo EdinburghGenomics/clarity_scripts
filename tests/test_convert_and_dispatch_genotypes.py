@@ -21,19 +21,19 @@ class TestGenotypeConversion(TestCommon):
 
     def setUp(self):
         self.geno_conversion = GenotypeConversion(
-            open_files([self.genotype_csv]), self.accufill_log, 'igmm',  self.small_reference_fai, flank_length=600
+            open_files([self.genotype_quantStudio]), self.accufill_log, self.small_reference_fai, flank_length=600
         )
 
     def test_generate_vcf(self):
         # header_lines = ['##header line1', '##header line2']
         # snp_ids = ['id4', 'id2', 'id3', 'id1']
         # TODO: make assertions on what header lines, snp IDs, etc. have been written
-        sample_id = '9504430'
+        sample_id = 'V0001P001C01'
         path = join(self.assets, 'test_generate')
         vcf_file = path + '.vcf'
         assert self.geno_conversion.generate_vcf(sample_id, new_name=path) == vcf_file
         with open(vcf_file) as f:
-            assert len([l for l in f.readlines() if not l.startswith('#')]) == 32
+            assert 26 == len([l for l in f.readlines() if not l.startswith('#')])
 
     def test_get_genotype_from_call(self):
         genotype = self.geno_conversion.get_genotype_from_call('A', 'T', 'Both', )
@@ -71,15 +71,9 @@ class TestGenotypeConversion(TestCommon):
         ]
         assert refence_length == expected_ref_length
 
-    def test_init_genotype_csv(self):
-        assert self.geno_conversion.sample_names == {'9504430'}
-        assert len(self.geno_conversion.all_records) == 32
-
     def test_parse_QuantStudio_AIF_genotype(self):
-        geno_conversion = GenotypeConversion(open_files([self.genotype_quantStudio]), open(self.accufill_log),
-                                             'quantStudio', self.small_reference_fai, flank_length=600)
-        assert geno_conversion.sample_names == {'V0001P001C01', 'V0001P001A01'}
-        assert len(geno_conversion.all_records) == 26
+        assert self.geno_conversion.sample_names == {'V0001P001C01', 'V0001P001A01'}
+        assert len(self.geno_conversion.all_records) == 26
 
     def test_find_field(self):
         observed_fieldnames = ('__this__', 'that', 'OTHER')

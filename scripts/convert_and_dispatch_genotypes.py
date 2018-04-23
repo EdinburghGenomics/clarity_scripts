@@ -44,7 +44,7 @@ class GenotypeConversion(AppLogger):
         #     msg = 'Missing Accufill log file to confirm Array ids please provide with --accufill_log'
         #     self.critical(msg)
         #     raise ValueError(msg)
-
+        self.parse_quantstudio_flex_genotype()
         self.info('Parsed %s samples', len(self.sample_names))
 
         reference_lengths = self._parse_genome_fai()
@@ -267,7 +267,6 @@ class UploadVcfToSamples(StepEPP):
 
         self.geno_conv = GenotypeConversion(input_genotypes_contents, accufill_log_content, default_fai,
                                             default_flank_length)
-        self.geno_conv.parse_quantstudio_flex_genotype()
 
     def _run(self):
         invalid_lims_samples = []
