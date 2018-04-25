@@ -31,12 +31,12 @@ class TestCheckStepUDFs(TestEPP):
             self.log_file
         )
 
-    def test_check_step_UDFs(self):
+    def test_check_step_UDFs_success(self):
         with self.patched_process:
             # Both UDFs are present so run does not execute sys.exit
             assert self.epp._run() is None
 
-    def test_check_step_UDFs(self):
+    def test_check_step_UDFs_fail(self):
         with self.patched_process, patch('sys.exit') as mexit:
             # One UDF is missing so run will execute sys.exit
             self.epp2._run()
