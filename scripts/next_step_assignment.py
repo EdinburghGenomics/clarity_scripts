@@ -10,9 +10,10 @@ class AssignNextStep(StepEPP):
     for next step it assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps
     in the configuration assumes that all artifacts should have the same next step
     """
-    def __init__(self, step_uri, username, password, log_file=None, review=False):
+    def __init__(self, step_uri, username, password, log_file=None, review=False, remove=False):
         super().__init__(step_uri, username, password, log_file)
         self.review = review
+        self.remove = remove
 
     def _run(self):
 
@@ -27,6 +28,11 @@ class AssignNextStep(StepEPP):
             # for all artifacts in next_actions update the action to "review"
             for next_action in next_actions:
                 next_action['action'] = 'review'
+
+        elif self.remove:
+            # for all artifacts in the next_actions update the action to "remove"
+            for next_action in next_actions:
+                next_action['action'] = 'remove'
 
         # If review argument flag is not present then either nextstep or complete are the options
         else:
@@ -56,6 +62,7 @@ def main():
     # Get the default command line options
     p = step_argparser()
     p.add_argument('-r', '--review', action='store_true', help='set the next step to review', default=False)
+    p.add_argument('-e', '--remove', action='store_true', help='set the next step to review', default=False)
     # Parse command line options
     args = p.parse_args()
 
@@ -64,7 +71,7 @@ def main():
 
     # Setup the EPP
     action = AssignNextStep(
-        args.step_uri, args.username, args.password, args.log_file, args.review
+        args.step_uri, args.username, args.password, args.log_file, args.review, args.remove
     )
 
     # Run the EPP

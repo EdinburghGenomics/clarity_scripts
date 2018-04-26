@@ -37,6 +37,17 @@ email_notify:
       - finance@email.com
       - project@email.com
 
+  projects-facility:
+    recipients:
+    - facility@email.com
+    - project@email.com
+
+
+  projects-bioinformatics:
+    recipients:
+    - project@email.com
+    - bfx@email.com
+
 rest_api:
   url: localhost
   username: user
