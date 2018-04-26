@@ -4,7 +4,7 @@ from EPPs.common import step_argparser, SendMailEPP
 from EPPs.config import load_config
 
 
-class DataReleaseEmailAndUpdateEPP(SendMailEPP):
+class DataReleaseTrigger(SendMailEPP):
     """Notifies the bioinformatics team to release data for a project."""
 
     def _run(self):
@@ -14,7 +14,7 @@ class DataReleaseEmailAndUpdateEPP(SendMailEPP):
         data_download_contacts = []
         # There are up to 5 contacts entered in the step.
         for count in range(1, 6):
-            udf_name1 = 'Data Download Contact Name %s' % count
+            udf_name1 = 'Data Download Contact Username %s' % count
             udf_name2 = 'Is Contact %s A New or Existing User?' % count
             if self.process.udf.get(udf_name1):
                 data_download_contacts.append(
@@ -43,7 +43,7 @@ ClarityX'''
         subject = ', '.join(p.name for p in self.projects) + ': Please release data'
 
         # Send email to list of persons specified in the default section of config
-        self.send_mail(subject, msg)
+        self.send_mail(subject, msg, config_name='projects-bioinformatics')
 
 
 def main():
@@ -51,7 +51,7 @@ def main():
     args = p.parse_args()
     load_config()
 
-    action = DataReleaseEmailAndUpdateEPP(args.step_uri, args.username, args.password, args.log_file)
+    action = DataReleaseTrigger(args.step_uri, args.username, args.password, args.log_file)
     action.run()
 
 

@@ -3,9 +3,10 @@ import platform
 from egcg_core.config import cfg
 from EPPs.common import SendMailEPP
 from scripts.email_data_release import DataReleaseEmail
-from scripts.email_data_trigger import DataReleaseEmailAndUpdateEPP
+from scripts.email_data_trigger import DataReleaseTrigger
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
+from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from tests.test_common import TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
 
@@ -57,15 +58,15 @@ class TestEmailEPP(TestEPP):
         )
 
 
-class TestDataReleaseEmailAndUpdateEPP(TestEmailEPP):
+class TestDataReleaseTriggerEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
-        self.epp = self.create_epp(DataReleaseEmailAndUpdateEPP)
+        self.epp = self.create_epp(DataReleaseTrigger)
         self.patch_process = self.create_patch_process(
-            DataReleaseEmailAndUpdateEPP,
+            DataReleaseTrigger,
             {
-                'Data Download Contact Name 1': 'John Doe',
-                'Data Download Contact Name 2': 'Jane Doe',
+                'Data Download Contact Username 1': 'John Doe',
+                'Data Download Contact Username 2': 'Jane Doe',
                 'Is Contact 1 A New or Existing User?': 'New User',
                 'Is Contact 2 A New or Existing User?': 'Existing User'
             }
@@ -94,7 +95,7 @@ ClarityX'''
                 mailhost='smtp.test.me',
                 port=25,
                 sender='sender@email.com',
-                recipients=['recipient1@email.com', 'recipient2@email.com'],
+                recipients=['project@email.com', 'bfx@email.com'],
                 strict=True
             )
 
@@ -231,5 +232,39 @@ ClarityX'''
                 port=25,
                 sender='sender@email.com',
                 recipients=['lab@email.com', 'facility@email.com', 'finance@email.com', 'project@email.com'],
+                strict=True
+            )
+
+class TestDataReleaseFacilityManager(TestEmailEPP):
+    def setUp(self):
+        super().setUp()
+        self.epp = self.create_epp(DataReleaseFMEmail)
+
+
+    def test_send_email(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+            self.epp._run()
+            msg = '''Hi Facility Manager,
+
+The data for 2 sample(s) is ready to be released for project1. Please can you perform the following tasks:
+
+1) Review the list of samples at:
+https://{localmachine}/clarity/work-details/tep_uri
+
+2) Provide electronic signature
+
+3) Click "Next Steps
+
+Kind regards,
+Clarity X'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='project1: Review Data for Release',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['facility@email.com', 'project@email.com'],
                 strict=True
             )
