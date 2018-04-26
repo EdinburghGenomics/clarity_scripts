@@ -13,7 +13,6 @@ snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
 default_fai = join(etc_path, 'genotype_32_SNPs_genome_600bp.fa.fai')
 default_flank_length = 600
 
-logger = log_cfg.get_logger(__name__)
 SNPs_definitions = snp_cfg['GRCh37_32_SNPs']
 
 # Accepted valid headers in the SNP CSV file
@@ -25,25 +24,21 @@ vcf_header = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FO
 start_vcf_header = ["##fileformat=VCFv4.1", '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
 
 genotype_udf_file_id = 'Genotyping results file id'
-genotype_udf_number_call = ''
+output_genotype_udf_number_call = 'Number of Calls (This Run)'
+submitted_genotype_udf_number_call = 'Number of Calls (Best Run)'
+submitted_nb_genotype_tries = 'QuantStudio Data Import Completed #'
 
 
 class GenotypeConversion(AppLogger):
-    def __init__(self, input_genotypes_contents, accufill_content, fai=default_fai,
+    def __init__(self, input_genotypes_contents, fai=default_fai,
                  flank_length=default_flank_length):
         self.all_records = defaultdict(dict)
         self.sample_names = set()
         self.input_genotypes_contents = input_genotypes_contents
         self.fai = fai
         self.flank_length = flank_length
-        self.accufill_content = accufill_content
         self._valid_array_barcodes = None
-        # if self.accufill_content:
-        #     self.parse_quantstudio_flex_genotype()
-        # else:
-        #     msg = 'Missing Accufill log file to confirm Array ids please provide with --accufill_log'
-        #     self.critical(msg)
-        #     raise ValueError(msg)
+
         self.parse_quantstudio_flex_genotype()
         self.info('Parsed %s samples', len(self.sample_names))
 
@@ -137,17 +132,6 @@ class GenotypeConversion(AppLogger):
             header_assay_id = self._find_field(['Assay ID'], sp_header)
             header_call = self._find_field(['Call'], sp_header)
 
-            # Check the barcode is valid according to the accufill log file
-            # if not parameters['Barcode'] in self.valid_array_barcodes:
-            #     msg = 'Array barcode %s is not in the list of valid barcodes (%s)' % (
-            #         parameters['Barcode'],
-            #         ', '.join(self.valid_array_barcodes)
-            #     )
-            #     self.critical(msg)
-            #     raise ValueError(msg)
-            # else:
-            #     logger.info('Validate array barcode %s', parameters['Barcode'])
-
             for line in result_lines[1:]:
                 sp_line = line.split('\t')
                 sample = sp_line[sp_header.index(header_sample_id)]
@@ -194,8 +178,7 @@ class GenotypeConversion(AppLogger):
                        snp_def['ref_base'], snp_def['alt_base'], ".", ".", ".", "GT"]
             self.all_records[snp_def['snp_id']]['SNP'] = snp
         if sample in self.all_records[snp_def['snp_id']]:
-            msg = 'Sample {} found more than once for SNPs {} while parsing {}'.format(sample, snp_def['snp_id'],
-                                                                                       array_barcode)
+            msg = 'Sample {} found more than once for SNPs {} while parsing {}'.format(sample, snp_def['snp_id'], array_barcode)
             self.critical(msg)
             raise Exception(msg)
         self.all_records[snp_def['snp_id']][sample] = genotype
@@ -234,39 +217,15 @@ class GenotypeConversion(AppLogger):
     def nb_calls(self, sample):
         return sum([1 for snps_id in self.snps_order if self.all_records[snps_id].get(sample) != './.'])
 
-    def _parse_accufill_load_csv(self):
-        all_arrays = set()
-        reader = csv.DictReader(self.accufill_content, delimiter='\t')
-        header_holder = 'Plate Holder Position'
-        header_plate_barcode = 'Sample Plate Barcode'
-        header_array = 'OpenArray Plate Barcode'
-        for line in reader:
-            all_arrays.add((line[header_array], line[header_holder], line[header_plate_barcode]))
-        return all_arrays
-
-    @property
-    def valid_array_barcodes(self):
-        if not self._valid_array_barcodes:
-            array_info = self._parse_accufill_load_csv()
-            self._valid_array_barcodes = list(set([a for a, h, p in array_info]))
-        return self._valid_array_barcodes
-
 
 class UploadVcfToSamples(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, input_genotypes_files,
-                 accufill_log=None, no_upload=False):
+    def __init__(self, step_uri, username, password, log_file, input_genotypes_files, no_upload=False):
         super().__init__(step_uri, username, password, log_file)
         self.no_upload = no_upload
         input_genotypes_contents = []
         for s in input_genotypes_files:
             input_genotypes_contents.append(self.open_or_download_file(s))
-        if accufill_log:
-            accufill_log_content = self.open_or_download_file(accufill_log)
-        else:
-            accufill_log_content = None
-
-        self.geno_conv = GenotypeConversion(input_genotypes_contents, accufill_log_content, default_fai,
-                                            default_flank_length)
+        self.geno_conv = GenotypeConversion(input_genotypes_contents, default_fai, default_flank_length)
 
     def _run(self):
         invalid_lims_samples = []
@@ -278,7 +237,6 @@ class UploadVcfToSamples(StepEPP):
             found = False
             # Assume only one sample per artifact
             lims_sample = artifact.samples[0]
-            print(lims_sample.name, self.geno_conv.sample_names)
             if lims_sample.name in self.geno_conv.sample_names:
                 self.info('Matching %s' % lims_sample.name)
                 found = True
@@ -288,27 +246,42 @@ class UploadVcfToSamples(StepEPP):
                 invalid_lims_samples.append(lims_sample)
             if found:
                 valid_samples.append(lims_sample)
-
                 vcf_file = self.geno_conv.generate_vcf(lims_sample.name)
                 nb_call = self.geno_conv.nb_calls(lims_sample.name)
                 output_arts = self.process.outputs_per_input(artifact, ResultFile=True)
                 # there should only be one
                 assert len(output_arts) == 1
                 # upload the number of calls to output
-                output_arts[0].udf[genotype_udf_number_call] = nb_call
+                output_arts[0].udf[output_genotype_udf_number_call] = nb_call
                 output_arts[0].put()
 
+                # and the vcf file
                 file = self.lims.upload_new_file(lims_sample, vcf_file)
-                # Check if this genotyping is better than before
-                if genotype_udf_number_call not in lims_sample.udf:
-                    lims_sample.udf[genotype_udf_number_call] = nb_call
+                # increment the nb of tries
+                if not submitted_nb_genotype_tries in lims_sample.udf:
+                    lims_sample.udf[submitted_nb_genotype_tries] = 1
+                else:
+                    lims_sample.udf[submitted_nb_genotype_tries] += 1
+
+                if submitted_genotype_udf_number_call not in lims_sample.udf:
+                    # This is the first genotyping results
+                    lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
                     lims_sample.udf[genotype_udf_file_id] = file.id
-                    lims_sample.put()
-                elif lims_sample.udf.get(genotype_udf_number_call) and \
-                        nb_call > lims_sample.udf.get(genotype_udf_number_call):
-                    lims_sample.udf[genotype_udf_number_call] = nb_call
+                elif lims_sample.udf.get(submitted_genotype_udf_number_call) and \
+                        nb_call > lims_sample.udf.get(submitted_genotype_udf_number_call):
+                    # This genotyping is better than before
+                    lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
                     lims_sample.udf[genotype_udf_file_id] = file.id
-                    lims_sample.put()
+                else:
+                    self.info(
+                        'Sample %s new genotype has %s call(s), previous genotype has %s call(s)',
+                        lims_sample.name,
+                        nb_call,
+                        lims_sample.udf[submitted_genotype_udf_number_call]
+                    )
+                # finally upload the submitted samples
+                lims_sample.put()
+
                 remove(vcf_file)
 
         unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_sample_used))
@@ -332,7 +305,7 @@ class UploadVcfToSamples(StepEPP):
 def main():
     args = _parse_args()
     action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file,
-                                args.input_genotypes, args.accufill_log, args.no_upload)
+                                args.input_genotypes, args.no_upload)
     action.run()
 
 
@@ -340,8 +313,6 @@ def _parse_args():
     p = step_argparser()
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
                    help='The files or artifact id that contains the genotype for all the samples')
-    p.add_argument('--accufill_log', dest='accufill_log', type=str, required=False,
-                   help='The file that contains the location and name of each of the array')
     p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')
     return p.parse_args()
 

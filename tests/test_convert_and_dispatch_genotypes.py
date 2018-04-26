@@ -21,7 +21,7 @@ class TestGenotypeConversion(TestCommon):
 
     def setUp(self):
         self.geno_conversion = GenotypeConversion(
-            open_files([self.genotype_quantStudio]), self.accufill_log, self.small_reference_fai, flank_length=600
+            open_files([self.genotype_quantStudio]), self.small_reference_fai, flank_length=600
         )
 
     def test_generate_vcf(self):
