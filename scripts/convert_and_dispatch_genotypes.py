@@ -94,23 +94,6 @@ class GenotypeConversion(AppLogger):
                 return f
         raise ValueError('Could not find any valid fields in ' + str(observed_fieldnames))
 
-    def parse_genotype_csv(self):
-        for input_genotypes_content in self.input_genotypes_contents:
-            reader = csv.DictReader(input_genotypes_content, delimiter='\t')
-            fields = set(reader.fieldnames)
-
-            header_sample_id = self._find_field(HEADERS_SAMPLE_ID, fields)
-            header_assay_id = self._find_field(HEADERS_ASSAY_ID, fields)
-            header_call = self._find_field(HEADERS_CALL, fields)
-
-            for line in reader:
-                sample = line[header_sample_id]
-                if not sample or sample.lower() == 'blank':
-                    # Entries with blank as sample name are entries with water and no DNA
-                    continue
-                assay_id = line[header_assay_id]
-                self.add_genotype(sample, assay_id, line.get(header_call))
-
     def parse_quantstudio_flex_genotype(self):
         for input_genotypes_content in self.input_genotypes_contents:
             result_lines = []
@@ -219,9 +202,8 @@ class GenotypeConversion(AppLogger):
 
 
 class UploadVcfToSamples(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, input_genotypes_files, no_upload=False):
+    def __init__(self, step_uri, username, password, log_file, input_genotypes_files):
         super().__init__(step_uri, username, password, log_file)
-        self.no_upload = no_upload
         input_genotypes_contents = []
         for s in input_genotypes_files:
             input_genotypes_contents.append(self.open_or_download_file(s))
@@ -305,7 +287,7 @@ class UploadVcfToSamples(StepEPP):
 def main():
     args = _parse_args()
     action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file,
-                                args.input_genotypes, args.no_upload)
+                                args.input_genotypes)
     action.run()
 
 
@@ -313,7 +295,6 @@ def _parse_args():
     p = step_argparser()
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
                    help='The files or artifact id that contains the genotype for all the samples')
-    p.add_argument('--no_upload', dest='no_upload', action='store_true', help='Prevent any upload to the LIMS')
     return p.parse_args()
 
 
