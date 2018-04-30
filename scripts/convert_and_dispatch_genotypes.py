@@ -212,11 +212,15 @@ class UploadVcfToSamples(StepEPP):
             input_genotypes_contents.append(self.open_or_download_file(s))
         self.geno_conv = GenotypeConversion(input_genotypes_contents, default_fai, default_flank_length)
 
+    def _find_output_art(self, input_art):
+        return [o.get('uri') for i, o in self.process.input_output_maps if
+                i.get('limsid') == input_art.id and o.get('output-generation-type') == 'PerInput']
+
     def _upload_genotyping_for_one_sample(self, artifact):
         lims_sample = artifact.samples[0]
         vcf_file = self.geno_conv.generate_vcf(lims_sample.name)
         nb_call = self.geno_conv.nb_calls(lims_sample.name)
-        output_arts = self.process.outputs_per_input(artifact, ResultFile=True)
+        output_arts = self._find_output_art(artifact)
         # there should only be one
         assert len(output_arts) == 1
         # upload the number of calls to output
