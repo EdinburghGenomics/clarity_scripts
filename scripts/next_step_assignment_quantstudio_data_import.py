@@ -4,9 +4,8 @@ from EPPs.common import step_argparser, StepEPP
 
 class AssignNextStepQuantStudio(StepEPP):
     """
-    This script assigns the next step for all samples in the step as either "review","complete" or "nextstep"
-    for next step it assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps
-    in the configuration assumes that all artifacts should have the same next step
+    This script assigns the next step for samples in the QuantStudio Data Import step. It assigns the next step as
+    either complete or review depending on whether the number of SNP calls exceeds the minimum number of calls.
     """
 
     def _run(self):
