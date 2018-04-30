@@ -4,6 +4,7 @@ from collections import defaultdict
 from os import remove
 from os.path import join, dirname, abspath
 
+import sys
 from egcg_core.app_logging import AppLogger
 from egcg_core.config import Configuration
 
@@ -32,8 +33,7 @@ submitted_nb_genotype_tries = 'QuantStudio Data Import Completed #'
 
 
 class GenotypeConversion(AppLogger):
-    def __init__(self, input_genotypes_contents, fai=default_fai,
-                 flank_length=default_flank_length):
+    def __init__(self, input_genotypes_contents, fai=default_fai, flank_length=default_flank_length):
         self.all_records = defaultdict(dict)
         self.sample_names = set()
         self.input_genotypes_contents = input_genotypes_contents
@@ -212,13 +212,54 @@ class UploadVcfToSamples(StepEPP):
             input_genotypes_contents.append(self.open_or_download_file(s))
         self.geno_conv = GenotypeConversion(input_genotypes_contents, default_fai, default_flank_length)
 
+    def _upload_genotyping_for_one_sample(self, artifact):
+        lims_sample = artifact.samples[0]
+        vcf_file = self.geno_conv.generate_vcf(lims_sample.name)
+        nb_call = self.geno_conv.nb_calls(lims_sample.name)
+        output_arts = self.process.outputs_per_input(artifact, ResultFile=True)
+        # there should only be one
+        assert len(output_arts) == 1
+        # upload the number of calls to output
+        output_arts[0].udf[output_genotype_udf_number_call] = nb_call
+        output_arts[0].put()
+
+        # and the vcf file
+        lims_file = self.lims.upload_new_file(lims_sample, vcf_file)
+        # increment the nb of tries
+        if submitted_nb_genotype_tries not in lims_sample.udf:
+            lims_sample.udf[submitted_nb_genotype_tries] = 1
+        else:
+            lims_sample.udf[submitted_nb_genotype_tries] += 1
+
+        if submitted_genotype_udf_number_call not in lims_sample.udf:
+            # This is the first genotyping results
+            lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
+            lims_sample.udf[genotype_udf_file_id] = lims_file.id
+        elif lims_sample.udf.get(submitted_genotype_udf_number_call) and \
+                nb_call > lims_sample.udf.get(submitted_genotype_udf_number_call):
+            # This genotyping is better than before
+            lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
+            lims_sample.udf[genotype_udf_file_id] = lims_file.id
+        else:
+            self.info(
+                'Sample %s new genotype has %s call(s), previous genotype has %s call(s)',
+                lims_sample.name,
+                nb_call,
+                lims_sample.udf[submitted_genotype_udf_number_call]
+            )
+        # finally upload the submitted samples
+        lims_sample.put()
+        remove(vcf_file)
+
     def _run(self):
         invalid_lims_samples = []
         valid_samples = []
         genotyping_sample_used = []
-        artifacts = self.process.all_inputs()
-        self.info('Matching against %s artifacts', len(artifacts))
-        for artifact in artifacts:
+
+        # First check that all sample are present and matching
+        self.info('Matching %s sample from file against %s artifacts',
+                  len(self.geno_conv.sample_names), len(self.artifacts))
+        for artifact in self.artifacts:
             # Assume only one sample per artifact
             lims_sample = artifact.samples[0]
             if lims_sample.name not in self.geno_conv.sample_names:
@@ -228,43 +269,6 @@ class UploadVcfToSamples(StepEPP):
                 self.info('Matching %s' % lims_sample.name)
                 genotyping_sample_used.append(lims_sample.name)
                 valid_samples.append(lims_sample)
-                vcf_file = self.geno_conv.generate_vcf(lims_sample.name)
-                nb_call = self.geno_conv.nb_calls(lims_sample.name)
-                output_arts = self.process.outputs_per_input(artifact, ResultFile=True)
-                # there should only be one
-                assert len(output_arts) == 1
-                # upload the number of calls to output
-                output_arts[0].udf[output_genotype_udf_number_call] = nb_call
-                output_arts[0].put()
-
-                # and the vcf file
-                lims_file = self.lims.upload_new_file(lims_sample, vcf_file)
-                # increment the nb of tries
-                if submitted_nb_genotype_tries not in lims_sample.udf:
-                    lims_sample.udf[submitted_nb_genotype_tries] = 1
-                else:
-                    lims_sample.udf[submitted_nb_genotype_tries] += 1
-
-                if submitted_genotype_udf_number_call not in lims_sample.udf:
-                    # This is the first genotyping results
-                    lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
-                    lims_sample.udf[genotype_udf_file_id] = lims_file.id
-                elif lims_sample.udf.get(submitted_genotype_udf_number_call) and \
-                        nb_call > lims_sample.udf.get(submitted_genotype_udf_number_call):
-                    # This genotyping is better than before
-                    lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
-                    lims_sample.udf[genotype_udf_file_id] = lims_file.id
-                else:
-                    self.info(
-                        'Sample %s new genotype has %s call(s), previous genotype has %s call(s)',
-                        lims_sample.name,
-                        nb_call,
-                        lims_sample.udf[submitted_genotype_udf_number_call]
-                    )
-                # finally upload the submitted samples
-                lims_sample.put()
-
-                remove(vcf_file)
 
         unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_sample_used))
 
@@ -273,15 +277,23 @@ class UploadVcfToSamples(StepEPP):
         self.info('%s artifacts did not match', len(set(invalid_lims_samples)))
         self.info('%s genotyping results were not used', len(unused_samples))
 
-        # Message to print to stdout
+        # Message to print to stdout if there are missing samples
         messages = []
         if invalid_lims_samples:
             messages.append('%s Samples are missing genotype' % len(invalid_lims_samples))
         if len(self.geno_conv.sample_names) - len(valid_samples) > 0:
-            # TODO send a message to the EPP
             messages.append(
                 '%s genotypes have not been assigned' % (len(self.geno_conv.sample_names) - len(valid_samples)))
-        print(', '.join(messages))
+
+        if messages:
+            # TODO send a message to the EPP
+            print(', '.join(messages))
+            sys.exit(1)
+
+        # All samples are present and matching: upload all samples
+        for artifact in self.artifacts:
+            self._upload_genotyping_for_one_sample(artifact)
+
 
 
 def main():

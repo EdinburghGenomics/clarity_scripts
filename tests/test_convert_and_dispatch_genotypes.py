@@ -96,10 +96,12 @@ class TestUploadVcfToSamples(TestEPP):
             self.log_file,
             input_genotypes_files=[self.genotype_quantStudio]
         )
-        self.lims_sample = FakeEntity(name='V0001P001C01', udf={}, put=Mock())
+        self.lims_sample1 = FakeEntity(name='V0001P001A01', udf={}, put=Mock())
+        self.lims_sample2 = FakeEntity(name='V0001P001C01', udf={}, put=Mock())
         fake_all_inputs = Mock(
             return_value=[
-                Mock(samples=[self.lims_sample])
+                Mock(samples=[self.lims_sample1]),
+                Mock(samples=[self.lims_sample2])
             ]
         )
         # all output artifacts
@@ -120,26 +122,36 @@ class TestUploadVcfToSamples(TestEPP):
         patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
 
         exp_log_msgs = (
-            ('Matching against %s artifacts', 1),
-            ('Matching V0001P001C01', ),
-            ('Matched and uploaded %s artifacts against %s genotype results', 1, 1),
+            ('Matching %s sample from file against %s artifacts', 2, 2),
+            ('Matching V0001P001A01',),
+            ('Matching V0001P001C01',),
+            ('Matched and uploaded %s artifacts against %s genotype results', 2, 2),
             ('%s artifacts did not match', 0),
-            ('%s genotyping results were not used', 1)
+            ('%s genotyping results were not used', 0)
         )
 
         with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process:
             mlims.upload_new_file.return_value = Mock(id='file_id')
             self.epp._run()
+
             for m in exp_log_msgs:
                 p.assert_any_call(*m)
-            mlims.upload_new_file.assert_called_once_with(self.lims_sample, 'uploaded_file')
-            self.lims_sample.put.assert_called_once_with()
-            assert self.lims_sample.udf == {
+            mlims.upload_new_file.assert_any_call(self.lims_sample1, 'uploaded_file')
+            mlims.upload_new_file.assert_called_with(self.lims_sample2, 'uploaded_file')
+            self.lims_sample1.put.assert_called_once_with()
+            self.lims_sample2.put.assert_called_once_with()
+            assert self.lims_sample1.udf == {
+                'QuantStudio Data Import Completed #': 1,
+                'Number of Calls (Best Run)': 6,
+                'Genotyping results file id': 'file_id'
+            }
+            assert self.outputs[self.lims_sample1].udf == {'Number of Calls (This Run)': 6}
+            assert self.lims_sample2.udf == {
                 'QuantStudio Data Import Completed #': 1,
                 'Number of Calls (Best Run)': 22,
                 'Genotyping results file id': 'file_id'
             }
-            assert self.outputs[self.lims_sample].udf == {'Number of Calls (This Run)': 22}
+            assert self.outputs[self.lims_sample2].udf == {'Number of Calls (This Run)': 22}
 
     def test_upload_second_time(self):
         patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
@@ -147,36 +159,28 @@ class TestUploadVcfToSamples(TestEPP):
         patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
 
         with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process:
-            self.lims_sample.udf['QuantStudio Data Import Completed #'] = 1
-            self.lims_sample.udf['Number of Calls (Best Run)'] = 12
-            self.lims_sample.udf['Genotyping results file id'] = 'old_file_id'
+            self.lims_sample1.udf = {
+                'QuantStudio Data Import Completed #': 1,
+                'Number of Calls (Best Run)': 12,
+                'Genotyping results file id': 'old_file_id'
+            }
+            self.lims_sample2.udf = {
+                'QuantStudio Data Import Completed #': 1,
+                'Number of Calls (Best Run)': 12,
+                'Genotyping results file id': 'old_file_id'
+            }
             mlims.upload_new_file.return_value = Mock(id='file_id')
             self.epp._run()
-            mlims.upload_new_file.assert_called_once_with(self.lims_sample, 'uploaded_file')
-            self.lims_sample.put.assert_called_once_with()
-            assert self.lims_sample.udf == {
+            assert self.lims_sample1.udf == {
+                'QuantStudio Data Import Completed #': 2,
+                'Number of Calls (Best Run)': 12,
+                'Genotyping results file id': 'old_file_id'
+            }
+            assert self.outputs[self.lims_sample1].udf == {'Number of Calls (This Run)': 6}
+
+            assert self.lims_sample2.udf == {
                 'QuantStudio Data Import Completed #': 2,
                 'Number of Calls (Best Run)': 22,
                 'Genotyping results file id': 'file_id'
             }
-            assert self.outputs[self.lims_sample].udf == {'Number of Calls (This Run)': 22}
-
-    def test_upload_second_time_not_as_good(self):
-        patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
-        patched_generate_vcf = patch('scripts.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf', return_value='uploaded_file')
-        patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
-
-        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process:
-            self.lims_sample.udf['QuantStudio Data Import Completed #'] = 1
-            self.lims_sample.udf['Number of Calls (Best Run)'] = 32
-            self.lims_sample.udf['Genotyping results file id'] = 'old_file_id'
-            mlims.upload_new_file.return_value = Mock(id='file_id')
-            self.epp._run()
-            mlims.upload_new_file.assert_called_once_with(self.lims_sample, 'uploaded_file')
-            self.lims_sample.put.assert_called_once_with()
-            assert self.lims_sample.udf == {
-                'QuantStudio Data Import Completed #': 2,
-                'Number of Calls (Best Run)': 32,
-                'Genotyping results file id': 'old_file_id'
-            }
-            assert self.outputs[self.lims_sample].udf == {'Number of Calls (This Run)': 22}
+            assert self.outputs[self.lims_sample2].udf == {'Number of Calls (This Run)': 22}
