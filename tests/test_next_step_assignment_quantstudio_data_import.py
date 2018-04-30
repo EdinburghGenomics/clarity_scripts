@@ -6,9 +6,10 @@ from unittest.mock import Mock, patch, PropertyMock
 def fake_next_actions(unique=False, resolve=False):
     """Return a list of mocked artifacts which contain samples which contain artifacts ... Simple!"""
     return [
-        {'artifact':Mock(samples=[Mock(udf={'Number of Calls (Best Run)': 27})])},
-        {'artifact':Mock(samples=[Mock(udf={'Number of Calls (Best Run)': 15})])}
+        {'artifact': Mock(samples=[Mock(udf={'Number of Calls (Best Run)': 27})])},
+        {'artifact': Mock(samples=[Mock(udf={'Number of Calls (Best Run)': 15})])}
     ]
+
 
 class TestAssignNextStep(TestEPP):
     def setUp(self):
@@ -28,7 +29,7 @@ class TestAssignNextStep(TestEPP):
                 )
             )
         )
-        print(self.patched_process)
+
         self.epp = AssignNextStepQuantStudio(
             'http://server:8080/a_step_uri',
             'a_user',
@@ -41,7 +42,8 @@ class TestAssignNextStep(TestEPP):
             self.epp._run()
 
             assert self.epp.process.step.actions.next_actions[0]['action'] == 'complete'
-            assert self.epp.process.step.actions.next_actions[0]['artifact'].samples[0].udf.get('QuantStudio QC')=="PASS"
+            assert self.epp.process.step.actions.next_actions[0]['artifact'].samples[0].udf.get(
+                'QuantStudio QC') == "PASS"
             assert self.epp.process.step.actions.next_actions[1]['action'] == 'review'
             assert self.epp.process.step.actions.next_actions[1]['artifact'].samples[0].udf.get(
                 'QuantStudio QC') == "FAIL"
