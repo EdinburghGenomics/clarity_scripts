@@ -209,7 +209,9 @@ class UploadVcfToSamples(StepEPP):
         super().__init__(step_uri, username, password, log_file)
         input_genotypes_contents = []
         for s in input_genotypes_files:
-            input_genotypes_contents.append(self.open_or_download_file(s))
+            f = self.open_or_download_file(s)
+            if f:
+                input_genotypes_contents.append(f)
         self.geno_conv = GenotypeConversion(input_genotypes_contents, default_fai, default_flank_length)
 
     def _find_output_art(self, input_art):
