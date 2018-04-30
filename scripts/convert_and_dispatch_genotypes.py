@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import csv
+from collections import defaultdict
 from os import remove
 from os.path import join, dirname, abspath
-from collections import defaultdict
+
+from egcg_core.app_logging import AppLogger
 from egcg_core.config import Configuration
-from egcg_core.app_logging import AppLogger, logging_default as log_cfg
+
 import EPPs
 from EPPs.common import StepEPP, step_argparser
 
@@ -161,7 +163,8 @@ class GenotypeConversion(AppLogger):
                        snp_def['ref_base'], snp_def['alt_base'], ".", ".", ".", "GT"]
             self.all_records[snp_def['snp_id']]['SNP'] = snp
         if sample in self.all_records[snp_def['snp_id']]:
-            msg = 'Sample {} found more than once for SNPs {} while parsing {}'.format(sample, snp_def['snp_id'], array_barcode)
+            msg = 'Sample {} found more than once for SNPs {} while parsing {}'.format(sample, snp_def['snp_id'],
+                                                                                       array_barcode)
             self.critical(msg)
             raise Exception(msg)
         self.all_records[snp_def['snp_id']][sample] = genotype
@@ -216,17 +219,14 @@ class UploadVcfToSamples(StepEPP):
         artifacts = self.process.all_inputs()
         self.info('Matching against %s artifacts', len(artifacts))
         for artifact in artifacts:
-            found = False
             # Assume only one sample per artifact
             lims_sample = artifact.samples[0]
-            if lims_sample.name in self.geno_conv.sample_names:
-                self.info('Matching %s' % lims_sample.name)
-                found = True
-                genotyping_sample_used.append(lims_sample.name)
-            else:
+            if lims_sample.name not in self.geno_conv.sample_names:
                 self.info('No match found for %s', lims_sample.name)
                 invalid_lims_samples.append(lims_sample)
-            if found:
+            else:
+                self.info('Matching %s' % lims_sample.name)
+                genotyping_sample_used.append(lims_sample.name)
                 valid_samples.append(lims_sample)
                 vcf_file = self.geno_conv.generate_vcf(lims_sample.name)
                 nb_call = self.geno_conv.nb_calls(lims_sample.name)
@@ -238,9 +238,9 @@ class UploadVcfToSamples(StepEPP):
                 output_arts[0].put()
 
                 # and the vcf file
-                file = self.lims.upload_new_file(lims_sample, vcf_file)
+                lims_file = self.lims.upload_new_file(lims_sample, vcf_file)
                 # increment the nb of tries
-                if not submitted_nb_genotype_tries in lims_sample.udf:
+                if submitted_nb_genotype_tries not in lims_sample.udf:
                     lims_sample.udf[submitted_nb_genotype_tries] = 1
                 else:
                     lims_sample.udf[submitted_nb_genotype_tries] += 1
@@ -248,12 +248,12 @@ class UploadVcfToSamples(StepEPP):
                 if submitted_genotype_udf_number_call not in lims_sample.udf:
                     # This is the first genotyping results
                     lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
-                    lims_sample.udf[genotype_udf_file_id] = file.id
+                    lims_sample.udf[genotype_udf_file_id] = lims_file.id
                 elif lims_sample.udf.get(submitted_genotype_udf_number_call) and \
                         nb_call > lims_sample.udf.get(submitted_genotype_udf_number_call):
                     # This genotyping is better than before
                     lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
-                    lims_sample.udf[genotype_udf_file_id] = file.id
+                    lims_sample.udf[genotype_udf_file_id] = lims_file.id
                 else:
                     self.info(
                         'Sample %s new genotype has %s call(s), previous genotype has %s call(s)',
