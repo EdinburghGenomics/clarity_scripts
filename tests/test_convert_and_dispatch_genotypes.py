@@ -107,14 +107,16 @@ class TestUploadVcfToSamples(TestEPP):
         # all output artifacts
         self.outputs = {}
 
-        def fake_output_per_input(inart, ResultFile):
+        def fake_find_output_art(inart):
             if inart.samples[0] not in self.outputs:
                 self.outputs[inart.samples[0]]= Mock(samples=inart.samples, udf={}, put=Mock())
             return [self.outputs[inart.samples[0]]]
 
         self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(
-            return_value=Mock(all_inputs=fake_all_inputs, outputs_per_input=fake_output_per_input)
+            return_value=Mock(all_inputs=fake_all_inputs)
         ))
+        self.patched_find_output_art = patch.object(UploadVcfToSamples, '_find_output_art',
+                                                    side_effect=fake_find_output_art)
 
     def test_upload_first_time(self):
         patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
@@ -130,7 +132,8 @@ class TestUploadVcfToSamples(TestEPP):
             ('%s genotyping results were not used', 0)
         )
 
-        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process:
+        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process,\
+                self.patched_find_output_art:
             mlims.upload_new_file.return_value = Mock(id='file_id')
             self.epp._run()
 
@@ -158,7 +161,8 @@ class TestUploadVcfToSamples(TestEPP):
         patched_generate_vcf = patch('scripts.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf', return_value='uploaded_file')
         patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
 
-        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process:
+        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process, \
+                self.patched_find_output_art:
             self.lims_sample1.udf = {
                 'QuantStudio Data Import Completed #': 1,
                 'Number of Calls (Best Run)': 12,
