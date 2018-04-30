@@ -12,7 +12,8 @@ version = '0.7.dev0'
 setup(
     name='clarity_scripts',
     version=version,
-    packages=find_packages(exclude=('tests',)),
+    packages=['EPPs'],
+    package_data={'EPPs': ['etc/*']},
     url='https://github.com/EdinburghGenomics/clarity_scripts',
     license='MIT',
     description='Clarity EPPs used in Edinburgh Genomics',
