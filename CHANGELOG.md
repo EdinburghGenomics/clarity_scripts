@@ -1,12 +1,20 @@
 Changelog for clarity_scripts
 =============================
 
-0.7 (unreleased)
+0.7 (2018-05-01)
 ----------------
 
-- Nothing changed yet.
+- `populate_review_step`: Change the criteria for reviewing run elements so that it is more in line with SOP.
+- `assign_sample_review`: New script that assign sample after review
+- `check_step_UDFs`: New script that check if UDFs are present and exist with errors if not.
+- `email_data_release_facility_manager`: sent data release step notification to facility manager.
+- `next_step_assignment_quantstudio_data_import`: assign next step after Quantstudio import
+- `convert_and_dispatch_genotypes`: 
+  - support for new format.
+  - match all samples in the step with sample in the genotyping.
+  - adds new UDFs in submitted sample and output artifacts.
 
-
+ 
 0.6.2 (2018-03-26)
 ------------------
 
