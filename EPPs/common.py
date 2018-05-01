@@ -71,9 +71,12 @@ class StepEPP(AppLogger):
             f = open(file_or_uid)
         else:
             a = Artifact(self.lims, id=file_or_uid)
-            f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
-
-        self.open_files.append(f)
+            if a.files:
+                f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
+            else:
+                f = None
+        if f:
+            self.open_files.append(f)
         return f
 
     # TODO: remove this when we switch to pyclarity_lims
