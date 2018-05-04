@@ -150,13 +150,15 @@ class TestPullSampleInfo(TestPopulator):
         'sample_id': 'a_sample',
         'user_sample_id': 'a_user_sample_id',
         'clean_yield_in_gb': 5,
-        'aggregated': {'clean_pc_q30': 70,
-                       'pc_mapped_reads': 75,
-                       'pc_duplicate_reads': 5,
-                       'mean_coverage': 30,
-                       'gender_match': 'Match',
-                       'genotype_match': 'Match'},
-        'matching_species': ['Homo sapiens', 'Thingius thingy'],
+        'aggregated': {
+            'clean_pc_q30': 70,
+            'pc_mapped_reads': 75,
+            'pc_duplicate_reads': 5,
+            'mean_coverage': 30,
+            'gender_match': 'Match',
+            'genotype_match': 'Match',
+            'matching_species': ['Homo sapiens', 'Thingius thingy'],
+        },
         'sample_contamination': {'freemix': 0.1},
         'reviewed': 'pass',
         'review_comments': 'alright',
@@ -197,7 +199,7 @@ class TestPullSampleInfo(TestPopulator):
             assert poa.return_value[1].udf['SR Useable Comments'] == 'AR: Review failed'
 
     def test_field_from_entity(self):
-        obs = self.epp.field_from_entity(self.fake_rest_entity, 'matching_species')
+        obs = self.epp.field_from_entity(self.fake_rest_entity, 'aggregated.matching_species')
         assert obs == 'Homo sapiens, Thingius thingy'
 
 
