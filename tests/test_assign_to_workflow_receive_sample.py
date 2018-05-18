@@ -38,11 +38,16 @@ class TestAssignWorkflowReceiveSample(TestEPP):
                 call(self.epp.lims, 'User Prepared Library Batch EG1.0 WF', 'User Prepared Library Batch EG 1.0 ST'),
                 call(self.epp.lims, 'PreSeqLab EG 6.0', 'Spectramax Picogreen EG 6.0')
             ))
-            # first routing (user prepared library)
+
+            # first routing and SSQC Result UDF assignment(user prepared library)
             route_args = self.epp.lims.route_artifacts.call_args_list[0]
             assert sorted([a.id for a in route_args[0][0]]) == ['ai1']
             assert self.epp.lims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
+            assert self.epp.artifacts[0].samples[0].udf['SSQC Result'] == 'Passed'
+            assert self.epp.artifacts[0].samples[0].put.call_count == 1
 
-            # second routing (not user prepared library)
+            # second routing and no SSQC Result UDF assignment (not user prepared library)
             route_args = self.epp.lims.route_artifacts.call_args_list[1]
             assert sorted([a.id for a in route_args[0][0]]) == ['ai2']
+            assert 'SSQC Result' not in self.epp.artifacts[1].samples[0].udf
+            assert self.epp.artifacts[1].samples[0].put.call_count == 0
