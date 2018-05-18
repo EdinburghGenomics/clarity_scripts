@@ -14,15 +14,14 @@ class AssignWorkflowReceiveSample(StepEPP):
         for art in self.artifacts:
             sample = art.samples[0]
             if sample.udf.get("User Prepared Library") == "Yes":
-                sample.udf['SSQC Result'] = 'Passed'
-                sample.put()
-                art.udf['SSQC Result'] = 'Passed'
-                art.put()
-
-                artifacts_to_route_userprepared.add(art)
+               artifacts_to_route_userprepared.add(art)
 
             else:
                 artifacts_to_route_preseqlab.add(art)
+
+            if sample.udf.get("User Prepared Library") == "Yes":
+                sample.udf['SSQC Result'] = 'Passed'
+                sample.put()
 
         if artifacts_to_route_userprepared:
             # If a user prepared library then route to the user prepared library batch workflow
