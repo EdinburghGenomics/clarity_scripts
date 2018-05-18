@@ -16,6 +16,9 @@ class AssignWorkflowReceiveSample(StepEPP):
             if sample.udf.get("User Prepared Library") == "Yes":
                 sample.udf['SSQC Result'] = 'Passed'
                 sample.put()
+                art.udf['SSQC Result'] = 'Passed'
+                art.put()
+
                 artifacts_to_route_userprepared.add(art)
 
             else:
