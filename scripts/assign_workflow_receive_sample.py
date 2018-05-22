@@ -4,9 +4,10 @@ from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 class AssignWorkflowReceiveSample(StepEPP):
     """
-    Assigns a received plate to either User Prepared Library Batch or Spectramax Picogreen, depending on the contents of
-    the UDF 'User Prepared Library'
+    Assigns samples to either User Prepared Library Batch or Spectramax Picogreen, depending whether
+    the UDF 'User Prepared Library' is "Yes" or "No".
     """
+
     def _run(self):
         artifacts_to_route_userprepared = set()
         artifacts_to_route_preseqlab = set()
@@ -15,16 +16,19 @@ class AssignWorkflowReceiveSample(StepEPP):
             sample = art.samples[0]
             if sample.udf.get("User Prepared Library") == "Yes":
                 artifacts_to_route_userprepared.add(art)
+                sample.udf['SSQC Result'] = 'Passed'
+                sample.put()
             else:
                 artifacts_to_route_preseqlab.add(art)
 
         if artifacts_to_route_userprepared:
-            # Only route artifacts if there are any artifacts to go to PCR-Free
-            stage = get_workflow_stage(self.lims, "User Prepared Library Batch EG1.0 WF", "User Prepared Library Batch EG 1.0 ST")
+            # If a user prepared library then route to the user prepared library batch workflow
+            stage = get_workflow_stage(self.lims, "User Prepared Library Batch EG1.0 WF",
+                                       "User Prepared Library Batch EG 1.0 ST")
             self.lims.route_artifacts(list(artifacts_to_route_userprepared), stage_uri=stage.uri)
 
         if artifacts_to_route_preseqlab:
-            # Only route artifacts if there are any artifacts to go to Nano
+            # If not a user prepared library then route to pre seqlab qc
             stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Spectramax Picogreen EG 6.0")
             self.lims.route_artifacts(list(artifacts_to_route_preseqlab), stage_uri=stage.uri)
 
