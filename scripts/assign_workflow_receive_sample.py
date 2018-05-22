@@ -4,8 +4,8 @@ from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 class AssignWorkflowReceiveSample(StepEPP):
     """
-    Assigns a received plate to either User Prepared Library Batch or Spectramax Picogreen, depending on the contents of
-    the UDF 'User Prepared Library' New Note
+    Assigns samples to either User Prepared Library Batch or Spectramax Picogreen, depending whether
+    the UDF 'User Prepared Library' is "Yes" or "No".
     """
 
     def _run(self):
