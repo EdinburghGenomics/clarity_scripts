@@ -9,11 +9,9 @@ class AssignWorkflowUserPreparedLibrary(StepEPP):
     """
 
     def _run(self):
-        artifact_to_route = set()
-
         stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep",
                                    "SEMI-AUTOMATED - Make and Read qPCR Quant")
-        self.lims.route_artifacts(list(self.output_artifacts), stage_uri=stage.uri)
+        self.lims.route_artifacts(self.output_artifacts, stage_uri=stage.uri)
 
 
 def main():

@@ -39,5 +39,5 @@ class TestAssignWorkflowUserPreparedLibrary(TestEPP):
             ))
             # first routing (first artifact in list, should route to nano)
             route_args = self.epp.lims.route_artifacts.call_args_list[0]
-            assert sorted([a.id for a in route_args[0][0]]) == ['ao1']
+            assert [a.id for a in route_args[0][0]] == ['ao1']
             assert self.epp.lims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
