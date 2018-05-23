@@ -20,12 +20,12 @@ class AssignWorkflowReceiveSample(StepEPP):
 
         if artifacts_to_route_userprepared:
             # Only route artifacts if there are any artifacts to go to PCR-Free
-            stage = get_workflow_stage(self.lims, "User Prepared Library Batch EG1.0 WF", "User Prepared Library Batch EG 1.0 ST")
+            stage = get_workflow_stage(self.lims, "User Prepared Library Receipt and Batch EG 1.0 WF", "User Prepared Library Plate Receipt EG 1.0 ST")
             self.lims.route_artifacts(list(artifacts_to_route_userprepared), stage_uri=stage.uri)
 
         if artifacts_to_route_preseqlab:
             # Only route artifacts if there are any artifacts to go to Nano
-            stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Spectramax Picogreen EG 6.0")
+            stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Receive Sample 6.1")
             self.lims.route_artifacts(list(artifacts_to_route_preseqlab), stage_uri=stage.uri)
 
 
