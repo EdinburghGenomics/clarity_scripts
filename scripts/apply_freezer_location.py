@@ -24,7 +24,7 @@ class ApplyFreezerLocation(StepEPP):
 def main():
     p = step_argparser()
     args = p.parse_args()
-    action = AssignWorkflowUserPreparedLibrary(args.step_uri, args.username, args.password, args.log_file)
+    action = ApplyFreezerLocation(args.step_uri, args.username, args.password, args.log_file)
     action.run()
 
 
