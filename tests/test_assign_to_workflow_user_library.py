@@ -6,7 +6,8 @@ from unittest.mock import Mock, patch, PropertyMock, call
 def fake_all_output(unique=False, resolve=False):
     """Return a list of mocked artifacts which contain samples which contain artifacts... Simple!"""
     return (
-        Mock(id='ao1'),
+        Mock(id='ao1', samples=[Mock(artifact=fake_artifact('a1'), id='s1', udf={'SSQC Result': ''})]),
+        Mock(id='ao2', samples=[Mock(artifact=fake_artifact('a2'), id='s2', udf={'SSQC Result': ''})])
     )
 
 
@@ -38,6 +39,7 @@ class TestAssignWorkflowUserPreparedLibrary(TestEPP):
                 call(self.epp.lims, 'TruSeq Nano DNA Sample Prep', 'SEMI-AUTOMATED - Make and Read qPCR Quant'),
             ))
             # first routing (first artifact in list, should route to nano)
+            assert self.epp.output_artifacts[0].samples[0].udf['SSQC Result'] == 'Passed'
             route_args = self.epp.lims.route_artifacts.call_args_list[0]
-            assert [a.id for a in route_args[0][0]] == ['ao1']
+            assert [a.id for a in route_args[0][0]] == ['ao1', 'ao2']
             assert self.epp.lims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
