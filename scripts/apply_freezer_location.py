@@ -1,6 +1,7 @@
 #!/opt/gls/clarity/users/glsai/Applications/clarity_scripts/UserPreparedLibrary20180523/bin/python3.4
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 import sys
+
+from EPPs.common import StepEPP, step_argparser
 
 
 class ApplyFreezerLocation(StepEPP):
@@ -18,7 +19,6 @@ class ApplyFreezerLocation(StepEPP):
                 sample.udf['Shelf'] = self.process.udf['Shelf']
                 sample.put()
 
-                print(art)
             else:
                 print("Container '%s' not present in step" % self.process.udf['Container Name'])
                 sys.exit(1)
