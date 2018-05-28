@@ -211,11 +211,26 @@ ClarityX'''
 class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
-        self.epp = self.create_epp(ReceiveSampleEmail)
+        #setup epp for test email for receiving plates containing samples
+        self.epp1 = ReceiveSampleEmail(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            self.log_file
+        )
+        #set up epp for test email for receiving plates containing libraries
+        self.epp2 =ReceiveSampleEmail(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            self.log_file,
+            upl=True
+        )
 
-    def test_send_email(self):
+    # generate test email for receiving plates containing samples
+    def test_send_email_sample(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_email:
-            self.epp._run()
+            self.epp1._run()
             msg = '''Hi,
 
 2 sample(s) have been received for project1 at:
@@ -227,7 +242,30 @@ ClarityX'''
             msg = msg.format(localmachine=platform.node())
             mocked_email.assert_called_with(
                 msg=msg,
-                subject='project1: Plate Received',
+                subject='project1: Sample Plate Received',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['lab@email.com', 'facility@email.com', 'finance@email.com', 'project@email.com'],
+                strict=True
+            )
+
+    # generate test email for receiving plates containing libraries
+    def test_send_email_library(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_email:
+            self.epp2._run()
+            msg = '''Hi,
+
+2 libraries have been received for project1 at:
+
+https://{localmachine}/clarity/work-details/tep_uri
+
+Kind regards,
+ClarityX'''
+            msg = msg.format(localmachine=platform.node())
+            mocked_email.assert_called_with(
+                msg=msg,
+                subject='project1: Library Plate Received',
                 mailhost='smtp.test.me',
                 port=25,
                 sender='sender@email.com',
