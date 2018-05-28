@@ -1,5 +1,6 @@
 #!/opt/gls/clarity/users/glsai/Applications/clarity_scripts/UserPreparedLibrary20180523/bin/python3.4
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+import sys
 
 
 class ApplyFreezerLocation(StepEPP):
