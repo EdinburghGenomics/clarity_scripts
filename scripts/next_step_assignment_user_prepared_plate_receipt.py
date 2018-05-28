@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from EPPs.common import step_argparser, StepEPP
+from pyclarity_lims.entities import Protocol
 
-
-class AssignNextStepQuantStudio(StepEPP):
+class AssignNextStepUPL(StepEPP):
     """
     This script assigns the next step for samples in the User Prepared Library Plate Receipt step. It assigns the next step as
     either the next step or review depending on whether the plate condition step UDFs are answered as Yes or No by
@@ -48,7 +48,7 @@ def main():
     args = p.parse_args()
 
     # Setup the EPP
-    action = AssignNextStepQuantStudio(
+    action = AssignNextStepUPL(
         args.step_uri, args.username, args.password, args.log_file
     )
 
