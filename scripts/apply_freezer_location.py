@@ -13,7 +13,7 @@ class ApplyFreezerLocation(StepEPP):
 
         for art in self.artifacts:
             sample = art.samples[0]
-            if sample.artifact[0].container[0].name == self.process.udf['Container Name']:
+            if sample.artifact.container.name == self.process.udf['Container Name']:
                 sample.udf['Freezer'] = self.process.udf['Freezer']
                 sample.udf['Shelf'] = self.process.udf['Shelf']
                 sample.put()
