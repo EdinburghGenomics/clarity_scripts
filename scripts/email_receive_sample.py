@@ -6,8 +6,8 @@ from EPPs.config import load_config
 
 class ReceiveSampleEmail(SendMailEPP):
     """Notifies the relevant teams that samples for a project have been received"""
-    def __init__(self, step_uri, username, password, log_file=None, upl=False):
-        super().__init__(step_uri, username, password, log_file)
+    def __init__(self, step_uri, username, password, upl=False):
+        super().__init__(step_uri, username, password)
         self.upl = upl
 
     def _run(self):
@@ -34,11 +34,11 @@ class ReceiveSampleEmail(SendMailEPP):
 
 def main():
     p = step_argparser()
-    p.add_argument('-u', '--upl', action='store_true', help='send upl receipt email', default=False)
+    p.add_argument('-r', '--upl', action='store_true', help='send upl receipt email', default=False)
     args = p.parse_args()
     load_config()
 
-    action = ReceiveSampleEmail(args.step_uri, args.username, args.password, args.log_file, args.upl)
+    action = ReceiveSampleEmail(args.step_uri, args.username, args.password, args.upl)
     action.run()
 
 
