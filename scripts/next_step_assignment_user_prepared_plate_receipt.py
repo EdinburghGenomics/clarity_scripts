@@ -4,8 +4,9 @@ from EPPs.common import step_argparser, StepEPP
 
 class AssignNextStepQuantStudio(StepEPP):
     """
-    This script assigns the next step for samples in the QuantStudio Data Import step. It assigns the next step as
-    either complete or review depending on whether the number of SNP calls exceeds the minimum number of calls.
+    This script assigns the next step for samples in the User Prepared Library Plate Receipt step. It assigns the next step as
+    either the next step or review depending on whether the plate condition step UDFs are answered as Yes or No by
+    the lab team.
     """
 
     def _run(self):
@@ -17,15 +18,15 @@ class AssignNextStepQuantStudio(StepEPP):
         next_actions = actions.next_actions
 
         # check step UDFs answered by lab team to confirm that sample is in good condition. If UDFs both answered "Yes" then
-        #set next action as the next step, if one or more UDF is set to "No" then set as "review". The next step in the protocol
-        #is found rather than hard coded.
+        # set next action as the next step, if one or more UDF is set to "No" then set as "review". The next step in the protocol
+        # is found rather than hard coded.
 
         for next_action in next_actions:
 
-            if self.process.udf.get("Plate(s) Undamaged and Sealed?") =='No':
+            if self.process.udf.get("Plate(s) Undamaged and Sealed?") == 'No':
                 next_action['action'] = 'review'
             elif self.process.udf.get("Samples Present and Frozen in Wells?") == 'No':
-                    next_action['action'] = 'review'
+                next_action['action'] = 'review'
 
             else:
                 current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
