@@ -1,14 +1,16 @@
 import os
 import platform
-from egcg_core.config import cfg
+from unittest.mock import Mock, patch, PropertyMock
+
 from EPPs.common import SendMailEPP
+from egcg_core.config import cfg
+
 from scripts.email_data_release import DataReleaseEmail
+from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from scripts.email_data_trigger import DataReleaseTrigger
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
-from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from tests.test_common import TestEPP, NamedMock
-from unittest.mock import Mock, patch, PropertyMock
 
 
 class TestEmailEPP(TestEPP):
@@ -211,19 +213,17 @@ ClarityX'''
 class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
-        #setup epp for test email for receiving plates containing samples
+        # setup epp for test email for receiving plates containing samples
         self.epp1 = ReceiveSampleEmail(
             'http://server:8080/a_step_uri',
             'a_user',
             'a_password',
-            self.log_file
         )
-        #set up epp for test email for receiving plates containing libraries
-        self.epp2 =ReceiveSampleEmail(
+        # set up epp for test email for receiving plates containing libraries
+        self.epp2 = ReceiveSampleEmail(
             'http://server:8080/a_step_uri',
             'a_user',
             'a_password',
-            self.log_file,
             upl=True
         )
 
@@ -273,11 +273,11 @@ ClarityX'''
                 strict=True
             )
 
+
 class TestDataReleaseFacilityManager(TestEmailEPP):
     def setUp(self):
         super().setUp()
         self.epp = self.create_epp(DataReleaseFMEmail)
-
 
     def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
