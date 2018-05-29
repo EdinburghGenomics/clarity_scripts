@@ -1,0 +1,5 @@
+# BLASTX 2.2.27+
+# Query: gi|322830704:1426-2962 Boreus elegans mitochondrion, complete genome
+# Database: nem.fasta
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 405 hits found
