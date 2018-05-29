@@ -22,7 +22,7 @@ class CheckContainerName(StepEPP):
         Find all the output container names and then check that they match the template. If not then sys exit with
         a useful message.
         """
-        name_template = "LP[0-9]{7}-" + suffix
+        name_template = "LP[0-9]{7}-" + self.suffix
         containers = self.process.output_containers()
 
         for container in containers:
