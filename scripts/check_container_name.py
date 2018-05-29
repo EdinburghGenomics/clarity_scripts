@@ -12,7 +12,7 @@ class CheckContainerName(StepEPP):
     """
 
     def __init__(self, step_uri, username, password, suffix):
-        #extra suffix argument required in addition to standard arg parser arguments
+        # extra suffix argument required in addition to standard arg parser arguments
         super().__init__(step_uri, username, password)
         self.suffix = suffix
 
