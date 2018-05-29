@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import re
+import sys
 
 from EPPs.common import StepEPP, step_argparser
 
@@ -25,16 +26,16 @@ class CheckContainerName(StepEPP):
         containers = self.process.output_containers()
 
         for container in containers:
-            if not re.match(name_template, container):
+            if not re.match(name_template, container.name):
                 print("%s is not a valid container name. Container names must match %s" % (container, name_template))
                 sys.exit(1)
 
 
 def main():
     p = step_argparser()
+    p.add_argument('-x', '--suffix', type=str, help='set the suffix of the container name (hyphen present in prefix)')
     args = p.parse_args()
-    p.add_argument('-x', '--suffix', type=str, help='set the suffix of the container name (hyphen present in prefix)',
-                   default=False)
+
     action = CheckContainerName(args.step_uri, args.username, args.password, args.suffix)
     action.run()
 
