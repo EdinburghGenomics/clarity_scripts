@@ -2,6 +2,7 @@
 from EPPs.common import step_argparser, StepEPP
 from pyclarity_lims.entities import Protocol
 
+
 class AssignNextStepUPL(StepEPP):
     """
     This script assigns the next step for samples in the User Prepared Library Plate Receipt step. It assigns the next step as
@@ -23,9 +24,8 @@ class AssignNextStepUPL(StepEPP):
 
         for next_action in next_actions:
 
-            if self.process.udf.get("Plate(s) Undamaged and Sealed?") == 'No':
-                next_action['action'] = 'review'
-            elif self.process.udf.get("Samples Present and Frozen in Wells?") == 'No':
+            if self.process.udf.get("Plate(s) Undamaged and Sealed?") == 'No' \
+                    or self.process.udf.get("Samples Present and Frozen in Wells?") == 'No':
                 next_action['action'] = 'review'
 
             else:

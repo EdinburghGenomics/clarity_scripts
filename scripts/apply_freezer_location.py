@@ -1,4 +1,4 @@
-#!/opt/gls/clarity/users/glsai/Applications/clarity_scripts/UserPreparedLibrary20180523/bin/python3.4
+#!/usr/bin/env python
 import sys
 
 from EPPs.common import StepEPP, step_argparser
@@ -12,16 +12,16 @@ class ApplyFreezerLocation(StepEPP):
 
     def _run(self):
 
-        for art in self.artifacts:
-            sample = art.samples[0]
+        samples_to_update = set()
+        for sample in self.samples:
             if sample.artifact.container.name == self.process.udf['Container Name']:
                 sample.udf['Freezer'] = self.process.udf['Freezer']
                 sample.udf['Shelf'] = self.process.udf['Shelf']
-                sample.put()
-
+                samples_to_update.add(sample)
             else:
                 print("Container '%s' not present in step" % self.process.udf['Container Name'])
                 sys.exit(1)
+        self.lims.put_batch(list(samples_to_update))
 
 
 def main():

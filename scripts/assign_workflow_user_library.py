@@ -12,11 +12,16 @@ class AssignWorkflowUserPreparedLibrary(StepEPP):
     def _run(self):
         stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep",
                                    "SEMI-AUTOMATED - Make and Read qPCR Quant")
+        self.lims.route_artifacts(self.output_artifacts, stage_uri=stage.uri)
+
+        samples_to_update = set()
+
         for art in self.output_artifacts:
             sample = art.samples[0]
             sample.udf['SSQC Result'] = 'Passed'
-            sample.put()
-        self.lims.route_artifacts(self.output_artifacts, stage_uri=stage.uri)
+            samples_to_update.add(sample)
+
+        self.lims.put_batch(list(samples_to_update))
 
 
 def main():
