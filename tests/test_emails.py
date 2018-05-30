@@ -1,14 +1,16 @@
 import os
 import platform
-from egcg_core.config import cfg
+from unittest.mock import Mock, patch, PropertyMock
+
 from EPPs.common import SendMailEPP
+from egcg_core.config import cfg
+
 from scripts.email_data_release import DataReleaseEmail
+from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from scripts.email_data_trigger import DataReleaseTrigger
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
-from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from tests.test_common import TestEPP, NamedMock
-from unittest.mock import Mock, patch, PropertyMock
 
 
 class TestEmailEPP(TestEPP):
@@ -211,11 +213,24 @@ ClarityX'''
 class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
-        self.epp = self.create_epp(ReceiveSampleEmail)
+        # setup epp for test email for receiving plates containing samples
+        self.epp1 = ReceiveSampleEmail(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+        )
+        # set up epp for test email for receiving plates containing libraries
+        self.epp2 = ReceiveSampleEmail(
+            'http://server:8080/a_step_uri',
+            'a_user',
+            'a_password',
+            upl=True
+        )
 
-    def test_send_email(self):
+    # generate test email for receiving plates containing samples
+    def test_send_email_sample(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_email:
-            self.epp._run()
+            self.epp1._run()
             msg = '''Hi,
 
 2 sample(s) have been received for project1 at:
@@ -227,7 +242,7 @@ ClarityX'''
             msg = msg.format(localmachine=platform.node())
             mocked_email.assert_called_with(
                 msg=msg,
-                subject='project1: Plate Received',
+                subject='project1: Sample Plate Received',
                 mailhost='smtp.test.me',
                 port=25,
                 sender='sender@email.com',
@@ -235,11 +250,34 @@ ClarityX'''
                 strict=True
             )
 
+    # generate test email for receiving plates containing libraries
+    def test_send_email_library(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_email:
+            self.epp2._run()
+            msg = '''Hi,
+
+2 libraries have been received for project1 at:
+
+https://{localmachine}/clarity/work-details/tep_uri
+
+Kind regards,
+ClarityX'''
+            msg = msg.format(localmachine=platform.node())
+            mocked_email.assert_called_with(
+                msg=msg,
+                subject='project1: Library Plate Received',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['lab@email.com', 'facility@email.com', 'finance@email.com', 'project@email.com'],
+                strict=True
+            )
+
+
 class TestDataReleaseFacilityManager(TestEmailEPP):
     def setUp(self):
         super().setUp()
         self.epp = self.create_epp(DataReleaseFMEmail)
-
 
     def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
