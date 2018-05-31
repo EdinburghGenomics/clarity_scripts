@@ -27,7 +27,7 @@ class CheckContainerName(StepEPP):
 
         for container in containers:
             if not re.match(name_template, container.name):
-                print("%s is not a valid container name. Container names must match %s" % (container, name_template))
+                print("%s is not a valid container name. Container names must match %s" % (container.name, name_template))
                 sys.exit(1)
 
 

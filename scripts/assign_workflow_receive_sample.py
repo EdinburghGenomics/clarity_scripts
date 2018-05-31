@@ -24,7 +24,7 @@ class AssignWorkflowReceiveSample(StepEPP):
 
         if artifacts_to_route_preseqlab:
             # Only route artifacts if there are any artifacts to go to PreSeqLab
-            stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Receive Sample 6.1")
+            stage = get_workflow_stage(self.lims, "PreSeqLab EG 6.0", "Receive Sample EG 6.1")
             self.lims.route_artifacts(list(artifacts_to_route_preseqlab), stage_uri=stage.uri)
 
 
