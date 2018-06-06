@@ -35,8 +35,8 @@ class GenerateHamiltonInputUPL(StepEPP):
         rows=['A','B','C','D','E','F','G','H']
         columns=['1','2','3','4','5','6','7','8','9','10','11','12']
 
-        for row in rows:
-            for column in columns:
+        for column in columns:
+            for row in rows:
                 if csv_dict[row+":"+column]:
                     csv_array.append(csv_dict[row+":"+column])
 
