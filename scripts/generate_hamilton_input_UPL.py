@@ -14,12 +14,11 @@ class GenerateHamiltonInputUPL(StepEPP):
 
 
         for input in all_inputs:
-            if input.type='Analyte'
-                outputs = input.outputs_per_input()
-                for output in outputs:
-                    if output.type ='Analyte'
-                        output_container=output.container.name
-                        output_well=output.container.location
+            if input.type=='Analyte':
+                output = self.process.outputs_per_input(input,Analyte=true)
+                if output.type =='Analyte':
+                    output_container=output.container.name
+                    output_well=output.container.location
 
 
                 csv_line=[input.container.name,input.container.location,output_container,output_well,self.process.udf['DNA Volume (uL)'],'0']
@@ -29,7 +28,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 def main():
     p = step_argparser()
     args = p.parse_args()
-    load_config()
+
 
     action = GenerateHamiltonInputUPL(args.step_uri, args.username, args.password, args.log_file)
     action.run()
