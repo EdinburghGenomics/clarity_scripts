@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from EPPs.common import StepEPP, step_argparser
+import csv
 
 class GenerateHamiltonInputUPL(StepEPP):
     """"Generate a CSV containing the necessary information to batch up ot 9 User Prepared Library receipt
@@ -24,6 +25,11 @@ class GenerateHamiltonInputUPL(StepEPP):
                 csv_line=[input.container.name,input.location,output_container,output_well,self.process.udf['DNA Volume (uL)'],'0']
                 csv_array.append(csv_line)
         print(csv_array)
+
+        with open('hamilton_input.csv','w') as csvFile:
+            writer = csv.writer(csvFile)
+            writer.writerows(csvData)
+        csvFile.close()
 
 def main():
     p = step_argparser()
