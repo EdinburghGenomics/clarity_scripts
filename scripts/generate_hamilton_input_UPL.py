@@ -15,7 +15,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         for input in all_inputs:
             if input.type=='Analyte':
-                output = self.process.outputs_per_input(input,Analyte=true)
+                output = self.process.outputs_per_input(input.id,Analyte=True)
                 if output.type =='Analyte':
                     output_container=output.container.name
                     output_well=output.container.location
