@@ -9,7 +9,7 @@ class GenerateHamiltonInputUPL(StepEPP):
     def _run(self):
         all_inputs = self.process.all_inputs()
         csv_array=[]
-        csv_column_headers=['Input Plate,','Input Well','Output Plate','Output Well,','DNA Volume,','TE Volume']
+        csv_column_headers=['\nInput Plate,','Input Well','Output Plate','Output Well,','DNA Volume,','TE Volume']
         csv_array.append(csv_column_headers)
 
 
@@ -22,7 +22,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
 
                 csv_line=[input.container.name,input.location,output_container,output_well,self.process.udf['DNA Volume (uL)'],'0']
-                csv_array.append("\n"+csv_line)
+                csv_array.append(csv_line)
         print(csv_array)
 
 def main():
