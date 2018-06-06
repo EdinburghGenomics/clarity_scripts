@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import csv
+import sys
 
 from EPPs.common import StepEPP, step_argparser
 
@@ -15,30 +16,42 @@ class GenerateHamiltonInputUPL(StepEPP):
 
     def _run(self):
         all_inputs = self.process.all_inputs()
-        csv_dict={}
+        csv_dict = {}
         csv_array = []
         csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'DNA Volume', 'TE Volume']
         csv_array.append(csv_column_headers)
+        unique_input_containers = set()
+        unique_output_containers = set()
 
         for input in all_inputs:
             if input.type == 'Analyte':
                 output = self.process.outputs_per_input(input.id, Analyte=True)
                 output_container = output[0].container.name
                 output_well = output[0].location[1]
+                # need to check that number of input and output containers do not exceed the limits on the Hamilton deck
+                unique_input_containers.add(input.container.name)
+                unique_output_containers.add(output_container)
 
                 csv_line = [input.container.name, input.location[1], output_container, output_well,
                             self.process.udf['DNA Volume (uL)'], '0']
-                csv_dict[input.location[1]]=csv_line
-                #csv_array.append(csv_line)
-        print(csv_dict)
+                csv_dict[input.location[1]] = csv_line
 
-        rows=['A','B','C','D','E','F','G','H']
-        columns=['1','2','3','4','5','6','7','8','9','10','11','12']
+        if len(unique_input_containers) > 9:
+            print('Maximum number of input plates is 9. %s plates found in step' % (str(len(unique_intput_containers))))
+            sys.exit(1)
+
+        if len(unique_output_containers) > 1:
+            print(
+                'Maximum number of output plates is 1. %s plates found in step' % (str(len(unique_output_containers))))
+            sys.exit(1)
+
+        rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+        columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
         for column in columns:
             for row in rows:
-                if row+":"+column in csv_dict.keys():
-                    csv_array.append(csv_dict[row+":"+column])
+                if row + ":" + column in csv_dict.keys():
+                    csv_array.append(csv_dict[row + ":" + column])
 
         file_name = self.hamilton_input + '-hamilton_input.csv'
 
