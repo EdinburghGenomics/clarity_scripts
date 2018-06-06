@@ -7,7 +7,7 @@ class GenerateHamiltonInputUPL(StepEPP):
     into one DCT plate. Requires input and output plate containers and well positions from LIMS. Volume to be pipetted
     is taken from the step UDF "DNA Volume (uL)"""
 
-    def __init__(self, step_uri, username, password, log_file, hamilton_input):
+    def __init__(self, step_uri, username, password, log_file, hamilton_input ):
         super().__init__(step_uri, username, password, log_file)
         self.hamilton_input = hamilton_input
 
@@ -44,7 +44,7 @@ def main():
     args = p.parse_args()
 
 
-    action = GenerateHamiltonInputUPL(args.step_uri, args.username, args.password, args.log_file)
+    action = GenerateHamiltonInputUPL(args.step_uri, args.username, args.password, args.log_file, args.hamilton_input)
     action.run()
 
 
