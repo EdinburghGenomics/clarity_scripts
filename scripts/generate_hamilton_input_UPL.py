@@ -6,56 +6,80 @@ from EPPs.common import StepEPP, step_argparser
 
 
 class GenerateHamiltonInputUPL(StepEPP):
-    """"Generate a CSV containing the necessary information to batch up ot 9 User Prepared Library receipt
-    into one DCT plate. Requires input and output plate containers and well positions from LIMS. Volume to be pipetted
-    is taken from the step UDF "DNA Volume (uL)"""
+    """"Generate a CSV containing the necessary information to batch up to 9 User Prepared Library receipt plates
+    into one DCT plate. The Hamilton requires input and output plate containers and well positions from LIMS as well as
+    the volume to be pipetted which is taken from the step UDF "DNA Volume (uL) that is a constant and can only be
+    updated with a LIMS configuration change"""
 
+    #additional argument required for the location of the Hamilton input file so def _init_ customised
     def __init__(self, step_uri, username, password, log_file, hamilton_input):
         super().__init__(step_uri, username, password, log_file)
         self.hamilton_input = hamilton_input
 
+
     def _run(self):
-        all_inputs = self.process.all_inputs()
+        #csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file. These are
+        #then sorted into correct order and added to the csv_array which is used to write the file
         csv_dict = {}
         csv_array = []
+        #define the column headers that will be used in the Hamilton input file and add to the csv_array to be
+        #used to write the file
         csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'DNA Volume', 'TE Volume']
         csv_array.append(csv_column_headers)
+
+        #define the sets for listing the unique input and output containers
         unique_input_containers = set()
         unique_output_containers = set()
 
+        #obtain all of the inputs for the step
+        all_inputs = self.process.all_inputs()
+
+    #find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input in all_inputs:
             if input.type == 'Analyte':
                 output = self.process.outputs_per_input(input.id, Analyte=True)
-                output_container = output[0].container.name
-                output_well = output[0].location[1]
-                # need to check that number of input and output containers do not exceed the limits on the Hamilton deck
+                #the script is only compatible with 1 output for each input i.e. replicates are not allowed
+                if len(output) >1:
+                    print('Multiple outputs found for each input. This step is not compatible with replicates.')
+                    sys.exit(1)
+
+
+                # build a list of the unique input containers for checking that no more than 9 are present due to
+                #deck limit on Hamilton and for sorting the sample locations by input plate. Build a list of unique
+                #output containers as no more than 1 plate
                 unique_input_containers.add(input.container.name)
-                unique_output_containers.add(output_container)
 
-                csv_line = [input.container.name, input.location[1], output_container, output_well,
+                unique_output_containers.add(output[0].container.name)
+
+                #assemble each line of the Hamilton input file in the correct structure for the Hamilton
+                csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
                             self.process.udf['DNA Volume (uL)'], '0']
-                csv_dict[input.location[1]] = csv_line
+                #build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
+                #by input container then column then row
+                csv_dict[input.container.name+input.location[1]] = csv_line
 
+        #check the number of input containers
         if len(unique_input_containers) > 9:
-            print('Maximum number of input plates is 9. %s plates found in step' % (str(len(unique_intput_containers))))
+            print('Maximum number of input plates is 9. There are %s output plates in the step.' % (str(len(unique_input_containers))))
             sys.exit(1)
-
+        #check the number of output containers
         if len(unique_output_containers) > 1:
-            print(
-                'Maximum number of output plates is 1. %s plates found in step' % (str(len(unique_output_containers))))
+            print('Maximum number of output plates is 1. There are %s output plates in the step.' % (str(len(unique_output_containers))))
             sys.exit(1)
-
+        #define the rows and columns in the input plate (standard 96 well plate pattern)
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
-        for column in columns:
-            for row in rows:
-                if row + ":" + column in csv_dict.keys():
-                    csv_array.append(csv_dict[row + ":" + column])
+        #add the lines to the csv_array that will be used to write the Hamilton input file
+        for unique_input_container in unique_input_containers:
+            for column in columns:
+                for row in rows:
+                    if unique_input_container + row + ":" + column in csv_dict.keys():
+                        csv_array.append(csv_dict[row + ":" + column])
 
-        file_name = self.hamilton_input + '-hamilton_input.csv'
-
-        with open(file_name, 'w') as csvFile:
+        #create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
+        #Clarity LIMS to recognise the file and attach it to the step
+        with open(self.hamilton_input + '-hamilton_input.csv', 'w') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerows(csv_array)
         csvFile.close()
