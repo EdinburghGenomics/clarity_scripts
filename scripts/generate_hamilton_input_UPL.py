@@ -22,6 +22,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         #then sorted into correct order and added to the csv_array which is used to write the file
         csv_dict = {}
         csv_array = []
+
         #define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         #used to write the file
         csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'DNA Volume', 'TE Volume']
@@ -40,7 +41,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 output = self.process.outputs_per_input(input.id, Analyte=True)
                 #the script is only compatible with 1 output for each input i.e. replicates are not allowed
                 if len(output) >1:
-                    print('Multiple outputs found for each input. This step is not compatible with replicates.')
+                    print('Multiple outputs found for an input %s. This step is not compatible with replicates.' %(input.name))
                     sys.exit(1)
 
 
@@ -71,11 +72,12 @@ class GenerateHamiltonInputUPL(StepEPP):
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
         #add the lines to the csv_array that will be used to write the Hamilton input file
-        for unique_input_container in unique_input_containers:
+        for unique_input_container in sorted(unique_input_containers):
             for column in columns:
                 for row in rows:
                     if unique_input_container + row + ":" + column in csv_dict.keys():
                         csv_array.append(csv_dict[unique_input_container + row + ":" + column])
+
 
         #create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
         #Clarity LIMS to recognise the file and attach it to the step
