@@ -75,7 +75,7 @@ class GenerateHamiltonInputUPL(StepEPP):
             for column in columns:
                 for row in rows:
                     if unique_input_container + row + ":" + column in csv_dict.keys():
-                        csv_array.append(csv_dict[row + ":" + column])
+                        csv_array.append(csv_dict[unique_input_container + row + ":" + column])
 
         #create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
         #Clarity LIMS to recognise the file and attach it to the step
