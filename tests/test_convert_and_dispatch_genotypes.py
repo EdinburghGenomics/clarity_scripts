@@ -170,7 +170,7 @@ class TestUploadVcfToSamples(TestEPP):
             }
             self.lims_sample2.udf = {
                 'QuantStudio Data Import Completed #': 1,
-                'Number of Calls (Best Run)': 12,
+                'Number of Calls (Best Run)': 0,
                 'Genotyping results file id': 'old_file_id'
             }
             mlims.upload_new_file.return_value = Mock(id='file_id')
