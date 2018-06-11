@@ -241,8 +241,8 @@ class UploadVcfToSamples(StepEPP):
             # This is the first genotyping results
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
-        elif lims_sample.udf.get(submitted_genotype_udf_number_call) and \
-                nb_call > lims_sample.udf.get(submitted_genotype_udf_number_call):
+        elif submitted_genotype_udf_number_call in lims_sample.udf and \
+                nb_call > (lims_sample.udf.get(submitted_genotype_udf_number_call) or 0):
             # This genotyping is better than before
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
