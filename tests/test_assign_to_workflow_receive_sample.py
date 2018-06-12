@@ -18,7 +18,6 @@ class TestAssignWorkflowReceiveSample(TestEPP):
             'process',
             new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs))
         )
-        self.patched_lims = patch.object(AssignWorkflowReceiveSample, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_workflow_receive_sample.get_workflow_stage',
             return_value=Mock(uri='a_uri')

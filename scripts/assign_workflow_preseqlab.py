@@ -3,7 +3,6 @@ from EPPs.common import StepEPP, step_argparser, get_workflow_stage, find_newest
 
 
 class AssignWorkflowPreSeqLab(StepEPP):
-
     def _run(self):
         artifacts_to_route = set()
         for art in self.artifacts:

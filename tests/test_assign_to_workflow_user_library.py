@@ -18,7 +18,6 @@ class TestAssignWorkflowUserPreparedLibrary(TestEPP):
             'process',
             new_callable=PropertyMock(return_value=Mock(all_outputs=fake_all_output))
         )
-        self.patched_lims = patch.object(AssignWorkflowUserPreparedLibrary, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_workflow_user_library.get_workflow_stage',
             return_value=Mock(uri='a_uri')

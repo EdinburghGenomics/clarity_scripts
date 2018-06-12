@@ -1,13 +1,13 @@
 from unittest.mock import Mock, patch
 from scripts.assign_container_name import AssignContainerName
-from tests.test_common import TestEPP, FakeEntity
+from tests.test_common import TestEPP, NamedMock
 
 
 def fake_output(output_type):
     return Mock(
         output_type=output_type,
-        samples=[Mock(project=FakeEntity(name='a_project_'))],
-        container=FakeEntity(name='a_container', put=Mock())
+        samples=[Mock(project=NamedMock(real_name='a_project_'))],
+        container=NamedMock(real_name='a_container')
     )
 
 
@@ -29,7 +29,7 @@ class TestAssignContainerName(TestEPP):
         assert fake_outputs[1].container.name == expected_container_name
         fake_outputs[1].container.put.assert_called()
 
-        # should not have touched the non-analyte
+        # should not have touched the non-analytes
         assert fake_outputs[0].container.name == 'a_container'
         fake_outputs[0].container.put.assert_not_called()
 

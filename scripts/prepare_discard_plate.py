@@ -5,15 +5,14 @@ from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 valid_suffixes = {'-GTY', '-DNA'}
-
 discard_wf_name = 'Sample Disposal EG 1.0 WF'
 sample_discard_wf_stage_name = 'Request Sample Disposal EG 1.0 ST'
 plate_discard_wf_stage_name = 'Dispose of Samples EG 1.0 ST'
 
 
-def batch_limit(lims, list_instance, max_query=100):
-    for start in range(0, len(list_instance), max_query):
-        lims.get_batch(list_instance[start:start+max_query])
+def batch_limit(lims, entities, max_query=100):
+    for start in range(0, len(entities), max_query):
+        lims.get_batch(entities[start:start + max_query])
 
 
 def fetch_all_artifacts_for_samples(lims, samples):
@@ -68,7 +67,7 @@ class FindPlateToRoute(StepEPP):
         self.info('Found %d Analytes (derived samples)', len(step_associated_artifacts))
 
         # List all the containers and retrieve them
-        containers = list(set([a.container for a in step_associated_artifacts]))
+        containers = list(set(a.container for a in step_associated_artifacts))
         batch_limit(self.lims, containers)
         self.info('Found %d containers', len(containers))
 
@@ -81,11 +80,11 @@ class FindPlateToRoute(StepEPP):
         for c in valid_containers:
             container_artifacts.update(set(c.placements.values()))
 
-        non_step_atifacts = container_artifacts.difference(set(step_associated_artifacts))
-        batch_limit(self.lims, list(non_step_atifacts))
+        non_step_artifacts = container_artifacts.difference(set(step_associated_artifacts))
+        batch_limit(self.lims, list(non_step_artifacts))
         self.info(
             'Found %d others associated with the container but not associated with discarded samples',
-            len(non_step_atifacts)
+            len(non_step_artifacts)
         )
 
         artifacts_to_route = []

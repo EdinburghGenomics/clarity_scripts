@@ -1,10 +1,10 @@
-from EPPs.common import StepEPP
-from tests.test_common import fake_all_inputs, TestEPP
 from unittest.mock import Mock, patch, PropertyMock
+from EPPs.common import StepEPP
 from scripts import assign_to_workflow_stage
+from tests.test_common import fake_all_inputs, TestEPP
 
 
-class TestAsignWorkflowStage(TestEPP):
+class TestAssignWorkflowStage(TestEPP):
     def setUp(self):
         self.epp = assign_to_workflow_stage.AssignWorkflowStage(
             'http://server:8080/a_step_uri',

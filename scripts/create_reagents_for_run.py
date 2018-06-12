@@ -4,7 +4,7 @@ import sys
 import time
 from logging import FileHandler
 from xml.etree import ElementTree
-from genologics.entities import ReagentLot
+from pyclarity_lims.entities import ReagentLot
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser
 

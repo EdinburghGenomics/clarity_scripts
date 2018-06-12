@@ -235,11 +235,11 @@ ClarityX'''
                 strict=True
             )
 
+
 class TestDataReleaseFacilityManager(TestEmailEPP):
     def setUp(self):
         super().setUp()
         self.epp = self.create_epp(DataReleaseFMEmail)
-
 
     def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:

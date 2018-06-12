@@ -1,24 +1,21 @@
 import os
 import sys
 import argparse
-from urllib import parse as urlparse
-from requests.exceptions import ConnectionError
-from logging import FileHandler
 from io import StringIO
+from urllib import parse as urlparse
+from logging import FileHandler
 from cached_property import cached_property
+from requests.exceptions import ConnectionError
+from pyclarity_lims.lims import Lims
+from pyclarity_lims.entities import Process, Artifact
+from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
-from genologics.lims import Lims
-from genologics.entities import Process, Artifact
-from egcg_core import rest_communication
-from egcg_core.app_logging import AppLogger, logging_default
-from os.path import join, dirname, abspath
-
 import EPPs
 
 
-class StepEPP(AppLogger):
-    _etc_path = join(dirname(abspath(EPPs.__file__)), 'etc')
+class StepEPP(app_logging.AppLogger):
+    _etc_path = os.path.join(os.path.dirname(os.path.abspath(EPPs.__file__)), 'etc')
     _lims = None
     _process = None
 
@@ -31,7 +28,7 @@ class StepEPP(AppLogger):
         self.open_files = []
 
         if log_file:
-            logging_default.add_handler(FileHandler(log_file))
+            app_logging.logging_default.add_handler(FileHandler(log_file))
 
     @cached_property
     def lims(self):
@@ -115,7 +112,6 @@ class StepEPP(AppLogger):
 
 
 class SendMailEPP(StepEPP):
-
     def get_email_template(self, name=None):
         return os.path.join(self._etc_path, name)
 
