@@ -205,7 +205,7 @@ class PullSampleInfo(PullInfo):
         ('SR %Q30', 'aggregated.clean_pc_q30'),
         ('SR % Mapped', 'aggregated.pc_mapped_reads'),
         ('SR % Duplicates', 'aggregated.pc_duplicate_reads'),
-        ('SR Mean Coverage', 'aggregated.mean_coverage'),
+        ('SR Mean Coverage', 'coverage.mean'),
         ('SR Species Found', 'aggregated.matching_species'),
         ('SR Sex Check Match', 'aggregated.gender_match'),
         ('SR Genotyping Match', 'aggregated.genotype_match'),
