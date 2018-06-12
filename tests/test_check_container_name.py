@@ -22,19 +22,8 @@ class TestCheckContainerName(TestEPP):
 
         self.patched_lims = patch.object(CheckContainerName, 'lims', new_callable=PropertyMock)
 
-        self.epp = CheckContainerName(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            'ABC'
-        )
-        self.epp2 = CheckContainerName(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            'ABA'
-
-        )
+        self.epp = CheckContainerName(self.default_argv + ['-x', 'ABC'])
+        self.epp2 = CheckContainerName(self.default_argv + ['-x', 'ABA'])
 
     def test_suffic_correct(self):  # test that no sys exit occurs when suffix matches container name
         with self.patched_process:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import step_argparser, StepEPP
+from EPPs.common import StepEPP
 from pyclarity_lims.entities import Protocol
 
 
@@ -40,21 +40,5 @@ class AssignNextStepUPL(StepEPP):
         actions.put()
 
 
-def main():
-    # Get the default command line options
-    p = step_argparser()
-
-    # Parse command line options
-    args = p.parse_args()
-
-    # Setup the EPP
-    action = AssignNextStepUPL(
-        args.step_uri, args.username, args.password, args.log_file
-    )
-
-    # Run the EPP
-    action.run()
-
-
 if __name__ == "__main__":
-    main()
+    AssignNextStepUPL().run()

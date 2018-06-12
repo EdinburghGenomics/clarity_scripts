@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 from collections import defaultdict
-from logging import FileHandler
-from egcg_core.app_logging import logging_default as log_cfg
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 
 class SpectramaxOutput(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, spectramax_file):
-        super().__init__(step_uri, username, password, log_file)
-        self.spectramax_file = spectramax_file
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        self.spectramax_file = self.cmd_args.spectramax_file
         self.sample_concs = {}
         self.plate_names = []
         self.plates = defaultdict(dict)
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('--spectramax_file', type=str, required=True, help='Spectramax output file from the step')
 
     def parse_spectramax_file(self):
         f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
@@ -76,13 +78,5 @@ class SpectramaxOutput(StepEPP):
         self.add_plates_to_step()
 
 
-def main():
-    p = step_argparser()
-    p.add_argument('--spectramax_file', type=str, required=True, help='Spectramax output file from the step')
-    args = p.parse_args()
-    log_cfg.add_handler(FileHandler(args.log_file))
-    action = SpectramaxOutput(args.step_uri, args.username, args.password, args.log_file, args.spectramax_file)
-    action.run()
-
 if __name__ == '__main__':
-    main()
+    SpectramaxOutput().run()

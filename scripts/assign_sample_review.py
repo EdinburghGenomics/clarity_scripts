@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+from EPPs.common import StepEPP, get_workflow_stage
 
 class AssignWorkflowSampleReview(StepEPP):
     #Checks if output artifact is "SR Useable = yes" then finds the submitted sample for that artifact
@@ -18,12 +18,6 @@ class AssignWorkflowSampleReview(StepEPP):
 
         self.lims.route_artifacts(list(artifact_to_route), stage_uri=stage.uri)
 
-def main():
-    p = step_argparser()
-    args = p.parse_args()
-    action = AssignWorkflowSampleReview(args.step_uri, args.username, args.password, args.log_file)
-    action.run()
 
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    AssignWorkflowSampleReview().run()

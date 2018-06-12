@@ -50,13 +50,7 @@ class TestAssignNextStepUPL(TestEPP):
             new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions, configuration=self.protostep), udf=step_udfs4))
         )
 
-
-        self.epp = AssignNextStepUPL(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignNextStepUPL(self.default_argv)
 
     def test_assign_next_step_udfs1(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])

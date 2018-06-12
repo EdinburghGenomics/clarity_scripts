@@ -48,12 +48,7 @@ class TestApplyFreezerLocation(TestEPP):
 
         self.patched_lims = patch.object(ApplyFreezerLocation, 'lims', new_callable=PropertyMock)
 
-        self.epp = ApplyFreezerLocation(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = ApplyFreezerLocation(self.default_argv)
 
     def test_udf_update(self):  # test UDFs are assigned
         with self.patched_lims, self.patched_process1:

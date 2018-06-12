@@ -24,12 +24,7 @@ class TestAssignWorkflowReceiveSample(TestEPP):
             'scripts.assign_workflow_receive_sample.get_workflow_stage',
             return_value=Mock(uri='a_uri')
         )
-        self.epp = AssignWorkflowReceiveSample(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignWorkflowReceiveSample(self.default_argv)
 
     def test_assign(self):
         with self.patched_get_workflow_stage as pws, self.patched_lims, self.patched_process:

@@ -135,14 +135,7 @@ class TestGenerateHamiltonInputUPL(TestEPP):
 
         self.patched_lims = patch.object(GenerateHamiltonInputUPL, 'lims', new_callable=PropertyMock)
 
-        self.epp = GenerateHamiltonInputUPL(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file,
-            'a_file_location'
-
-        )
+        self.epp = GenerateHamiltonInputUPL(self.default_argv + ['-i', 'a_file_location'])
 
     def test_happy_input(self):  # test that file is written under happy path conditions i.e. <=9 input plates, 1 output
         # per input

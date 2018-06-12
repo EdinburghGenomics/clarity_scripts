@@ -4,28 +4,15 @@ from unittest.mock import Mock, patch, PropertyMock
 from scripts import assign_to_workflow_stage
 
 
-class TestAsignWorkflowStage(TestEPP):
+class TestAssignWorkflowStage(TestEPP):
     def setUp(self):
-        self.epp = assign_to_workflow_stage.AssignWorkflowStage(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file,
-            'a_workflow_name',
-            'a_stage_name',
-            source='submitted'
-        )
-
-        self.epp2 = assign_to_workflow_stage.AssignWorkflowStage(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file,
-            'a_workflow_name',
-            'a_stage_name',
-            source='submitted',
-            only_once=True
-        )
+        argv = self.default_argv + [
+            '--workflow', 'a_workflow_name',
+            '--stage', 'a_stage_name',
+            '--source', 'submitted'
+        ]
+        self.epp = assign_to_workflow_stage.AssignWorkflowStage(argv)
+        self.epp2 = assign_to_workflow_stage.AssignWorkflowStage(argv + ['--only_once'])
 
     @patch.object(StepEPP, 'lims', new_callable=PropertyMock)
     @patch('scripts.assign_to_workflow_stage.get_workflow_stage', return_value=Mock(uri='a_uri'))

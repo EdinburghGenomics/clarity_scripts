@@ -13,7 +13,7 @@ def fake_output(output_type):
 
 class TestAssignContainerName(TestEPP):
     def setUp(self):
-        self.epp = AssignContainerName('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = AssignContainerName(self.default_argv)
 
     def _test_assign(self, get_artifact_calls, expected_container_name):
         fake_outputs = [fake_output('Not an Analyte'), fake_output('Analyte')]

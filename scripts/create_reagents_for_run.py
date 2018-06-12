@@ -2,11 +2,9 @@
 import os
 import sys
 import time
-from logging import FileHandler
 from xml.etree import ElementTree
 from genologics.entities import ReagentLot
-from egcg_core.app_logging import logging_default as log_cfg
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 
 reagent_kit_map = {
@@ -40,9 +38,13 @@ def get_reagent_name_from_run_parameter(run_parameters):
 
 
 class CreateReagentForRun(StepEPP):
-    def __init__(self, step_uri, username, password, run_name):
-        super().__init__(step_uri, username, password)
-        self.run_name = run_name
+    def __init__(self):
+        super().__init__()
+        self.run_name = self.cmd_args.run_name
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('--run_name', type=str)
 
     def _run(self):
         run_parameters = find_run_parameters(self.run_name)
@@ -71,14 +73,5 @@ class CreateReagentForRun(StepEPP):
             print('Created reagent %s: %s' % (name, lot))
 
 
-def main():
-    a = step_argparser()
-    a.add_argument('--run_name', type=str)
-    args = a.parse_args()
-    log_cfg.add_handler(FileHandler(args.log_file))
-    action = CreateReagentForRun(args.step_uri, args.username, args.password, args.run_name)
-    return action.run()
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(CreateReagentForRun().run())

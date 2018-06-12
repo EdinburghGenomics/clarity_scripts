@@ -24,7 +24,7 @@ class TestPopulator(TestEPP):
             return_value=[Mock(spec=Artifact, udf={})]
         )
 
-        self.epp = self.epp_cls('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = self.epp_cls(self.default_argv)
 
 
 class TestPullRunElementInfo(TestPopulator):
