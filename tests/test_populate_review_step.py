@@ -146,9 +146,9 @@ class TestPullSampleInfo(TestPopulator):
             'pc_duplicate_reads': 5,
             'mean_coverage': 30,
             'gender_match': 'Match',
-            'genotype_match': 'Match'
+            'genotype_match': 'Match',
+            'matching_species': ['Homo sapiens', 'Thingius thingy'],
         },
-        'matching_species': ['Homo sapiens', 'Thingius thingy'],
         'sample_contamination': {'freemix': 0.1},
         'reviewed': 'pass',
         'review_comments': 'alright',
@@ -192,7 +192,7 @@ class TestPullSampleInfo(TestPopulator):
             assert poa.return_value[1].udf['SR Useable Comments'] == 'AR: Review failed'
 
     def test_field_from_entity(self):
-        obs = self.epp.field_from_entity(self.fake_rest_entity, 'matching_species')
+        obs = self.epp.field_from_entity(self.fake_rest_entity, 'aggregated.matching_species')
         assert obs == 'Homo sapiens, Thingius thingy'
 
 

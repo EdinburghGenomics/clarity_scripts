@@ -1,6 +1,7 @@
+from unittest.mock import Mock, patch, PropertyMock, call
+
 from scripts.assign_workflow_receive_sample import AssignWorkflowReceiveSample
 from tests.test_common import TestEPP
-from unittest.mock import Mock, patch, PropertyMock, call
 
 
 def fake_all_inputs(unique=False, resolve=False):
@@ -34,8 +35,9 @@ class TestAssignWorkflowReceiveSample(TestEPP):
             self.epp._run()
 
             pws.assert_has_calls((
-                call(self.epp.lims, 'User Prepared Library Batch EG1.0 WF', 'User Prepared Library Batch EG 1.0 ST'),
-                call(self.epp.lims, 'PreSeqLab EG 6.0', 'Spectramax Picogreen EG 6.0')
+                call(self.epp.lims, "User Prepared Library Receipt and Batch EG 1.0 WF",
+                     "User Prepared Library Plate Receipt EG 1.0 ST"),
+                call(self.epp.lims, "PreSeqLab EG 6.0", "Receive Sample EG 6.1")
             ))
             # first routing (user prepared library)
             route_args = self.epp.lims.route_artifacts.call_args_list[0]

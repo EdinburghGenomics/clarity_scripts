@@ -4,27 +4,24 @@ from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 
 class AssignWorkflowUserPreparedLibrary(StepEPP):
     """
-    Assigns a plate created in User Prepared Library to either the Nano or PCR Free workflow.
+    Assigns a plate created in User Prepared Library to the Make and read qPCR Quant in the Nano workflow
+    - User Prepared Libraries are protocol "agnostic" so always go to Nano.
+    Submitted sample UDF "SSQC Result" is updated to "Passed" as this is required by SeqLab
     """
+
     def _run(self):
-        artifact_to_route_pcr_free = set()
-        artifact_to_route_nano = set()
+        stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep",
+                                   "SEMI-AUTOMATED - Make and Read qPCR Quant")
+        self.lims.route_artifacts(self.output_artifacts, stage_uri=stage.uri)
+
+        samples_to_update = set()
 
         for art in self.output_artifacts:
             sample = art.samples[0]
-            if sample.udf.get("Prep Workflow") == "TruSeq PCR-Free DNA Sample Prep":
-                artifact_to_route_pcr_free.add(art)
+            sample.udf['SSQC Result'] = 'Passed'
+            samples_to_update.add(sample)
 
-            elif sample.udf.get("Prep Workflow") == "TruSeq Nano DNA Sample Prep":
-                artifact_to_route_nano.add(art)
-
-        if artifact_to_route_pcr_free:
-            stage = get_workflow_stage(self.lims, "TruSeq PCR-Free DNA Sample Prep", "SEMI-AUTOMATED - Make and Read qPCR Quant")
-            self.lims.route_artifacts(list(artifact_to_route_pcr_free), stage_uri=stage.uri)
-
-        if artifact_to_route_nano:
-            stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep", "SEMI-AUTOMATED - Make LQC & Caliper GX QC")
-            self.lims.route_artifacts(list(artifact_to_route_nano), stage_uri=stage.uri)
+        self.lims.put_batch(list(samples_to_update))
 
 
 def main():

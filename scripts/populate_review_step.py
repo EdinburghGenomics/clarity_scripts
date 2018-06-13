@@ -206,7 +206,7 @@ class PullSampleInfo(PullInfo):
         ('SR % Mapped', 'aggregated.pc_mapped_reads'),
         ('SR % Duplicates', 'aggregated.pc_duplicate_reads'),
         ('SR Mean Coverage', 'aggregated.mean_coverage'),
-        ('SR Species Found', 'matching_species'),
+        ('SR Species Found', 'aggregated.matching_species'),
         ('SR Sex Check Match', 'aggregated.gender_match'),
         ('SR Genotyping Match', 'aggregated.genotype_match'),
         ('SR Freemix', 'sample_contamination.freemix'),
@@ -237,12 +237,10 @@ class PullSampleInfo(PullInfo):
         return artifacts
 
     def field_from_entity(self, entity, api_field):
-        # TODO: remove once Rest API has a sensible field for species found
-        if api_field == 'matching_species':
-            species = entity[api_field]
-            return ', '.join(species)
-
-        return super().field_from_entity(entity, api_field)
+        field = super().field_from_entity(entity, api_field)
+        if api_field == 'aggregated.matching_species':
+            return ', '.join(field)
+        return field
 
 
 class PushInfo(StepPopulator):
