@@ -240,7 +240,7 @@ class UploadVcfToSamples(StepEPP):
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
         elif submitted_genotype_udf_number_call in lims_sample.udf and \
-                nb_call > (lims_sample.udf.get(submitted_genotype_udf_number_call) or 0):
+                nb_call > (lims_sample.udf[submitted_genotype_udf_number_call] or 0):
             # This genotyping is better than before
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
@@ -308,7 +308,7 @@ def main():
 def _parse_args():
     p = step_argparser()
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
-                   help='The files or artifact id that contains the genotype for all the samples')
+                   help='Files or artifact IDs for the sample genotypes')
     return p.parse_args()
 
 

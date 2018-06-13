@@ -38,7 +38,7 @@ class TestAssignWorkflowUserPreparedLibrary(TestEPP):
                 call(self.epp.lims, 'TruSeq Nano DNA Sample Prep', 'SEMI-AUTOMATED - Make and Read qPCR Quant'),
             ))
             # test that sample is routed to SEMI-AUTOMATED - Make and Read qPCR and that sample UDF SSQC Result
-            # is updated to "Passed
+            # is updated to "Passed"
             assert self.epp.output_artifacts[0].samples[0].udf['SSQC Result'] == 'Passed'
             route_args = self.epp.lims.route_artifacts.call_args_list[0]
             assert [a.id for a in route_args[0][0]] == ['ao1', 'ao2']

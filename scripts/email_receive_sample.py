@@ -11,13 +11,13 @@ class ReceiveSampleEmail(SendMailEPP):
         self.upl = upl
 
     def _run(self):
-
-        if self.upl==True:
-            type='libraries'
-            subject_type='Library'
+        if self.upl:
+            msg_type = 'libraries'
+            subject_type = 'Library'
         else:
-            type='sample(s)'
-            subject_type='Sample'
+            msg_type = 'sample(s)'
+            subject_type = 'Sample'
+
         if len(self.projects) > 1:
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
@@ -25,10 +25,10 @@ class ReceiveSampleEmail(SendMailEPP):
         msg = msg.format(
             link='https://' + platform.node() + '/clarity/work-details/' + self.step_id[3:],
             sample_count=len(self.samples),
-            msg_type = type,
+            msg_type=msg_type,
             project=self.projects[0].name
         )
-        subject = self.projects[0].name + ': %s Plate Received' % (subject_type)
+        subject = self.projects[0].name + ': %s Plate Received' % subject_type
         self.send_mail(subject, msg, config_name='projects-facility-lab-finance_only')
 
 
