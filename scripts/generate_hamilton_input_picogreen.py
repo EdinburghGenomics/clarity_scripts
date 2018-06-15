@@ -31,30 +31,33 @@ class GenerateHamiltonInputUPL(StepEPP):
         unique_output_containers = set()
 
         # obtain all of the inputs for the step
-        all_inputs = self.process.all_inputs()
-        print("all inputs below")
-        print(all_inputs)
-        # find all the inputs for the step that are analytes (i.e. samples and not associated files)
-        for input in all_inputs:
-            # build a list of the unique input containers for checking that no more than 9 are present due to
-            # deck limit on Hamilton and for sorting the sample locations by input plate.
-            unique_input_containers.add(input.container.name)
+        #all_inputs = self.process.all_inputs()
 
 
-            outputs = self.process.outputs_per_input(input.id, Analyte=True)
 
-            for output in outputs:
+        # use the input_output_maps attribute of process to obtain a list of tuples where each tuple contains two
+        #dictionaries, one dictionary for the input and one for the output.
+        for input_output in self.process.input_output_maps:
+            #use only input-output tuples where the output is PerInput i.e. a sample and not a shared file
+            if input_output[1]['output-generation-type'] == 'PerInput':
 
-                if output.type == 'PerInput':
-                    # Build a list of unique output containers as no more than 3 plates can be present in Hamilton app
-                    unique_output_containers.add(output.container.name)
+                #find the input and output artifacts for use later on
+                input=input_output[0]['uri']
+                output=input_output[1]['uri']
+                # build a list of the unique input containers for checking that no more than 9 are present due to
+                # deck limit on Hamilton and for sorting the sample locations by input plate.
+                unique_input_containers.add(input.container.name)
+                # Build a list of unique output containers as no more than 3 plates can be present in Hamilton app
+                unique_output_containers.add(output.container.name)
 
-                    #There will be one line in the Hamilton input for each output replicate. So assemble each line of
-                    # the Hamilton input file in the correct structure for the Hamilton
-                    csv_line = [input.name, input.container.name, input.location[1], output.container.name, output.location[1]]
-                    # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
-                    # by input container then column then row
-                    csv_dict[input.container.name + input.location[1]] = csv_line
+
+                #There will be one line in the Hamilton input for each output replicate. So assemble each line of
+                # the Hamilton input file in the correct structure for the Hamilton
+                csv_line = [output.name, input.container.name, input.location[1], output.container.name, output.location[1]]
+
+                # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
+                # by input container then column then row
+                csv_dict[input.container.name + input.location[1]] = csv_line
 
         # check the number of input containers
         if len(unique_input_containers) > 9:
