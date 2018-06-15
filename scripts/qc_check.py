@@ -60,6 +60,10 @@ class QCCheck(StepEPP):
                     if ComparisonMethod(output.udf.get[result_udf_name], logic_op,
                                         self.process.udf.get[step_udf_name]) and \
                             'FAIL' not in output.udf[qc_udf_name]:
+                        output.udf[qc_udf_name] = PASS
+                        outputs_to_update.add(output)
+                    elif not ComparisonMethod(output.udf.get[result_udf_name], logic_op,
+                                        self.process.udf.get[step_udf_name])
                         output.udf[qc_udf_name] = qc_result
                         outputs_to_update.add(output)
 
@@ -73,9 +77,9 @@ def main():
     p.add_argument('-t', '--result_udf_names', nargs='*', help='output udfs which will be compared against step UDFs')
     p.add_argument('-o', '--logic_ops', nargs='*', help='logical operators for comparing output UDFs with step UDFs')
     p.add_argument('-v', '--qc_udf_names', nargs='*',
-                   help='output udfs that should be updated as a result of the comparison')
+                   help='output  QC udfs that should be updated as a result of the comparison')
     p.add_argument('-w', '--qc_results', nargs='*',
-                   help='output udfs that should be updated as a result of the comparison')
+                   help='the entries that should go into the output QC UDFs if a fail')
 
     # the -n argument can have as many entries as required, if there are spaces within the udfnames and when running locally
     # then they must be enclosed in speech marks " not quotes ' -n "udf name 1" "udf name 2" "udfname 3" BUT use quotes ' when configuring the EPP as speech marks close the
