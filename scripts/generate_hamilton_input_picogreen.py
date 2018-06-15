@@ -32,30 +32,29 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         # obtain all of the inputs for the step
         all_inputs = self.process.all_inputs()
-
+        print("all inputs below")
+        print(all_inputs)
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input in all_inputs:
-            if input.type == 'Analyte':
-                output = self.process.outputs_per_input(input.id, Analyte=True)
-                # the script is only compatible with 1 output for each input i.e. replicates are not allowed
-                if len(output) > 1:
-                    print('Multiple outputs found for an input %s. This step is not compatible with replicates.' % (
-                        input.name))
-                    sys.exit(1)
+            # build a list of the unique input containers for checking that no more than 9 are present due to
+            # deck limit on Hamilton and for sorting the sample locations by input plate.
+            unique_input_containers.add(input.container.name)
 
-                # build a list of the unique input containers for checking that no more than 9 are present due to
-                # deck limit on Hamilton and for sorting the sample locations by input plate. Build a list of unique
-                # output containers as no more than 1 plate
-                unique_input_containers.add(input.container.name)
 
-                unique_output_containers.add(output[0].container.name)
+            outputs = self.process.outputs_per_input(input.id, Analyte=True)
 
-                # assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
-                            self.process.udf['DNA Volume (uL)'], '0']
-                # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
-                # by input container then column then row
-                csv_dict[input.container.name + input.location[1]] = csv_line
+            for output in outputs:
+
+                if output.type == 'PerInput':
+                    # Build a list of unique output containers as no more than 3 plates can be present in Hamilton app
+                    unique_output_containers.add(output.container.name)
+
+                    #There will be one line in the Hamilton input for each output replicate. So assemble each line of
+                    # the Hamilton input file in the correct structure for the Hamilton
+                    csv_line = [input.name, input.container.name, input.location[1], output.container.name, output.location[1]]
+                    # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
+                    # by input container then column then row
+                    csv_dict[input.container.name + input.location[1]] = csv_line
 
         # check the number of input containers
         if len(unique_input_containers) > 9:
