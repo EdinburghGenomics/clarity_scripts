@@ -3,6 +3,7 @@ import csv
 import sys
 
 from EPPs.common import StepEPP, step_argparser
+from operator import itemgetter
 
 
 class GenerateHamiltonInputUPL(StepEPP):
@@ -62,6 +63,11 @@ class GenerateHamiltonInputUPL(StepEPP):
                 else:
                     csv_dict[input.container.name + input.location[1]] = [csv_line]
 
+        #sort csv_dict so output replicates are in alphanumeric order for each input key so aspiration from neighbouring
+        #wells is to be dispensed in neighbouring wells in the same plate
+        for dict_key in csv_dict:
+            csv_dict[dict_key]=sorted(csv_dict[dict_key],key=itemgetter(0))
+
         # check the number of input containers
         if len(unique_input_containers) > 9:
             print('Maximum number of input plates is 9. There are %s output plates in the step.' % (
@@ -75,7 +81,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         # define the rows and columns in the input plate (standard 96 well plate pattern)
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-        print(csv_dict)
+
         # add the lines to the csv_array that will be used to write the Hamilton input file
         count=0
 
