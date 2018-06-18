@@ -57,7 +57,10 @@ class GenerateHamiltonInputUPL(StepEPP):
 
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row
-                csv_dict[input.container.name + input.location[1]] = csv_line
+                if input.container.name + input.location[1] in csv_dict.keys():
+                    csv_dict[input.container.name + input.location[1]].append(csv_line)
+                else:
+                    csv_dict[input.container.name + input.location[1]] = [csv_line]
 
         # check the number of input containers
         if len(unique_input_containers) > 9:
@@ -72,13 +75,24 @@ class GenerateHamiltonInputUPL(StepEPP):
         # define the rows and columns in the input plate (standard 96 well plate pattern)
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-
+        print(csv_dict)
         # add the lines to the csv_array that will be used to write the Hamilton input file
-        for unique_input_container in sorted(unique_input_containers):
-            for column in columns:
-                for row in rows:
-                    if unique_input_container + row + ":" + column in csv_dict.keys():
-                        csv_array.append(csv_dict[unique_input_container + row + ":" + column])
+        count=0
+
+        while count < len(unique_output_containers):
+
+            for unique_input_container in sorted(unique_input_containers):
+                for column in columns:
+                    for row in rows:
+
+                        if unique_input_container + row + ":" + column in csv_dict.keys() \
+                                and len(list(csv_dict[unique_input_container + row + ":" + column])) == len(unique_output_containers):
+                            #for output_well in list(csv_dict[unique_input_container + row + ":" + column]):
+
+                            csv_array.append(csv_dict[unique_input_container + row + ":" + column][len(unique_output_containers)-1])
+                                #csv_array.append(output_well)
+            count+=1
+
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
         # Clarity LIMS to recognise the file and attach it to the step
