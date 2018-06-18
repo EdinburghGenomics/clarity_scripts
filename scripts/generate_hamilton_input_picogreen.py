@@ -66,7 +66,9 @@ class GenerateHamiltonInputUPL(StepEPP):
         #sort csv_dict so output replicates are in alphanumeric order for each input key so aspiration from neighbouring
         #wells is to be dispensed in neighbouring wells in the same plate
         for dict_key in csv_dict:
+            #print("Before sort"+str(csv_dict[dict_key])+"\n")
             csv_dict[dict_key]=sorted(csv_dict[dict_key],key=itemgetter(0))
+            #print("After sort"+str(csv_dict[dict_key]) + "\n\n")
 
         # check the number of input containers
         if len(unique_input_containers) > 9:
@@ -95,7 +97,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                                 and len(list(csv_dict[unique_input_container + row + ":" + column])) == len(unique_output_containers):
                             #for output_well in list(csv_dict[unique_input_container + row + ":" + column]):
 
-                            csv_array.append(csv_dict[unique_input_container + row + ":" + column][len(unique_output_containers)-1])
+                            csv_array.append(csv_dict[unique_input_container + row + ":" + column][count])
                                 #csv_array.append(output_well)
             count+=1
 
