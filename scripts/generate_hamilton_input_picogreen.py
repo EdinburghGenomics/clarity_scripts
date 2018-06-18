@@ -48,7 +48,8 @@ class GenerateHamiltonInputUPL(StepEPP):
                 # build a list of the unique input containers for checking that no more than 9 are present due to
                 # deck limit on Hamilton and for sorting the sample locations by input plate.
                 unique_input_containers.add(input.container.name)
-                # Build a list of unique output containers as no more than 3 plates can be present in Hamilton app
+                # Build a list of unique output containers as there must be 3 plates present in Hamilton app, each set
+                #of replicates is on a separate plate, regardless of the total number of samples
                 unique_output_containers.add(output.container.name)
 
 
@@ -76,8 +77,8 @@ class GenerateHamiltonInputUPL(StepEPP):
                 str(len(unique_input_containers))))
             sys.exit(1)
         # check the number of output containers
-        if len(unique_output_containers) > 3:
-            print('Maximum number of output plates is 3. There are %s output plates in the step.' % (
+        if len(unique_output_containers) != 3:
+            print('There must be 3 output plates in the step. There are %s output plates in the step.' % (
                 str(len(unique_output_containers))))
             sys.exit(1)
         # define the rows and columns in the input plate (standard 96 well plate pattern)
@@ -86,16 +87,19 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         # add the lines to the csv_array that will be used to write the Hamilton input file
         count=0
-
-        while count < len(unique_output_containers):
-
+        #each input sample has three output samples in the dictionary. These are named 1 to 3 in the LIMS and
+        #have been sorted in the dictionary so always appear in order 1 to 3. Each loop of the while loop we take
+        #another set of replicates, 1 2 or 3 and write them to the Hamilton input file together for efficient
+        #pipetting. The script assumes the LIMS has been configured to only have 3 replicates per sample.
+        while count < 3:
+            #the beginning of the csv_dict key is the input container name so need to loop through all container names
             for unique_input_container in sorted(unique_input_containers):
+                #loop through every column and row for each input container
                 for column in columns:
                     for row in rows:
+                        #check that there is an input sample present at that well location.
+                        if unique_input_container + row + ":" + column in csv_dict.keys():
 
-                        if unique_input_container + row + ":" + column in csv_dict.keys() \
-                                and len(list(csv_dict[unique_input_container + row + ":" + column])) == len(unique_output_containers):
-                            #for output_well in list(csv_dict[unique_input_container + row + ":" + column]):
 
                             csv_array.append(csv_dict[unique_input_container + row + ":" + column][count])
                                 #csv_array.append(output_well)
