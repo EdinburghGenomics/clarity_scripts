@@ -77,7 +77,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 str(len(unique_input_containers))))
             sys.exit(1)
         # check the number of output containers
-        if len(unique_output_containers) >= 3:
+        if len(unique_output_containers) > 3:
             print('There maximum number of output plates is 3. There are %s output plates in the step.' % (
                 str(len(unique_output_containers))))
             sys.exit(1)
