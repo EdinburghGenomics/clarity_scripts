@@ -31,8 +31,6 @@ class GenerateHamiltonInputUPL(StepEPP):
         unique_input_containers = set()
         unique_output_containers = set()
 
-        # obtain all of the inputs for the step
-        #all_inputs = self.process.all_inputs()
 
 
 
@@ -48,8 +46,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 # build a list of the unique input containers for checking that no more than 9 are present due to
                 # deck limit on Hamilton and for sorting the sample locations by input plate.
                 unique_input_containers.add(input.container.name)
-                # Build a list of unique output containers as there must be 3 plates present in Hamilton app, each set
-                #of replicates is on a separate plate, regardless of the total number of samples
+                # Build a list of unique output containers as there can be up to 3 plates present in Hamilton app,
                 unique_output_containers.add(output.container.name)
 
 
