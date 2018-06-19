@@ -77,8 +77,8 @@ class GenerateHamiltonInputUPL(StepEPP):
                 str(len(unique_input_containers))))
             sys.exit(1)
         # check the number of output containers
-        if len(unique_output_containers) != 3:
-            print('There must be 3 output plates in the step. There are %s output plates in the step.' % (
+        if len(unique_output_containers) >= 3:
+            print('There maximum number of output plates is 3. There are %s output plates in the step.' % (
                 str(len(unique_output_containers))))
             sys.exit(1)
         # define the rows and columns in the input plate (standard 96 well plate pattern)
@@ -91,7 +91,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         #have been sorted in the dictionary so always appear in order 1 to 3. Each loop of the while loop we take
         #another set of replicates, 1 2 or 3 and write them to the Hamilton input file together for efficient
         #pipetting. The script assumes the LIMS has been configured to only have 3 replicates per sample.
-        while count < 3:
+        while count < len(unique_output_containers):
             #the beginning of the csv_dict key is the input container name so need to loop through all container names
             for unique_input_container in sorted(unique_input_containers):
                 #loop through every column and row for each input container
