@@ -1,7 +1,7 @@
-from EPPs.common import StepEPP
-from tests.test_common import fake_all_inputs, TestEPP
 from unittest.mock import Mock, patch, PropertyMock
+from EPPs.common import StepEPP
 from scripts import assign_to_workflow_stage
+from tests.test_common import fake_all_inputs, TestEPP
 
 
 class TestAssignWorkflowStage(TestEPP):

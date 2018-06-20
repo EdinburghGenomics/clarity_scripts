@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestAssignNextStep(TestEPP):
     def setUp(self):
-
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{}, {}])
 

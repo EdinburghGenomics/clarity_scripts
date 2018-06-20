@@ -82,18 +82,7 @@ class PullInfo(StepPopulator):
         return artifacts_to_upload
 
     def field_from_entity(self, entity, api_field):
-        """
-        :param dict entity:
-        :param str api_field:
-        :rtype: str
-        """
-        queries = api_field.split('.')
-        _entity = entity.copy()
-        for q in queries:
-            _entity = _entity.get(q)
-            if _entity is None:
-                break
-        return _entity
+        return util.query_dict(entity, api_field)
 
     def assess_sample(self, sample):
         raise NotImplementedError

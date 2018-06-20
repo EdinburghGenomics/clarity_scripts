@@ -1,6 +1,6 @@
 from os.path import join, dirname, abspath
-from unittest.mock import Mock
-from tests.test_common import TestEPP, FakeEntity
+from unittest.mock import Mock, patch
+from tests.test_common import TestEPP, NamedMock
 from scripts import spectramax
 
 
@@ -44,18 +44,19 @@ class TestSpectramaxOutput(TestEPP):
             self.epp.assign_samples_to_plates()
         assert str(e.exception) == 'Badly formed spectramax file: tried to add coord A2 for sample 7 to plate a_plate'
 
-    def test_add_plates_to_step(self):
+    @patch('scripts.spectramax.SpectramaxOutput.process')
+    def test_add_plates_to_step(self, mocked_process):
         fake_placements = []
         for plate in self.exp_plate_names:
             for x in 'ABCDEFGH':
                 for y in range(1, 13):
-                    placement = (Mock(udf={}), (FakeEntity(name=plate), x + ':' + str(y)))
+                    placement = (Mock(udf={}), (NamedMock(real_name=plate), x + ':' + str(y)))
                     fake_placements.append(placement)
 
         assert len(fake_placements) == 3 * 96
 
         self.epp.plates = self.exp_plates.copy()
-        self.epp.process = Mock(step=Mock(placements=Mock(get_placement_list=Mock(return_value=fake_placements))))
+        mocked_process.step = Mock(placements=Mock(get_placement_list=Mock(return_value=fake_placements)))
         self.epp.add_plates_to_step()
 
         for artifact, (container, coord) in fake_placements:

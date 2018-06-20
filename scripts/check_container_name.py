@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import re
 import sys
-
 from EPPs.common import StepEPP
 
 
@@ -24,16 +23,16 @@ class CheckContainerName(StepEPP):
 
     def _run(self):
         """
-        Assembles the container name template from the fixed prefix and the suffix determined by the argument.
-        Find all the output container names and then check that they match the template. If not then sys exit with
-        a useful message.
+        Assemble the container name template from the fixed prefix and the suffix determined by self.suffix. Find all
+        the output container names and then check that they match the template. If not, then sys.exit with a useful
+        message.
         """
-        name_template = "LP[0-9]{7}-" + self.suffix
+        name_template = 'LP[0-9]{7}-' + self.suffix
         containers = self.process.output_containers()
 
         for container in containers:
             if not re.match(name_template, container.name):
-                print("%s is not a valid container name. Container names must match %s" % (container.name, name_template))
+                print('%s is not a valid container name. Container names must match %s' % (container.name, name_template))
                 sys.exit(1)
 
 

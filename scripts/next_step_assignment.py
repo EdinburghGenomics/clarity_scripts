@@ -5,7 +5,7 @@ from pyclarity_lims.entities import Protocol
 
 class AssignNextStep(StepEPP):
     """
-    This script assigns the next step for all samples in the step as either "review","complete" or "nextstep"
+    This script assigns the next step for all samples in the step as either "review", "complete" or "nextstep"
     for next step it assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps
     in the configuration assumes that all artifacts should have the same next step
     """
@@ -62,5 +62,5 @@ class AssignNextStep(StepEPP):
         actions.put()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     AssignNextStep().run()

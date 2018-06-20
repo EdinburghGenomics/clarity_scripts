@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import sys
-
 from EPPs.common import StepEPP
 
 
 class CheckStepUDFs(StepEPP):
     """
-    Checks Step UDFs have been completed and causes a sys exit if not. Can be prefixed before other python scripts with && in EPP
+    Checks Step UDFs have been completed and causes a sys exit if not. Can be prefixed before other python scripts with
+    '&&' in EPP.
     """
     def __init__(self, argv=None):
         super().__init__(argv)
@@ -21,10 +21,10 @@ class CheckStepUDFs(StepEPP):
 
     def _run(self):
         for udfname in self.udfnames:
-           if not self.process.udf.get(udfname):
-                print("Please complete step udf '%s'" %udfname)
+            if not self.process.udf.get(udfname):
+                print("Please complete step udf '%s'" % udfname)
                 sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     CheckStepUDFs().run()

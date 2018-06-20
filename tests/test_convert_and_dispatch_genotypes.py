@@ -1,17 +1,13 @@
 import pytest
 from os.path import join
-
 from EPPs.common import StepEPP
-from tests.test_common import TestCommon, TestEPP, FakeEntity
+from tests.test_common import TestCommon, TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
 from scripts.convert_and_dispatch_genotypes import GenotypeConversion, UploadVcfToSamples
 
 
-def open_files(list_of_files):
-    return [open(f) for f in list_of_files]
-
-
 class TestGenotypeConversion(TestCommon):
+    small_reference_fai = join(TestCommon.assets, 'genotype_32_SNPs_genome_600bp.fa.fai')
     test_records = {
         'id1': {'test_sample': '0/1', 'SNP': ['chr2', '120', 'id1', 'T', 'C', '.', '.', '.', 'GT']},
         'id2': {'test_sample': '1/1', 'SNP': ['chr1', '601', 'id2', 'C', 'A', '.', '.', '.', 'GT']},
@@ -21,17 +17,16 @@ class TestGenotypeConversion(TestCommon):
 
     def setUp(self):
         self.geno_conversion = GenotypeConversion(
-            open_files([self.genotype_quantStudio]), self.small_reference_fai, flank_length=600
+            [open(self.genotype_quantstudio)], self.small_reference_fai, flank_length=600
         )
 
     def test_generate_vcf(self):
         # header_lines = ['##header line1', '##header line2']
         # snp_ids = ['id4', 'id2', 'id3', 'id1']
         # TODO: make assertions on what header lines, snp IDs, etc. have been written
-        sample_id = 'V0001P001C01'
         path = join(self.assets, 'test_generate')
         vcf_file = path + '.vcf'
-        assert self.geno_conversion.generate_vcf(sample_id, new_name=path) == vcf_file
+        assert self.geno_conversion.generate_vcf('V0001P001C01', new_name=path) == vcf_file
         with open(vcf_file) as f:
             assert 26 == len([l for l in f.readlines() if not l.startswith('#')])
 
@@ -71,9 +66,17 @@ class TestGenotypeConversion(TestCommon):
         ]
         assert refence_length == expected_ref_length
 
-    def test_parse_QuantStudio_AIF_genotype(self):
+    def test_parse_quantstudio_flex_genotype(self):
         assert self.geno_conversion.sample_names == {'V0001P001C01', 'V0001P001A01'}
         assert len(self.geno_conversion.all_records) == 26
+        assert self.geno_conversion.all_records['rs1567612'] == {
+            'SNP': ['C___7457509_10', '601', 'rs1567612', 'G', 'A', '.', '.', '.', 'GT'],
+            'V0001P001A01': './.', 'V0001P001C01': '0/1'
+        }
+        assert self.geno_conversion.all_records['rs6598531'] == {
+            'SNP': ['C__11522992_10', '601', 'rs6598531', 'T', 'G', '.', '.', '.', 'GT'],
+            'V0001P001A01': './.', 'V0001P001C01': './.'
+        }
 
     def test_find_field(self):
         observed_fieldnames = ('__this__', 'that', 'OTHER')
@@ -89,9 +92,9 @@ class TestGenotypeConversion(TestCommon):
 
 class TestUploadVcfToSamples(TestEPP):
     def setUp(self):
-        self.epp = UploadVcfToSamples(self.default_argv + ['--input_genotypes', self.genotype_quantStudio])
-        self.lims_sample1 = FakeEntity(name='V0001P001A01', udf={}, put=Mock())
-        self.lims_sample2 = FakeEntity(name='V0001P001C01', udf={}, put=Mock())
+        self.epp = UploadVcfToSamples(self.default_argv + ['--input_genotypes', self.genotype_quantstudio])
+        self.lims_sample1 = NamedMock(real_name='V0001P001A01', udf={})
+        self.lims_sample2 = NamedMock(real_name='V0001P001C01', udf={})
         fake_all_inputs = Mock(
             return_value=[
                 Mock(samples=[self.lims_sample1]),
@@ -103,7 +106,7 @@ class TestUploadVcfToSamples(TestEPP):
 
         def fake_find_output_art(inart):
             if inart.samples[0] not in self.outputs:
-                self.outputs[inart.samples[0]]= Mock(samples=inart.samples, udf={}, put=Mock())
+                self.outputs[inart.samples[0]] = Mock(samples=inart.samples, udf={})
             return [self.outputs[inart.samples[0]]]
 
         self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(
@@ -113,14 +116,14 @@ class TestUploadVcfToSamples(TestEPP):
                                                     side_effect=fake_find_output_art)
 
     def test_upload_first_time(self):
-        patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
-        patched_generate_vcf = patch('scripts.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf', return_value='uploaded_file')
+        patched_log = patch.object(UploadVcfToSamples, 'info')
+        patched_generate_vcf = patch.object(GenotypeConversion, 'generate_vcf', return_value='uploaded_file')
         patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
 
         exp_log_msgs = (
-            ('Matching %s sample from file against %s artifacts', 2, 2),
-            ('Matching V0001P001A01',),
-            ('Matching V0001P001C01',),
+            ('Matching %s samples from file against %s artifacts', 2, 2),
+            ('Matching %s', 'V0001P001A01'),
+            ('Matching %s', 'V0001P001C01'),
             ('Matched and uploaded %s artifacts against %s genotype results', 2, 2),
             ('%s artifacts did not match', 0),
             ('%s genotyping results were not used', 0)
@@ -151,11 +154,11 @@ class TestUploadVcfToSamples(TestEPP):
             assert self.outputs[self.lims_sample2].udf == {'Number of Calls (This Run)': 22}
 
     def test_upload_second_time(self):
-        patched_log = patch('scripts.convert_and_dispatch_genotypes.UploadVcfToSamples.info')
-        patched_generate_vcf = patch('scripts.convert_and_dispatch_genotypes.GenotypeConversion.generate_vcf', return_value='uploaded_file')
+        patched_log = patch.object(UploadVcfToSamples, 'info')
+        patched_generate_vcf = patch.object(GenotypeConversion, 'generate_vcf', return_value='uploaded_file')
         patched_remove = patch('scripts.convert_and_dispatch_genotypes.remove')
 
-        with patched_log as p, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process, \
+        with patched_log, patched_generate_vcf, patched_remove, self.patched_lims as mlims, self.patched_process, \
                 self.patched_find_output_art:
             self.lims_sample1.udf = {
                 'QuantStudio Data Import Completed #': 1,
@@ -175,6 +178,7 @@ class TestUploadVcfToSamples(TestEPP):
                 'Genotyping results file id': 'old_file_id'
             }
             assert self.outputs[self.lims_sample1].udf == {'Number of Calls (This Run)': 6}
+            self.lims_sample1.put.assert_called_once()
 
             assert self.lims_sample2.udf == {
                 'QuantStudio Data Import Completed #': 2,
@@ -182,3 +186,4 @@ class TestUploadVcfToSamples(TestEPP):
                 'Genotyping results file id': 'file_id'
             }
             assert self.outputs[self.lims_sample2].udf == {'Number of Calls (This Run)': 22}
+            self.lims_sample2.put.assert_called_once()

@@ -1,30 +1,29 @@
 from unittest.mock import Mock, patch, PropertyMock
-
 from scripts.apply_freezer_location import ApplyFreezerLocation
 from tests.test_common import TestEPP, NamedMock
 
 
 def fake_all_inputs1(unique=False, resolve=False):
-    """Return a list of mocked artifacts which contain samples which contain artifacts where container name has been assigned.
-    Freezer and Shelf UDF assigned to samples. fake_all_inputs1 for testing UDFs are assigned correctly"""
+    """Return a list of mocked artifacts which contain samples which contain artifacts where container name has been
+    assigned. Freezer and Shelf UDF assigned to samples. For testing UDFs are assigned correctly"""
 
     return (
-        Mock(id='ao1', samples=[Mock(artifact=(Mock(id='a1', container=(NamedMock(real_name='Name1')))), id='s1',
+        Mock(id='ao1', samples=[Mock(artifact=Mock(id='a1', container=NamedMock(real_name='Name1')), id='s1',
                                      udf={'Freezer': '', 'Shelf': ''})]),
-        Mock(id='ao2', samples=[Mock(artifact=(Mock(id='a2', container=(NamedMock(real_name='Name1')))), id='s2',
+        Mock(id='ao2', samples=[Mock(artifact=Mock(id='a2', container=NamedMock(real_name='Name1')), id='s2',
                                      udf={'Freezer': '', 'Shelf': ''})])
     )
 
 
 def fake_all_inputs2(unique=False, resolve=False):
-    """Return a list of mocked artifacts which contain samples which contain artifacts where container name has been assigned.
-    Freezer and Shelf UDF assigned to samples. fake_all_inputs2 for testing that a system exit occurs if container in step UDF does not match the
-    name of sample artifact container"""
+    """Return a list of mocked artifacts which contain samples which contain artifacts where container name has been
+    assigned. Freezer and Shelf UDF assigned to samples. For testing that a system exit occurs if container in step UDF
+    does not match the name of the sample artifact container"""
 
     return (
-        Mock(id='ao1', samples=[Mock(artifact=(Mock(id='a1', container=(NamedMock(real_name='Name1')))), id='s1',
+        Mock(id='ao1', samples=[Mock(artifact=Mock(id='a1', container=NamedMock(real_name='Name1')), id='s1',
                                      udf={'Freezer': '', 'Shelf': ''})]),
-        Mock(id='ao2', samples=[Mock(artifact=(Mock(id='a2', container=(Mock(containername='Name2')))), id='s2',
+        Mock(id='ao2', samples=[Mock(artifact=Mock(id='a2', container=Mock(containername='Name2')), id='s2',
                                      udf={'Freezer': '', 'Shelf': ''})])
     )
 
@@ -45,8 +44,6 @@ class TestApplyFreezerLocation(TestEPP):
             ApplyFreezerLocation,
             'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs2, udf=step_udfs))
         )
-
-        self.patched_lims = patch.object(ApplyFreezerLocation, 'lims', new_callable=PropertyMock)
 
         self.epp = ApplyFreezerLocation(self.default_argv)
 

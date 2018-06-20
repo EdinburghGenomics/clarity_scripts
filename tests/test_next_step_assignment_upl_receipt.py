@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestAssignNextStepUPL(TestEPP):
     def setUp(self):
-
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{}, {}])
 
@@ -66,8 +65,6 @@ class TestAssignNextStepUPL(TestEPP):
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
 
-        self.actions.put.reset_mock()
-
     def test_assign_next_step_udfs2(self):
         with self.patched_process2:
             self.epp._run()
@@ -80,8 +77,6 @@ class TestAssignNextStepUPL(TestEPP):
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
 
-        self.actions.put.reset_mock()
-
     def test_assign_next_step_udfs3(self):
         with self.patched_process3:
             self.epp._run()
@@ -93,8 +88,6 @@ class TestAssignNextStepUPL(TestEPP):
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
 
-        self.actions.put.reset_mock()
-
     def test_assign_next_step_udfs4(self):
         with self.patched_process4:
             self.epp._run()
@@ -105,8 +98,3 @@ class TestAssignNextStepUPL(TestEPP):
             ]
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
-
-        self.actions.put.reset_mock()
-
-
-

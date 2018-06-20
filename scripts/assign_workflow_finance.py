@@ -3,7 +3,7 @@ from EPPs.common import StepEPP, get_workflow_stage
 
 
 class AssignWorkflowFinance(StepEPP):
-#All samples for the artifacts in the step will be queued to finance workflow
+    # All samples for the artifacts in the step will be queued to finance workflow
     def _run(self):
         artifacts_to_route = set()
         for art in self.artifacts:
