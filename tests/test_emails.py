@@ -1,10 +1,8 @@
 import os
 import platform
 from unittest.mock import Mock, patch, PropertyMock
-
 from EPPs.common import SendMailEPP
 from egcg_core.config import cfg
-
 from scripts.email_data_release import DataReleaseEmail
 from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from scripts.email_data_trigger import DataReleaseTrigger

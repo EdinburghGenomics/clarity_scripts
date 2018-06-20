@@ -4,10 +4,10 @@ from unittest.mock import Mock, patch, PropertyMock
 
 
 def fake_all_outputs(unique=False, resolve=False):
-    '''Return a list of mocked artifacts which contain sample which contain artifact ... Simple!'''
+    """Return a list of mocked artifacts which contain samples which contain artifacts ... Simple!"""
     return (
-        Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1')], udf={"SR Useable": 'yes'}),
-        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2')],udf={"SR Useable": 'no'}),
+        Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1')], udf={'SR Useable': 'yes'}),
+        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2')],udf={'SR Useable': 'no'}),
 
     )
 
@@ -19,7 +19,6 @@ class TestAssignWorkflowSampleReview(TestEPP):
             'process',
             new_callable=PropertyMock(return_value=Mock(all_outputs=fake_all_outputs))
         )
-        self.patched_lims = patch.object(AssignWorkflowSampleReview, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_sample_review.get_workflow_stage',
             return_value=Mock(uri='a_uri')
@@ -40,5 +39,3 @@ class TestAssignWorkflowSampleReview(TestEPP):
             observed = sorted([a.id for a in self.epp.lims.route_artifacts.call_args[0][0]])
             assert observed == ['a1']
             assert self.epp.lims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
-
-            #assert self.epp.lims.route_artifacts.call_args[1] != {'stage_uri': 'a_uri'}

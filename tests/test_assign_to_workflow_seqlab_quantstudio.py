@@ -3,7 +3,7 @@ from tests.test_common import TestEPP, fake_artifact
 from unittest.mock import Mock, patch, PropertyMock, call
 
 
-def fake_all_output(unique=False, resolve=False):
+def fake_all_outputs(unique=False, resolve=False):
     """Return a list of mocked artifacts which contain samples which contain artifacts... Simple!"""
     return (
         Mock(id='ao1', samples=[Mock(artifact=fake_artifact('a1'), id='s1', udf={'Prep Workflow': 'TruSeq PCR-Free DNA Sample Prep', 'Species': 'Homo sapiens'})]),
@@ -17,9 +17,8 @@ class TestAssignWorkflowSeqLabQuantStudio(TestEPP):
         self.patched_process = patch.object(
             AssignWorkflowSeqLabQuantStudio,
             'process',
-            new_callable=PropertyMock(return_value=Mock(all_outputs=fake_all_output))
+            new_callable=PropertyMock(return_value=Mock(all_outputs=fake_all_outputs))
         )
-        self.patched_lims = patch.object(AssignWorkflowSeqLabQuantStudio, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_workflow_seqlab_quantstudio.get_workflow_stage',
             return_value=Mock(uri='a_uri')

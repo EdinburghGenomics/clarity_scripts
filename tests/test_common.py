@@ -7,13 +7,11 @@ from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_orig
 
 
 class NamedMock(Mock):
-    @property
-    def name(self):
-        return self.real_name
-
-
-class MockedSamples(NamedMock):
-    project = NamedMock(real_name='10015AT')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        real_name = kwargs.get('real_name')
+        if real_name:
+            self.name = real_name
 
 
 def fake_artifact(_id):
@@ -31,20 +29,10 @@ def fake_all_inputs(unique=False, resolve=False):
     )
 
 
-class FakeEntity(Mock):
-    def __init__(self, name, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = name
-
-
 class TestCommon(TestCase):
     assets = join(dirname(abspath(__file__)), 'assets')
     etc_path = join(abspath(dirname(EPPs.__file__)), 'etc')
-    genotype_csv = join(assets, 'E03159_WGS_32_panel_9504430.csv')
-    genotype_quantStudio = join(assets, 'YOA15_QuantStudio 12K Flex_export.txt')
-    accufill_log = join(assets, 'OpenArrayLoad_Log.csv')
-    small_reference_fai = join(assets, 'genotype_32_SNPs_genome_600bp.fa.fai')
-    reference_fai = join(assets, 'GRCh37.fa.fai')
+    genotype_quantstudio = join(assets, 'YOA15_QuantStudio 12K Flex_export.txt')
     log_file = join(assets, 'test_log_file.txt')
 
 
@@ -52,7 +40,6 @@ class TestEPP(TestCommon):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock())
-        self.patched_process = patch.object(StepEPP, 'process', new_callable=PropertyMock(return_value=Mock(id='a_process_id')))
 
     def setUp(self):
         self.epp = StepEPP('http://server:8080/some/extra/stuff', 'a username', 'a password', self.log_file)
@@ -83,22 +70,23 @@ class TestRestCommunicationEPP(TestCase):
 
 class TestFindNewestArtifactOriginatingFrom(TestCase):
     def test_find_newest_artifact_originating_from(self):
-        lims = Mock(get_artifacts=Mock(return_value=[
+        lims = Mock()
+        lims.get_artifacts.return_value = [
             Mock(id='fx1', parent_process=Mock(id='121')),
             Mock(id='fx2', parent_process=Mock(id='123'))
-        ]))
+        ]
         process_type = 'Process 1.0'
         sample_name = 's1'
         artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
         assert artifact.id == 'fx2'
         lims.get_artifacts.assert_called_with(type='Analyte', process_type='Process 1.0', sample_name='s1')
 
-        lims = Mock(get_artifacts=Mock(return_value=[
+        lims.get_artifacts.return_value = [
             Mock(id='fx1', parent_process=Mock(id='121')),
-        ]))
+        ]
         artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
         assert artifact.id == 'fx1'
 
-        lims = Mock(get_artifacts=Mock(return_value=[]))
+        lims.get_artifacts.return_value = []
         artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
         assert artifact is None

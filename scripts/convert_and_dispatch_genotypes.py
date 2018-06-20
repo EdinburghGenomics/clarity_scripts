@@ -1,13 +1,11 @@
 #!/usr/bin/env python
+import sys
 import csv
 from collections import defaultdict
 from os import remove
 from os.path import join, dirname, abspath
-
-import sys
 from egcg_core.app_logging import AppLogger
 from egcg_core.config import Configuration
-
 import EPPs
 from EPPs.common import StepEPP, step_argparser
 
@@ -242,7 +240,7 @@ class UploadVcfToSamples(StepEPP):
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
         elif submitted_genotype_udf_number_call in lims_sample.udf and \
-                nb_call > (lims_sample.udf.get(submitted_genotype_udf_number_call) or 0):
+                nb_call > (lims_sample.udf[submitted_genotype_udf_number_call] or 0):
             # This genotyping is better than before
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
@@ -260,10 +258,10 @@ class UploadVcfToSamples(StepEPP):
     def _run(self):
         invalid_lims_samples = []
         valid_samples = []
-        genotyping_sample_used = []
+        genotyping_samples_used = []
 
-        # First check that all sample are present and matching
-        self.info('Matching %s sample from file against %s artifacts',
+        # First check that all samples are present and matching
+        self.info('Matching %s samples from file against %s artifacts',
                   len(self.geno_conv.sample_names), len(self.artifacts))
         for artifact in self.artifacts:
             # Assume only one sample per artifact
@@ -272,14 +270,14 @@ class UploadVcfToSamples(StepEPP):
                 self.info('No match found for %s', lims_sample.name)
                 invalid_lims_samples.append(lims_sample)
             else:
-                self.info('Matching %s' % lims_sample.name)
-                genotyping_sample_used.append(lims_sample.name)
+                self.info('Matching %s', lims_sample.name)
+                genotyping_samples_used.append(lims_sample.name)
                 valid_samples.append(lims_sample)
 
-        unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_sample_used))
+        unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_samples_used))
 
         self.info('Matched and uploaded %s artifacts against %s genotype results', len(set(valid_samples)),
-                  len(set(genotyping_sample_used)))
+                  len(set(genotyping_samples_used)))
         self.info('%s artifacts did not match', len(set(invalid_lims_samples)))
         self.info('%s genotyping results were not used', len(unused_samples))
 
@@ -301,18 +299,16 @@ class UploadVcfToSamples(StepEPP):
             self._upload_genotyping_for_one_sample(artifact)
 
 
-
 def main():
     args = _parse_args()
-    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file,
-                                args.input_genotypes)
+    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file, args.input_genotypes)
     action.run()
 
 
 def _parse_args():
     p = step_argparser()
     p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
-                   help='The files or artifact id that contains the genotype for all the samples')
+                   help='Files or artifact IDs for the sample genotypes')
     return p.parse_args()
 
 

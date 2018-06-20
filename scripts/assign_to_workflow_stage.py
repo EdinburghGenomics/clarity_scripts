@@ -25,9 +25,8 @@ class AssignWorkflowStage(StepEPP):
         stage = get_workflow_stage(self.lims, self.workflow_name, s)
         if not stage:
             raise ValueError(
-                'Stage specified by workflow: %s and stage: %s does not exist in %s' % (self.workflow_name,
-                                                                                        self.stage_name,
-                                                                                        self.baseuri)
+                'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
+                    self.workflow_name, self.stage_name, self.baseuri)
             )
         if self.only_once:
             artifacts = self.filter_artifacts_has_been_through_stage(artifacts, stage.uri)

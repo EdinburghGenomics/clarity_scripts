@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestAssignNextStep(TestEPP):
     def setUp(self):
-
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{}, {}])
 
@@ -36,7 +35,6 @@ class TestAssignNextStep(TestEPP):
             self.log_file,
             remove=True
         )
-
 
     def test_assign_next_step(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])
