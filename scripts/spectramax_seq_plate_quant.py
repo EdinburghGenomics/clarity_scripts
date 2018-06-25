@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from collections import defaultdict
 from logging import FileHandler
-from egcg_core.app_logging import logging_default as log_cfg
+
 from EPPs.common import StepEPP, step_argparser
-import sys
+from egcg_core.app_logging import logging_default as log_cfg
 
 
 class SpectramaxOutput(StepEPP):
@@ -57,8 +57,6 @@ class SpectramaxOutput(StepEPP):
                 )
             self.plates[plate_name][coord] = conc
 
-
-
     def add_plates_to_step(self):
         self.info('Updating step %s with data: %s', self.step_id, self.plates)
 
@@ -73,32 +71,29 @@ class SpectramaxOutput(StepEPP):
             artifact.udf['Spectramax Well'] = coord
             artifact.put()
 
-
-
     def average_replicates(self):
-        input_artifacts_replicates={}
-        input_mean={}
+        input_artifacts_replicates = {}
 
         for input_output_map in self.process.input_output_maps:
-            if input_output_map[0]['uri'] in input_artifacts_replicates.keys() and input_output_map[1]['output-generation-type']=='PerInput':
+            if input_output_map[0]['uri'] in input_artifacts_replicates.keys() and input_output_map[1][
+                'output-generation-type'] == 'PerInput':
 
-                input_artifacts_replicates[input_output_map[0]['uri']].append(input_output_map[1]['uri'].udf.get('Picogreen Concentration (ng/ul)'))
-            elif input_output_map[0]['uri'] not in input_artifacts_replicates.keys() and input_output_map[1]['output-generation-type']=='PerInput':
+                input_artifacts_replicates[input_output_map[0]['uri']].append(
+                    input_output_map[1]['uri'].udf.get('Picogreen Concentration (ng/ul)'))
+            elif input_output_map[0]['uri'] not in input_artifacts_replicates.keys() and input_output_map[1][
+                'output-generation-type'] == 'PerInput':
 
-                input_artifacts_replicates[input_output_map[0]['uri']]=[input_output_map[1]['uri'].udf.get('Picogreen Concentration (ng/ul)')]
-
+                input_artifacts_replicates[input_output_map[0]['uri']] = [
+                    input_output_map[1]['uri'].udf.get('Picogreen Concentration (ng/ul)')]
 
         for input_artifact in input_artifacts_replicates:
             total = 0
             for replicate in input_artifacts_replicates[input_artifact]:
-                total = total+replicate
-            input_artifact.udf['Picogreen Concentration (ng/ul)']=total/len(input_artifacts_replicates[input_artifact])
+                total = total + replicate
+            input_artifact.udf['Picogreen Concentration (ng/ul)'] = total / len(
+                input_artifacts_replicates[input_artifact])
 
         self.lims.put_batch(list(input_artifacts_replicates))
-
-
-
-
 
     def _run(self):
         self.parse_spectramax_file()
@@ -114,6 +109,7 @@ def main():
     log_cfg.add_handler(FileHandler(args.log_file))
     action = SpectramaxOutput(args.step_uri, args.username, args.password, args.log_file, args.spectramax_file)
     action.run()
+
 
 if __name__ == '__main__':
     main()
