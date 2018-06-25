@@ -56,7 +56,7 @@ class VolumeUpdate(StepEPP):
                     # assuming that order in each argument list is the same and the number of values in each argument list
                     # is the same then loop through the arguments together using the zip standard function
 
-                    input.udf[sample_udf_name] = input.udf[sample_udf_name] - self.process.udf[step_udf_name]
+                    input.udf[sample_udf_name] = input.udf.get[sample_udf_name] - self.process.udf.get[step_udf_name]
                     inputs_to_update.add(input)
             self.lims.put_batch(list(inputs_to_update))
 
