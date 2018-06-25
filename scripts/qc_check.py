@@ -40,12 +40,7 @@ class QCCheck(StepEPP):
         self.qc_results = qc_results
         self.replicates = replicates
 
-
-
     def _run(self):
-
-
-
 
         # we want to update all the outputs that are analytes so will have result UDF values i.e. not files. These are
         # identified as there output-generation-type is "PerInput" which is provided by input_output_maps attribute of
@@ -84,7 +79,7 @@ class QCCheck(StepEPP):
 
                 self.lims.put_batch(list(outputs_to_update))
 
-        #if -r argument is present then QC check is between the input UDF and step UDF
+        # if -r argument is present then QC check is between the input UDF and step UDF
         elif self.replicates == True:
             # will update the LIMS using batch for efficiency so need a step variable to populate before the put
             inputs_to_update = set()
@@ -109,23 +104,23 @@ class QCCheck(StepEPP):
                         inputs_to_update.add(input)
             self.lims.put_batch(list(inputs_to_update))
 
+
 def main():
     # Get the default command line options
     p = step_argparser()
     p.add_argument('-n', '--step_udf_names', nargs='*',
                    help='step udfs against which values will be compared')
 
-
     p.add_argument('-t', '--result_udf_names', nargs='*',
-               help='output/inputs udfs which will be compared against step UDFs')
+                   help='output/inputs udfs which will be compared against step UDFs')
     p.add_argument('-o', '--logic_ops', nargs='*',
-               help='logical operators for comparing output/input UDFs with step UDFs')
+                   help='logical operators for comparing output/input UDFs with step UDFs')
     p.add_argument('-v', '--qc_udf_names', nargs='*',
-               help='output/input  QC udfs that should be updated as a result of the comparison')
+                   help='output/input  QC udfs that should be updated as a result of the comparison')
     p.add_argument('-w', '--qc_results', nargs='*',
-               help='entries that should go into the output QC UDFs if a fail')
+                   help='entries that should go into the output QC UDFs if a fail')
     p.add_argument('-r', '--replicates', action='store_true',
-               help='set the script to check the input UDF and not individual replicates', default=False)
+                   help='set the script to check the input UDF and not individual replicates', default=False)
 
     # the -n argument can have as many entries as required, if there are spaces within the udfnames and when running locally
     # then they must be enclosed in speech marks " not quotes ' -n "udf name 1" "udf name 2" "udfname 3" BUT use quotes ' when configuring the EPP as speech marks close the
@@ -142,6 +137,7 @@ def main():
 
     # Run the EPP
     action.run()
+
 
 if __name__ == "__main__":
     main()
