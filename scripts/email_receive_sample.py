@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 import platform
-from EPPs.common import step_argparser, SendMailEPP
-from EPPs.config import load_config
+from EPPs.common import SendMailEPP
 
 
 class ReceiveSampleEmail(SendMailEPP):
     """Notifies the relevant teams that samples for a project have been received"""
-    def __init__(self, step_uri, username, password, upl=False):
-        super().__init__(step_uri, username, password)
-        self.upl = upl
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        self.upl = self.cmd_args.upl
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('-r', '--upl', action='store_true', help='Send UPL receipt email', default=False)
 
     def _run(self):
         if self.upl:
@@ -32,15 +35,5 @@ class ReceiveSampleEmail(SendMailEPP):
         self.send_mail(subject, msg, config_name='projects-facility-lab-finance_only')
 
 
-def main():
-    p = step_argparser()
-    p.add_argument('-r', '--upl', action='store_true', help='send upl receipt email', default=False)
-    args = p.parse_args()
-    load_config()
-
-    action = ReceiveSampleEmail(args.step_uri, args.username, args.password, args.upl)
-    action.run()
-
-
 if __name__ == '__main__':
-    main()
+    ReceiveSampleEmail().run()

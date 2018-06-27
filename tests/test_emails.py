@@ -1,8 +1,6 @@
-import os
 import platform
 from unittest.mock import Mock, patch, PropertyMock
 from EPPs.common import SendMailEPP
-from egcg_core.config import cfg
 from scripts.email_data_release import DataReleaseEmail
 from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from scripts.email_data_trigger import DataReleaseTrigger
@@ -34,7 +32,6 @@ class TestEmailEPP(TestEPP):
 
     def setUp(self):
         super().setUp()
-        cfg.load_config_file(os.path.join(self.etc_path, 'example_clarity_script.yml'))
         self.patch_process = self.create_patch_process(SendMailEPP)
 
     def test_only_one_project(self):
@@ -47,7 +44,7 @@ class TestEmailEPP(TestEPP):
             print('Skipping test for abstract class: ' + self.epp.__class__.__name__)
 
     def create_epp(self, klass):
-        return klass('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        return klass(self.default_argv)
 
     @staticmethod
     def create_patch_process(klass, udfs=None):
@@ -212,18 +209,9 @@ class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
         # setup epp for test email for receiving plates containing samples
-        self.epp1 = ReceiveSampleEmail(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-        )
+        self.epp1 = ReceiveSampleEmail(self.default_argv)
         # set up epp for test email for receiving plates containing libraries
-        self.epp2 = ReceiveSampleEmail(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            upl=True
-        )
+        self.epp2 = ReceiveSampleEmail(self.default_argv + ['--upl'])
 
     # generate test email for receiving plates containing samples
     def test_send_email_sample(self):

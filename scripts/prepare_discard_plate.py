@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import sys
-from logging import FileHandler
-from egcg_core.app_logging import logging_default as log_cfg
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+from EPPs.common import StepEPP, get_workflow_stage
 
 valid_suffixes = {'-GTY', '-DNA'}
 discard_wf_name = 'Sample Disposal EG 1.0 WF'
@@ -119,12 +117,5 @@ class FindPlateToRoute(StepEPP):
         # TODO: clean up steps where the step_associated_artifacts are queued
 
 
-def main():
-    args = step_argparser().parse_args()
-    log_cfg.add_handler(FileHandler(args.log_file))
-    action = FindPlateToRoute(args.step_uri, args.username, args.password, args.log_file)
-    return action.run()
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(FindPlateToRoute().run())

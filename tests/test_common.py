@@ -1,3 +1,4 @@
+import os
 from os.path import join, dirname, abspath
 from requests import ConnectionError
 from unittest.case import TestCase
@@ -40,9 +41,18 @@ class TestEPP(TestCommon):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patched_lims = patch.object(StepEPP, 'lims', new_callable=PropertyMock())
+        self.default_argv = [
+            '--step_uri', 'http://server:8080/a_step_uri',
+            '--username', 'a_user',
+            '--password', 'a_password',
+            '--log_file', TestCommon.log_file
+        ]
+        os.environ['CLARITYSCRIPTCONFIG'] = join(self.etc_path, 'example_clarity_script.yml')
 
     def setUp(self):
-        self.epp = StepEPP('http://server:8080/some/extra/stuff', 'a username', 'a password', self.log_file)
+        argv = self.default_argv.copy()
+        argv[1] = 'http://server:8080/some/extra/stuff'
+        self.epp = StepEPP(argv)
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'

@@ -26,9 +26,7 @@ def fake_get_artifacts(samplelimsid, type):
 
 class TestPrepareDiscardPlate(TestEPP):
     def setUp(self):
-        self.epp = prepare_discard_plate.FindPlateToRoute(
-            'http://server:8080/a_step_uri', 'a_user', 'a_password', 'a_workflow_name'
-        )
+        self.epp = prepare_discard_plate.FindPlateToRoute(self.default_argv)
         self.patched_process = patch.object(
             StepEPP,
             'process',

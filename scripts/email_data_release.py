@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import platform
-from EPPs.common import step_argparser, SendMailEPP
-from EPPs.config import load_config
+from EPPs.common import SendMailEPP
 
 
 class DataReleaseEmail(SendMailEPP):
@@ -31,14 +30,5 @@ class DataReleaseEmail(SendMailEPP):
             self.send_mail(subject2, msg2, config_name='projects-facility-finance-bd_only')
 
 
-def main():
-    p = step_argparser()
-    args = p.parse_args()
-    load_config()
-
-    action = DataReleaseEmail(args.step_uri, args.username, args.password, args.log_file)
-    action.run()
-
-
 if __name__ == '__main__':
-    main()
+    DataReleaseEmail().run()

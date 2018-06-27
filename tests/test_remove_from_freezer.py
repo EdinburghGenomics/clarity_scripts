@@ -20,12 +20,7 @@ class TestUpdateFreezerLocation(TestEPP):
             new_callable=PropertyMock(return_value=Mock(udf={'New Freezer Location': 'In the bin'}))
         )
 
-        self.epp = UpdateFreezerLocation(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = UpdateFreezerLocation(self.default_argv)
 
     def test_remove_from_freezer(self):
         with self.patched_samples, self.patched_process:
