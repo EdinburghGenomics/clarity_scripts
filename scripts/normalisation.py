@@ -2,8 +2,14 @@
 
 from EPPs.common import StepEPP, step_argparser
 
-class CalculateCFPVolumes(StepEPP):
 
+class CalculateCFPVolumes(StepEPP):
+    """
+    Calcuate the volume of sample and volume of buffer required based on step UDFs determining a target concentration
+    and overall volume. Arguments are used to specify the UDFs involved.
+    """
+
+    # use arguments to determing
     def __init__(self, step_uri, username, password, target_volume_udf, target_conc_udf, input_conc, input_volume,
                  input_buffer, log_file=None):
         super().__init__(step_uri, username, password, log_file)
@@ -13,19 +19,21 @@ class CalculateCFPVolumes(StepEPP):
         self.input_volume = input_volume
         self.input_buffer = input_buffer
 
-
     def _run(self):
+        # obtain the target volume and concentration from the step UDFs specified by the arguments
+        target_volume = self.process.udf.get(self.target_volume_udf)
+        target_concentration = self.process.udf.get(self.target_conc_udf)
+        # create the set to hold the inputs to be updated with the output form the calculation
+        inputs_to_update = set()
 
-        CFP_volume=self.process.udf.get[self.target_volume_udf]
-        CFP_concentration=self.process.udf.get[self.target_conc_udf]
-        inputs_to_update=[]
-
+        # obtain the concentration of each input and use that calculate the volume of sample and buffer required
         for input in self.process.all_inputs():
-            input.udf[self.input_volume]= CFP_volume*(input.udf.get[self.input_conc] / CFP_concentration)
-            input.udf[self.input_buffer]=CFP_volume-input.udf[self.input_volume]
+            input.udf[self.input_volume] = target_volume * (target_concentration / input.udf.get(self.input_conc))
+            input.udf[self.input_buffer] = target_volume - input.udf.get(self.input_volume)
             inputs_to_update.add(input)
 
         self.lims.put_batch(list(inputs_to_update))
+
 
 def main():
     # Get the default command line options
@@ -41,7 +49,6 @@ def main():
                    help='input UDF to be updated with the volume of sample required')
     p.add_argument('-w', '--input_buffer', type=str,
                    help='input UDF to be updtaed with the volume of buffer required')
-
 
     # the -n argument can have as many entries as required, if there are spaces within the udfnames and when running locally
     # then they must be enclosed in speech marks " not quotes ' -n "udf name 1" "udf name 2" "udfname 3" BUT use quotes ' when configuring the EPP as speech marks close the
