@@ -53,10 +53,10 @@ class GenerateHamiltonInputUPL(StepEPP):
 
                 #assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
-                            input.udf['CFP_DNA_Volume (uL)'],input.udf['CFP_RSB_Volume (uL)'] '0']
+                            input.udf['CFP_DNA_Volume (uL)'],input.udf['CFP_RSB_Volume (uL)'], '0']
                 #build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 #by input container then column then row
-                csv_dict[input.container.name+input.location[1]] = csv_line
+                csv_dict[input.location[1]] = csv_line
 
         #check the number of input containers
         if len(unique_input_containers) > 1:
@@ -73,8 +73,8 @@ class GenerateHamiltonInputUPL(StepEPP):
         #add the lines to the csv_array that will be used to write the Hamilton input file
         for column in columns:
                 for row in rows:
-                    if unique_input_container + row + ":" + column in csv_dict.keys():
-                        csv_array.append(csv_dict[unique_input_container + row + ":" + column])
+                    if row + ":" + column in csv_dict.keys():
+                        csv_array.append(csv_dict[row + ":" + column])
 
 
         #create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
