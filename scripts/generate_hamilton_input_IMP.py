@@ -32,7 +32,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         #obtain all of the inputs for the step
         all_inputs = self.process.all_inputs()
-        cfp_volume = self.process.udf.get("CFP Volume (ul)")
+        cfp_volume = self.process.udf.["CFP Volume (ul)"]
 
     #find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input in all_inputs:

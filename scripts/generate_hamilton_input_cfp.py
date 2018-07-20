@@ -6,10 +6,7 @@ from EPPs.common import StepEPP, step_argparser
 
 
 class GenerateHamiltonInputUPL(StepEPP):
-    """"Generate a CSV containing the necessary information to batch up to 9 User Prepared Library receipt plates
-    into one DCT plate. The Hamilton requires input and output plate containers and well positions from LIMS as well as
-    the volume to be pipetted which is taken from the step UDF "DNA Volume (uL) that is a constant and can only be
-    updated with a LIMS configuration change"""
+    """"Generate a CSV containing the necessary information to normalise the sample in a NRM plate"""
 
     #additional argument required for the location of the Hamilton input file so def _init_ customised
     def __init__(self, step_uri, username, password, log_file, hamilton_input):
@@ -53,7 +50,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
                 #assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
-                            input.udf['CFP_DNA_Volume (uL)'],input.udf['CFP_RSB_Volume (uL)'], '0']
+                            input.udf['CFP_DNA_Volume (uL)'],input.udf['CFP_RSB_Volume (uL)']]
                 #build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 #by input container then column then row
                 csv_dict[input.location[1]] = csv_line
