@@ -32,7 +32,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         #obtain all of the inputs for the step
         all_inputs = self.process.all_inputs()
-        cfp_volume = self.process.udf["CFP Volume (ul)"]
+        cfp_volume = self.process.udf['CFP Volume (ul)']
 
     #find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input in all_inputs:
@@ -51,8 +51,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 unique_output_containers.add(output[0].container.name)
 
                 #assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
-                            input.udf['CFP Volume (ul)'],cfp_volume]
+                csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1], cfp_volume]
                 #build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 #by input container then column then row
                 csv_dict[input.location[1]] = csv_line
