@@ -64,9 +64,9 @@ class GenerateHamiltonInputUPL(StepEPP):
             sys.exit(1)
 
         DIL1_template="LP[0-9]{7}-DIL1"
-        DIL1_barcode=self.process.udf['DIL1 Plate Barcode'])
+        DIL1_barcode=self.process.udf['DIL1 Plate Barcode']
         DIL2_template="LP[0-9]{7}-DIL2"
-        DIL2_barcode=self.process.udf['DIL2 Plate Barcode'])
+        DIL2_barcode=self.process.udf['DIL2 Plate Barcode']
 
 
         #check that DIL1 and DIL2 plate barcodes have the correct format
