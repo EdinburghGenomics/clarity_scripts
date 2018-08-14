@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import csv
 import sys
+import re
 
 from EPPs.common import StepEPP, step_argparser
 
@@ -39,17 +40,12 @@ class GenerateHamiltonInputUPL(StepEPP):
             if input.type == 'Analyte':
                 input_analytes.add(input)
                 output = self.process.outputs_per_input(input.id, ResultFile=True)
-                # the script is only compatible with 1 output for each input i.e. replicates are not allowed
-                if len(output) > 1:
-                    print('Multiple outputs found for an input %s. This step is not compatible with replicates.' % (
-                        input.name))
-                    sys.exit(1)
 
                 # build a list of the unique input containers for checking that no more than 1 is present and for importing
                 # container name into CSV
                 # Build a list of unique output containers as no more than 1 plate
                 unique_input_containers.add(input.container.name)
-                print("This is output: "+output)
+
                 unique_output_containers.add(output[0].container.name)
 
         # check the number of input containers
@@ -78,9 +74,10 @@ class GenerateHamiltonInputUPL(StepEPP):
                 print("%s is not a valid DIL2 container name. Container names must match %s" % (DIL2_barcode, DIL2_template))
                 sys.exit(1)
 
-        csv_array.append(len(input_analytes), unique_input_containers, DIL1_barcode,
-                         DIL2_barcode, unique_output_containers)
-
+        csv_line=[len(input_analytes),list(unique_input_containers)[0],DIL1_barcode,DIL2_barcode,list(unique_output_containers)[0]]
+        csv_array.append(csv_line)
+        #csv_array.append(str(len(input_analytes))+","+str(list(unique_input_containers)[0])+","+DIL1_barcode+","+DIL2_barcode+","+str(list(unique_output_containers)[0]))
+        print(csv_array)
 
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
