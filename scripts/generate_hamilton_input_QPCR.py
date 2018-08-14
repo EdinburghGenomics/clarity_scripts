@@ -49,7 +49,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 # container name into CSV
                 # Build a list of unique output containers as no more than 1 plate
                 unique_input_containers.add(input.container.name)
-
+                print(output)
                 unique_output_containers.add(output[0].container.name)
 
         # check the number of input containers
