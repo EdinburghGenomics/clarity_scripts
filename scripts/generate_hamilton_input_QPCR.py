@@ -38,7 +38,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         for input in all_inputs:
             if input.type == 'Analyte':
                 input_analytes.add(input)
-                output = self.process.outputs_per_input(input.id, Analyte=True)
+                output = self.process.outputs_per_input(input.id, ResultFile=True)
                 # the script is only compatible with 1 output for each input i.e. replicates are not allowed
                 if len(output) > 1:
                     print('Multiple outputs found for an input %s. This step is not compatible with replicates.' % (
@@ -49,7 +49,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 # container name into CSV
                 # Build a list of unique output containers as no more than 1 plate
                 unique_input_containers.add(input.container.name)
-                print(output)
+                print("This is output: "+output)
                 unique_output_containers.add(output[0].container.name)
 
         # check the number of input containers
