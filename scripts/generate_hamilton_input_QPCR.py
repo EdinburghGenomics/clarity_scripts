@@ -23,7 +23,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         # used to write the file
-        csv_column_headers = ['Number of Samples', 'UCT Plate Barcode', 'DIL1 Plate Barcode', 'DIL2 Plate Barcode',
+        csv_column_headers = ['Number of Input Samples', 'UCT Plate Barcode', 'DIL1 Plate Barcode', 'DIL2 Plate Barcode',
                               'QPCR Plate Barcode']
         csv_array.append(csv_column_headers)
 
@@ -76,9 +76,6 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         csv_line=[len(input_analytes),list(unique_input_containers)[0],DIL1_barcode,DIL2_barcode,list(unique_output_containers)[0]]
         csv_array.append(csv_line)
-        #csv_array.append(str(len(input_analytes))+","+str(list(unique_input_containers)[0])+","+DIL1_barcode+","+DIL2_barcode+","+str(list(unique_output_containers)[0]))
-        print(csv_array)
-
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
         # Clarity LIMS to recognise the file and attach it to the step
