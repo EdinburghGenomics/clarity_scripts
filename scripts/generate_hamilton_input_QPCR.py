@@ -6,6 +6,8 @@ import re
 from EPPs.common import StepEPP, step_argparser
 
 
+
+
 class GenerateHamiltonInputUPL(StepEPP):
     """"Generate a 2 row CSV containing the necessary information to for the Make QPCR Hamilton app - number of samples
     UCT plate barcode, DIL1 plate barcode and DIL2 plate barcode - 1st row is column headers, 2nd row is data"""
@@ -24,7 +26,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         # used to write the file
         csv_column_headers = ['Number of Input Samples', 'UCT Plate Barcode', 'DIL1 Plate Barcode', 'DIL2 Plate Barcode',
-                              'QPCR Plate Barcode']
+                              'QSTD Plate Barcode']
         csv_array.append(csv_column_headers)
 
         # define the sets for listing the unique input and output containers
@@ -39,30 +41,26 @@ class GenerateHamiltonInputUPL(StepEPP):
         for input in all_inputs:
             if input.type == 'Analyte':
                 input_analytes.add(input)
-                output = self.process.outputs_per_input(input.id, ResultFile=True)
 
                 # build a list of the unique input containers for checking that no more than 1 is present and for importing
                 # container name into CSV
-                # Build a list of unique output containers as no more than 1 plate
+
                 unique_input_containers.add(input.container.name)
 
-                unique_output_containers.add(output[0].container.name)
+
 
         # check the number of input containers
         if len(unique_input_containers) > 1:
             print('Maximum number of input plates is 1. There are %s output plates in the step.' % (
                 str(len(unique_input_containers))))
             sys.exit(1)
-        # check the number of output containers
-        if len(unique_output_containers) > 1:
-            print('Maximum number of output plates is 1. There are %s output plates in the step.' % (
-                str(len(unique_output_containers))))
-            sys.exit(1)
+
 
         DIL1_template="LP[0-9]{7}-DIL1"
         DIL1_barcode=self.process.udf['DIL1 Plate Barcode']
         DIL2_template="LP[0-9]{7}-DIL2"
         DIL2_barcode=self.process.udf['DIL2 Plate Barcode']
+        QSTD_barcode=self.process.step.reagent_lots[0].lot_number
 
 
         #check that DIL1 and DIL2 plate barcodes have the correct format
@@ -74,7 +72,9 @@ class GenerateHamiltonInputUPL(StepEPP):
                 print("%s is not a valid DIL2 container name. Container names must match %s" % (DIL2_barcode, DIL2_template))
                 sys.exit(1)
 
-        csv_line=[len(input_analytes),list(unique_input_containers)[0],DIL1_barcode,DIL2_barcode,list(unique_output_containers)[0]]
+        print()
+
+        csv_line=[len(input_analytes),list(unique_input_containers)[0],DIL1_barcode,DIL2_barcode,QSTD_barcode]
         csv_array.append(csv_line)
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
