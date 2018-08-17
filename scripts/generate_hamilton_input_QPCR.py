@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import csv
-import sys
 import re
+import sys
 
 from EPPs.common import StepEPP, step_argparser
-
-
 
 
 class GenerateHamiltonInputUPL(StepEPP):
@@ -25,8 +23,9 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         # used to write the file
-        csv_column_headers = ['Number of Input Samples', 'UCT Plate Barcode', 'DIL1 Plate Barcode', 'DIL2 Plate Barcode',
-                              'QSTD Plate Barcode']
+        csv_column_headers = ['Number of Input Samples', 'UCT Plate Barcode', 'DIL1 Plate Barcode',
+                              'DIL2 Plate Barcode',
+                              'QSTD Plate Barcode', 'QMX Barcode', 'QPCR Barcode']
         csv_array.append(csv_column_headers)
 
         # define the sets for listing the unique input and output containers
@@ -42,12 +41,21 @@ class GenerateHamiltonInputUPL(StepEPP):
             if input.type == 'Analyte':
                 input_analytes.add(input)
 
+                output = self.process.outputs_per_input(input.id, ResultFile=True)
+                # the script is only compatible with 1 output for each input i.e. replicates are not allowed
+                if len(output) != 3:
+                    print(
+                        '%s outputs found for an input %s. 3 replicates required' % ((str(len(output))), (input.name)))
+                    sys.exit(1)
                 # build a list of the unique input containers for checking that no more than 1 is present and for importing
                 # container name into CSV
 
                 unique_input_containers.add(input.container.name)
 
+                # build a list of the unique output containers for checking that no more than 1 is present and for importing
+                # container name into CSV
 
+                unique_output_containers.add(output[0].container.name)
 
         # check the number of input containers
         if len(unique_input_containers) > 1:
@@ -55,26 +63,46 @@ class GenerateHamiltonInputUPL(StepEPP):
                 str(len(unique_input_containers))))
             sys.exit(1)
 
+        # check the number of output containers
+        if len(unique_output_containers) > 1:
+            print('Maximum number of output plates is 1. There are %s output plates in the step.' % (
+                str(len(unique_output_containers))))
+            sys.exit(1)
 
-        DIL1_template="LP[0-9]{7}-DIL1"
-        DIL1_barcode=self.process.udf['DIL1 Plate Barcode']
-        DIL2_template="LP[0-9]{7}-DIL2"
-        DIL2_barcode=self.process.udf['DIL2 Plate Barcode']
-        QSTD_barcode=self.process.step.reagent_lots[0].lot_number
+        # find the DIL1 and DIL2 barcodes
+        DIL1_template = "LP[0-9]{7}-DIL1"
+        DIL1_barcode = self.process.udf['DIL1 Plate Barcode']
+        DIL2_template = "LP[0-9]{7}-DIL2"
+        DIL2_barcode = self.process.udf['DIL2 Plate Barcode']
+
+        # check that DIL1 and DIL2 plate barcodes have the correct format
+        if not re.match(DIL1_template, DIL1_barcode):
+            print(
+                "%s is not a valid DIL1 container name. Container names must match %s" % (DIL1_barcode, DIL1_template))
+            sys.exit(1)
+
+        if not re.match(DIL1_template, DIL1_barcode):
+            print(
+                "%s is not a valid DIL2 container name. Container names must match %s" % (DIL2_barcode, DIL2_template))
+            sys.exit(1)
+
+        # find the corresponding lot number i.e. barcode for the QMX and QSTD.
+        QMX_template = "LP[0-9]{7}-QMX"
+        QSTD_template = "LP[0-9]{7}-QSTD"
+
+        reagent_lots = list(self.process.step.reagent_lots)
 
 
-        #check that DIL1 and DIL2 plate barcodes have the correct format
-        if not re.match(DIL1_template,DIL1_barcode):
-                print("%s is not a valid DIL1 container name. Container names must match %s" % (DIL1_barcode, DIL1_template))
-                sys.exit(1)
+        for lot in reagent_lots:
+            if re.match(QMX_template,lot.lot_number):
+                QMX_barcode = lot.lot_number
+            if re.match(QSTD_template,lot.lot_number):
+                QSTD_barcode = lot.lot_number
 
-        if not re.match(DIL1_template,DIL1_barcode):
-                print("%s is not a valid DIL2 container name. Container names must match %s" % (DIL2_barcode, DIL2_template))
-                sys.exit(1)
 
-        print()
 
-        csv_line=[len(input_analytes),list(unique_input_containers)[0],DIL1_barcode,DIL2_barcode,QSTD_barcode]
+        csv_line = [len(input_analytes), list(unique_input_containers)[0], DIL1_barcode, DIL2_barcode, QSTD_barcode,
+                    QMX_barcode, list(unique_output_containers)[0]]
         csv_array.append(csv_line)
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
