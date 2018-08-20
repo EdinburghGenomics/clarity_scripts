@@ -100,7 +100,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         if len(input_analytes) > 3:
             print('Maximum number of input samples is 23. There are %s input samples in the step.' % (
                 str(len(input_analytes))))
-            sys.exit(1)
+            #sys.exit(1)
 
         # check the number of input containers
         if len(unique_input_containers) > 1:
