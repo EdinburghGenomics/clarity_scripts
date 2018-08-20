@@ -25,7 +25,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         # used to write the file
         csv_column_headers = ['Number of Input Samples', 'UCT Plate Barcode', 'DIL1 Plate Barcode',
                               'DIL2 Plate Barcode',
-                              'QSTD Plate Barcode', 'QMX Barcode', 'QPCR Barcode']
+                              'QSTD Plate Barcode', 'QMX Barcode', 'QPCR Plate Barcode']
         csv_array.append(csv_column_headers)
 
         # define the sets for listing the unique input and output containers
