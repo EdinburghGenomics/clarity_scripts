@@ -27,7 +27,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         # used to write the file
-        csv_column_headers = ['UCT-DCT Plate Barcode', 'UCT-DCT Well', 'QPCR Plate Barcode', 'QPCR Well-1',
+        csv_column_headers = ['Sample Name','UCT-DCT Plate Barcode', 'UCT-DCT Well', 'QPCR Plate Barcode', 'QPCR Well-1',
                               'QPCR Well-2', 'QPCR Well-3', 'DIL1 Plate Barcode', 'DIL2 Plate Barcode',
                               'QSTD Plate Barcode', 'QMX Barcode']
         csv_array.append(csv_column_headers)
@@ -73,7 +73,9 @@ class GenerateHamiltonInputUPL(StepEPP):
         for input in all_inputs:
             if input.type == 'Analyte':
 
-                input_analytes.add(input)
+                #build set of input analytes for checking only 23 are present
+                if input.location[1] != "1:1":
+                    input_analytes.add(input)
 
                 output = self.process.outputs_per_input(input.id, ResultFile=True)
                 # the script is only compatible with 1 output for each input i.e. replicates are not allowed
@@ -82,9 +84,10 @@ class GenerateHamiltonInputUPL(StepEPP):
                         '%s outputs found for an input %s. 3 replicates required' % ((str(len(output))), (input.name)))
                     sys.exit(1)
                 # build a list of the unique input containers for checking that no more than 1 is present and for importing
-                # container name into CSV
+                # container name into CSV. Do not count the 'containers' for the standards
 
-                unique_input_containers.add(input.container.name)
+                if input.location[1] != "1:1":
+                    unique_input_containers.add(input.container.name)
 
                 # build a list of the unique output containers for checking that no more than 1 is present and for importing
                 # container name into CSV
@@ -120,7 +123,7 @@ class GenerateHamiltonInputUPL(StepEPP):
                 ## output[1].location[1], output[2].location[1], DIL1_barcode, DIL2_barcode, QSTD_barcode,
                 ##   QMX_barcode]
 
-                csv_line = [input.container.name, input.location[1], output[0].container.name,
+                csv_line = [input.name,input.container.name, input.location[1], output[0].container.name,
                             output_locations_final[0], output_locations_final[1], output_locations_final[2],
                             DIL1_barcode, DIL2_barcode, QSTD_barcode,QMX_barcode]
 
@@ -131,23 +134,23 @@ class GenerateHamiltonInputUPL(StepEPP):
                 else:
                     libraries_csv_dict[input.location[1]] = csv_line
 
-        # check the number of inputs
-        if len(input_analytes) > 3:
+        # check the number of inputs i.e. size of the input_analytes set that was contructed above
+        if len(input_analytes) > 23:
             print('Maximum number of input samples is 23. There are %s input samples in the step.' % (
                 str(len(input_analytes))))
-            # sys.exit(1)
+            sys.exit(1)
 
         # check the number of input containers
         if len(unique_input_containers) > 1:
-            print('Maximum number of input plates is 1. There are %s output plates in the step.' % (
+            print('Maximum number of input plates is 1. There are %s intput plates in the step.' % (
                 str(len(unique_input_containers))))
-            # sys.exit(1)
+            sys.exit(1)
 
         # check the number of output containers
         if len(unique_output_containers) > 1:
             print('Maximum number of output plates is 1. There are %s output plates in the step.' % (
                 str(len(unique_output_containers))))
-            # sys.exit(1)
+            sys.exit(1)
 
         # define the rows and columns in the library input plate (standard 96 well plate pattern)
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
