@@ -111,19 +111,22 @@ class GenerateHamiltonInputUPL(StepEPP):
                 #reset count to 0
                 counter = 0
 
-                #reassemble the well location strings as row:column
+                #reassemble the well location strings as [row][column] without a semi-colon
                 output_locations_final=[]
                 while counter <= 2:
-                    output_locations_final.append(output_locations[counter][0]+":"+str(output_locations[counter][1]))
+                    output_locations_final.append(output_locations[counter][0]+str(output_locations[counter][1]))
                     counter = counter+1
 
+                #Hamilton app cannot handle semi-colons in well locations so must be removed
+                row, column = input.location[1].split(":")
+                input_location_modified= row+str(column)
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 ##csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
                 ## output[1].location[1], output[2].location[1], DIL1_barcode, DIL2_barcode, QSTD_barcode,
                 ##   QMX_barcode]
 
-                csv_line = [input.name,input.container.name, input.location[1], output[0].container.name,
+                csv_line = [input.name,input.container.name, input_location_modified, output[0].container.name,
                             output_locations_final[0], output_locations_final[1], output_locations_final[2],
                             DIL1_barcode, DIL2_barcode, QSTD_barcode,QMX_barcode]
 
