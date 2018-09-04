@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import sys
+import re
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
 #names formats of the derived plates that should be located by the script (other derived plates are disposed of by date
 
-valid_names = {'LP[0-9]{7}-GTY', 'LP[0-9]{7}-DNA','\w*P[0-9]{3}' }
+valid_names = {'LP[0-9]{7}-GTY', 'LP[0-9]{7}-DNA','\w*P[0-9]{3}'}
 
 discard_wf_name = 'Sample Disposal EG 1.0 WF'
 sample_discard_wf_stage_name = 'Request Sample Disposal EG 1.0 ST'
@@ -51,6 +52,7 @@ def has_workflow_stage(artifact, workflow_step_name):
 
 class FindPlateToRoute(StepEPP):
     def _run(self):
+
         # Find the Discard plate workflow uri
         discard_plate_stage = get_workflow_stage(self.lims, workflow_name=discard_wf_name, stage_name=plate_discard_wf_stage_name)
         self.info('Found Stage %s uri: %s', plate_discard_wf_stage_name, discard_plate_stage.uri)
