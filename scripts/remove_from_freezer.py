@@ -1,16 +1,23 @@
 #!/usr/bin/env python
+# !/usr/bin/env python
 from EPPs.common import step_argparser, StepEPP
 from EPPs.config import load_config
 
 
 class UpdateFreezerLocation(StepEPP):
     def _run(self):
+        for artifact in artifacts:
+            if re.match('LP[0-9]{7}-DNA', container.name):
+                artifact.udf['Freezer'] = self.process.udf.get('New Freezer Location')
+                artifact.udf['Shelf'] = self.process.udf.get('New Freezer Location')
+                artifact.udf['Box'] = self.process.udf.get('New Freezer Location')
+                artifact.put()
 
-        for sample in self.samples:
-            sample.udf['Freezer'] = self.process.udf.get('New Freezer Location')
-            sample.udf['Shelf'] = self.process.udf.get('New Freezer Location')
-            sample.udf['Box'] = self.process.udf.get('New Freezer Location')
-            sample.put()
+            if re.match('\w*P[0-9]{3}', container.name):
+                artifact.samples[0].udf['Freezer'] = self.process.udf.get('New Freezer Location')
+                artifact.samples[0].udf['Shelf'] = self.process.udf.get('New Freezer Location')
+                artifact.samples[0].udf['Box'] = self.process.udf.get('New Freezer Location')
+                artifact.samples[0].put()
 
 
 def main():

@@ -3,8 +3,9 @@ import sys
 from logging import FileHandler
 from egcg_core.app_logging import logging_default as log_cfg
 from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+#names formats of the derived plates that should be located by the script (other derived plates are disposed of by date
 
-valid_suffixes = {'-GTY', '-DNA'}
+valid_names = {'LP[0-9]{7}-GTY', 'LP[0-9]{7}-DNA','\w*P[0-9]{3}' }
 
 discard_wf_name = 'Sample Disposal EG 1.0 WF'
 sample_discard_wf_stage_name = 'Request Sample Disposal EG 1.0 ST'
@@ -31,8 +32,8 @@ def fetch_all_artifacts_for_samples(lims, samples):
 
 
 def is_valid_container(container):
-    for suffix in valid_suffixes:
-        if container.name.endswith(suffix):
+    for name in valid_names:
+        if re.match(name, container.name):
             return True
     return False
 
