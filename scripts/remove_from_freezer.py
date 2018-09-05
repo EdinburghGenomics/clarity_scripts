@@ -1,23 +1,28 @@
 #!/usr/bin/env python
 # !/usr/bin/env python
 from EPPs.common import step_argparser, StepEPP
-from EPPs.config import load_config
+
+
+# the freezer location of the sample entering the step should be updated to match the step UDFs. The script checks
+# if the sample is a submitted sample or aderived sample and updates the corresponding UDFs
 
 
 class UpdateFreezerLocation(StepEPP):
     def _run(self):
-        for artifact in artifacts:
-            if re.match('LP[0-9]{7}-DNA', container.name):
-                artifact.udf['Freezer'] = self.process.udf.get('New Freezer Location')
-                artifact.udf['Shelf'] = self.process.udf.get('New Freezer Location')
-                artifact.udf['Box'] = self.process.udf.get('New Freezer Location')
-                artifact.put()
-
-            if re.match('\w*P[0-9]{3}', container.name):
+        # process each artifact in the step
+        for artifact in self.artifacts:
+            # if the sample is a submitted sample then the artifact in the step will match the artifact obtained if
+            # we obtain the submitted sample and then its equivalent artifact
+            if str(artifact) == str(artifact.samples[0].artifact):
                 artifact.samples[0].udf['Freezer'] = self.process.udf.get('New Freezer Location')
                 artifact.samples[0].udf['Shelf'] = self.process.udf.get('New Freezer Location')
-                artifact.samples[0].udf['Box'] = self.process.udf.get('New Freezer Location')
                 artifact.samples[0].put()
+            # if the sample is a derived sample then the artifact in the step will not match the artifact obtained if
+            # we obtain the submitted sample and then its equivalent artifact
+            elif str(artifact) != str(artifact.samples[0].artifact):
+                artifact.udf['Freezer'] = self.process.udf.get('New Freezer Location')
+                artifact.udf['Shelf'] = self.process.udf.get('New Freezer Location')
+                artifact.put()
 
 
 def main():
@@ -26,9 +31,6 @@ def main():
 
     # Parse command line options
     args = p.parse_args()
-
-    # Load the config from the default location
-    load_config()
 
     # Setup the EPP
     action = UpdateFreezerLocation(
