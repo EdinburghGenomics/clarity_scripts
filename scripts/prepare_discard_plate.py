@@ -1,12 +1,14 @@
 #!/usr/bin/env python
-import sys
 import re
+import sys
 from logging import FileHandler
-from egcg_core.app_logging import logging_default as log_cfg
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
-#names formats of the derived plates that should be located by the script (other derived plates are disposed of by date
 
-valid_names = {'LP[0-9]{7}-GTY', 'LP[0-9]{7}-DNA','\w*P[0-9]{3}'}
+from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+from egcg_core.app_logging import logging_default as log_cfg
+
+# valid name formats of the derived plates that should be located by the script (other derived plates are disposed of by date)
+
+valid_names = {'LP[0-9]{7}-GTY', 'LP[0-9]{7}-DNA', '\w*P[0-9]{3}'}
 
 discard_wf_name = 'Sample Disposal EG 1.0 WF'
 sample_discard_wf_stage_name = 'Request Sample Disposal EG 1.0 ST'
@@ -15,7 +17,7 @@ plate_discard_wf_stage_name = 'Dispose of Samples EG 1.0 ST'
 
 def batch_limit(lims, list_instance, max_query=100):
     for start in range(0, len(list_instance), max_query):
-        lims.get_batch(list_instance[start:start+max_query])
+        lims.get_batch(list_instance[start:start + max_query])
 
 
 def fetch_all_artifacts_for_samples(lims, samples):
@@ -27,7 +29,7 @@ def fetch_all_artifacts_for_samples(lims, samples):
     max_query = 50
     artifacts = []
     for start in range(0, len(lims_ids), max_query):
-        artifacts.extend(lims.get_artifacts(samplelimsid=lims_ids[start:start+max_query], type='Analyte'))
+        artifacts.extend(lims.get_artifacts(samplelimsid=lims_ids[start:start + max_query], type='Analyte'))
     batch_limit(lims, artifacts)
     return artifacts
 
@@ -54,7 +56,8 @@ class FindPlateToRoute(StepEPP):
     def _run(self):
 
         # Find the Discard plate workflow uri
-        discard_plate_stage = get_workflow_stage(self.lims, workflow_name=discard_wf_name, stage_name=plate_discard_wf_stage_name)
+        discard_plate_stage = get_workflow_stage(self.lims, workflow_name=discard_wf_name,
+                                                 stage_name=plate_discard_wf_stage_name)
         self.info('Found Stage %s uri: %s', plate_discard_wf_stage_name, discard_plate_stage.uri)
 
         # Fetch the artifacts associated with the step
@@ -104,14 +107,16 @@ class FindPlateToRoute(StepEPP):
                 if artifact in step_associated_artifacts or has_workflow_stage(artifact, sample_discard_wf_stage_name):
                     self.info(
                         'Container %s might route because artifact %s in step_associated_artifacts (%s) or has been discarded before (%s)',
-                        container.name, artifact.name, artifact in step_associated_artifacts, has_workflow_stage(artifact, sample_discard_wf_stage_name)
+                        container.name, artifact.name, artifact in step_associated_artifacts,
+                        has_workflow_stage(artifact, sample_discard_wf_stage_name)
                     )
                 else:
                     # This container will have to wait
                     route_allowed = False
                     self.info(
                         "Container: %s won't route because artifact %s in step_associated_artifacts (%s) or has been discarded before (%s)",
-                        container.name, artifact.name, artifact in step_associated_artifacts, has_workflow_stage(artifact, sample_discard_wf_stage_name)
+                        container.name, artifact.name, artifact in step_associated_artifacts,
+                        has_workflow_stage(artifact, sample_discard_wf_stage_name)
                     )
             if route_allowed:
                 artifacts_to_route.extend(list(container.placements.values()))
