@@ -92,6 +92,8 @@ def test_is_valid_container():
     assert prepare_discard_plate.is_valid_container(valid_container)
     valid_container = NamedMock(real_name='this-DNA')
     assert prepare_discard_plate.is_valid_container(valid_container)
+    valid_container = NamedMock(real_name='this-P001')
+    assert prepare_discard_plate.is_valid_container(valid_container)
     invalid_container = NamedMock(real_name='this-QNT')
     assert not prepare_discard_plate.is_valid_container(invalid_container)
 
