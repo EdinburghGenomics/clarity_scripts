@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import platform
-from EPPs.common import step_argparser, SendMailEPP
-from EPPs.config import load_config
+from EPPs.common import SendMailEPP
 
 
 class DataReleaseFMEmail(SendMailEPP):
-
     def _run(self):
-        if len(self.projects)>1: #  check if more than one project in step, only one permitted
+        if len(self.projects) > 1:  # check if more than one project in step, only one permitted
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
         # Create the message
@@ -29,24 +27,5 @@ class DataReleaseFMEmail(SendMailEPP):
         self.send_mail(subject, msg, config_name='projects-facility')
 
 
-def main():
-    # Ge the default command line options
-    p = step_argparser()
-
-    # Parse command line options
-    args = p.parse_args()
-
-    # Load the config from the default location
-    load_config()
-
-    # Setup the EPP
-    action = DataReleaseFMEmail(
-        args.step_uri, args.username, args.password, args.log_file,
-    )
-
-    # Run the EPP
-    action.run()
-
-
 if __name__ == "__main__":
-    main()
+    DataReleaseFMEmail().run()

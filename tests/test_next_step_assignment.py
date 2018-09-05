@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestAssignNextStep(TestEPP):
     def setUp(self):
-
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{}, {}])
 
@@ -15,28 +14,9 @@ class TestAssignNextStep(TestEPP):
             new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions, configuration=self.protostep)))
         )
 
-        self.epp = AssignNextStep(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
-        self.epp_review = AssignNextStep(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file,
-            review=True
-        )
-
-        self.epp_remove = AssignNextStep(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file,
-            remove=True
-        )
-
+        self.epp = AssignNextStep(self.default_argv)
+        self.epp_review = AssignNextStep(self.default_argv + ['-r'])
+        self.epp_remove = AssignNextStep(self.default_argv + ['-e'])
 
     def test_assign_next_step(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])

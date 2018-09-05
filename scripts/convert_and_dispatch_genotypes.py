@@ -1,15 +1,13 @@
 #!/usr/bin/env python
+import sys
 import csv
 from collections import defaultdict
 from os import remove
 from os.path import join, dirname, abspath
-
-import sys
 from egcg_core.app_logging import AppLogger
 from egcg_core.config import Configuration
-
 import EPPs
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 etc_path = join(abspath(dirname(EPPs.__file__)), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
@@ -205,14 +203,21 @@ class GenotypeConversion(AppLogger):
 
 
 class UploadVcfToSamples(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, input_genotypes_files):
-        super().__init__(step_uri, username, password, log_file)
+    def __init__(self, argv=None):
+        super().__init__(argv)
         input_genotypes_contents = []
-        for s in input_genotypes_files:
+        for s in self.cmd_args.input_genotypes:
             f = self.open_or_download_file(s)
             if f:
                 input_genotypes_contents.append(f)
         self.geno_conv = GenotypeConversion(input_genotypes_contents, default_fai, default_flank_length)
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument(
+            '--input_genotypes', type=str, nargs='+',
+            help='Files or artifact IDs for the sample genotypes'
+        )
 
     def _find_output_art(self, input_art):
         return [o.get('uri') for i, o in self.process.input_output_maps if
@@ -241,8 +246,8 @@ class UploadVcfToSamples(StepEPP):
             # This is the first genotyping results
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
-        elif lims_sample.udf.get(submitted_genotype_udf_number_call) and \
-                nb_call > lims_sample.udf.get(submitted_genotype_udf_number_call):
+        elif submitted_genotype_udf_number_call in lims_sample.udf and \
+                nb_call > (lims_sample.udf[submitted_genotype_udf_number_call] or 0):
             # This genotyping is better than before
             lims_sample.udf[submitted_genotype_udf_number_call] = nb_call
             lims_sample.udf[genotype_udf_file_id] = lims_file.id
@@ -260,10 +265,10 @@ class UploadVcfToSamples(StepEPP):
     def _run(self):
         invalid_lims_samples = []
         valid_samples = []
-        genotyping_sample_used = []
+        genotyping_samples_used = []
 
-        # First check that all sample are present and matching
-        self.info('Matching %s sample from file against %s artifacts',
+        # First check that all samples are present and matching
+        self.info('Matching %s samples from file against %s artifacts',
                   len(self.geno_conv.sample_names), len(self.artifacts))
         for artifact in self.artifacts:
             # Assume only one sample per artifact
@@ -272,14 +277,14 @@ class UploadVcfToSamples(StepEPP):
                 self.info('No match found for %s', lims_sample.name)
                 invalid_lims_samples.append(lims_sample)
             else:
-                self.info('Matching %s' % lims_sample.name)
-                genotyping_sample_used.append(lims_sample.name)
+                self.info('Matching %s', lims_sample.name)
+                genotyping_samples_used.append(lims_sample.name)
                 valid_samples.append(lims_sample)
 
-        unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_sample_used))
+        unused_samples = set(self.geno_conv.sample_names).difference(set(genotyping_samples_used))
 
         self.info('Matched and uploaded %s artifacts against %s genotype results', len(set(valid_samples)),
-                  len(set(genotyping_sample_used)))
+                  len(set(genotyping_samples_used)))
         self.info('%s artifacts did not match', len(set(invalid_lims_samples)))
         self.info('%s genotyping results were not used', len(unused_samples))
 
@@ -301,20 +306,5 @@ class UploadVcfToSamples(StepEPP):
             self._upload_genotyping_for_one_sample(artifact)
 
 
-
-def main():
-    args = _parse_args()
-    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file,
-                                args.input_genotypes)
-    action.run()
-
-
-def _parse_args():
-    p = step_argparser()
-    p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
-                   help='The files or artifact id that contains the genotype for all the samples')
-    return p.parse_args()
-
-
 if __name__ == '__main__':
-    main()
+    UploadVcfToSamples().run()

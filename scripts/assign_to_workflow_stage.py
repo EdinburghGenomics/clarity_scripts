@@ -1,15 +1,36 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+from EPPs.common import StepEPP, get_workflow_stage
 
 
 class AssignWorkflowStage(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, workflow_name, stage_name, source, remove=False, only_once=False):
-        super().__init__(step_uri, username, password, log_file)
-        self.workflow_name = workflow_name
-        self.stage_name = stage_name
-        self.source = source
-        self.remove = remove
-        self.only_once = only_once
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        self.workflow_name = self.cmd_args.workflow
+        self.stage_name = self.cmd_args.stage
+        self.source = self.cmd_args.source
+        self.remove = self.cmd_args.remove
+        self.only_once = self.cmd_args.only_once
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument(
+            '--workflow', type=str, required=True, help='The name of the workflow we should route the artifacts to.'
+        )
+        argparser.add_argument(
+            '--stage', type=str, help='The name of the stage in the workflow we should route the artifacts to.'
+        )
+        argparser.add_argument(
+            '--source', type=str, required=True, choices=['input', 'output', 'submitted'],
+            help='The name of the stage in the workflow we should route the artifacts to.'
+        )
+        argparser.add_argument(
+            '--remove', action='store_true', default=False,
+            help='Set the script to remove the artifacts instead of queueing.'
+        )
+        argparser.add_argument(
+            '--only_once', action='store_true', default=False,
+            help='Prevent the sample that have gone into this workflow to be assigned again.'
+        )
 
     def _run(self):
         artifacts = None
@@ -25,9 +46,8 @@ class AssignWorkflowStage(StepEPP):
         stage = get_workflow_stage(self.lims, self.workflow_name, s)
         if not stage:
             raise ValueError(
-                'Stage specified by workflow: %s and stage: %s does not exist in %s' % (self.workflow_name,
-                                                                                        self.stage_name,
-                                                                                        self.baseuri)
+                'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
+                    self.workflow_name, self.stage_name, self.baseuri)
             )
         if self.only_once:
             artifacts = self.filter_artifacts_has_been_through_stage(artifacts, stage.uri)
@@ -49,26 +69,5 @@ class AssignWorkflowStage(StepEPP):
         return valid_artifacts
 
 
-def main():
-    p = step_argparser()
-    p.add_argument('--workflow', dest='workflow', type=str, required=True,
-                   help='The name of the workflow we should route the artifacts to.')
-    p.add_argument('--stage', dest='stage', type=str,
-                   help='The name of the stage in the workflow we should route the artifacts to.')
-    p.add_argument('--source', dest='source', type=str, required=True, choices=['input', 'output', 'submitted'],
-                   help='The name of the stage in the workflow we should route the artifacts to.')
-    p.add_argument('--only_once', dest='only_once', action='store_true', default=False,
-                   help='Prevent the sample that have gone into this workflow to be assigned again.')
-    p.add_argument('--remove', dest='remove', action='store_true', default=False,
-                   help='Set the script to remove the artifacts instead of queueing.')
-
-    args = p.parse_args()
-    action = AssignWorkflowStage(
-        args.step_uri, args.username, args.password, args.log_file,
-        args.workflow, args.stage, args.source, args.remove, args.only_once
-    )
-    action.run()
-
-
 if __name__ == '__main__':
-    main()
+    AssignWorkflowStage().run()

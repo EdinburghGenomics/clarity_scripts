@@ -1,35 +1,32 @@
 from EPPs.common import StepEPP
 from scripts.prepare_discard_plate import sample_discard_wf_stage_name
-from tests.test_common import fake_all_inputs, TestEPP, FakeEntity
+from tests.test_common import fake_all_inputs, TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
 from scripts import prepare_discard_plate
 
-class FakeContainer(FakeEntity):
-    type = Mock()
 
-    def __init__(self, name):
-        super().__init__(name)
-        self.placements = {
-            '1': FakeEntity(
-                name=name + ' placement 1',
+class FakeContainer(NamedMock):
+    @property
+    def placements(self):
+        return {
+            '1': NamedMock(
+                real_name=self.name + ' placement 1',
                 samples=[Mock(artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
             ),
-            '2': FakeEntity(
-                name=name + ' placement 2',
+            '2': NamedMock(
+                real_name=self.name + ' placement 2',
                 samples=[Mock(artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
             )
         }
 
 
 def fake_get_artifacts(samplelimsid, type):
-    return [Mock(name=type + ' ' + a, container=FakeContainer(name='Container ' + a + '-DNA')) for a in samplelimsid]
+    return [Mock(name=type + ' ' + a, container=FakeContainer(real_name='Container ' + a + '-DNA')) for a in samplelimsid]
 
 
 class TestPrepareDiscardPlate(TestEPP):
     def setUp(self):
-        self.epp = prepare_discard_plate.FindPlateToRoute(
-            'http://server:8080/a_step_uri', 'a_user', 'a_password', 'a_workflow_name'
-        )
+        self.epp = prepare_discard_plate.FindPlateToRoute(self.default_argv)
         self.patched_process = patch.object(
             StepEPP,
             'process',
@@ -75,7 +72,7 @@ class TestPrepareDiscardPlate(TestEPP):
                 l.assert_any_call(*m)
 
             # Has route the artifacts from the containers
-            plims.route_artifacts.call_count == 1
+            assert plims.route_artifacts.call_count == 1
             assert len(plims.route_artifacts.call_args[0][0]) == 4
             assert plims.route_artifacts.call_args[1] == {'stage_uri': 'a_uri'}
 
@@ -91,11 +88,11 @@ def test_fetch_all_artifacts_for_samples():
 
 
 def test_is_valid_container():
-    valid_container = FakeEntity(name='this-GTY')
+    valid_container = NamedMock(real_name='this-GTY')
     assert prepare_discard_plate.is_valid_container(valid_container)
-    valid_container = FakeEntity(name='this-DNA')
+    valid_container = NamedMock(real_name='this-DNA')
     assert prepare_discard_plate.is_valid_container(valid_container)
-    invalid_container = FakeEntity(name='this-QNT')
+    invalid_container = NamedMock(real_name='this-QNT')
     assert not prepare_discard_plate.is_valid_container(invalid_container)
 
 

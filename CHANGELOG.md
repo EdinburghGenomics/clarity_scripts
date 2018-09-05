@@ -1,10 +1,23 @@
 Changelog for clarity_scripts
 =============================
 
-0.8 (unreleased)
+0.9 (unreleased)
 ----------------
 
 - Nothing changed yet.
+
+
+0.8 (2018-06-13)
+----------------
+
+ - `apply_freezer_location.py`: is for updating Freezer/Shelf UDFs for samples 
+ - update `email_receive_sample.py` to support user prepared libraries 
+ - `next_step_assignment_user_prepared_plate_receipt.py` assigns the Next Step for user prepared libraries
+ - `assign_workflow_user_library.py` assigns artifacts that pass through the step to qPCR step and updates required UDF "SSQC Result" to "Passed".
+ - `check_container_name.py` checks that the container names have the correct naming convention.
+ - update `assign_workflow_receive_sample.py` to assign samples to User Prepared Library receipt based on UDF
+ - `generate_hamilton_input_UPL.py`: create hamilton input for the UPL batching step
+ - Multiple bug fixes.
 
 
 0.7 (2018-05-01)

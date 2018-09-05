@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestUpdateFreezerLocation(TestEPP):
     def setUp(self):
-
         self.samples = [
             Mock(udf={'Freezer': 'freezer1', 'Shelf': 'upper shelf', 'Box': 'blue one'}),
             Mock(udf={'Freezer': 'freezer2', 'Shelf': 'lower shelf', 'Box': 'red one'})
@@ -21,18 +20,12 @@ class TestUpdateFreezerLocation(TestEPP):
             new_callable=PropertyMock(return_value=Mock(udf={'New Freezer Location': 'In the bin'}))
         )
 
-        self.epp = UpdateFreezerLocation(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = UpdateFreezerLocation(self.default_argv)
 
     def test_remove_from_freezer(self):
-
         with self.patched_samples, self.patched_process:
             self.epp._run()
-            # Ensure sample's udf have been updated
+            # Ensure sample's udfs have been updated
             expected_udf = {'Freezer': 'In the bin', 'Shelf': 'In the bin', 'Box': 'In the bin'}
             for sample in self.samples:
                 assert sample.udf == expected_udf

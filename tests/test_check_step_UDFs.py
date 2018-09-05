@@ -5,31 +5,14 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestCheckStepUDFs(TestEPP):
     def setUp(self):
-
         self.patched_process = patch.object(
             CheckStepUDFs,
             'process',
-            new_callable=PropertyMock(return_value=Mock(udf={
-                'udfname1': 'a',
-                'udfname2': 'a'
-            }))
+            new_callable=PropertyMock(return_value=Mock(udf={'udfname1': 'a', 'udfname2': 'a'}))
         )
 
-        self.epp = CheckStepUDFs(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            ['udfname1', 'udfname2'],
-            self.log_file
-        )
-
-        self.epp2 = CheckStepUDFs(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            ['udfname1', 'udfname2', 'udfname3'],
-            self.log_file
-        )
+        self.epp = CheckStepUDFs(self.default_argv + ['-n', 'udfname1', 'udfname2'])
+        self.epp2 = CheckStepUDFs(self.default_argv + ['-n', 'udfname1', 'udfname2', 'udfname3'])
 
     def test_check_step_UDFs_success(self):
         with self.patched_process:

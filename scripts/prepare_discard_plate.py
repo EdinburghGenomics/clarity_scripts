@@ -74,7 +74,7 @@ class FindPlateToRoute(StepEPP):
         self.info('Found %d Analytes (derived samples)', len(step_associated_artifacts))
 
         # List all the containers and retrieve them
-        containers = list(set([a.container for a in step_associated_artifacts]))
+        containers = list(set(a.container for a in step_associated_artifacts))
         batch_limit(self.lims, containers)
         self.info('Found %d containers', len(containers))
 
@@ -87,11 +87,11 @@ class FindPlateToRoute(StepEPP):
         for c in valid_containers:
             container_artifacts.update(set(c.placements.values()))
 
-        non_step_atifacts = container_artifacts.difference(set(step_associated_artifacts))
-        batch_limit(self.lims, list(non_step_atifacts))
+        non_step_artifacts = container_artifacts.difference(set(step_associated_artifacts))
+        batch_limit(self.lims, list(non_step_artifacts))
         self.info(
             'Found %d others associated with the container but not associated with discarded samples',
-            len(non_step_atifacts)
+            len(non_step_artifacts)
         )
 
         artifacts_to_route = []
@@ -128,12 +128,5 @@ class FindPlateToRoute(StepEPP):
         # TODO: clean up steps where the step_associated_artifacts are queued
 
 
-def main():
-    args = step_argparser().parse_args()
-    log_cfg.add_handler(FileHandler(args.log_file))
-    action = FindPlateToRoute(args.step_uri, args.username, args.password, args.log_file)
-    return action.run()
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(FindPlateToRoute().run())
