@@ -1,19 +1,42 @@
 from scripts.remove_from_freezer import UpdateFreezerLocation
-from tests.test_common import TestEPP
+from tests.test_common import TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
+
+
 
 
 class TestUpdateFreezerLocation(TestEPP):
     def setUp(self):
-        self.samples = [
-            Mock(udf={'Freezer': 'freezer1', 'Shelf': 'upper shelf', 'Box': 'blue one'}),
-            Mock(udf={'Freezer': 'freezer2', 'Shelf': 'lower shelf', 'Box': 'red one'})
+
+        self.artifacts1 = [
+            NamedMock(real_name='Artifact1', id='ai1', udf={'Freezer': 'FreezerTest1', 'Shelf': 'ShelfTest1'}, samples=[NamedMock(artifact=NamedMock(real_name='Artifact1',id='ai1', ), id='s1',
+                                                                udf={'Freezer': 'FreezerTest1',
+                                                                     'Shelf': 'ShelfTest1'})]),
+            NamedMock(real_name='Artifact2', id='ai2',  udf={'Freezer': 'FreezerTest1', 'Shelf': 'ShelfTest1'}, samples=[NamedMock(artifact=NamedMock(real_name='Artifact2',id='ai2', ), id='s2',
+                                                                udf={'Freezer': 'FreezerTest1',
+                                                                     'Shelf': 'ShelfTest1'})])
         ]
-        self.patched_samples = patch.object(
+
+        self.artifacts2 = [
+            NamedMock(real_name='Artifact1', id='ai1', udf={'Freezer': 'FreezerTest1', 'Shelf': 'ShelfTest1'}, samples=[NamedMock(artifact=NamedMock(real_name='Artifact1',id='ai2', ), id='s1',
+                                                                udf={'Freezer': 'FreezerTest1',
+                                                                     'Shelf': 'ShelfTest1'})]),
+            NamedMock(real_name='Artifact2', id='ai2',  udf={'Freezer': 'FreezerTest1', 'Shelf': 'ShelfTest1'}, samples=[NamedMock(artifact=NamedMock(real_name='Artifact2',id='ai3', ), id='s2',
+                                                                udf={'Freezer': 'FreezerTest1',
+                                                                     'Shelf': 'ShelfTest1'})])
+        ]
+
+
+        self.patched_artifacts1 = patch.object(
             UpdateFreezerLocation,
-            'samples',
-            new_callable=PropertyMock(return_value=self.samples)
-        )
+            'artifacts',
+            new_callable=PropertyMock(return_value=self.artifacts1))
+
+        self.patched_artifacts2 = patch.object(
+            UpdateFreezerLocation,
+            'artifacts',
+            new_callable=PropertyMock(return_value=self.artifacts2))
+
         self.patched_process = patch.object(
             UpdateFreezerLocation,
             'process',
@@ -22,11 +45,22 @@ class TestUpdateFreezerLocation(TestEPP):
 
         self.epp = UpdateFreezerLocation(self.default_argv)
 
-    def test_remove_from_freezer(self):
-        with self.patched_samples, self.patched_process:
+    def test_remove_from_freezer1(self):
+        with self.patched_artifacts1, self.patched_process:
             self.epp._run()
-            # Ensure sample's udfs have been updated
-            expected_udf = {'Freezer': 'In the bin', 'Shelf': 'In the bin', 'Box': 'In the bin'}
-            for sample in self.samples:
-                assert sample.udf == expected_udf
-                assert sample.put.call_count == 1
+            # sample UDFs should be updated as the top level artifact matches the sample artifact
+            expected_udf = {'Freezer': 'In the bin', 'Shelf': 'In the bin'}
+            for artifact in self.artifacts1:
+                assert artifact.samples[0].udf == expected_udf
+                assert artifact.udf != expected_udf
+                assert artifact.samples[0].put.call_count == 1
+
+    def test_remove_from_freezer2(self):
+        with self.patched_artifacts2, self.patched_process:
+            self.epp._run()
+            # sample UDFs should be updated as the top level artifact matches the sample artifact
+            expected_udf = {'Freezer': 'In the bin', 'Shelf': 'In the bin'}
+            for artifact in self.artifacts2:
+                assert artifact.udf == expected_udf
+                assert artifact.samples[0].udf != expected_udf
+                assert artifact.put.call_count == 1
