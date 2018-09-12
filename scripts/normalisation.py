@@ -6,7 +6,7 @@ from EPPs.common import StepEPP, step_argparser
 class CalculateCFPVolumes(StepEPP):
     """
     Calcuate the volume of sample and volume of buffer required based on step UDFs determining a target concentration
-    and overall volume. Arguments are used to specify the UDFs involved.
+    and overall volume. Arguments are used to specify the UDFs involved. Volumes are rounded to 1dp.
     """
 
     # use arguments to determing
@@ -28,7 +28,7 @@ class CalculateCFPVolumes(StepEPP):
 
         # obtain the concentration of each input and use that calculate the volume of sample and buffer required
         for input in self.process.all_inputs():
-            input.udf[self.input_volume] = target_volume * (target_concentration / input.udf.get(self.input_conc))
+            input.udf[self.input_volume] = round((target_volume * (target_concentration / input.udf.get(self.input_conc))),1)
             input.udf[self.input_buffer] = target_volume - input.udf.get(self.input_volume)
             inputs_to_update.add(input)
 
