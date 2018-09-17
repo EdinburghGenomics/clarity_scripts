@@ -24,7 +24,7 @@ class GenerateHamiltonInputUPL(StepEPP):
         # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         # used to write the file
         csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'DNA Volume',
-                              'RSB Barcode' 'RSB Volume']
+                              'RSB Barcode', 'RSB Volume']
         csv_array.append(csv_column_headers)
 
         # find the lot number, i.e. barcode, of the RSB reagent.
@@ -59,8 +59,14 @@ class GenerateHamiltonInputUPL(StepEPP):
 
                 unique_output_containers.add(output[0].container.name)
 
+                #remove semi-colon from locations as this is not compatible with Hamilton Venus software
+                row,column=input.location[1].split(":")
+                input_location=row+column
+                row,column=output[0].location[1].split(":")
+                output_location=row+column
+
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1],
+                csv_line = [input.container.name, input_location, output[0].container.name, output_location,
                             input.udf['CFP_DNA_Volume (uL)'], rsb_barcode, input.udf['CFP_RSB_Volume (uL)']]
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row
