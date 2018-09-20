@@ -8,7 +8,7 @@ from egcg_core.app_logging import logging_default as log_cfg
 
 # valid name formats of the derived plates that should be located by the script (other derived plates are disposed of by date)
 
-valid_names = {'LP[0-9]{7}-GTY', 'LP[0-9]{7}-DNA', '\w*P[0-9]{3}'}
+valid_names = {r'LP[0-9]{7}-GTY', r'LP[0-9]{7}-DNA', r'\w*P[0-9]{3}$'}
 
 discard_wf_name = 'Sample Disposal EG 1.0 WF'
 sample_discard_wf_stage_name = 'Request Sample Disposal EG 1.0 ST'
