@@ -121,7 +121,6 @@ class FindPlateToRoute(StepEPP):
                 container_to_route.append(container)
                 self.info('Will route container: %s', container.name)
         self.info('Route %s containers with %s artifacts', len(container_to_route), len(artifacts_to_route))
-        print('Route %s containers with %s artifacts' % (len(container_to_route), len(artifacts_to_route)))
         self.lims.route_artifacts(artifacts_to_route, stage_uri=discard_plate_stage.uri)
         # TODO: clean up steps where the step_associated_artifacts are queued
 
