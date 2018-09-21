@@ -9,6 +9,7 @@ from EPPs.common import StepEPP
 
 class UpdateFreezerLocation(StepEPP):
     def _run(self):
+        self.samples
         # process each artifact in the step
         for artifact in self.artifacts:
 
