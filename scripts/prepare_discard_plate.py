@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 import re
 import sys
-from logging import FileHandler
 
 from EPPs.common import StepEPP, get_workflow_stage
-from egcg_core.app_logging import logging_default as log_cfg
 
 # valid name formats of the derived plates that should be located by the script (other derived plates are disposed of by date)
 

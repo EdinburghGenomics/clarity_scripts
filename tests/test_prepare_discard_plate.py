@@ -1,8 +1,10 @@
+from unittest.mock import Mock, patch, PropertyMock
+
 from EPPs.common import StepEPP
+
+from scripts import prepare_discard_plate
 from scripts.prepare_discard_plate import sample_discard_wf_stage_name
 from tests.test_common import TestEPP, NamedMock
-from unittest.mock import Mock, patch, PropertyMock
-from scripts import prepare_discard_plate
 
 
 class FakeContainer(NamedMock):
@@ -11,11 +13,13 @@ class FakeContainer(NamedMock):
         return {
             '1': NamedMock(
                 real_name=self.name + ' placement 1',
-                samples=[Mock(artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
+                samples=[Mock(
+                    artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
             ),
             '2': NamedMock(
                 real_name=self.name + ' placement 2',
-                samples=[Mock(artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
+                samples=[Mock(
+                    artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
             )
         }
 
