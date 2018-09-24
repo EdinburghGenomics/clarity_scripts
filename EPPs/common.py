@@ -19,6 +19,7 @@ class StepEPP(app_logging.AppLogger):
     _etc_path = os.path.join(os.path.dirname(os.path.abspath(EPPs.__file__)), 'etc')
     _lims = None
     _process = None
+    _use_load_config = True
 
     def __init__(self, argv=None):
         self.argv = argv
@@ -34,7 +35,8 @@ class StepEPP(app_logging.AppLogger):
         if args.log_file:
             app_logging.logging_default.add_handler(FileHandler(args.log_file))
 
-        load_config()
+        if self._use_load_config:
+            load_config()
 
     @cached_property
     def cmd_args(self):

@@ -51,7 +51,8 @@ def has_workflow_stage(artifact, workflow_step_name):
 
 
 class FindPlateToRoute(StepEPP):
-    _use_load_config = False
+    _use_load_config = False  # prevent the loading of the config
+
     def _run(self):
 
         # Find the Discard plate workflow uri
