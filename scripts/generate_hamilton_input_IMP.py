@@ -51,8 +51,14 @@ class GenerateHamiltonInputUPL(StepEPP):
 
                 unique_output_containers.add(output[0].container.name)
 
+                #remove semi-colon from locations as this is not compatible with Hamilton Venus software
+                row,column=input.location[1].split(":")
+                input_location=row+column
+                row,column=output[0].location[1].split(":")
+                output_location=row+column
+
                 #assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [input.container.name, input.location[1], output[0].container.name, output[0].location[1], cfp_volume]
+                csv_line = [input.container.name, input_location, output[0].container.name, output_location, cfp_volume]
                 #build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 #by input container then column then row
                 csv_dict[input.location[1]] = csv_line
