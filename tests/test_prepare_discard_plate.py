@@ -1,8 +1,10 @@
-from EPPs.common import StepEPP
-from scripts.prepare_discard_plate import sample_discard_wf_stage_name
-from tests.test_common import fake_all_inputs, TestEPP, NamedMock
 from unittest.mock import Mock, patch, PropertyMock
+
+from EPPs.common import StepEPP
+
 from scripts import prepare_discard_plate
+from scripts.prepare_discard_plate import sample_discard_wf_stage_name
+from tests.test_common import TestEPP, NamedMock
 
 
 class FakeContainer(NamedMock):
@@ -11,17 +13,19 @@ class FakeContainer(NamedMock):
         return {
             '1': NamedMock(
                 real_name=self.name + ' placement 1',
-                samples=[Mock(artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
+                samples=[Mock(
+                    artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
             ),
             '2': NamedMock(
                 real_name=self.name + ' placement 2',
-                samples=[Mock(artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
+                samples=[Mock(
+                    artifact=Mock(workflow_stages_and_statuses=[(Mock(), 'COMPLETE', sample_discard_wf_stage_name)]))]
             )
         }
 
 
 def fake_get_artifacts(samplelimsid, type):
-    return [Mock(name=type + ' ' + a, container=FakeContainer(real_name='Container ' + a + '-DNA')) for a in samplelimsid]
+    return [NamedMock(real_name=type + ' ' + a, container=FakeContainer(real_name=a + '-DNA')) for a in samplelimsid]
 
 
 class TestPrepareDiscardPlate(TestEPP):
@@ -30,7 +34,16 @@ class TestPrepareDiscardPlate(TestEPP):
         self.patched_process = patch.object(
             StepEPP,
             'process',
-            new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs))
+            new_callable=PropertyMock(
+                return_value=Mock(
+                    all_inputs=Mock(
+                        return_value=[
+                            Mock(samples=[Mock(id='LP1234567')]),
+                            Mock(samples=[Mock(id='LP1234568')])
+                        ]
+                    )
+                )
+            )
         )
         self.patched_lims = patch.object(
             StepEPP,
@@ -49,15 +62,15 @@ class TestPrepareDiscardPlate(TestEPP):
             ('Found %d containers', 2),
             ('Found %d valid containers to potentially discard', 2),
             ('Found %d others associated with the container but not associated with discarded samples', 4),
-            ('Test container %s, with %s artifacts', 'Container s1-DNA', 2),
+            ('Test container %s, with %s artifacts', 'LP1234567-DNA', 2),
             (
                 'Container %s might route because artifact %s in step_associated_artifacts (%s) or has been discarded before (%s)',
-                'Container s1-DNA',
-                'Container s1-DNA placement 2',
+                'LP1234567-DNA',
+                'LP1234567-DNA placement 2',
                 False,
                 True
             ),
-            ('Will route container: %s', 'Container s1-DNA'),
+            ('Will route container: %s', 'LP1234567-DNA'),
             ('Route %s containers with %s artifacts', 2, 4)
         )
 
@@ -88,11 +101,13 @@ def test_fetch_all_artifacts_for_samples():
 
 
 def test_is_valid_container():
-    valid_container = NamedMock(real_name='this-GTY')
+    valid_container = NamedMock(real_name='LP1234567-GTY')
     assert prepare_discard_plate.is_valid_container(valid_container)
-    valid_container = NamedMock(real_name='this-DNA')
+    valid_container = NamedMock(real_name='LP1234567-DNA')
     assert prepare_discard_plate.is_valid_container(valid_container)
-    invalid_container = NamedMock(real_name='this-QNT')
+    valid_container = NamedMock(real_name='LP1234567P001')
+    assert prepare_discard_plate.is_valid_container(valid_container)
+    invalid_container = NamedMock(real_name='LP1234567-QNT')
     assert not prepare_discard_plate.is_valid_container(invalid_container)
 
 
