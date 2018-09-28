@@ -139,8 +139,8 @@ class GenerateHamiltonInputUPL(StepEPP):
                     libraries_csv_dict[input.location[1]] = csv_line
 
         # check the number of inputs i.e. size of the input_analytes set that was contructed above
-        if len(input_analytes) > 23:
-            print('Maximum number of input samples is 23. There are %s input samples in the step.' % (
+        if len(input_analytes) > 24:
+            print('Maximum number of input samples is 24. There are %s input samples in the step.' % (
                 str(len(input_analytes))))
             sys.exit(1)
 
