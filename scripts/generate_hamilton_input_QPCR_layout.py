@@ -5,7 +5,7 @@ import sys
 from operator import itemgetter
 
 
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 
 class GenerateHamiltonInputUPL(StepEPP):
@@ -132,9 +132,13 @@ class GenerateHamiltonInputUPL(StepEPP):
                             DIL1_barcode, DIL2_barcode, QSTD_barcode,QMX_barcode]
 
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
-                # by input container then column then row
+                # by input container then column then row. Standards do not have an input well location and are appended
+                #at the end of the file in alphanumeric order. No Template Control must be the last row in the file.
                 if input.location[1] == "1:1":
-                    standards_csv_dict[input.name] = csv_line
+                    if input.name == "No Template Control":
+                        no_template_control = csv_line
+                    else:
+                        standards_csv_dict[input.name] = csv_line
                 else:
                     libraries_csv_dict[input.location[1]] = csv_line
 
@@ -170,6 +174,9 @@ class GenerateHamiltonInputUPL(StepEPP):
         # of sample name
         for standard in sorted(standards_csv_dict):
             csv_array.append(standards_csv_dict[standard])
+
+        #add the No Template Control to the end of the file
+        csv_array.append(no_template_control)
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is used by
         # Clarity LIMS to recognise the file and attach it to the step
