@@ -6,6 +6,8 @@ from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from scripts.email_data_trigger import DataReleaseTrigger
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
+from scripts.email_sample_disposal_notification import SampleDisposalNotificationEmail
+from scripts.email_sample_disposal_review import SampleDisposalFMEmail
 from tests.test_common import TestEPP, NamedMock
 
 
@@ -290,5 +292,67 @@ Clarity X'''
                 port=25,
                 sender='sender@email.com',
                 recipients=['facility@email.com', 'project@email.com'],
+                strict=True
+            )
+
+class TestSampleDisposalFacilityManager(TestEmailEPP):
+    def setUp(self):
+        super().setUp()
+        self.epp = self.create_epp(SampleDisposalFMEmail)
+
+    def test_send_email(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+            self.epp._run()
+            msg = '''Hi Facility Manager,
+
+Samples are ready for disposal. Please follow the link below and perform the following tasks:
+
+1) Review the list of samples at:
+https://{localmachine}/clarity/work-details/tep_uri
+
+2) Provide electronic signature
+
+3) Click "Next Steps
+
+Kind regards,
+Clarity X'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='Review Samples for Disposal',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['facility@email.com', 'project@email.com'],
+                strict=True
+            )
+
+
+class TestSampleDisposalNotification(TestEmailEPP):
+    def setUp(self):
+        super().setUp()
+        self.epp = self.create_epp(SampleDisposalNotificationEmail)
+
+    def test_send_email(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+            self.epp._run()
+            msg = '''Hi,
+
+The samples at the link below have been approved for disposal by the Facility Manager:
+
+https://{localmachine}/clarity/work-details/tep_uri
+
+Kind regards,
+Clarity X'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='Samples Approved For Disposal',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['lab@email.com', 'project@email.com'],
                 strict=True
             )
