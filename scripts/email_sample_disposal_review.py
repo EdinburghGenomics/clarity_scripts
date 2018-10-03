@@ -2,7 +2,6 @@
 import platform
 
 from EPPs.common import SendMailEPP
-from EPPs.config import load_config
 
 
 class SampleDisposalFMEmail(SendMailEPP):
@@ -30,24 +29,5 @@ class SampleDisposalFMEmail(SendMailEPP):
         self.send_mail(subject, msg, config_name='projects-facility')
 
 
-def main():
-    # Ge the default command line options
-    p = step_argparser()
-
-    # Parse command line options
-    args = p.parse_args()
-
-    # Load the config from the default location
-    load_config()
-
-    # Setup the EPP
-    action = SampleDisposalFMEmail(
-        args.step_uri, args.username, args.password, args.log_file,
-    )
-
-    # Run the EPP
-    action.run()
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    ReceiveSampleEmail().run()
