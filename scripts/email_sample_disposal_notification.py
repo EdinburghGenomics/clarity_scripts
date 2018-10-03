@@ -28,4 +28,4 @@ class SampleDisposalNotificationEmail(SendMailEPP):
 
 
 if __name__ == '__main__':
-    ReceiveSampleEmail().run()
+    SampleDisposalNotificationEmailEmail().run()
