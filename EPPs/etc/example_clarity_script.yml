@@ -48,6 +48,11 @@ email_notify:
     - project@email.com
     - bfx@email.com
 
+  projects-lab:
+    recipients:
+    - lab@email.com
+    - project@email.com
+
 rest_api:
   url: localhost
   username: user
