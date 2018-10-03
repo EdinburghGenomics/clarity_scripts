@@ -30,4 +30,4 @@ class SampleDisposalFMEmail(SendMailEPP):
 
 
 if __name__ == '__main__':
-    ReceiveSampleEmail().run()
+    SampleDisposalFMEmail().run()
