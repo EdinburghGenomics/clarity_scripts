@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import datetime
+import argparse
 from egcg_core import util
 from cached_property import cached_property
-from EPPs.common import StepEPP, RestCommunicationEPP, step_argparser
-from EPPs.config import load_config
+from EPPs.common import StepEPP, RestCommunicationEPP
 
 reporting_app_date_format = '%d_%m_%Y_%H:%M:%S'
 
@@ -48,9 +48,13 @@ class StepPopulator(StepEPP, RestCommunicationEPP):
 
 
 class PullInfo(StepPopulator):
-    def __init__(self, step_uri, username, password, log_file=None, pull_data=True):
-        super().__init__(step_uri, username, password, log_file)
-        self.pull_data = pull_data
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        self.pull_data = not self.cmd_args.assess_only
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('--assess_only', action='store_true')
 
     def _run(self):
         artifacts_to_upload = set()
@@ -194,7 +198,7 @@ class PullSampleInfo(PullInfo):
         ('SR %Q30', 'aggregated.clean_pc_q30'),
         ('SR % Mapped', 'aggregated.pc_mapped_reads'),
         ('SR % Duplicates', 'aggregated.pc_duplicate_reads'),
-        ('SR Mean Coverage', 'aggregated.mean_coverage'),
+        ('SR Mean Coverage', 'coverage.mean'),
         ('SR Species Found', 'aggregated.matching_species'),
         ('SR Sex Check Match', 'aggregated.gender_match'),
         ('SR Genotyping Match', 'aggregated.genotype_match'),
@@ -299,24 +303,17 @@ class PushSampleInfo(PushInfo):
 
 
 def main():
-    p = step_argparser()
+    p = argparse.ArgumentParser()
     p.add_argument('--review_type', required=True, choices=('run', 'sample'))
     p.add_argument('--action_type', required=True, choices=('pull', 'push'))
-    p.add_argument('--assess_only', action='store_true')
 
-    load_config()
-    args = p.parse_args()
-
-    cls_args = [args.step_uri, args.username, args.password, args.log_file]
-    if args.assess_only:
-        assert args.action_type == 'pull'
-        cls_args.append(False)
+    args, cls_args = p.parse_known_args()
 
     reviewer_map = {
         'run': {'pull': PullRunElementInfo, 'push': PushRunElementInfo},
         'sample': {'pull': PullSampleInfo, 'push': PushSampleInfo}
     }
-    action = reviewer_map[args.review_type][args.action_type](*cls_args)
+    action = reviewer_map[args.review_type][args.action_type](cls_args)
     action.run()
 
 

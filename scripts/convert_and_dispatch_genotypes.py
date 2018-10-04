@@ -7,7 +7,7 @@ from os.path import join, dirname, abspath
 from egcg_core.app_logging import AppLogger
 from egcg_core.config import Configuration
 import EPPs
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 etc_path = join(abspath(dirname(EPPs.__file__)), 'etc')
 snp_cfg = Configuration(join(etc_path, 'SNPs_definition.yml'))
@@ -203,14 +203,21 @@ class GenotypeConversion(AppLogger):
 
 
 class UploadVcfToSamples(StepEPP):
-    def __init__(self, step_uri, username, password, log_file, input_genotypes_files):
-        super().__init__(step_uri, username, password, log_file)
+    def __init__(self, argv=None):
+        super().__init__(argv)
         input_genotypes_contents = []
-        for s in input_genotypes_files:
+        for s in self.cmd_args.input_genotypes:
             f = self.open_or_download_file(s)
             if f:
                 input_genotypes_contents.append(f)
         self.geno_conv = GenotypeConversion(input_genotypes_contents, default_fai, default_flank_length)
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument(
+            '--input_genotypes', type=str, nargs='+',
+            help='Files or artifact IDs for the sample genotypes'
+        )
 
     def _find_output_art(self, input_art):
         return [o.get('uri') for i, o in self.process.input_output_maps if
@@ -299,18 +306,5 @@ class UploadVcfToSamples(StepEPP):
             self._upload_genotyping_for_one_sample(artifact)
 
 
-def main():
-    args = _parse_args()
-    action = UploadVcfToSamples(args.step_uri, args.username, args.password, args.log_file, args.input_genotypes)
-    action.run()
-
-
-def _parse_args():
-    p = step_argparser()
-    p.add_argument('--input_genotypes', dest='input_genotypes', type=str, nargs='+',
-                   help='Files or artifact IDs for the sample genotypes')
-    return p.parse_args()
-
-
 if __name__ == '__main__':
-    main()
+    UploadVcfToSamples().run()

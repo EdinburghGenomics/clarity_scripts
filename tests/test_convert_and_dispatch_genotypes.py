@@ -92,13 +92,7 @@ class TestGenotypeConversion(TestCommon):
 
 class TestUploadVcfToSamples(TestEPP):
     def setUp(self):
-        self.epp = UploadVcfToSamples(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file,
-            input_genotypes_files=[self.genotype_quantstudio]
-        )
+        self.epp = UploadVcfToSamples(self.default_argv + ['--input_genotypes', self.genotype_quantstudio])
         self.lims_sample1 = NamedMock(real_name='V0001P001A01', udf={})
         self.lims_sample2 = NamedMock(real_name='V0001P001C01', udf={})
         fake_all_inputs = Mock(

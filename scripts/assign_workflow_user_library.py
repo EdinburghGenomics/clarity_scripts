@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser, get_workflow_stage
+from EPPs.common import StepEPP, get_workflow_stage
 
 
 class AssignWorkflowUserPreparedLibrary(StepEPP):
@@ -22,12 +22,5 @@ class AssignWorkflowUserPreparedLibrary(StepEPP):
         self.lims.put_batch(list(samples_to_update))
 
 
-def main():
-    p = step_argparser()
-    args = p.parse_args()
-    action = AssignWorkflowUserPreparedLibrary(args.step_uri, args.username, args.password, args.log_file)
-    action.run()
-
-
 if __name__ == '__main__':
-    main()
+    AssignWorkflowUserPreparedLibrary().run()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 
 class ApplyFreezerLocation(StepEPP):
@@ -22,12 +22,5 @@ class ApplyFreezerLocation(StepEPP):
         self.lims.put_batch(list(samples_to_update))
 
 
-def main():
-    p = step_argparser()
-    args = p.parse_args()
-    action = ApplyFreezerLocation(args.step_uri, args.username, args.password, args.log_file)
-    action.run()
-
-
 if __name__ == '__main__':
-    main()
+    ApplyFreezerLocation().run()

@@ -20,12 +20,7 @@ class TestAssignNextStep(TestEPP):
             )
         )
 
-        self.epp = AssignNextStepQuantStudio(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignNextStepQuantStudio(self.default_argv)
 
     def test_assign_next_step_quant_studio(self):
         with self.patched_process:

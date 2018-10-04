@@ -24,12 +24,7 @@ class TestAssignWorkflowSampleReview(TestEPP):
             return_value=Mock(uri='a_uri')
         )
 
-        self.epp = AssignWorkflowFinance(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignWorkflowFinance(self.default_argv)
 
     def test_assign(self):
         with self.patched_get_workflow_stage as pws, self.patched_lims, self.patched_process:

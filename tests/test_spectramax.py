@@ -21,11 +21,10 @@ class TestSpectramaxOutput(TestEPP):
 
     def setUp(self):
         self.epp = spectramax.SpectramaxOutput(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            'a_log_file',
-            join(dirname(abspath(__file__)), 'assets', 'spectramax_output.txt')
+            self.default_argv + [
+                '--spectramax_file',
+                join(dirname(abspath(__file__)), 'assets', 'spectramax_output.txt')
+            ]
         )
 
     def test_parse_spectramax_file(self):

@@ -12,23 +12,48 @@ from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
 import EPPs
+from EPPs.config import load_config
 
 
 class StepEPP(app_logging.AppLogger):
     _etc_path = os.path.join(os.path.dirname(os.path.abspath(EPPs.__file__)), 'etc')
     _lims = None
     _process = None
+    _use_load_config = True
 
-    def __init__(self, step_uri, username, password, log_file=None):
-        split_url = urlparse.urlsplit(step_uri)
+    def __init__(self, argv=None):
+        self.argv = argv
+        args = self.cmd_args
+
+        split_url = urlparse.urlsplit(args.step_uri)
         self.baseuri = '%s://%s' % (split_url.scheme, split_url.netloc)
-        self.username = username
-        self.password = password
+        self.username = args.username
+        self.password = args.password
         self.step_id = split_url.path.split('/')[-1]
         self.open_files = []
 
-        if log_file:
-            app_logging.logging_default.add_handler(FileHandler(log_file))
+        if args.log_file:
+            app_logging.logging_default.add_handler(FileHandler(args.log_file))
+
+        if self._use_load_config:
+            load_config()
+
+    @cached_property
+    def cmd_args(self):
+        a = argparse.ArgumentParser()
+        a.add_argument('-u', '--username', type=str, help='The username of the person logged in')
+        a.add_argument('-p', '--password', type=str, help='The password used by the person logged in')
+        a.add_argument('-s', '--step_uri', type=str, help='The URI of the step this EPP is attached to')
+        a.add_argument('-l', '--log_file', type=str, help='Optional log file to append to', default=None)
+        self.add_args(a)
+        return a.parse_args(self.argv)
+
+    @staticmethod
+    def add_args(argparser):
+        """
+        :param argparse.ArgumentParser argparser:
+        """
+        pass
 
     @cached_property
     def lims(self):
@@ -163,7 +188,7 @@ def get_workflow_stage(lims, workflow_name, stage_name=None):
 def find_newest_artifact_originating_from(lims, process_type, sample_name):
     """
     This function retrieve the newest artifact (Analyte) associated with the provided sample name
-    and orignating from the provided process_type
+    and originating from the provided process_type
     :param lims: The instance of the lims object
     :param process_type: the type of process that created the artifact
     :param sample_name: the name of the sample associated with this artifact.
@@ -184,12 +209,3 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
 
     if artifacts:
         return artifacts[0]
-
-
-def step_argparser():
-    a = argparse.ArgumentParser()
-    a.add_argument('-u', '--username', type=str, help='The username of the person logged in')
-    a.add_argument('-p', '--password', type=str, help='The password used by the person logged in')
-    a.add_argument('-s', '--step_uri', type=str, help='The uri of the step this EPP is attached to')
-    a.add_argument('-l', '--log_file', type=str, help='Optional log file to append to', default=None)
-    return a

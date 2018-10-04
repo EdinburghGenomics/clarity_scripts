@@ -8,7 +8,7 @@ class TestPopulator(TestEPP):
     fake_rest_entity = None
 
     def setUp(self):
-        self.epp = p.StepPopulator('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = p.StepPopulator(self.default_argv)
 
     @property
     def patched_samples(self):
@@ -57,7 +57,7 @@ class TestPullRunElementInfo(TestPopulator):
     }
 
     def setUp(self):
-        self.epp = p.PullRunElementInfo('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = p.PullRunElementInfo(self.default_argv)
 
     def test_pull(self):
         patched_output_artifacts_per_sample = patch.object(
@@ -172,7 +172,7 @@ class TestPullSampleInfo(TestPopulator):
     }
 
     def setUp(self):
-        self.epp = p.PullSampleInfo('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = p.PullSampleInfo(self.default_argv)
 
     def test_assess_sample(self):
         patched_output_artifacts_per_sample = patch.object(
@@ -215,7 +215,7 @@ class TestPushRunElementInfo(TestPopulator):
         )
 
     def setUp(self):
-        self.epp = p.PushRunElementInfo('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = p.PushRunElementInfo(self.default_argv)
 
     def test_push(self):
         with self.patched_lims, self.patched_samples, self.patched_get_docs as pg, \
@@ -248,4 +248,4 @@ class TestPushSampleInfo(TestPushRunElementInfo):
     }
 
     def setUp(self):
-        self.epp = p.PushSampleInfo('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        self.epp = p.PushSampleInfo(self.default_argv)

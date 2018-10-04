@@ -45,12 +45,7 @@ class TestApplyFreezerLocation(TestEPP):
             'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs2, udf=step_udfs))
         )
 
-        self.epp = ApplyFreezerLocation(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = ApplyFreezerLocation(self.default_argv)
 
     def test_udf_update(self):  # test UDFs are assigned
         with self.patched_lims, self.patched_process1:

@@ -1,13 +1,13 @@
-import os
 import platform
 from unittest.mock import Mock, patch, PropertyMock
 from EPPs.common import SendMailEPP
-from egcg_core.config import cfg
 from scripts.email_data_release import DataReleaseEmail
 from scripts.email_data_release_facility_manager import DataReleaseFMEmail
 from scripts.email_data_trigger import DataReleaseTrigger
 from scripts.email_fluidx_sample_receipt import FluidXSampleReceiptEmail
 from scripts.email_receive_sample import ReceiveSampleEmail
+from scripts.email_sample_disposal_notification import SampleDisposalNotificationEmail
+from scripts.email_sample_disposal_review import SampleDisposalFMEmail
 from tests.test_common import TestEPP, NamedMock
 
 
@@ -34,7 +34,6 @@ class TestEmailEPP(TestEPP):
 
     def setUp(self):
         super().setUp()
-        cfg.load_config_file(os.path.join(self.etc_path, 'example_clarity_script.yml'))
         self.patch_process = self.create_patch_process(SendMailEPP)
 
     def test_only_one_project(self):
@@ -47,7 +46,7 @@ class TestEmailEPP(TestEPP):
             print('Skipping test for abstract class: ' + self.epp.__class__.__name__)
 
     def create_epp(self, klass):
-        return klass('http://server:8080/a_step_uri', 'a_user', 'a_password', self.log_file)
+        return klass(self.default_argv)
 
     @staticmethod
     def create_patch_process(klass, udfs=None):
@@ -212,18 +211,9 @@ class TestReceiveSampleEmail(TestEmailEPP):
     def setUp(self):
         super().setUp()
         # setup epp for test email for receiving plates containing samples
-        self.epp1 = ReceiveSampleEmail(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-        )
+        self.epp1 = ReceiveSampleEmail(self.default_argv)
         # set up epp for test email for receiving plates containing libraries
-        self.epp2 = ReceiveSampleEmail(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            upl=True
-        )
+        self.epp2 = ReceiveSampleEmail(self.default_argv + ['--upl'])
 
     # generate test email for receiving plates containing samples
     def test_send_email_sample(self):
@@ -302,5 +292,67 @@ Clarity X'''
                 port=25,
                 sender='sender@email.com',
                 recipients=['facility@email.com', 'project@email.com'],
+                strict=True
+            )
+
+class TestSampleDisposalFacilityManager(TestEmailEPP):
+    def setUp(self):
+        super().setUp()
+        self.epp = self.create_epp(SampleDisposalFMEmail)
+
+    def test_send_email(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+            self.epp._run()
+            msg = '''Hi Facility Manager,
+
+Samples are ready for disposal. Please follow the link below and perform the following tasks:
+
+1) Review the list of samples at:
+https://{localmachine}/clarity/work-details/tep_uri
+
+2) Provide electronic signature
+
+3) Click "Next Steps
+
+Kind regards,
+Clarity X'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='Review Samples for Disposal',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['facility@email.com', 'project@email.com'],
+                strict=True
+            )
+
+
+class TestSampleDisposalNotification(TestEmailEPP):
+    def setUp(self):
+        super().setUp()
+        self.epp = self.create_epp(SampleDisposalNotificationEmail)
+
+    def test_send_email(self):
+        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
+            self.epp._run()
+            msg = '''Hi,
+
+The samples at the link below have been approved for disposal by the Facility Manager:
+
+https://{localmachine}/clarity/work-details/tep_uri
+
+Kind regards,
+Clarity X'''
+            msg = msg.format(localmachine=platform.node())
+
+            mocked_send_email.assert_called_with(
+                msg=msg,
+                subject='Samples Approved For Disposal',
+                mailhost='smtp.test.me',
+                port=25,
+                sender='sender@email.com',
+                recipients=['lab@email.com', 'project@email.com'],
                 strict=True
             )
