@@ -8,6 +8,7 @@ from EPPs.common import StepEPP
 
 class GenerateHamiltonInputCFP(StepEPP):
     """"Generate a CSV containing the necessary information to normalise the sample in a NRM plate"""
+    _use_load_config = False  # prevent the loading of the config
 
     # additional argument required for the location of the Hamilton input file so def _init_ customised
     def __init__(self, argv=None):
@@ -38,8 +39,7 @@ class GenerateHamiltonInputCFP(StepEPP):
 
         # find the lot number, i.e. barcode, of the RSB reagent.
         RSB_template = "LP[0-9]{7}-RSB"
-
-        reagent_lots = list(self.process.step.reagent_lots)
+        reagent_lots=list(self.process.step.reagent_lots)
 
         for lot in reagent_lots:
             if re.match(RSB_template, lot.lot_number):
@@ -83,7 +83,7 @@ class GenerateHamiltonInputCFP(StepEPP):
 
         # check the number of input containers
         if len(unique_input_containers) > 1:
-            print('Maximum number of input plates is 1. There are %s output plates in the step.' % (
+            print('Maximum number of input plates is 1. There are %s input plates in the step.' % (
                 str(len(unique_input_containers))))
             sys.exit(1)
         # check the number of output containers
