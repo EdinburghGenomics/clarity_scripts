@@ -38,8 +38,8 @@ class CalculateVolumes(StepEPP):
 
     def _run(self):
         # obtain the target volume and concentration from the step UDFs specified by the arguments
-        target_volume = self.process.udf.get(self.target_volume_udf)
-        target_concentration = self.process.udf.get(self.target_conc_udf)
+        target_volume = int(self.process.udf.get(self.target_volume_udf))
+        target_concentration = int(self.process.udf.get(self.target_conc_udf))
         # create the set to hold the inputs to be updated with the output form the calculation
         inputs_to_update = set()
 
