@@ -54,8 +54,8 @@ class CalculateVolumes(StepEPP):
                 input.udf[self.input_buffer] = target_volume - input.udf.get(self.input_volume)
 
             inputs_to_update.add(input)
-
-
+        print("this")
+        print(self.lims.put_batch(list(inputs_to_update)))
         self.lims.put_batch(list(inputs_to_update))
 
 if __name__ == '__main__':
