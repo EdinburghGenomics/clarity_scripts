@@ -45,10 +45,15 @@ class CalculateVolumes(StepEPP):
 
         # obtain the concentration of each input and use that calculate the volume of sample and buffer required
         for input in self.process.all_inputs():
-            input.udf[self.input_volume] = round(
-                (target_volume * (target_concentration / input.udf.get(self.input_conc))), 1)
-            input.udf[self.input_buffer] = target_volume - input.udf.get(self.input_volume)
+            if input.udf.get(self.input_conc) < target_concentration:
+                input.udf[self.input_volume] = target_volume
+            else:
+                input.udf[self.input_volume] = round(
+                    (target_volume * (target_concentration / input.udf.get(self.input_conc))), 1)
+                input.udf[self.input_buffer] = target_volume - input.udf.get(self.input_volume)
+
             inputs_to_update.add(input)
+
 
         self.lims.put_batch(list(inputs_to_update))
 
