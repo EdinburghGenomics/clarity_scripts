@@ -47,6 +47,7 @@ class CalculateVolumes(StepEPP):
         for input in self.process.all_inputs():
             if input.udf.get(self.input_conc) < target_concentration:
                 input.udf[self.input_volume] = target_volume
+                input.udf[self.input_buffer] = 0
             else:
                 input.udf[self.input_volume] = round(
                     (target_volume * (target_concentration / input.udf.get(self.input_conc))), 1)
