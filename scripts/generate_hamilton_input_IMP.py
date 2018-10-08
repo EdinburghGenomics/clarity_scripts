@@ -10,7 +10,7 @@ class GenerateHamiltonInputIMP(StepEPP):
     an IMP plate"""
 
     # additional argument required for the location of the Hamilton input file so def _init_ customised
-    def __init__(self, step_uri, username, password, log_file, hamilton_input, shared_drive_path):
+    def __init__(self, argv=None):
         super().__init__(argv)
         self.hamilton_input = self.cmd_args.hamilton_input
         self.shared_drive_path = self.cmd_args.shared_drive_path
