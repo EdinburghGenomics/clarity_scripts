@@ -83,9 +83,6 @@ def fake_reagent_lots():
 
 class TestGenerateHamiltonInputCFP(TestEPP):
     def setUp(self):
-        step_udfs = {
-            'DNA Volume (uL)': '200',
-        }
 
         dummystep = Mock(reagent_lots= [Mock(id='re1', lot_number='LP9999999-RSB'),
         Mock(id='re2',lot_number='LP9999999-RSA')])
@@ -93,25 +90,25 @@ class TestGenerateHamiltonInputCFP(TestEPP):
 
         self.patched_process1 = patch.object(
             GenerateHamiltonInputCFP,
-            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1, udf=step_udfs,
+            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1,
                                                                    outputs_per_input=fake_outputs_per_input1, step=dummystep))
         )
 
         self.patched_process2 = patch.object(
             GenerateHamiltonInputCFP,
-            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs2, udf=step_udfs,
+            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs2,
                                                                    outputs_per_input=fake_outputs_per_input1, step=dummystep))
         )
 
         self.patched_process3 = patch.object(
             GenerateHamiltonInputCFP,
-            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1, udf=step_udfs,
+            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1,
                                                                    outputs_per_input=fake_outputs_per_input3, step=dummystep))
         )
 
         self.patched_process4 = patch.object(
             GenerateHamiltonInputCFP,
-            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1, udf=step_udfs,
+            'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1,
                                                                    outputs_per_input=fake_outputs_per_input2, step=dummystep))
         )
 
