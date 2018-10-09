@@ -1,8 +1,9 @@
+#!/usr/bin/env python
 import sys
 
 from EPPs.common import StepEPP
 
-#Script for performing 1:1 autoplacement of samples
+#Script for performing 1:1 autoplacement of samples, assumes 1 output per input
 class AutoplacementMakeCFP(StepEPP):
     _use_load_config = False  # prevent the loading of the config
 
@@ -29,14 +30,17 @@ class AutoplacementMakeCFP(StepEPP):
 
         # update of container requires list variable containing the containers, only one container will be present in step
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
-
         output_container_list = self.process.step.placements.get_selected_containers()
+        #need a list of tuples for set_placements
         output_placement = []
 
         #loop through the inputs, obtain their output analytes and assign the next available position in the plate layout list
         well_counter = 0
         for input in all_inputs:
+            #obtain outputs for the input that are analytes, assume step is not configured to allow replicates
+            #so will always work with output[0]
             output = self.process.outputs_per_input(input.id, Analyte=True)
+            #populate list of tuples for set_placements
             output_placement.append((output[0], (output_container_list[0], plate_layout[well_counter])))
             output[0].location = plate_layout[well_counter]
             well_counter += 1
