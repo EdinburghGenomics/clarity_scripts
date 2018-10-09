@@ -1,7 +1,8 @@
 import sys
+
 from EPPs.common import StepEPP
 
-
+#Script for performing 1:1 autoplacement of samples
 class AutoplacementMakeCFP(StepEPP):
     _use_load_config = False  # prevent the loading of the config
 
@@ -10,35 +11,39 @@ class AutoplacementMakeCFP(StepEPP):
 
     def _run(self):
 
-        all_inputs=self.process.all_inputs(unique=True)
-        if len(all_inputs)>24:
-            print("Maximum number of inputs is 24. %s inputs present in step" %(len(all_inputs)))
+        all_inputs = self.process.all_inputs(unique=True)
+        if len(all_inputs) > 24:
+            print("Maximum number of inputs is 24. %s inputs present in step" % (len(all_inputs)))
             sys.exit(1)
 
-        plate_layout_rows=["1","2","3"]
-        plate_layout_columns=["A","B","C","D","E","F","G","H"]
-        plate_layout=[]
+        #assemble the plate layout of the output plate as a list
+        plate_layout_rows = ["1", "2", "3"]
+        plate_layout_columns = ["A", "B", "C", "D", "E", "F", "G", "H"]
+        plate_layout = []
 
         for row in plate_layout_rows:
             for column in plate_layout_columns:
-                plate_layout.append(column+":"+row)
-
-        well_counter=0
+                plate_layout.append(column + ":" + row)
 
 
 
-        outputs_to_update=set()
+        # update of container requires list variable containing the containers, only one container will be present in step
+        # because the container has not yet been fully populated then it must be obtained from the step rather than output
 
+        output_container_list = self.process.step.placements.get_selected_containers()
+        output_placement = []
+
+        #loop through the inputs, obtain their output analytes and assign the next available position in the plate layout list
+        well_counter = 0
         for input in all_inputs:
-            print(input)
-            output= self.process.input_output_maps
-            print(output)
-            #output[0].location = plate_layout[well_counter]
+            output = self.process.outputs_per_input(input.id, Analyte=True)
+            output_placement.append((output[0], (output_container_list[0], plate_layout[well_counter])))
+            output[0].location = plate_layout[well_counter]
+            well_counter += 1
 
-            #outputs_to_update.add(output)
-            #well_counter += 1
+        #push the output locations to the LIMS
+        self.process.step.set_placements(output_container_list, output_placement)
 
-        #self.lims.put_batch(list(outputs_to_update))
 
 if __name__ == '__main__':
     AutoplacementMakeCFP().run()
