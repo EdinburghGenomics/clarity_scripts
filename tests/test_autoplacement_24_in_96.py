@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch, PropertyMock
 
-from scripts.autoplacement_make_cfp import AutoplacementMakeCFP
+from scripts.autoplacement_24_in_96 import AutoplacementMakeCFP
 from tests.test_common import TestEPP
 
 
