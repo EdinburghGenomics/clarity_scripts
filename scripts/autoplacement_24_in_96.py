@@ -3,7 +3,8 @@ import sys
 
 from EPPs.common import StepEPP
 
-#Script for performing 1:1 autoplacement of samples, assumes 1 output per input
+#Script for performing autoplacement of samples. Loops through all inputs and assigns them to the next available space
+#by column-row in the output plate
 class AutoplacementMakeCFP(StepEPP):
     _use_load_config = False  # prevent the loading of the config
 
