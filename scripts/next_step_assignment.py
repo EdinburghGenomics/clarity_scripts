@@ -1,19 +1,23 @@
 #!/usr/bin/env python
-from EPPs.common import step_argparser, StepEPP
-from EPPs.config import load_config
+from EPPs.common import StepEPP
 from pyclarity_lims.entities import Protocol
 
 
 class AssignNextStep(StepEPP):
     """
-    This script assigns the next step for all samples in the step as either "review","complete" or "nextstep"
+    This script assigns the next step for all samples in the step as either "review", "complete" or "nextstep"
     for next step it assumes the next step wanted is the next step in the protocol i.e. doesn't skip one or more steps
     in the configuration assumes that all artifacts should have the same next step
     """
-    def __init__(self, step_uri, username, password, log_file=None, review=False, remove=False):
-        super().__init__(step_uri, username, password, log_file)
-        self.review = review
-        self.remove = remove
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        self.review = self.cmd_args.review
+        self.remove = self.cmd_args.remove
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('-r', '--review', action='store_true', help='Set the next step to review', default=False)
+        argparser.add_argument('-e', '--remove', action='store_true', help='Set the next step to remove', default=False)
 
     def _run(self):
 
@@ -58,25 +62,5 @@ class AssignNextStep(StepEPP):
         actions.put()
 
 
-def main():
-    # Get the default command line options
-    p = step_argparser()
-    p.add_argument('-r', '--review', action='store_true', help='set the next step to review', default=False)
-    p.add_argument('-e', '--remove', action='store_true', help='set the next step to review', default=False)
-    # Parse command line options
-    args = p.parse_args()
-
-    # Load the config from the default location
-    load_config()
-
-    # Setup the EPP
-    action = AssignNextStep(
-        args.step_uri, args.username, args.password, args.log_file, args.review, args.remove
-    )
-
-    # Run the EPP
-    action.run()
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    AssignNextStep().run()

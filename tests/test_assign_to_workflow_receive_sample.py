@@ -19,26 +19,20 @@ class TestAssignWorkflowReceiveSample(TestEPP):
             'process',
             new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs))
         )
-        self.patched_lims = patch.object(AssignWorkflowReceiveSample, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_workflow_receive_sample.get_workflow_stage',
             return_value=Mock(uri='a_uri')
         )
-        self.epp = AssignWorkflowReceiveSample(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignWorkflowReceiveSample(self.default_argv)
 
     def test_assign(self):
         with self.patched_get_workflow_stage as pws, self.patched_lims, self.patched_process:
             self.epp._run()
 
             pws.assert_has_calls((
-                call(self.epp.lims, "User Prepared Library Receipt and Batch EG 1.0 WF",
-                     "User Prepared Library Plate Receipt EG 1.0 ST"),
-                call(self.epp.lims, "PreSeqLab EG 6.0", "Receive Sample EG 6.1")
+                call(self.epp.lims, 'User Prepared Library Receipt and Batch EG 1.0 WF',
+                     'User Prepared Library Plate Receipt EG 1.0 ST'),
+                call(self.epp.lims, 'PreSeqLab EG 6.0', 'Receive Sample EG 6.1')
             ))
             # first routing (user prepared library)
             route_args = self.epp.lims.route_artifacts.call_args_list[0]

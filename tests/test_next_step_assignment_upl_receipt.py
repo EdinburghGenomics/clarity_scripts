@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch, PropertyMock
 
 class TestAssignNextStepUPL(TestEPP):
     def setUp(self):
-
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{}, {}])
 
@@ -50,13 +49,7 @@ class TestAssignNextStepUPL(TestEPP):
             new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions, configuration=self.protostep), udf=step_udfs4))
         )
 
-
-        self.epp = AssignNextStepUPL(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignNextStepUPL(self.default_argv)
 
     def test_assign_next_step_udfs1(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])
@@ -72,8 +65,6 @@ class TestAssignNextStepUPL(TestEPP):
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
 
-        self.actions.put.reset_mock()
-
     def test_assign_next_step_udfs2(self):
         with self.patched_process2:
             self.epp._run()
@@ -86,8 +77,6 @@ class TestAssignNextStepUPL(TestEPP):
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
 
-        self.actions.put.reset_mock()
-
     def test_assign_next_step_udfs3(self):
         with self.patched_process3:
             self.epp._run()
@@ -99,8 +88,6 @@ class TestAssignNextStepUPL(TestEPP):
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
 
-        self.actions.put.reset_mock()
-
     def test_assign_next_step_udfs4(self):
         with self.patched_process4:
             self.epp._run()
@@ -111,8 +98,3 @@ class TestAssignNextStepUPL(TestEPP):
             ]
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
-
-        self.actions.put.reset_mock()
-
-
-

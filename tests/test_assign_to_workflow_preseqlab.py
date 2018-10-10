@@ -18,7 +18,6 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
             'process',
             new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs))
         )
-        self.patched_lims = patch.object(AssignWorkflowPreSeqLab, 'lims', new_callable=PropertyMock)
         self.patched_get_workflow_stage = patch(
             'scripts.assign_workflow_preseqlab.get_workflow_stage',
             return_value=Mock(uri='a_uri')
@@ -27,12 +26,7 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
             'scripts.assign_workflow_preseqlab.find_newest_artifact_originating_from',
             return_value=Mock(id='fx2')
         )
-        self.epp = AssignWorkflowPreSeqLab(
-            'http://server:8080/a_step_uri',
-            'a_user',
-            'a_password',
-            self.log_file
-        )
+        self.epp = AssignWorkflowPreSeqLab(self.default_argv)
 
     def test_assign(self):
         with self.patched_get_workflow_stage as pws, self.patched_lims, self.patched_process, self.patch_find_art:

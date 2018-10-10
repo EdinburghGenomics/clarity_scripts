@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP, step_argparser
+from EPPs.common import StepEPP
 
 
 class AssignContainerName(StepEPP):
@@ -41,12 +41,5 @@ class AssignContainerName(StepEPP):
             return self.find_available_container(project, count=count + 1)
 
 
-def main():
-    p = step_argparser()
-    args = p.parse_args()
-    action = AssignContainerName(args.step_uri, args.username, args.password)
-    action.run()
-
-
 if __name__ == '__main__':
-    main()
+    AssignContainerName().run()
