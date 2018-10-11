@@ -8,6 +8,7 @@ from EPPs.common import StepEPP
 class GenerateHamiltonInputUCT(StepEPP):
     """"Generate a CSV containing the necessary information to transfer the fragmented sample from a covaris plate into
     an IMP plate"""
+    _use_load_config = False  # prevent the loading of the config
 
     # additional argument required for the location of the Hamilton input file so def _init_ customised
     def __init__(self, argv=None):
@@ -64,7 +65,7 @@ class GenerateHamiltonInputUCT(StepEPP):
                 #obtain well location of reagent_label (i.e. index/barcode) which is stored as the first 2 or 3 characters
                 #of the label name
 
-                adapter_well = input.reagent_labels[0].split("_")[0]
+                adapter_well = output[0].reagent_labels[0].split("_")[0]
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [input.container.name, input_location, input.name,adapter_well]
@@ -98,10 +99,10 @@ class GenerateHamiltonInputUCT(StepEPP):
             writer = csv.writer(csvFile)
             writer.writerows(csv_array)
 
-        with open(self.shared_drive_path + 'KAPA_TRANSFER_CFP_TO_IMP.csv', 'w') as csvFile:
+        with open(self.shared_drive_path + 'KAPA_MAKE_LIBRARIES.csv', 'w') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerows(csv_array)
 
 
 if __name__ == '__main__':
-    GenerateHamiltonInputIMP().run()
+    GenerateHamiltonInputUCT().run()
