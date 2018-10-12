@@ -19,6 +19,8 @@ class AutoplacementQPCR384(StepEPP):
             print("Maximum number of input samples and standards is 31. %s inputs present in step" % (len(all_inputs)))
             sys.exit(1)
 
+
+
         #loop through the inputs, assemble a nested dicitonary {containers:{input.location:output} this can then be
         #queried in the order container-row-column so the order of the inputs in the Hamilton input file is
         # as efficient as possible.
@@ -35,16 +37,18 @@ class AutoplacementQPCR384(StepEPP):
 
         for input in all_inputs:
 
-            #obtain outputs for the input that are analytes, assume step is not configured to allow replicates
-            #so will always work with output[0]
+            #obtain outputs for the inputs
             outputs = self.process.outputs_per_input(input.id, ResultFile=True)
-
+            #generate error if 3 replicates not present
+            if len(outputs) not 3:
+                print("3 replicates required for each sample and standard")
+                sys.exit(1)
 
 
             #assemble dict of standards and dictionary of output artifacts
             # using numbers 0-2 to differentiate between the three replicate outputs for each input/standard
             output_counter=0
-            if input.name.split(" ")[0] == "QSTD":
+            if input.name.split(" ")[0] == "QSTD" or input.name.split(" ")[0]=="No":
 
                 for output in outputs:
 
@@ -55,6 +59,10 @@ class AutoplacementQPCR384(StepEPP):
 
                     outputs_dict[str(output_counter)+input.location[1]] = output
                     output_counter+=1
+            #check that all standards and no template control are present
+            if len(standards_dict)<21:
+                "Step requires QSTD A to F and No Template Control with 3 replicates each"
+                sys.exit(1)
 
 
 
