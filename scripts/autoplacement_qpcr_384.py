@@ -31,28 +31,37 @@ class AutoplacementQPCR384(StepEPP):
         standards_dict={}
         outputs_dict={}
 
+
+
         for input in all_inputs:
+
             #obtain outputs for the input that are analytes, assume step is not configured to allow replicates
             #so will always work with output[0]
             outputs = self.process.outputs_per_input(input.id, ResultFile=True)
 
 
+
             #assemble dict of standards and dictionary of output artifacts
-            if input.name.split(" ") == "QSTD":
+            # using numbers 0-2 to differentiate between the three replicate outputs for each input/standard
+            output_counter=0
+            if input.name.split(" ")[0] == "QSTD":
+
                 for output in outputs:
-                    standards_dict[input.name]=output
+
+                    standards_dict[str(input.name)+str(output_counter)] = output
+                    output_counter+=1
             else:
                 for output in outputs:
-                    outputs_dict[input.location[1]]=output
 
+                    outputs_dict[str(output_counter)+input.location[1]] = output
+                    output_counter+=1
 
 
 
 
         #assemble the plate layout of the output plate as a list
         plate_layout_columns = ["1", "2", "3","4","5","6"]
-        plate_layout_rows = ["A", "B", "C", "D", "E", "F", "G", "H","I","J","K","L","M","N","O","P","Q","R",
-                             "S","T","U","V","W","X","Y","Z"]
+        plate_layout_rows = ["A", "B", "C", "D", "E", "F", "G", "H","I","J","K","L","M","N","O","P"]
         plate_layout = []
 
         for column in plate_layout_columns:
@@ -60,40 +69,51 @@ class AutoplacementQPCR384(StepEPP):
                 plate_layout.append(row + ":" + column)
         well_counter=0
         #create the output_placement_list to be used by th set_placements function
+
         output_placement_list=[]
 
         #loop through sorted standards dict and add to output_placement_list
+        for key in sorted(standards_dict.keys()):
 
-        for key in standards_dict.keys().sort:
             output_placement_list.append((standards_dict[key],(output_container_list[0],plate_layout[well_counter])))
-            if plate_layout[wellcounter][1:] == 5:
+
+            if plate_layout[well_counter][1:] == ":5":
                 well_counter-=62
             else:
                 well_counter+=32
 
+
+
         #reset well counter to start for samples
-        well_counter=2
+        well_counter=1
 
+        #need replicate counter to help pull all outputs from dict in order of replicates then row-column order
+        replicate_counter=0
+        #loop through the outputs_dict in replicate and row-column order and assign them the correct well location in
+        # the output_placement_list.
+        while replicate_counter <3:
+            for column in plate_layout_columns:
+                for row in plate_layout_rows:
+                        #build the list of tuples required for the placement function. Checking that key exists in dict.
+                        if str(replicate_counter)+row+":"+column in outputs_dict.keys():
+                            output_placement_list.append((outputs_dict[str(replicate_counter)+row+":"+column],(output_container_list[0],plate_layout[well_counter])))
+                            if plate_layout[well_counter] == "P:5":
+                                well_counter-=63
+                            elif plate_layout[well_counter][0] == "P":
+                                well_counter +=18
+                            elif plate_layout[well_counter] == "O:6":
+                                well_counter-=77
+                            elif plate_layout[well_counter][0] == "O":
+                                well_counter+=18
+                            else:
+                                well_counter += 2
+            replicate_counter+=1
 
-        #loop through the outputs_dict in row-column order and assign them the correct well location in
-        # the output_placement_list
-        for column in columns:
-            for row in rows:
-                #build the list of tuples required for the placement function
-                output_placement_list.append((outputs_dict[row+":"+column],(output_container_list[0],plate_layout[well_counter])))
-                if plate_layout[wellcounter][0:1] == "P":
-                    well_counter +=18
-                if plate_layout[wellcounter] == "P5":
-                    well_counter-=33
-                if plate_layout[wellcounter] == "06":
-                    well_counter-=35
-                else:
-                    well_counter += 2
 
 
 
         #push the output locations to the LIMS
-        self.process.step.set_placements(output_container_list, output_placement)
+        self.process.step.set_placements(output_container_list, output_placement_list)
 
 
 if __name__ == '__main__':
