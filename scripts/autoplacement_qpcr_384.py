@@ -49,20 +49,30 @@ class AutoplacementQPCR384(StepEPP):
             #assemble dict of standards and dictionary of output artifacts
             # using numbers 0-2 to differentiate between the three replicate outputs for each input/standard
             output_counter=0
-            if input.name.split(" ")[0] == "QSTD" or input.name.split(" ")[0]=="No":
+
+            if input.name.split(" ")[0] == "QSTD":
 
                 for output in outputs:
 
                     standards_dict[str(input.name)+str(output_counter)] = output
                     output_counter+=1
+
+            if input.name.split(" ")[0] == "No":
+
+                for output in outputs:
+                    #want no template controles to appear after all standards in the sorted dictionary
+                    standards_dict[str("z") + str(output_counter)] = output
+                    output_counter += 1
+
             else:
                 for output in outputs:
 
                     outputs_dict[str(output_counter)+input.location[1]] = output
                     output_counter+=1
             #check that all standards and no template control are present
-            if len(standards_dict)<21:
-                "Step requires QSTD A to F and No Template Control with 3 replicates each"
+
+        if len(standards_dict)<21:
+                print("Step requires QSTD A to F and No Template Control with 3 replicates each")
                 sys.exit(1)
 
 
