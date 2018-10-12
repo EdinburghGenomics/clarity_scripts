@@ -123,7 +123,7 @@ class StepEPP(app_logging.AppLogger):
 
     def run(self):
         try:
-            self._run()
+            return self._run()
         except Exception as e:
             self.critical('Encountered a %s exception: %s', e.__class__.__name__, str(e))
             import traceback
