@@ -15,6 +15,7 @@ class AutoplacementQPCR384(StepEPP):
     def _run(self):
 
         all_inputs = self.process.all_inputs(unique=True)
+
         if len(all_inputs) > 31:
             print("Maximum number of input samples and standards is 31. %s inputs present in step" % (len(all_inputs)))
             sys.exit(1)
@@ -40,7 +41,7 @@ class AutoplacementQPCR384(StepEPP):
             #obtain outputs for the inputs
             outputs = self.process.outputs_per_input(input.id, ResultFile=True)
             #generate error if 3 replicates not present
-            if len(outputs) not 3:
+            if len(outputs) != 3:
                 print("3 replicates required for each sample and standard")
                 sys.exit(1)
 
