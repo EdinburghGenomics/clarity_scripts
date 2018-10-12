@@ -39,7 +39,7 @@ class AutoplacementQPCR384(StepEPP):
             outputs = self.process.outputs_per_input(input.id, ResultFile=True)
             # generate error if 3 replicates not present
             if len(outputs) != 3:
-                print("3 replicates required for each sample and standard")
+                print("3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
                 return 1
 
             # assemble dict of standards and dictionary of output artifacts
@@ -52,7 +52,7 @@ class AutoplacementQPCR384(StepEPP):
                     standards_dict[str(input.name) + str(output_counter)] = output
                     output_counter += 1
 
-            if input.name.split(" ")[0] == "No":
+            elif input.name.split(" ")[0] == "No":
 
                 for output in outputs:
                     # want no template controles to appear after all standards in the sorted dictionary
@@ -60,10 +60,12 @@ class AutoplacementQPCR384(StepEPP):
                     output_counter += 1
 
             else:
+
                 for output in outputs:
                     outputs_dict[str(output_counter) + input.location[1]] = output
                     output_counter += 1
-            # check that all standards and no template control are present
+
+
 
 
         if len(standards_dict) < 21:
@@ -119,7 +121,6 @@ class AutoplacementQPCR384(StepEPP):
                         else:
                             well_counter += 2
 
-                    replicate_counter += 1
 
         # push the output locations to the LIMS
         self.process.step.set_placements(output_container_list, output_placement_list)
