@@ -28,8 +28,7 @@ class Autoplacement24in96(StepEPP):
             #obtain outputs for the input that are analytes, assume step is not configured to allow replicates
             #so will always work with output[0]
             output = self.process.outputs_per_input(input.id, Analyte=True)[0]
-            #assemble single entry dict with input location and the output from that input
-            input_location_output_dict = {input.location:output}
+
             #add the input_location_output_dict to the input_container_nested dict
             if input.container not in input_container_nested_dict.keys():
                 input_container_nested_dict[input.container]={}
