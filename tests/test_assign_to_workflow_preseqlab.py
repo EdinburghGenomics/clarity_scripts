@@ -37,12 +37,12 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
              self.patch_Step_create as psc:
             self.epp._run()
 
-            pws.assert_called_any(self.epp.lims, 'PreSeqLab EG 6.0', 'Sequencing Plate Preparation EG 2.0')
+            pws.assert_any_call(self.epp.lims, 'PreSeqLab EG 6.0', 'Sequencing Plate Preparation EG 2.0')
             first_call = self.epp.lims.route_artifacts.call_args_list[0]
             assert sorted([a.id for a in first_call[0][0]]) == ['a1', 'fx2']
             assert first_call[1] == {'stage_uri': 'a_uri'}
 
-            pws.assert_called_any(self.epp.lims, "Remove From Processing EG 1.0 WF", "Remove From Processing EG 1.0 ST")
+            pws.assert_any_call(self.epp.lims, "Remove From Processing EG 1.0 WF", "Remove From Processing EG 1.0 ST")
             second_call = self.epp.lims.route_artifacts.call_args_list[1]
             assert sorted([a.id for a in second_call[0][0]]) == ['a3']
             assert second_call[1] == {'stage_uri': 'a_uri'}
