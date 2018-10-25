@@ -17,7 +17,7 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
         self.patched_process = patch.object(
             AssignWorkflowPreSeqLab,
             'process',
-            new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs))
+            new_callable=PropertyMock(return_value=Mock(id='24-1234', all_inputs=fake_all_inputs))
         )
         self.workflow_stage = Mock(uri='a_uri')
         self.patched_get_workflow_stage = patch(

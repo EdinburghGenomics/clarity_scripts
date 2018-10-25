@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import platform
+
 from pyclarity_lims.entities import Step
 
 from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_originating_from
@@ -38,7 +40,8 @@ class AssignWorkflowPreSeqLab(StepEPP):
             s = Step.create(self.lims, protocol_step=stage.step, inputs=artifacts_to_route_to_remove,
                             container_type_name='Tube')
 
-            s.details.udf['Reason for removal from processing:'] = 'Failed QC. See step id %s' % self.process.id
+            url = 'https://%s/clarity/work-complete/%s' % (platform.node(), self.process.id.split('-')[1])
+            s.details.udf['Reason for removal from processing:'] = 'Failed QC. See step %s' % url
             s.details.put()
 
             # Move from "Record detail" window to the "Next Step"
