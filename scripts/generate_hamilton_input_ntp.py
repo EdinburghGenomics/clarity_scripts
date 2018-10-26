@@ -62,7 +62,7 @@ class GenerateHamiltonInputNTP(StepEPP):
                     print('Multiple outputs found for an input %s. This step is not compatible with replicates.' % (
                         input.name))
                     sys.exit(1)
-                output=outputs[0]
+                output = outputs[0]
                 # build a list of the unique input containers for checking that no more than 1 is present due
                 # Build a list of unique output containers as no more than 1 plate
                 unique_input_containers.add(input.container.name)
@@ -74,7 +74,7 @@ class GenerateHamiltonInputNTP(StepEPP):
                 input_location = row + column
                 row, column = output.location[1].split(":")
                 output_location = row + column
-                print(output.udf)
+
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [input.container.name, input_location, output.container.name, output_location,
                             output.udf['NTP Library Volume (uL)'], rsb_barcode, output.udf['NTP RSB Volume (uL)']]
