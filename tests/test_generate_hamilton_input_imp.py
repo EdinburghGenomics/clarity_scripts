@@ -1,5 +1,5 @@
-import hashlib
 from unittest.mock import Mock, patch, PropertyMock
+
 from scripts.generate_hamilton_input_imp import GenerateHamiltonInputIMP
 from tests.test_common import TestEPP, NamedMock
 
@@ -108,15 +108,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         with self.patched_process1:
             self.epp._run()
 
-
-            def md5(fname):
-                hash_md5 = hashlib.md5()
-                with open(fname, "rb") as f:
-                    for chunk in iter(lambda: f.read(4096), b""):
-                        hash_md5.update(chunk)
-                return hash_md5.hexdigest()
-
-            assert md5('an_imp_file_location-hamilton_input.csv') == '20e47f3c13a54f290997fac9f14be16d'
+            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == 'f59a2eba0cd5729a59f00fb892806cf9'
 
     def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
         with self.patched_process2, patch('sys.exit') as mexit:

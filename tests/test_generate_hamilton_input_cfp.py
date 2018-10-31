@@ -121,14 +121,8 @@ class TestGenerateHamiltonInputCFP(TestEPP):
         with self.patched_process1:
             self.epp._run()
 
-        def md5(fname):
-            hash_md5 = hashlib.md5()
-            with open(fname, 'rb') as f:
-                for line in f:
-                    hash_md5.update(line.strip())
-            return hash_md5.hexdigest()
 
-        assert md5('a_file_location-hamilton_input.csv') == '8a9f971359ed6fadd8f1b62f975fe74b'
+        assert self.stripped_md5('a_file_location-hamilton_input.csv') == '8a9f971359ed6fadd8f1b62f975fe74b'
 
     def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
         with self.patched_process2, patch('sys.exit') as mexit:

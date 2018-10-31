@@ -1,3 +1,4 @@
+import hashlib
 import os
 from os.path import join, dirname, abspath
 from requests import ConnectionError
@@ -57,6 +58,13 @@ class TestEPP(TestCommon):
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'
 
+    @staticmethod
+    def stripped_md5(fname):
+        hash_md5 = hashlib.md5()
+        with open(fname, 'rb') as f:
+            for line in f:
+                hash_md5.update(line.strip())
+        return hash_md5.hexdigest()
 
 class TestRestCommunicationEPP(TestCase):
     @staticmethod
