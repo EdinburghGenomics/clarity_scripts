@@ -1,3 +1,6 @@
+import pytest
+from requests import HTTPError
+
 from scripts.assign_workflow_preseqlab import AssignWorkflowPreSeqLab
 from tests.test_common import TestEPP, fake_artifact
 from unittest.mock import Mock, patch, PropertyMock
@@ -62,3 +65,24 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
 
             # Test advance has been called.
             assert self.mocked_step.advance.call_count == 2
+
+    def test_finish_step(self):
+        # Successful attempt
+        step = Mock()
+        self.epp._finish_step(step)
+        assert step.get.call_count == 1
+        assert step.advance.call_count == 1
+
+        # 3 failed attempts before raising
+        step = Mock(
+            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
+                                               'running or pending acknowledgement'))
+        )
+        with patch('time.sleep'):
+            with pytest.raises(HTTPError):
+                self.epp._finish_step(step)
+        assert step.get.call_count == 3
+        assert step.advance.call_count == 3
+
+
+
