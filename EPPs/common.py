@@ -186,8 +186,8 @@ class RestCommunicationEPP:
 class GenerateHamiltonInputEPP(StepEPP):
 
     # define the rows and columns in the input plate (standard 96 well plate pattern)
-    plate_96_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-    plate_96_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+    plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     csv_column_headers = None
     output_file_name = None
 
@@ -213,6 +213,7 @@ class GenerateHamiltonInputEPP(StepEPP):
 
     @staticmethod
     def write_csv(filename, csv_array):
+        """Write the list of list to the file provided as a csv file"""
         with open(filename, 'w') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerows(csv_array)
@@ -240,22 +241,30 @@ class GenerateHamiltonInputEPP(StepEPP):
         return os.path.join(self.shared_drive_path, self.output_file_name)
 
     def _generate_csv_dict(self):
+        """Provides the lines to write to the csv files in a dictionary
+        where the key is a well position such as a  """
         raise NotImplementedError
 
     def generate_csv_array(self):
+        """
+        Generate the csv array from the implemented csv dictionary.
+        It sorts the csv lines by column (self.plate_columns) then row (self.plate_rows)
+        """
         csv_dict = self._generate_csv_dict()
 
         if self.csv_column_headers:
             csv_rows = [self.csv_column_headers]
         else:
             csv_rows = []
-        for column in self.plate_96_columns:
-            for row in self.plate_96_rows:
+        for column in self.plate_columns:
+            for row in self.plate_rows:
                 if row + ":" + column in csv_dict.keys():
                     csv_rows.append(csv_dict[row + ":" + column])
         return csv_rows
 
     def _run(self):
+        """Generic run that make a check of unique input container and unique output container
+        then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
         # check the number of input containers
         if len(self.input_container_names) > 1:
             raise InvalidStepError(message='Maximum number of input plates is 1. '

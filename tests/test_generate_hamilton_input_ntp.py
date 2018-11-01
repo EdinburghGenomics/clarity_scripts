@@ -125,7 +125,7 @@ class TestGenerateHamiltonInputNTP(TestEPP):
 
         self.patched_lims = patch.object(GenerateHamiltonInputNTP, 'lims', new_callable=PropertyMock)
 
-        self.epp = GenerateHamiltonInputNTP(self.default_argv + ['-i', 'a_file_location'] + ['-d', 'assets'])
+        self.epp = GenerateHamiltonInputNTP(self.default_argv + ['-i', 'a_file_location'] + ['-d', self.assets])
 
     def test_happy_input(self):
         """
