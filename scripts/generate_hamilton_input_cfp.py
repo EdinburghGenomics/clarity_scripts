@@ -77,7 +77,7 @@ class GenerateHamiltonInputCFP(StepEPP):
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [input.container.name, input_location, output[0].container.name, output_location,
-                            input.udf['CFP_DNA_Volume (uL)'], rsb_barcode, input.udf['CFP_RSB_Volume (uL)']]
+                            output[0].udf['CFP_DNA_Volume (uL)'], rsb_barcode, output[0].udf['CFP_RSB_Volume (uL)']]
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row
                 csv_dict[input.location[1]] = csv_line
