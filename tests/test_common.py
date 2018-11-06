@@ -66,6 +66,7 @@ class TestEPP(TestCommon):
                 hash_md5.update(line.strip())
         return hash_md5.hexdigest()
 
+
 class TestRestCommunicationEPP(TestCase):
     @staticmethod
     def fake_rest_interaction(*args, **kwargs):
