@@ -16,7 +16,7 @@ class GenerateHamiltonInputCFP(GenerateHamiltonInputEPP):
     output_file_name = 'KAPA_MAKE_CFP.csv'
 
     #Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    permitted_input_containers = 9
 
 
     #Define the number of output containers that are permitted

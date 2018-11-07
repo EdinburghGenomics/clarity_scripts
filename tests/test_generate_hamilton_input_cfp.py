@@ -2,7 +2,7 @@ import pytest
 
 from unittest.mock import Mock, patch, PropertyMock
 
-from common import InvalidStepError
+from EPPs.common import InvalidStepError
 
 from scripts.generate_hamilton_input_cfp import GenerateHamiltonInputCFP
 from tests.test_common import TestEPP, NamedMock
@@ -24,7 +24,24 @@ def fake_all_inputs2(unique=False, resolve=False):
         Mock(id='ai1', type='Analyte', container=NamedMock(real_name='Name1'),
              location=('ContainerVariable1', 'A:1')),
         Mock(id='ai2', type='Analyte', container=(NamedMock(real_name='Name2')),
-             location=('ContainerVariable1', 'B:1'))
+             location=('ContainerVariable1', 'B:1')),
+        Mock(id='ai3', type='Analyte', container=NamedMock(real_name='Name3'),
+           location=('ContainerVariable1', 'A:1')),
+        Mock(id='ai4', type='Analyte', container=(NamedMock(real_name='Name4')),
+         location=('ContainerVariable1', 'B:1')),
+        Mock(id='ai5', type='Analyte', container=NamedMock(real_name='Name5'),
+             location=('ContainerVariable1', 'A:1')),
+        Mock(id='ai6', type='Analyte', container=(NamedMock(real_name='Name6')),
+             location=('ContainerVariable1', 'B:1')),
+        Mock(id='ai7', type='Analyte', container=(NamedMock(real_name='Name7')),
+             location=('ContainerVariable1', 'B:1')),
+        Mock(id='ai8', type='Analyte', container=NamedMock(real_name='Name8'),
+             location=('ContainerVariable1', 'A:1')),
+        Mock(id='ai9', type='Analyte', container=(NamedMock(real_name='Name9')),
+             location=('ContainerVariable1', 'B:1')),
+        Mock(id='ai10', type='Analyte', container=NamedMock(real_name='Name10'),
+             location=('ContainerVariable1', 'A:1'))
+
     )
 
 
@@ -44,6 +61,17 @@ outputs1={
 }
 
 outputs2 = {
+    'ai1': [
+        Mock(id='bo1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'),
+             udf={'NTP Library Volume (uL)': '50', 'NTP RSB Volume (uL)': '10'}, type='Analyte'),
+    ],
+    'ai2': [
+        Mock(id='ao1', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable1', 'B:1'),
+             udf={'NTP Library Volume (uL)': '50', 'NTP RSB Volume (uL)': '10'}, type='Analyte')
+    ]
+}
+
+outputs3 = {
     'ai1': [
         Mock(id='bo1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'),
              udf={'NTP Library Volume (uL)': '50', 'NTP RSB Volume (uL)': '10'}, type='Analyte'),
@@ -113,7 +141,7 @@ class TestGenerateHamiltonInputCFP(TestEPP):
         self.patched_process1 = patch.object(
             GenerateHamiltonInputCFP,
             'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1,
-                                                                   all_outputs=get_fake_all_outputs(outputs2),
+                                                                   all_outputs=get_fake_all_outputs(outputs1),
                                                                    outputs_per_input=get_fake_outputs_per_input(outputs1),
                                                                    step=dummystep))
         )
@@ -132,19 +160,22 @@ class TestGenerateHamiltonInputCFP(TestEPP):
         self.patched_process3 = patch.object(
             GenerateHamiltonInputCFP,
             'process', new_callable=PropertyMock(
-                return_value=Mock(all_inputs=fake_all_inputs2,
-                                  all_outputs=get_fake_all_outputs(outputs1),
-                                  outputs_per_input=get_fake_outputs_per_input(outputs1),
+                return_value=Mock(all_inputs=fake_all_inputs1,
+                                  all_outputs=get_fake_all_outputs(outputs2),
+                                  outputs_per_input=get_fake_outputs_per_input(outputs2),
                                   step=dummystep)
             )
         )
 
-
-        # self.patched_process3 = patch.object(
-        #     GenerateHamiltonInputCFP,
-        #     'process', new_callable=PropertyMock(return_value=Mock(all_inputs=fake_all_inputs1,
-        #                                                            outputs_per_input=fake_outputs_per_input3, step=dummystep))
-        # )
+        self.patched_process4 = patch.object(
+            GenerateHamiltonInputCFP,
+            'process', new_callable=PropertyMock(
+                return_value=Mock(all_inputs=fake_all_inputs1,
+                                  all_outputs=get_fake_all_outputs(outputs3),
+                                  outputs_per_input=get_fake_outputs_per_input(outputs3),
+                                  step=dummystep)
+            )
+        )
 
         # self.patched_process4 = patch.object(
         #     GenerateHamiltonInputCFP,
@@ -171,18 +202,21 @@ class TestGenerateHamiltonInputCFP(TestEPP):
         with self.patched_process2:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
-            print(e.value.message)
+
             assert e.value.message == 'Maximum number of input plates is 9. There are 10 input plates in the step.'
 
     def test_2_output_containers(self):  # test that sys exit occurs if >1 output containers
-        with self.patched_process3, patch('sys.exit') as mexit:
+        with self.patched_process3:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
+
             assert e.value.message == 'Maximum number of output plates is 1. There are 2 output plates in the step.'
 
 
-    # def test_2_output_artifacts(self):  # test that sys exit occurs if >1 output artifacts for one input
-    #     with self.patched_process4, patch('sys.exit') as mexit:
-    #         self.epp._run()
-    #
-    #     mexit.assert_called_once_with(1)
+    def test_2_output_artifacts(self):  # test that sys exit occurs if >1 output artifacts for one input
+        with self.patched_process4:
+            with pytest.raises(InvalidStepError) as e:
+                self.epp._run()
+
+            assert e.value.message == 'Multiple outputs found for an input Input1. This step is not compatible with replicates.'
+

@@ -14,6 +14,12 @@ class GenerateHamiltonInputNTP(GenerateHamiltonInputEPP):
     # Define the output file
     output_file_name = 'KAPA_NORMALISE_LIBRARIES.csv'
 
+    # Define the number of input containers that are permitted
+    permitted_input_containers = 1
+
+    # Define the number of output containers that are permitted
+    permitted_output_containers = 1
+
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
         csv_dict = {}
@@ -26,7 +32,10 @@ class GenerateHamiltonInputNTP(GenerateHamiltonInputEPP):
         for lot in reagent_lots:
             if re.match(RSB_template, lot.lot_number):
                 rsb_barcode = lot.lot_number
-        # FIXME: We should check for the presence of the barcode
+
+        if not rsb_barcode:
+                raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
