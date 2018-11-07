@@ -190,6 +190,8 @@ class GenerateHamiltonInputEPP(StepEPP):
     plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     csv_column_headers = None
     output_file_name = None
+    permitted_input_containers = None
+    permitted_output_containers = None
 
     def __init__(self, argv=None):
         """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
@@ -199,6 +201,8 @@ class GenerateHamiltonInputEPP(StepEPP):
 
         assert self.csv_column_headers is not None, 'csv_column_headers needs to be set by the child class'
         assert self.output_file_name is not None, 'output_file_name needs to be set by the child class'
+        assert self.permitted_input_containers is not None, 'number of permitted input containers needs to be set by the child class'
+        assert self.permitted_output_containers is not None, 'number of permitted output containers needs to be set by the child class'
 
 
     @staticmethod
@@ -266,14 +270,11 @@ class GenerateHamiltonInputEPP(StepEPP):
         """Generic run that make a check of unique input container and unique output container
         then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
         # check the number of input containers
-        if len(self.input_container_names) > 1:
-            raise InvalidStepError(message='Maximum number of input plates is 1. '
-                                   'There are %s input plates in the step.' % (len(self.input_container_names)))
+        if len(self.input_container_names) > self.permitted_input_containers:
+            raise InvalidStepError(message='Maximum number of input plates is %s. There are %s input plates in the step.' % (self.permitted_input_containers,len(self.input_container_names)))
         # check the number of output containers
-        if len(self.output_container_names) > 1:
-            raise InvalidStepError(message='Maximum number of output plates is 1. '
-                                   'There are %s output plates in the step.' % (len(self.output_container_names)))
-
+        if len(self.output_container_names) > self.permitted_output_containers:
+            raise InvalidStepError(message='Maximum number of output plates is %s. There are %s output plates in the step.' % (self.permitted_output_containers,len(self.output_container_names)))
         csv_array = self.generate_csv_array()
         # Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
         # this is used by Clarity LIMS to recognise the file and attach it to the step

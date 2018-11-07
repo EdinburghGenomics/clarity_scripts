@@ -142,6 +142,7 @@ class TestGenerateHamiltonInputNTP(TestEPP):
         with self.patched_process2:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
+            print(e.value.message)
             assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
 
     def test_2_output_containers(self):  # the function raises an exception if >1 output containers
