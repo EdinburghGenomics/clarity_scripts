@@ -7,8 +7,6 @@ from EPPs.common import SendMailEPP
 class SampleDisposalFMEmail(SendMailEPP):
 
     def _run(self):
-        if len(self.projects) > 1:  # check if more than one project in step, only one permitted
-            raise ValueError('More than one project present in step. Only one project per step permitted')
 
         # Create the message
         msg = 'Hi Facility Manager,\n\nSamples are ready for disposal. Please follow the link below and perform the following tasks:\n' \
