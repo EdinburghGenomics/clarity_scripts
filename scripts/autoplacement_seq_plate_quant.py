@@ -122,7 +122,7 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
         row_counter=1
 
-        print(outputs_dict.keys())
+
         for key in sorted(outputs_dict.keys()):
 
             output_placement_list.append(
@@ -130,8 +130,8 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
             if total_input_samples > 16 and total_input_samples < 24:
 
-                if row_counter == 24-total_input_samples:
-                    well_counter= well_counter +(8-(24-total_input_samples))
+                if row_counter == total_input_samples:
+                    well_counter= well_counter +(25-total_input_samples)
                     row_counter = 1
                 else:
                     well_counter += 1
@@ -139,8 +139,8 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
             elif total_input_samples > 8 and total_input_samples < 16:
 
-                if row_counter == 16 - total_input_samples:
-                    well_counter = well_counter +(8 - (16 - total_input_samples))
+                if row_counter == total_input_samples:
+                    well_counter = well_counter +(17 - total_input_samples)
                     row_counter = 1
                 else:
                     well_counter += 1
