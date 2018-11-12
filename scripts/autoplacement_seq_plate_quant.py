@@ -106,22 +106,59 @@ class Autoplacement_seq_plate_quant(StepEPP):
         # create the output_placement_list to be used by the set_placements function
 
         output_placement_list = []
-        print("standards\n")
+
         # loop through sorted standards dict and add to output_placement_list
         for key in sorted(standards_dict.keys()):
-            print(key)
+
             output_placement_list.append(
                 (standards_dict[key], (output_container_list[0], plate_layout[well_counter])))
 
             well_counter += 1
-        print("\nsamples\n")
 
+
+        total_input_samples=len(input_output_PerInput_dict)-8
+
+        #loop through samples dict and add to output_placement_list
+
+        row_counter=1
+
+        print(outputs_dict.keys())
         for key in sorted(outputs_dict.keys()):
-            print(key)
+
             output_placement_list.append(
                 (outputs_dict[key], (output_container_list[0], plate_layout[well_counter])))
 
-            well_counter += 1
+            if total_input_samples > 16 and total_input_samples < 24:
+
+                if row_counter == 24-total_input_samples:
+                    well_counter= well_counter +(8-(24-total_input_samples))
+                    row_counter = 1
+                else:
+                    well_counter += 1
+                    row_counter += 1
+
+            elif total_input_samples > 8 and total_input_samples < 16:
+
+                if row_counter == 16 - total_input_samples:
+                    well_counter = well_counter +(8 - (16 - total_input_samples))
+                    row_counter = 1
+                else:
+                    well_counter += 1
+                    row_counter += 1
+
+            elif total_input_samples < 8:
+
+                if row_counter == total_input_samples:
+                    well_counter = well_counter + (9 - total_input_samples)
+                    row_counter =1
+                else:
+                    row_counter += 1
+                    well_counter += 1
+
+            else:
+                well_counter += 1
+                row_counter += 1
+
 
         # push the output locations to the LIMS
         self.process.step.set_placements(output_container_list, output_placement_list)
