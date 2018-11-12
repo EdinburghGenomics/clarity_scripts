@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 
 from EPPs.common import StepEPP, InvalidStepError
 
@@ -16,11 +15,6 @@ class Autoplacement_seq_plate_quant(StepEPP):
         super().__init__(argv)
 
     def _run(self):
-
-        all_inputs = self.process.all_inputs(unique=True)
-        if len(all_inputs) > 32:
-            print("Maximum number of inputs is 32. %s inputs present in step" % (len(all_inputs)))
-            sys.exit(1)
 
         # loop through the inputs, assemble a nested dictionary {containers:{input.location:output} this can then be
         # queried in the order container-row-column so the order of the inputs in the Hamilton input file is
@@ -45,6 +39,10 @@ class Autoplacement_seq_plate_quant(StepEPP):
                     input_output_PerInput_dict[input] = [input_output[1]['uri']]
                 else:
                     input_output_PerInput_dict[input].append(input_output[1]['uri'])
+
+
+        if len(input_output_PerInput_dict) > 32:
+            raise InvalidStepError(message="Maximum number of inputs is 32. %s inputs present in step" % (len(input_output_PerInput_dict)))
 
         for input in input_output_PerInput_dict:
 
@@ -72,6 +70,12 @@ class Autoplacement_seq_plate_quant(StepEPP):
                     outputs_dict[str(output_counter) + input.container.name + input.location[1][2:] + input.location[1][
                         0]] = output
                     output_counter += 1
+
+        #length of standards_dict is 3 x number of standards in step (i.e. 3 replicates each). Must equal 24 if
+        #all standards have been added correctly.
+        if len(standards_dict) != 24:
+            raise InvalidStepError(
+                message="Standards missing from step. All 8 standards should be added to the step.")
 
         # assemble the plate layout of the output plate with the 8 standards stamped across the first 3 columns
         # and each set of sample replicates stamped across three neighbouring columns
@@ -109,19 +113,15 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
         # loop through sorted standards dict and add to output_placement_list
         for key in sorted(standards_dict.keys()):
-
             output_placement_list.append(
                 (standards_dict[key], (output_container_list[0], plate_layout[well_counter])))
 
             well_counter += 1
 
-
-        total_input_samples=len(input_output_PerInput_dict)-8
-
-        #loop through samples dict and add to output_placement_list
-
-        row_counter=1
-
+        # loop through samples dict and add to output_placement_list. Add rules to ensure that replicates are always
+        # stamped across three columns to permit maximum simultaneous pipetting.
+        row_counter = 1
+        total_input_samples = len(input_output_PerInput_dict) - 8
 
         for key in sorted(outputs_dict.keys()):
 
@@ -131,7 +131,7 @@ class Autoplacement_seq_plate_quant(StepEPP):
             if total_input_samples > 16 and total_input_samples < 24:
 
                 if row_counter == total_input_samples:
-                    well_counter= well_counter +(25-total_input_samples)
+                    well_counter = well_counter + (25 - total_input_samples)
                     row_counter = 1
                 else:
                     well_counter += 1
@@ -140,7 +140,7 @@ class Autoplacement_seq_plate_quant(StepEPP):
             elif total_input_samples > 8 and total_input_samples < 16:
 
                 if row_counter == total_input_samples:
-                    well_counter = well_counter +(17 - total_input_samples)
+                    well_counter = well_counter + (17 - total_input_samples)
                     row_counter = 1
                 else:
                     well_counter += 1
@@ -150,7 +150,7 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
                 if row_counter == total_input_samples:
                     well_counter = well_counter + (9 - total_input_samples)
-                    row_counter =1
+                    row_counter = 1
                 else:
                     row_counter += 1
                     well_counter += 1
@@ -158,7 +158,6 @@ class Autoplacement_seq_plate_quant(StepEPP):
             else:
                 well_counter += 1
                 row_counter += 1
-
 
         # push the output locations to the LIMS
         self.process.step.set_placements(output_container_list, output_placement_list)
