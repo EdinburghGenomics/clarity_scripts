@@ -65,9 +65,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
                 #remove semi-colon from output location in the variable as this is not compatible with Hamilton Venus software. Common.py
                 #expects key to have semi-colon.
                 #create the csv line with key based on output location that can be sorted by column then row
-                #csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,output_plate_name,output.location[1].replace(':', '')]
-                csv_dict[output.location[1].replace(':', '')] = [output.name, input_plate_name, input_location, output_plate_name,
-                                                output.location[1].replace(':', '')]
+                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,output_plate_name,output.location[1].replace(':', '')]
 
         return csv_dict
 
