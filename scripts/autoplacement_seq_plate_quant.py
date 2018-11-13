@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 from EPPs.common import StepEPP, InvalidStepError
 
@@ -16,10 +17,7 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
     def _run(self):
 
-        all_inputs= self.process.all_inputs(unique=True)
 
-        if len(all_inputs) > 32:
-            raise InvalidStepError(message="Maximum number of inputs is 32. %s inputs present in step" % (len(all_inputs)))
         # loop through the inputs, assemble a nested dictionary {containers:{input.location:output} this can then be
         # queried in the order container-row-column so the order of the inputs in the Hamilton input file is
         # as efficient as possible.
@@ -30,10 +28,28 @@ class Autoplacement_seq_plate_quant(StepEPP):
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
         output_container_list = self.process.step.placements.get_selected_containers()
 
-        for input in all_inputs:
+        input_output_maps = self.process.input_output_maps
+
+        # assemble a dictionary that only contains PerInput outputs for each input
+        input_output_PerInput_dict = {}
+
+        for input_output in input_output_maps:
+            input = input_output[0]['uri']
+
+            if input_output[1]['output-generation-type'] == 'PerInput':
+                if not input in input_output_PerInput_dict.keys():
+                    input_output_PerInput_dict[input] = [input_output[1]['uri']]
+                else:
+                    input_output_PerInput_dict[input].append(input_output[1]['uri'])
+
+
+        if len(input_output_PerInput_dict) > 32:
+            raise InvalidStepError(message="Maximum number of inputs is 32. %s inputs present in step" % (len(input_output_PerInput_dict)))
+
+        for input in input_output_PerInput_dict:
 
             # obtain list outputs for the inputs. Sort list in case each output replicate has a unique name based on the replicate number e.g. sampleAreplicate-1, sampleAreplicate-2
-            outputs = self.process.outputs_per_input(input.id, ResultFile=True)
+            outputs = sorted(input_output_PerInput_dict[input], key=lambda x: x.name, reverse=False)
 
             if len(outputs) != 3:
                 raise InvalidStepError(
@@ -99,15 +115,21 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
         # loop through sorted standards dict and add to output_placement_list
         for key in sorted(standards_dict.keys()):
+
             output_placement_list.append(
                 (standards_dict[key], (output_container_list[0], plate_layout[well_counter])))
 
             well_counter += 1
 
+
+
         # loop through samples dict and add to output_placement_list. Add rules to ensure that replicates are always
         # stamped across three columns to permit maximum simultaneous pipetting.
         row_counter = 1
-        total_input_samples = len(all_inputs) - 8
+        total_input_samples = len(input_output_PerInput_dict) - 8
+
+
+
 
         for key in sorted(outputs_dict.keys()):
 
@@ -144,7 +166,6 @@ class Autoplacement_seq_plate_quant(StepEPP):
             else:
                 well_counter += 1
                 row_counter += 1
-
 
 
         # push the output locations to the LIMS
