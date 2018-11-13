@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.10 (unreleased)
------------------
+0.9.1 (2018-11-13)
+------------------
 
-- Nothing changed yet.
+- Enabled multiple projects for sample disposal emails
 
 
 0.9 (2018-10-04)
