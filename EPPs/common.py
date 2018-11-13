@@ -224,10 +224,12 @@ class GenerateHamiltonInputEPP(StepEPP):
 
     @cached_property
     def input_container_names(self):
-        """The name of containers from input artifacts"""
+        """The name of containers from input artifacts. Disregards stanards containers as these are not stored correctly
+        in the LIMS. Standards are identified as the sample well location is 1:1"""
         containers = []
+
         for art in self.artifacts:
-            if art.type == 'Analyte' and art.container:
+            if art.type == 'Analyte' and art.container and art.location[1] != '1:1':
                 containers.append(art.container.name)
         return list(frozenset(containers))
 
