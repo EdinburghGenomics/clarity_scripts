@@ -262,10 +262,17 @@ class GenerateHamiltonInputEPP(StepEPP):
             csv_rows = [self.csv_column_headers]
         else:
             csv_rows = []
+
+        counter=0
         for column in self.plate_columns:
             for row in self.plate_rows:
                 if row + ":" + column in csv_dict.keys():
                     csv_rows.append(csv_dict[row + ":" + column])
+                    counter+=1
+
+        if counter==0:
+            raise InvalidStepError(message="No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
+
         return csv_rows
 
     def _run(self):
