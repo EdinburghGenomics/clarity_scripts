@@ -15,7 +15,7 @@ def ComparisonMethod(result, logic_op, step_udf_value):
         '<': 'lt',
         '<=': 'le'
     }
-    print("logic op",logic_op)
+
     comparison_method = getattr(operator, operators[logic_op])
     return comparison_method(result, step_udf_value)
 
@@ -48,16 +48,16 @@ class QCCheck(StepEPP):
         argparser.add_argument(
             '-n', '--step_udf_names', nargs='*', help='step udfs against which values will be compared')
         argparser.add_argument('-t', '--result_udf_names', nargs='*',
-                   help='output/inputs udfs which will be compared against step UDFs')
+                               help='output/inputs udfs which will be compared against step UDFs')
         argparser.add_argument('-o', '--logic_ops', nargs='*',
-                   help='logical operators for comparing output/input UDFs with step UDFs')
+                               help='logical operators for comparing output/input UDFs with step UDFs')
         argparser.add_argument('-v', '--qc_udf_names', nargs='*',
-                   help='output/input  QC udfs that should be updated as a result of the comparison')
+                               help='output/input  QC udfs that should be updated as a result of the comparison')
         argparser.add_argument('-w', '--qc_results', nargs='*',
-                   help='entries that should go into the output QC UDFs if a fail')
+                               help='entries that should go into the output QC UDFs if a fail')
         argparser.add_argument('-r', '--replicates', action='store_true',
-                   help='set the script to check the input UDF and not individual replicates', default=False)
-
+                               help='set the script to check the input UDF and not individual replicates',
+                               default=False)
 
     def _run(self):
 
@@ -112,13 +112,15 @@ class QCCheck(StepEPP):
                     # the step UDF. Also don't want to update the qc UDF if it has already been set to fail for a
                     # previous check. Ignore samples that do not have results.
 
-                    if input.udf.get(result_udf_name)and ComparisonMethod(input.udf.get(result_udf_name), logic_op,
-                                        self.process.udf.get(step_udf_name)) == True and \
+                    if input.udf.get(result_udf_name) and ComparisonMethod(input.udf.get(result_udf_name), logic_op,
+                                                                           self.process.udf.get(
+                                                                               step_udf_name)) == True and \
                             str(input.udf.get(qc_udf_name)).find('FAIL') == -1:
                         input.udf[qc_udf_name] = 'PASS'
                         inputs_to_update.add(input)
                     elif input.udf.get(result_udf_name) and ComparisonMethod(input.udf.get(result_udf_name), logic_op,
-                                          self.process.udf.get(step_udf_name)) == False:
+                                                                             self.process.udf.get(
+                                                                                 step_udf_name)) == False:
                         input.udf[qc_udf_name] = qc_result
                         inputs_to_update.add(input)
             self.lims.put_batch(list(inputs_to_update))
