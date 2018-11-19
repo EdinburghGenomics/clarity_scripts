@@ -118,15 +118,6 @@ def fake_input_output_maps4():
 
 class TestAutoplacementSeqPlateQuant(TestEPP):
     def setUp(self):
-        # fake_input_output_maps4 = fake_input_output_maps
-        # fake_input_output_maps4.append((
-        #     [{'uri': input_sample_mock},
-        #      {'output-generation-type': 'PerInput', 'uri': NamedMock(real_name="ao1_name-1")}],
-        #     [{'uri': input_sample_mock},
-        #      {'output-generation-type': 'PerInput', 'uri': NamedMock(real_name="ao1_name-2")}],
-        #     [{'uri': input_sample_mock},
-        #      {'output-generation-type': 'PerInput', 'uri': NamedMock(real_name="ao1_name-3")}]))
-
 
         self.patched_process1 = patch.object(
             Autoplacement_seq_plate_quant,
@@ -183,51 +174,6 @@ class TestAutoplacementSeqPlateQuant(TestEPP):
                 )
             )
         )
-
-        # self.patched_process2 = patch.object(
-        #     AutoplacementQPCR384,
-        #     'process',
-        #     new_callable=PropertyMock(
-        #         return_value=Mock(
-        #             all_inputs=Mock(return_value=fake_inputs2),
-        #             outputs_per_input=Mock(return_value=fake_outputs_per_input2),
-        #             step=Mock(
-        #                 id='s1',
-        #                 placements=Mock(id='p1', get_selected_containers=Mock(return_value=fake_selected_containers))
-        #             )
-        #         )
-        #     )
-        # )
-        #
-        # self.patched_process3 = patch.object(
-        #     AutoplacementQPCR384,
-        #     'process',
-        #     new_callable=PropertyMock(
-        #         return_value=Mock(
-        #             all_inputs=Mock(return_value=fake_inputs2),
-        #             outputs_per_input=Mock(return_value=fake_outputs_per_input),
-        #             step=Mock(
-        #                 id='s1',
-        #                 placements=Mock(id='p1', get_selected_containers=Mock(return_value=fake_selected_containers))
-        #             )
-        #         )
-        #     )
-        # )
-        #
-        # self.patched_process4 = patch.object(
-        #     AutoplacementQPCR384,
-        #     'process',
-        #     new_callable=PropertyMock(
-        #         return_value=Mock(
-        #             all_inputs=Mock(return_value=fake_inputs3()),
-        #             outputs_per_input=Mock(return_value=fake_outputs_per_input),
-        #             step=Mock(
-        #                 id='s1',
-        #                 placements=Mock(id='p1', get_selected_containers=Mock(return_value=fake_selected_containers))
-        #             )
-        #         )
-        #     )
-        # )
 
         self.patched_lims = patch.object(Autoplacement_seq_plate_quant, 'lims', new_callable=PropertyMock)
 
