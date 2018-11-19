@@ -229,7 +229,8 @@ class GenerateHamiltonInputEPP(StepEPP):
         containers = []
 
         for art in self.artifacts:
-            if art.type == 'Analyte' and art.container and art.location[1] != '1:1':
+            #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            if art.container and art.location[1] != '1:1':
                 containers.append(art.container.name)
         return list(frozenset(containers))
 
@@ -238,7 +239,8 @@ class GenerateHamiltonInputEPP(StepEPP):
         """The name of containers from output artifacts"""
         containers = []
         for art in self.output_artifacts:
-            if art.type == 'Analyte' and art.container:
+            #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            if art.container:
                 containers.append(art.container.name)
         return list(frozenset(containers))
 
