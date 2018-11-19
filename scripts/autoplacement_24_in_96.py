@@ -41,17 +41,20 @@ class Autoplacement24in96(StepEPP):
         # update of container requires list variable containing the containers, only one container will be present in step
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
         output_container_list = self.process.step.placements.get_selected_containers()
+        print("output container list",self.process.step.placements.get_selected_containers())
         # need a list of tuples for set_placements
         output_placement = []
 
         # assemble the plate layout of the output plate as a list
         output_plate_layout_columns = ["1", "2", "3"]
-        output_plate_layout_rows = ["A", "B", "C"]
+        output_plate_layout_rows = ["A", "B", "C","D","E","F","G","H"]
         output_plate_layout = []
 
         for column in output_plate_layout_columns:
             for row in output_plate_layout_rows:
                 output_plate_layout.append(row + ":" + column)
+
+
 
         # define the input plate(s) column and rows to be
         input_plate_layout_columns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "11", "12"]
@@ -67,6 +70,7 @@ class Autoplacement24in96(StepEPP):
                 for row in input_plate_layout_rows:
                     # populate list of tuples for set_placements if well exists in input plate
                     if row + ":" + column in input_container_nested_dict[container].keys():
+
                         output_placement.append((input_container_nested_dict[container][row + ":" + column],
                                                  (output_container_list[0], output_plate_layout[well_counter])))
                         well_counter += 1
