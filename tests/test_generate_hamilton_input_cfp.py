@@ -19,7 +19,7 @@ def fake_all_inputs1(unique=False, resolve=False):
     )
 
 def fake_all_inputs2(unique=False, resolve=False):
-    """Return a list of 2 mocked artifacts with different container names and locations defined as a tuple."""
+    """Return a list of 10 mocked artifacts with different container names and locations defined as a tuple."""
     return (
         Mock(id='ai1', type='Analyte', container=NamedMock(real_name='Name1'),
              location=('ContainerVariable1', 'A:1')),
