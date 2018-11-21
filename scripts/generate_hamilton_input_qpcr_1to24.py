@@ -76,9 +76,9 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
                 message='QSTD Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
 
         # check that no more than 31 inputs present in the step. 7 standards and a maximum of 24 samples.
-        if len(self.artifacts) > 24:
+        if len(self.artifacts) > 31:
             raise InvalidStepError(
-                message='% samples and standards present in step. There should be 7 standards and up to 24 samples present' % (
+                message='%s samples and standards present in step. There should be 7 standards and up to 24 samples present' % (
                     len(self.artifacts)))
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files) then add them to a set
