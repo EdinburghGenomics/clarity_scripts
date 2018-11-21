@@ -1,28 +1,34 @@
 #!/usr/bin/env python
-import csv
-import sys
 
-from EPPs.common import StepEPP, GenerateHamiltonInputEPP, InvalidStepError
+from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 
 
 class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
     """"Generate a CSV containing the necessary information to transfer the fragmented sample from a covaris plate into
     an IMP plate"""
     _use_load_config = False  # prevent the loading of the config
-    csv_column_headers = []
+    csv_column_headers = ['Input Plate', 'Input Well', 'Sample Name', 'Adapter Well']
     output_file_name = 'KAPA_MAKE_LIBRARIES.csv'
+
+    # Define the number of input containers that are permitted
+    permitted_input_containers = 1
+
+    # Define the number of output containers that are permitted
+    permitted_output_containers = 1
 
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
         csv_dict = {}
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
+
         for input in self.artifacts:
+
             if input.type == 'Analyte':
                 output = self.process.outputs_per_input(input.id, Analyte=True)
                 # the script is only compatible with 1 output for each input i.e. replicates are not allowed
                 if len(output) > 1:
-                    raise InvalidStepError('Multiple outputs found for an input %s. ' 
+                    raise InvalidStepError('Multiple outputs found for an input %s. '
                                            'This step is not compatible with replicates.' % input.name)
 
                 # remove semi-colon from locations as this is not compatible with Hamilton Venus software
@@ -35,6 +41,7 @@ class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [input.container.name, input_location, input.name, adapter_well]
+
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row
                 csv_dict[input.location[1]] = csv_line
