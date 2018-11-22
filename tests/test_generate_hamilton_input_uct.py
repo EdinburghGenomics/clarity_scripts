@@ -86,9 +86,6 @@ class TestGenerateHamiltonInputUCT(TestEPP):
             'CFP Volume (ul)': '50',
         }
 
-        dummystep = Mock(reagent_lots=[Mock(id='re1', lot_number='LP9999999-RSB'),
-                                       Mock(id='re2', lot_number='LP9999999-RSA')])
-
         self.patched_process1 = patch.object(
             GenerateHamiltonInputUCT,
             'process', new_callable=PropertyMock(
