@@ -16,7 +16,7 @@ import EPPs
 from EPPs.config import load_config
 
 
-class InvalidStepError(BaseException):
+class InvalidStepError(Exception):
     """Exception raised when error occured during the script due to the step being Invalid"""
     def __init__(self, message):
         self.message = message
@@ -226,23 +226,22 @@ class GenerateHamiltonInputEPP(StepEPP):
     def input_container_names(self):
         """The name of containers from input artifacts. Disregards stanards containers as these are not stored correctly
         in the LIMS. Standards are identified as the sample well location is 1:1"""
-        containers = []
-
+        containers = set()
         for art in self.artifacts:
             #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
             if art.container and art.location[1] != '1:1':
-                containers.append(art.container.name)
-        return list(frozenset(containers))
+                containers.add(art.container.name)
+        return list(containers)
 
     @cached_property
     def output_container_names(self):
         """The name of containers from output artifacts"""
-        containers = []
+        containers = set()
         for art in self.output_artifacts:
             #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
             if art.container:
-                containers.append(art.container.name)
-        return list(frozenset(containers))
+                containers.add(art.container.name)
+        return list(containers)
 
     @property
     def shared_drive_file_path(self):
@@ -250,7 +249,8 @@ class GenerateHamiltonInputEPP(StepEPP):
 
     def _generate_csv_dict(self):
         """Provides the lines to write to the csv files in a dictionary
-        where the key is a well position such as a  """
+        where the key is a well position such as A:1
+        and the value is line to add to the csv"""
         raise NotImplementedError
 
     def generate_csv_array(self):
@@ -265,14 +265,14 @@ class GenerateHamiltonInputEPP(StepEPP):
         else:
             csv_rows = []
 
-        counter=0
+        counter = 0
         for column in self.plate_columns:
             for row in self.plate_rows:
                 if row + ":" + column in csv_dict.keys():
                     csv_rows.append(csv_dict[row + ":" + column])
-                    counter+=1
+                    counter += 1
 
-        if counter==0:
+        if counter == 0:
             raise InvalidStepError(message="No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
 
         return csv_rows
@@ -282,10 +282,16 @@ class GenerateHamiltonInputEPP(StepEPP):
         then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
         # check the number of input containers
         if len(self.input_container_names) > self.permitted_input_containers:
-            raise InvalidStepError(message='Maximum number of input plates is %s. There are %s input plates in the step.' % (self.permitted_input_containers,len(self.input_container_names)))
+            msg = 'Maximum number of input plates is %s. There are %s input plates in the step.' % (
+                self.permitted_input_containers,len(self.input_container_names)
+            )
+            raise InvalidStepError(message=msg)
         # check the number of output containers
         if len(self.output_container_names) > self.permitted_output_containers:
-            raise InvalidStepError(message='Maximum number of output plates is %s. There are %s output plates in the step.' % (self.permitted_output_containers,len(self.output_container_names)))
+            msg = 'Maximum number of output plates is %s. There are %s output plates in the step.' % (
+                self.permitted_output_containers,len(self.output_container_names)
+            )
+            raise InvalidStepError(message=msg)
         csv_array = self.generate_csv_array()
         # Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
         # this is used by Clarity LIMS to recognise the file and attach it to the step

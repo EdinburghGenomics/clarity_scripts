@@ -66,7 +66,7 @@ class QCCheck(StepEPP):
         # process (list of tuples, each tuple is two dictionaries, one for the input and one for the output
 
         # if -r argument not present then QC check is between the output UDF and step UDF
-        if self.replicates == False:
+        if self.replicates is False:
             # will update the LIMS using batch for efficiency so need a step variable to populate before the put
             outputs_to_update = set()
 
