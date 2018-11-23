@@ -47,4 +47,4 @@ class TestAutoplacement24in96(TestEPP):
                 (fake_outputs_per_input[0], (fake_selected_containers[0], 'B:1'))
             ]
             self.epp.process.step.set_placements.assert_called_with(fake_selected_containers, expected_output_placement)
-            # assert self.epp.process.step.get_placement_list == ['']
+
