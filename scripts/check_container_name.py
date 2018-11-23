@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 import re
-import sys
-from EPPs.common import StepEPP
+
+from EPPs.common import StepEPP, InvalidStepError
 
 
 class CheckContainerName(StepEPP):
     """
-    Checks that the container name assigned by the user has the correct format for a seqlab plate with the standard
-    seqlab prefix "LP[0-9]{7}-" and the suffix specified by an argument.
+    Checks that the container name(s) assigned by the user has the correct format for a seqlab plate with the standard
+    seqlab prefix "LP[0-9]{7}-" and the suffix(es) specified by an argument. The number of suffixes is no limited but
+    script assumes that each suffix is only used once and that the suffixes are applied to the output containers in
+    the same order as they appear in the suffix argument
     """
 
     def __init__(self, argv=None):
@@ -18,7 +20,8 @@ class CheckContainerName(StepEPP):
     @staticmethod
     def add_args(argparser):
         argparser.add_argument(
-            '-x', '--suffix', type=str, help='Set the suffix of the container name (hyphen present in prefix)'
+            '-x', '--suffix', type=str, nargs='*',
+            help='Set the suffix of the container name(s) in order plates should appear'
         )
 
     def _run(self):
@@ -27,14 +30,26 @@ class CheckContainerName(StepEPP):
         the output container names and then check that they match the template. If not, then sys.exit with a useful
         message.
         """
-        name_template = 'LP[0-9]{7}-' + self.suffix
         containers = self.process.output_containers()
 
-        for container in containers:
-            if not re.match(name_template, container.name):
-                print('%s is not a valid container name. Container names must match %s' % (container.name, name_template))
-                sys.exit(1)
+        suffixes = self.suffix
+        #suffixes.append(self.suffix)
+        if len(suffixes) != len(containers):
+            raise InvalidStepError(
+                message="The number of plate name suffixes must match the number of output containers. %s plate"
+                        "name suffixes configured for this step and %s output containers present. The expected suffixes are %s."
+                        % (str(len(suffixes)), str(len(containers)), str(suffixes)))
 
+        suffix_counter = 0
+
+        for suffix in suffixes:
+            name_template = 'LP[0-9]{7}-' + suffix
+
+            if not re.match(name_template, containers[suffix_counter].name):
+                raise InvalidStepError(
+                    message="Expected container name format %s does not match container name %s. Please note that"
+                            ", if more than one container, the order of suffixes %s must match the order of containers." % (name_template, containers[suffix_counter].name, suffixes))
+            suffix_counter+=1
 
 if __name__ == '__main__':
     CheckContainerName().run()
