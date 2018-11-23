@@ -33,7 +33,7 @@ class Autoplacement24IMPGX(StepEPP):
                 input_containers.add(art.container)
 
         if len(input_containers)>1:
-            raise InvalidStepError (message='% input containers found. Only 1 input container permissable.' % (len(input_containers)))
+            raise InvalidStepError (message='%s input containers found. Only 1 input container permissable.' % (len(input_containers)))
 
         #the step can only be configured to have one output plate of one container type e.g. 1 x 96 well plate, when it starts. Need to create
         #a new container for the 384 gx plate then append it to the list of containers in the plate.

@@ -15,16 +15,16 @@ fake_outputs_per_input2 = [Mock(id='ao1', container='Container1', location=''),
                           Mock(id='ao3', container='Container1', location='')]
 
 fake_inputs = [
-    NamedMock(real_name="ai1 name", id='ai1', type='Analyte', container='container',
-              location=('container', 'A:1')),
-    NamedMock(real_name="ai2 name", id='ai2', type='Analyte', container='container',
-              location=('container', 'B:1'))
+    NamedMock(real_name="ai1 name", id='ai1', type='Analyte', container='container1',
+              location=('container1', 'A:1')),
+    NamedMock(real_name="ai2 name", id='ai2', type='Analyte', container='container1',
+              location=('container1', 'B:1'))
 ]
 
 fake_inputs2 = [
-    NamedMock(real_name="ai1 name", id='ai1', type='Analyte', container='container',
-              location=('container', 'A:1')),
-    NamedMock(real_name="ai2 name", id='ai2', type='Analyte', container='container',
+    NamedMock(real_name="ai1 name", id='ai1', type='Analyte', container='container1',
+              location=('container1', 'A:1')),
+    NamedMock(real_name="ai2 name", id='ai2', type='Analyte', container='container2',
               location=('container2', 'B:1'))
 ]
 
@@ -42,16 +42,6 @@ def fake_inputs3(unique=True):
 
 class TestAutoplacement24IMPGX(TestEPP):
     def setUp(self):
-
-
-        fake_inputs2 = [
-            NamedMock(real_name="ai1 name", id='ai1', type='Analyte', container='container',
-                      location=('container', 'A:1'),
-                      output=[Mock(id='ao1', type='Analyte', container='Container1', location=('container', ''))]),
-            NamedMock(real_name="QSTD A", id='qA', type='Analyte', container='container', location=('container', 'B:1'),
-                      output=[Mock(id='ao2', type='Analyte', container='Container1', location=('container', ''))])
-        ]
-
         self.patched_process1 = patch.object(
             Autoplacement24IMPGX,
             'process',
@@ -99,7 +89,7 @@ class TestAutoplacement24IMPGX(TestEPP):
             'process',
             new_callable=PropertyMock(
                 return_value=Mock(
-                    all_inputs=fake_inputs2,
+                    all_inputs=Mock(return_value=fake_inputs2),
                     outputs_per_input=Mock(return_value=fake_outputs_per_input),
                     step=Mock(
                         id='s1',
@@ -185,7 +175,8 @@ class TestAutoplacement24IMPGX(TestEPP):
             assert e.value.message =="Maximum number of inputs is 24. 25 inputs present in step"
 
     def test_autoplacement_qPCR_384_more_than_1_input_plates(self):  # >1 input plates
-        with self.patched_process3, self.patched_lims:
+        with self.patched_process4, self.patched_lims:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
+
             assert e.value.message =='2 input containers found. Only 1 input container permissable.'
