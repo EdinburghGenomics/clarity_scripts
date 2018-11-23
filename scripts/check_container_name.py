@@ -11,7 +11,7 @@ class CheckContainerName(StepEPP):
     script assumes that each suffix is only used once and that the suffixes are applied to the output containers in
     the same order as they appear in the suffix argument
     """
-
+    _use_load_config = False  # prevent the loading of the config file
     def __init__(self, argv=None):
         # extra suffix argument required in addition to standard arg parser arguments
         super().__init__(argv)
@@ -41,7 +41,9 @@ class CheckContainerName(StepEPP):
                         % (str(len(suffixes)), str(len(containers)), str(suffixes)))
 
         suffix_counter = 0
-
+        print(suffixes)
+        for container in containers:
+            print(container.name)
         for suffix in suffixes:
             name_template = 'LP[0-9]{7}-' + suffix
 
