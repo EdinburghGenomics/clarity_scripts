@@ -20,7 +20,7 @@ class CheckContainerName(StepEPP):
     @staticmethod
     def add_args(argparser):
         argparser.add_argument(
-            '-x', '--suffix', type=str, nargs='*',
+            '-x', '--suffix', nargs='*',
             help='Set the suffix of the container name(s) in order plates should appear'
         )
 
