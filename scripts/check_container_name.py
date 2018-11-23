@@ -16,6 +16,7 @@ class CheckContainerName(StepEPP):
         # extra suffix argument required in addition to standard arg parser arguments
         super().__init__(argv)
         self.suffix = self.cmd_args.suffix
+        self.suffix = self.cmd_args.suffix
 
     @staticmethod
     def add_args(argparser):
@@ -26,32 +27,24 @@ class CheckContainerName(StepEPP):
 
     def _run(self):
         """
-        Assemble the container name template from the fixed prefix and the suffix determined by self.suffix. Find all
-        the output container names and then check that they match the template. If not, then sys.exit with a useful
-        message.
+        Check to see if the names of the containers in the step match any of the allowed name formates which are defined by the fixed name_template
+        prefix and a number of suffixes supplied by suffix argument.
         """
         containers = self.process.output_containers()
 
         suffixes = self.suffix
-        #suffixes.append(self.suffix)
-        if len(suffixes) != len(containers):
-            raise InvalidStepError(
-                message="The number of plate name suffixes must match the number of output containers. %s plate"
-                        "name suffixes configured for this step and %s output containers present. The expected suffixes are %s."
-                        % (str(len(suffixes)), str(len(containers)), str(suffixes)))
 
-        suffix_counter = 0
-        print(suffixes)
+
         for container in containers:
-            print(container.name)
-        for suffix in suffixes:
-            name_template = 'LP[0-9]{7}-' + suffix
+            valid_container='False'
+            for suffix in suffixes:
+                name_template = 'LP[0-9]{7}-' + suffix
+                if re.match(name_template, container.name):
+                    valid_container='True'
+            if valid_container=='False':
+                raise InvalidStepError("Container name %s is not valid for the step. Expected name format is prefix 'LP[0-9]{7}-' with one of the following suffixes: %s." %(container.name, suffixes))
 
-            if not re.match(name_template, containers[suffix_counter].name):
-                raise InvalidStepError(
-                    message="Expected container name format %s does not match container name %s. Please note that"
-                            ", if more than one container, the order of suffixes %s must match the order of containers." % (name_template, containers[suffix_counter].name, suffixes))
-            suffix_counter+=1
+
 
 if __name__ == '__main__':
     CheckContainerName().run()
