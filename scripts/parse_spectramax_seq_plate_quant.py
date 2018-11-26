@@ -1,69 +1,16 @@
 #!/usr/bin/env python
-from collections import defaultdict
 
-from EPPs.common import StepEPP
+from EPPs.common import ParseSpectramaxEPP
 
 
-class SpectramaxOutput(StepEPP):
+class SpectramaxOutput(ParseSpectramaxEPP):
     _use_load_config = False  # prevent the loading of the config
 
-    def __init__(self, argv=None):
-        super().__init__(argv)
-        self.spectramax_file = self.cmd_args.spectramax_file
-        self.sample_concs = {}
-        self.plate_names = []
-        self.plates = defaultdict(dict)
+    # define starting well from which "unkowns" will appear in the result file. Standards will not be present in the results table to be parsed
+    starting_well = 'A4'
 
-    @staticmethod
-    def add_args(argparser):
-        argparser.add_argument('--spectramax_file', type=str, required=True,
-                               help='Spectramax output file from the step')
+    def _add_plates_to_step(self):
 
-    def parse_spectramax_file(self):
-        f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
-        encountered_unknowns = False
-        in_unknowns = False
-
-        for line in f:
-            if line.startswith('Group: Unknowns'):
-                assert not in_unknowns
-                in_unknowns = True
-                encountered_unknowns = True
-
-            elif line.startswith('~End'):
-                in_unknowns = False
-
-            elif in_unknowns:
-                if line.startswith('Sample') or line.startswith('Group Summaries'):
-                    pass
-                else:
-
-                    split_line = line.split('\t')
-                    self.sample_concs[int(split_line[0])] = (split_line[1], float(split_line[3]))
-
-            elif line.startswith('Plate:') and encountered_unknowns:
-                self.plate_names.append(line.split('\t')[1])
-
-        self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
-
-    def assign_samples_to_plates(self):
-        plate_idx = -1
-        plate_name = None
-        for i in sorted(self.sample_concs):  # go through in ascending order...
-            coord, conc = self.sample_concs[i]
-            if coord == 'A4':  # ... and take an 'A1' coord as the start of a new plate
-                plate_idx += 1
-                plate_name = self.plate_names[plate_idx]
-
-            if coord in self.plates[plate_name]:
-                raise AssertionError(
-                    'Badly formed spectramax file: tried to add coord %s for sample %s to plate %s' % (
-                        coord, i, plate_name
-                    )
-                )
-            self.plates[plate_name][coord] = conc
-
-    def add_plates_to_step(self):
         self.info('Updating step %s with data: %s', self.step_id, self.plates)
 
         # create list of well positions used by standards so this can be ignored by check for missing sample
@@ -91,7 +38,7 @@ class SpectramaxOutput(StepEPP):
                 artifact.udf['Spectramax Well'] = coord
                 artifact.put()
 
-    def average_replicates(self):
+        # Average replicates. For the normal usage of this script there will be 3 output replicates for each input.
         # ignores standards as no concentration data generated for these
         input_artifacts_replicates = {}
 
@@ -115,13 +62,7 @@ class SpectramaxOutput(StepEPP):
             input_artifact.udf['Picogreen Concentration (ng/ul)'] = total / len(
                 input_artifacts_replicates[input_artifact])
 
-        self.lims.put_batch(list(input_artifacts_replicates))
-
-    def _run(self):
-        self.parse_spectramax_file()
-        self.assign_samples_to_plates()
-        self.add_plates_to_step()
-        self.average_replicates()
+        return input_artifacts_replicates
 
 
 if __name__ == '__main__':

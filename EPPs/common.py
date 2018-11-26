@@ -14,6 +14,7 @@ from egcg_core.config import cfg
 from egcg_core.notifications import email
 import EPPs
 from EPPs.config import load_config
+from collections import defaultdict
 
 
 class InvalidStepError(BaseException):
@@ -291,6 +292,83 @@ class GenerateHamiltonInputEPP(StepEPP):
         # this is used by Clarity LIMS to recognise the file and attach it to the step
         self.write_csv(self.hamilton_input + '-hamilton_input.csv', csv_array)
         self.write_csv(self.shared_drive_file_path, csv_array)
+
+
+class ParseSpectramaxEPP(StepEPP):
+    _use_load_config = False  # prevent the loading of the config
+    #define the starting well for data parsing e.g. if the standards occupy the first 24 wells, parsing should start from well A4. No semi-colon
+    #separate row and column
+    starting_well=None
+
+    def __init__(self, argv=None):
+        """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
+        super().__init__(argv)
+        self.spectramax_file = self.cmd_args.spectramax_file
+        self.sample_concs = {}
+        self.plate_names = []
+        self.plates = defaultdict(dict)
+
+        assert self.starting_well is not None, 'starting_well needs to be set by the child class'
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('--spectramax_file', type=str, required=True,
+                               help='Spectramax output file from the step')
+
+    def parse_spectramax_file(self):
+        f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
+        encountered_unknowns = False
+        in_unknowns = False
+
+        for line in f:
+            if line.startswith('Group: Unknowns'):
+                assert not in_unknowns
+                in_unknowns = True
+                encountered_unknowns = True
+
+            elif line.startswith('~End'):
+                in_unknowns = False
+
+            elif in_unknowns:
+                if line.startswith('Sample') or line.startswith('Group Summaries'):
+                    pass
+                else:
+
+                    split_line = line.split('\t')
+                    self.sample_concs[int(split_line[0])] = (split_line[1], float(split_line[3]))
+
+            elif line.startswith('Plate:') and encountered_unknowns:
+                self.plate_names.append(line.split('\t')[1])
+
+        self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
+
+    def assign_samples_to_plates(self):
+
+        plate_idx = -1
+        plate_name = None
+        for i in sorted(self.sample_concs):  # go through in ascending order...
+            coord, conc = self.sample_concs[i]
+            if coord == self.starting_well:  # ... and take the variable starting_well coord as the start of a new plate
+                plate_idx += 1
+                plate_name = self.plate_names[plate_idx]
+
+            if coord in self.plates[plate_name]:
+                raise AssertionError(
+                    'Badly formed spectramax file: tried to add coord %s for sample %s to plate %s' % (
+                        coord, i, plate_name
+                    )
+                )
+            self.plates[plate_name][coord] = conc
+
+    def _add_plates_to_step(self):
+        #populates the artifacts with the data from result file based on plate and well position. Data uploaded to LIMS with put batch
+        raise NotImplementedError
+
+    def _run(self):
+
+        batch_artifacts=self._add_plates_to_step()
+        print(batch_artifacts)
+        self.lims.put_batch(list(batch_artifacts))
 
 
 def get_workflow_stage(lims, workflow_name, stage_name=None):
