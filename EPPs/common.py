@@ -1,24 +1,26 @@
+import argparse
 import csv
 import os
 import sys
-import argparse
+from collections import defaultdict
 from io import StringIO
-from urllib import parse as urlparse
 from logging import FileHandler
+from urllib import parse as urlparse
+
+import EPPs
+from EPPs.config import load_config
 from cached_property import cached_property
-from requests.exceptions import ConnectionError
-from pyclarity_lims.lims import Lims
-from pyclarity_lims.entities import Process, Artifact
 from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
-import EPPs
-from EPPs.config import load_config
-from collections import defaultdict
+from pyclarity_lims.entities import Process, Artifact
+from pyclarity_lims.lims import Lims
+from requests.exceptions import ConnectionError
 
 
 class InvalidStepError(BaseException):
     """Exception raised when error occured during the script due to the step being Invalid"""
+
     def __init__(self, message):
         self.message = message
 
@@ -185,7 +187,6 @@ class RestCommunicationEPP:
 
 
 class GenerateHamiltonInputEPP(StepEPP):
-
     # define the rows and columns in the input plate (standard 96 well plate pattern)
     plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
@@ -204,7 +205,6 @@ class GenerateHamiltonInputEPP(StepEPP):
         assert self.output_file_name is not None, 'output_file_name needs to be set by the child class'
         assert self.permitted_input_containers is not None, 'number of permitted input containers needs to be set by the child class'
         assert self.permitted_output_containers is not None, 'number of permitted output containers needs to be set by the child class'
-
 
     @staticmethod
     def add_args(argparser):
@@ -230,7 +230,7 @@ class GenerateHamiltonInputEPP(StepEPP):
         containers = []
 
         for art in self.artifacts:
-            #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            # check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
             if art.container and art.location[1] != '1:1':
                 containers.append(art.container.name)
         return list(frozenset(containers))
@@ -240,7 +240,7 @@ class GenerateHamiltonInputEPP(StepEPP):
         """The name of containers from output artifacts"""
         containers = []
         for art in self.output_artifacts:
-            #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            # check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
             if art.container:
                 containers.append(art.container.name)
         return list(frozenset(containers))
@@ -266,14 +266,14 @@ class GenerateHamiltonInputEPP(StepEPP):
         else:
             csv_rows = []
 
-        counter=0
+        counter = 0
         for column in self.plate_columns:
             for row in self.plate_rows:
                 if row + ":" + column in csv_dict.keys():
                     csv_rows.append(csv_dict[row + ":" + column])
-                    counter+=1
+                    counter += 1
 
-        if counter==0:
+        if counter == 0:
             raise InvalidStepError(message="No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
 
         return csv_rows
@@ -283,10 +283,14 @@ class GenerateHamiltonInputEPP(StepEPP):
         then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
         # check the number of input containers
         if len(self.input_container_names) > self.permitted_input_containers:
-            raise InvalidStepError(message='Maximum number of input plates is %s. There are %s input plates in the step.' % (self.permitted_input_containers,len(self.input_container_names)))
+            raise InvalidStepError(
+                message='Maximum number of input plates is %s. There are %s input plates in the step.' % (
+                self.permitted_input_containers, len(self.input_container_names)))
         # check the number of output containers
         if len(self.output_container_names) > self.permitted_output_containers:
-            raise InvalidStepError(message='Maximum number of output plates is %s. There are %s output plates in the step.' % (self.permitted_output_containers,len(self.output_container_names)))
+            raise InvalidStepError(
+                message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
+                self.permitted_output_containers, len(self.output_container_names)))
         csv_array = self.generate_csv_array()
         # Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
         # this is used by Clarity LIMS to recognise the file and attach it to the step
@@ -296,9 +300,9 @@ class GenerateHamiltonInputEPP(StepEPP):
 
 class ParseSpectramaxEPP(StepEPP):
     _use_load_config = False  # prevent the loading of the config
-    #define the starting well for data parsing e.g. if the standards occupy the first 24 wells, parsing should start from well A4. No semi-colon
-    #separate row and column
-    starting_well=None
+    # define the starting well for data parsing e.g. if the standards occupy the first 24 wells, parsing should start from well A4. No semi-colon
+    # separate row and column
+    starting_well = None
 
     def __init__(self, argv=None):
         """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
@@ -361,13 +365,15 @@ class ParseSpectramaxEPP(StepEPP):
             self.plates[plate_name][coord] = conc
 
     def _add_plates_to_step(self):
-        #populates the artifacts with the data from result file based on plate and well position. Data uploaded to LIMS with put batch
+        # populates the artifacts with the data from result file based on plate and well position. Data uploaded to LIMS with put batch
         raise NotImplementedError
 
     def _run(self):
 
-        batch_artifacts=self._add_plates_to_step()
-        print(batch_artifacts)
+        self.parse_spectramax_file()
+        self.assign_samples_to_plates()
+        batch_artifacts = self._add_plates_to_step()
+
         self.lims.put_batch(list(batch_artifacts))
 
 
@@ -391,6 +397,7 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
     :param process_type: the type of process that created the artifact
     :param sample_name: the name of the sample associated with this artifact.
     """
+
     def get_parent_process_id(art):
         return art.parent_process.id
 
