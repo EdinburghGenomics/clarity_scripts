@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch, PropertyMock
 import pytest
 from EPPs.common import InvalidStepError
 
-from scripts.generate_hamilton_input_imp import GenerateHamiltonInputIMP
+from scripts.generate_hamilton_input_imp_ssqc import GenerateHamiltonInputIMPSSQC
 from tests.test_common import TestEPP, NamedMock
 
 
@@ -33,8 +33,10 @@ def fake_outputs_per_input1(inputid, Analyte=False):
     # the outputs should have the container name and the location defined
 
     outputs = {
-        'ai1': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'))],
-        'ai2': [Mock(id='ao2', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'B:1'))],
+        'ai1': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1')),
+                Mock(id='ao2', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable2', 'B:1'))],
+        'ai2': [Mock(id='ao3', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'C:1')),
+                Mock(id='ao4', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable2', 'D:1'))],
 
     }
     return outputs[inputid]
@@ -47,11 +49,12 @@ def fake_outputs_per_input2(inputid, Analyte=False):
 
     outputs = {
         'ai1': [
-            Mock(id='bo1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1')),
-            Mock(id='bo2', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'B:1'))
+            Mock(id='bo1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'))
+
         ],
         'ai2': [
-            Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'B:1'))
+            Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'B:1')),
+            Mock(id='ao2', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable1', 'C:1'))
         ]
     }
     return outputs[inputid]
@@ -59,14 +62,16 @@ def fake_outputs_per_input2(inputid, Analyte=False):
 
 outputs1 = {
 
-    'ai1': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'))],
+    'ai1': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1')),
+            Mock(id='ao3', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'C:1'))],
     'ai2': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'B:1'))],
 }
 
 outputs2 = {
 
     'ai1': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'))],
-    'ai2': [Mock(id='ao1', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable1', 'B:1'))],
+    'ai2': [Mock(id='ao2', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable1', 'B:1'))],
+    'ai3': [Mock(id='ao3', container=NamedMock(real_name='OutputName3'), location=('ContainerVariable1', 'B:1'))]
 
 }
 
@@ -81,14 +86,16 @@ def get_fake_all_outputs(outputs):
 class TestGenerateHamiltonInputIMP(TestEPP):
     def setUp(self):
         step_udfs = {
-            'CFP Volume (ul)': '50',
+            'CFP to IMP Volume (ul)': '50',
+            'CFP to SSQC Volume (ul)': '2',
+            'RSB to SSQC Volume (ul)': '8',
         }
 
         dummystep = Mock(reagent_lots=[Mock(id='re1', lot_number='LP9999999-RSB'),
                                        Mock(id='re2', lot_number='LP9999999-RSA')])
 
         self.patched_process1 = patch.object(
-            GenerateHamiltonInputIMP,
+            GenerateHamiltonInputIMPSSQC,
             'process', new_callable=PropertyMock(
                 return_value=Mock(
                     all_inputs=fake_all_inputs1, udf=step_udfs,
@@ -98,7 +105,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         )
 
         self.patched_process2 = patch.object(
-            GenerateHamiltonInputIMP,
+            GenerateHamiltonInputIMPSSQC,
             'process', new_callable=PropertyMock(
                 return_value=Mock(
                     all_inputs=fake_all_inputs2, udf=step_udfs,
@@ -108,7 +115,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         )
 
         self.patched_process3 = patch.object(
-            GenerateHamiltonInputIMP,
+            GenerateHamiltonInputIMPSSQC,
             'process', new_callable=PropertyMock(
                 return_value=Mock(
                     all_inputs=fake_all_inputs1, udf=step_udfs,
@@ -118,7 +125,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         )
 
         self.patched_process4 = patch.object(
-            GenerateHamiltonInputIMP,
+            GenerateHamiltonInputIMPSSQC,
             'process', new_callable=PropertyMock(
                 return_value=Mock(
                     all_inputs=fake_all_inputs1, udf=step_udfs,
@@ -127,16 +134,16 @@ class TestGenerateHamiltonInputIMP(TestEPP):
                 ))
         )
 
-        self.patched_lims = patch.object(GenerateHamiltonInputIMP, 'lims', new_callable=PropertyMock)
+        self.patched_lims = patch.object(GenerateHamiltonInputIMPSSQC, 'lims', new_callable=PropertyMock)
 
-        self.epp = GenerateHamiltonInputIMP(self.default_argv + ['-i', 'an_imp_file_location'] + ['-d', ''])
+        self.epp = GenerateHamiltonInputIMPSSQC(self.default_argv + ['-i', 'an_imp_file_location'] + ['-d', ''])
 
     def test_happy_input(self):  # test that file is written under happy path conditions i.e. 1 input plate, 1 output
         # per input, 1 output plate
         with self.patched_process1:
             self.epp._run()
-
-            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == 'f59a2eba0cd5729a59f00fb892806cf9'
+            print(self.stripped_md5('an_imp_file_location-hamilton_input.csv'))
+            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == '0ffcff8b45f525b626d0a069f8fc6518'
 
     def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
         with self.patched_process2:
@@ -150,11 +157,11 @@ class TestGenerateHamiltonInputIMP(TestEPP):
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
             print(e.value.message)
-            assert e.value.message == 'Maximum number of output plates is 1. There are 2 output plates in the step.'
+            assert e.value.message == 'Maximum number of output plates is 2. There are 3 output plates in the step.'
 
     def test_2_output_artifacts(self):  # test that sys exit occurs if >1 output artifacts for one input
         with self.patched_process4:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
             print(e.value.message)
-            assert e.value.message == 'Multiple outputs found for an input Input1. This step is not compatible with replicates.'
+            assert e.value.message == 'Incorrect number of outputs found for Input1. This step requires two outputs per input.'
