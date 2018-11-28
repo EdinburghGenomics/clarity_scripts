@@ -143,7 +143,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         with self.patched_process1:
             self.epp._run()
             print(self.stripped_md5('an_imp_file_location-hamilton_input.csv'))
-            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == '0ffcff8b45f525b626d0a069f8fc6518'
+            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == 'cb8e8276ed179cf4845178cec187f965'
 
     def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
         with self.patched_process2:

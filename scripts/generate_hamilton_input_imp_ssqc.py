@@ -9,7 +9,8 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     an IMP plate"""
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
-    csv_column_headers = ['Input Plate', 'Input Well', 'Output IMP Plate', 'Output IMP Well', 'CFP to IMP Volume','Output SSQC Plate', 'Output SSQC Well' 'CFP to SSQC Volume','RSB to SSQC Volume']
+    csv_column_headers = ['Input Plate', 'Input Well', 'Output IMP Plate', 'Output IMP Well', 'CFP to IMP Volume',
+                          'Output SSQC Plate', 'Output SSQC Well', 'CFP to SSQC Volume','RSB to SSQC Volume']
 
     # Define the output file
     output_file_name = 'KAPA_TRANSFER_CFP_TO_IMP_AND_SSQC.csv'
