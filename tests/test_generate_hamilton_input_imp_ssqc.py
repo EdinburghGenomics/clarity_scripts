@@ -91,8 +91,8 @@ class TestGenerateHamiltonInputIMP(TestEPP):
             'RSB to SSQC Volume (ul)': '8',
         }
 
-        dummystep = Mock(reagent_lots=[Mock(id='re1', lot_number='LP9999999-RSB'),
-                                       Mock(id='re2', lot_number='LP9999999-RSA')])
+        dummystep = Mock(reagent_lots=[Mock(id='re1', lot_number='LP9999999-RSB')
+                                       ])
 
         self.patched_process1 = patch.object(
             GenerateHamiltonInputIMPSSQC,
@@ -101,6 +101,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
                     all_inputs=fake_all_inputs1, udf=step_udfs,
                     all_outputs=get_fake_all_outputs(outputs1),
                     outputs_per_input=fake_outputs_per_input1,
+                    step=dummystep
                 ))
         )
 
@@ -111,6 +112,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
                     all_inputs=fake_all_inputs2, udf=step_udfs,
                     all_outputs=get_fake_all_outputs(outputs1),
                     outputs_per_input=fake_outputs_per_input1,
+                    step=dummystep
                 ))
         )
 
@@ -121,6 +123,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
                     all_inputs=fake_all_inputs1, udf=step_udfs,
                     all_outputs=get_fake_all_outputs(outputs2),
                     outputs_per_input=fake_outputs_per_input1,
+                    step=dummystep
                 ))
         )
 
@@ -131,6 +134,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
                     all_inputs=fake_all_inputs1, udf=step_udfs,
                     all_outputs=get_fake_all_outputs(outputs1),
                     outputs_per_input=fake_outputs_per_input2,
+                    step=dummystep
                 ))
         )
 
@@ -143,7 +147,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         with self.patched_process1:
             self.epp._run()
             print(self.stripped_md5('an_imp_file_location-hamilton_input.csv'))
-            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == 'cb8e8276ed179cf4845178cec187f965'
+            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == '31ed1fc77cad4fc2762d52bf1592cb32'
 
     def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
         with self.patched_process2:

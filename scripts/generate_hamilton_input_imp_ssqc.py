@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import re
 
 from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 
@@ -10,7 +11,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
     csv_column_headers = ['Input Plate', 'Input Well', 'Output IMP Plate', 'Output IMP Well', 'CFP to IMP Volume',
-                          'Output SSQC Plate', 'Output SSQC Well', 'CFP to SSQC Volume','RSB to SSQC Volume']
+                          'Output SSQC Plate', 'Output SSQC Well', 'CFP to SSQC Volume','RSB Barcode','RSB to SSQC Volume']
 
     # Define the output file
     output_file_name = 'KAPA_TRANSFER_CFP_TO_IMP_AND_SSQC.csv'
@@ -21,6 +22,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     # Define the number of output containers that are permitted
     permitted_output_containers = 2
 
+
     def _generate_csv_dict(self):
 
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
@@ -30,6 +32,19 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
         cfp_imp_volume = self.process.udf['CFP to IMP Volume (ul)']
         cfp_SSQC_volume = self.process.udf['CFP to SSQC Volume (ul)']
         rsb_ssqc_volume = self.process.udf['RSB to SSQC Volume (ul)']
+
+        # find the lot number, i.e. barcode, of the RSB reagent.
+        RSB_template = "LP[0-9]{7}-RSB"
+        reagent_lots = list(self.process.step.reagent_lots)
+
+        rsb_barcode = None
+        for lot in reagent_lots:
+            if re.match(RSB_template, lot.lot_number):
+                rsb_barcode = lot.lot_number
+
+        if not rsb_barcode:
+            raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
@@ -52,7 +67,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
 
                 csv_line = [input_art.container.name, input_location, outputs[0].container.name, output_locations[0],
-                            cfp_imp_volume,outputs[1].container.name, output_locations[1],cfp_SSQC_volume,rsb_ssqc_volume]
+                            cfp_imp_volume,outputs[1].container.name, output_locations[1],cfp_SSQC_volume,rsb_barcode,rsb_ssqc_volume]
 
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row
