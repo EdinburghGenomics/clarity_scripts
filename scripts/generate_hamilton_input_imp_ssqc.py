@@ -14,7 +14,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
                           'Output SSQC Plate', 'Output SSQC Well', 'CFP to SSQC Volume','RSB Barcode','RSB to SSQC Volume']
 
     # Define the output file
-    output_file_name = 'KAPA_TRANSFER_CFP_TO_IMP_AND_SSQC.csv'
+    output_file_name = 'KAPA_CFP_TO_IMP_AND_SSQC.csv'
 
     # Define the number of input containers that are permitted
     permitted_input_containers = 1
