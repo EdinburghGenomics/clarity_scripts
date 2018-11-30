@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import sys
 import re
+import sys
 
 from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 
@@ -11,7 +11,8 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
     csv_column_headers = ['Input Plate', 'Input Well', 'Output IMP Plate', 'Output IMP Well', 'CFP to IMP Volume',
-                          'Output SSQC Plate', 'Output SSQC Well', 'CFP to SSQC Volume','RSB Barcode','RSB to SSQC Volume']
+                          'Output SSQC Plate', 'Output SSQC Well', 'CFP to SSQC Volume', 'RSB Barcode',
+                          'RSB to SSQC Volume']
 
     # Define the output file
     output_file_name = 'KAPA_CFP_TO_IMP_AND_SSQC.csv'
@@ -21,7 +22,6 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
 
     # Define the number of output containers that are permitted
     permitted_output_containers = 2
-
 
     def _generate_csv_dict(self):
 
@@ -45,7 +45,6 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
         if not rsb_barcode:
             raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
 
-
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
             if input_art.type == 'Analyte':
@@ -59,15 +58,27 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
 
                 # remove semi-colon from locations as this is not compatible with Hamilton Venus software
                 input_location = input_art.location[1].replace(':', '')
-                output_locations = []
+                # outputs appear through API in random order. Build a dictionary to contain the IMP plate name and location
+                # and the SSQC plate name and location
+                # prepare a template list so that the first position in the list can have IMP and the second position have SSQC
+                output_dict = {'IMP': [],
+                               'SSQC': []
+                               }
 
                 for output in outputs:
-                    output_locations.append(output.location[1].replace(':', ''))
+                    if output.location[0].name.split("-")[1] == "IMP":
+                        output_dict['IMP'].append(output.location[0].name)
+                        output_dict['IMP'].append(output.location[1].replace(':', ''))
+
+                    if output.location[0].name.split("-")[1] == "SSQC":
+                        output_dict['SSQC'].append(output.location[0].name)
+                        output_dict['SSQC'].append(output.location[1].replace(':', ''))
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
 
-                csv_line = [input_art.container.name, input_location, outputs[0].container.name, output_locations[0],
-                            cfp_imp_volume,outputs[1].container.name, output_locations[1],cfp_SSQC_volume,rsb_barcode,rsb_ssqc_volume]
+                csv_line = [input_art.container.name, input_location, output_dict['IMP'][0], output_dict['IMP'][1],
+                            cfp_imp_volume, output_dict['SSQC'][0], output_dict['SSQC'][1], cfp_SSQC_volume,
+                            rsb_barcode, rsb_ssqc_volume]
 
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row

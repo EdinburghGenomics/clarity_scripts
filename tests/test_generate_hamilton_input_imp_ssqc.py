@@ -32,11 +32,14 @@ def fake_outputs_per_input1(inputid, Analyte=False):
     # outputs_per_input is a list of all of the outputs per input obtained from the process by searching with input id
     # the outputs should have the container name and the location defined
 
+    container1ssqc=NamedMock(real_name='OutputName1-SSQC')
+    container2imp=NamedMock(real_name='OutputName2-IMP')
+
     outputs = {
-        'ai1': [Mock(id='ao1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1')),
-                Mock(id='ao2', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable2', 'B:1'))],
-        'ai2': [Mock(id='ao3', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'C:1')),
-                Mock(id='ao4', container=NamedMock(real_name='OutputName2'), location=('ContainerVariable2', 'D:1'))],
+        'ai1': [Mock(id='ao1', container=container1ssqc, location=(container1ssqc, 'A:1')),
+                Mock(id='ao2', container=container2imp, location=(container2imp, 'B:1'))],
+        'ai2': [Mock(id='ao3', container=container2imp, location=(container2imp, 'C:1')),
+                Mock(id='ao4', container=container1ssqc, location=(container1ssqc, 'D:1'))],
 
     }
     return outputs[inputid]
@@ -147,7 +150,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         with self.patched_process1:
             self.epp._run()
             print(self.stripped_md5('an_imp_file_location-hamilton_input.csv'))
-            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == '31ed1fc77cad4fc2762d52bf1592cb32'
+            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == 'f9253d16ea8bafbed28bbdd2a3f8e323'
 
     def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
         with self.patched_process2:
