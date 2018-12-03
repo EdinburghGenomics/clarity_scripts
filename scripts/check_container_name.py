@@ -16,7 +16,6 @@ class CheckContainerName(StepEPP):
         # extra suffix argument required in addition to standard arg parser arguments
         super().__init__(argv)
         self.suffix = self.cmd_args.suffix
-        self.suffix = self.cmd_args.suffix
 
     @staticmethod
     def add_args(argparser):
@@ -27,7 +26,7 @@ class CheckContainerName(StepEPP):
 
     def _run(self):
         """
-        Check to see if the names of the containers in the step match any of the allowed name formates which are defined by the fixed name_template
+        Check to see if the names of the containers in the step match any of the allowed name formats which are defined by the fixed name_template
         prefix and a number of suffixes supplied by suffix argument.
         """
         containers = self.process.output_containers()
