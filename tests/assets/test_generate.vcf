@@ -1,0 +1,61 @@
+##fileformat=VCFv4.1
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##contig=<ID=C___2728408_10,length=1201>
+##contig=<ID=C___1563023_10,length=1201>
+##contig=<ID=C__15935210_10,length=1201>
+##contig=<ID=C__33211212_10,length=1201>
+##contig=<ID=C___3227711_10,length=1201>
+##contig=<ID=C__30044763_10,length=1201>
+##contig=<ID=C__11821218_10,length=1201>
+##contig=<ID=C___1670459_10,length=1201>
+##contig=<ID=C__29619553_10,length=1201>
+##contig=<ID=C___1007630_10,length=1201>
+##contig=<ID=C__26546714_10,length=1201>
+##contig=<ID=C___7421900_10,length=1201>
+##contig=<ID=C__27402849_10,length=1201>
+##contig=<ID=C___2953330_10,length=1201>
+##contig=<ID=C__16205730_10,length=1201>
+##contig=<ID=C___8850710_10,length=1201>
+##contig=<ID=C___1801627_20,length=1201>
+##contig=<ID=C___7431888_10,length=1201>
+##contig=<ID=C___1250735_20,length=1201>
+##contig=<ID=C___1902433_10,length=1201>
+##contig=<ID=C__31386842_10,length=1201>
+##contig=<ID=C__26524789_10,length=1201>
+##contig=<ID=C___8924366_10,length=1201>
+##contig=<ID=C_____43852_10,length=1201>
+##contig=<ID=C__11522992_10,length=1201>
+##contig=<ID=C__10076371_10,length=1201>
+##contig=<ID=C___7457509_10,length=1201>
+##contig=<ID=C___1122315_10,length=1201>
+##contig=<ID=C__11710129_10,length=1201>
+##contig=<ID=C___1027548_20,length=1201>
+##contig=<ID=C___8938211_20,length=1201>
+##contig=<ID=C___1083232_10,length=1201>
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	C:\Users\dforth\PycharmProjects\clarity_scripts\tests\assets\test_generate
+C___2728408_10	601	rs3010325	C	T	.	.	.	GT	0/1
+C___1563023_10	601	rs2136241	C	T	.	.	.	GT	0/1
+C__15935210_10	601	rs2259397	T	C	.	.	.	GT	0/0
+C__33211212_10	601	rs7564899	G	A	.	.	.	GT	0/1
+C__30044763_10	601	rs10194978	G	A	.	.	.	GT	0/1
+C___1670459_10	601	rs6554653	C	T	.	.	.	GT	0/1
+C__29619553_10	601	rs9396715	T	C	.	.	.	GT	./.
+C___1007630_10	601	rs441460	G	A	.	.	.	GT	0/1
+C__26546714_10	601	rs7773994	T	G	.	.	.	GT	./.
+C___7421900_10	601	rs1415762	C	T	.	.	.	GT	0/0
+C___2953330_10	601	rs7796391	A	G	.	.	.	GT	1/1
+C__16205730_10	601	rs2336695	A	G	.	.	.	GT	0/1
+C___8850710_10	601	rs1157213	T	C	.	.	.	GT	0/1
+C___1801627_20	601	rs10869955	C	A	.	.	.	GT	0/1
+C___7431888_10	601	rs1533486	T	G	.	.	.	GT	0/1
+C___1250735_20	601	rs4751955	A	G	.	.	.	GT	0/1
+C___1902433_10	601	rs10771010	T	C	.	.	.	GT	0/0
+C__31386842_10	601	rs12318959	C	T	.	.	.	GT	1/1
+C__26524789_10	601	rs3742257	T	C	.	.	.	GT	0/0
+C___8924366_10	601	rs1377935	T	C	.	.	.	GT	./.
+C_____43852_10	601	rs946065	C	A	.	.	.	GT	0/0
+C__11522992_10	601	rs6598531	T	G	.	.	.	GT	./.
+C__10076371_10	601	rs4783229	T	C	.	.	.	GT	0/1
+C___7457509_10	601	rs1567612	G	A	.	.	.	GT	0/1
+C___1122315_10	601	rs11660213	A	G	.	.	.	GT	0/1
+C__11710129_10	601	rs11083515	A	G	.	.	.	GT	1/1

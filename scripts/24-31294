@@ -1,0 +1,605 @@
+[2018-Nov-22 15:55:03][AutoplacementQPCR384][CRITICAL] Encountered a TypeError exception: create() missing 1 required positional argument: 'lims'
+[2018-Nov-22 15:55:03][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(type='384 well plate')
+TypeError: create() missing 1 required positional argument: 'lims'
+
+[2018-Nov-22 15:55:42][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'AutoplacementQPCR384' object has no attribute 'cache'
+[2018-Nov-22 15:55:42][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 101, in _create
+    instance = cls(lims, _create_new=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 47, in __new__
+    return lims.cache[uri]
+AttributeError: 'AutoplacementQPCR384' object has no attribute 'cache'
+
+[2018-Nov-22 15:55:59][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 15:55:59][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self.lims, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 15:56:33][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 15:56:33][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self.lims, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 15:56:54][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 15:56:54][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self.lims, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 15:57:07][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 15:57:07][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self.lims, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 15:57:29][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 15:57:29][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self.lims, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 15:59:37][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'AutoplacementQPCR384' object has no attribute 'cache'
+[2018-Nov-22 15:59:37][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 101, in _create
+    instance = cls(lims, _create_new=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 47, in __new__
+    return lims.cache[uri]
+AttributeError: 'AutoplacementQPCR384' object has no attribute 'cache'
+
+[2018-Nov-22 16:00:05][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:00:05][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 24, in _run
+    new_container= Container.create(self.lims, type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:06:53][AutoplacementQPCR384][CRITICAL] Encountered a TypeError exception: create() missing 1 required positional argument: 'lims'
+[2018-Nov-22 16:06:53][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    new_container= Container.create(type='384 well plate')
+TypeError: create() missing 1 required positional argument: 'lims'
+
+[2018-Nov-22 16:07:12][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'cache'
+[2018-Nov-22 16:07:12][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    new_container= Container.create('tet',type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 101, in _create
+    instance = cls(lims, _create_new=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 47, in __new__
+    return lims.cache[uri]
+AttributeError: 'str' object has no attribute 'cache'
+
+[2018-Nov-22 16:07:22][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'lims' is not defined
+[2018-Nov-22 16:07:22][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    new_container= Container.create(lims,type='384 well plate')
+NameError: name 'lims' is not defined
+
+[2018-Nov-22 16:07:37][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:07:37][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    new_container= Container.create(self.lims,type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:07:53][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'Lims' object has no attribute 'uri'
+[2018-Nov-22 16:07:53][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    print(self.lims.uri)
+AttributeError: 'Lims' object has no attribute 'uri'
+
+[2018-Nov-22 16:08:01][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'Lims' object has no attribute 'uri'
+[2018-Nov-22 16:08:01][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    print(self.lims.uri)
+AttributeError: 'Lims' object has no attribute 'uri'
+
+[2018-Nov-22 16:08:15][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'Lims' object has no attribute 'uri'
+[2018-Nov-22 16:08:15][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    print(self.lims.uri())
+AttributeError: 'Lims' object has no attribute 'uri'
+
+[2018-Nov-22 16:08:23][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:08:23][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container= Container.create(self.lims,type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:08:30][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:08:30][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container= Container.create(self.lims,type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:11:39][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:11:39][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container= Container.create(L,type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:14:04][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:14:04][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container= Container.create(L,type='384 well plate')
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:16:28][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: Missing container type information
+[2018-Nov-22 16:16:28][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container= Container.create(self.lims)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 124, in create
+    instance.root = lims.post(uri=lims.get_uri(cls._URI), data=data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: Missing container type information
+
+[2018-Nov-22 16:16:51][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:16:51][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container= Container.create(self.lims, type="384 well plate")
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:17:42][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:17:42][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    Container.create(self.lims, type="384 well plate")
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:21:36][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'uri'
+[2018-Nov-22 16:21:36][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container=Container.create(self.lims, type="384 well plate", uri=self.baseuri)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'str' object has no attribute 'uri'
+
+[2018-Nov-22 16:25:01][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:25:01][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container=Container.create(self.lims, type = self.lims.get_container_types(name="well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:25:59][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:25:59][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 27, in _run
+    new_container=Container.create(self.lims, type = self.lims.get_container_types(name="384_well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:26:09][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:26:09][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 27, in _run
+    new_container=Container.create(self.lims, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:26:53][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:26:53][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 27, in _run
+    new_container=Container.create(self.lims, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:28:53][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:28:53][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 28, in _run
+    new_container=Container.create(self.lims, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:30:57][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:30:57][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 29, in _run
+    new_container=Container.create(Lims, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:32:08][AutoplacementQPCR384][CRITICAL] Encountered a TypeError exception: __init__() missing 2 required positional arguments: 'username' and 'password'
+[2018-Nov-22 16:32:08][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    Lims(self.lims)
+TypeError: __init__() missing 2 required positional arguments: 'username' and 'password'
+
+[2018-Nov-22 16:33:19][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'AutoplacementQPCR384' object has no attribute 'basuri'
+[2018-Nov-22 16:33:19][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    Lims(self.basuri, self.username, self.password)
+AttributeError: 'AutoplacementQPCR384' object has no attribute 'basuri'
+
+[2018-Nov-22 16:33:28][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: type object 'Lims' has no attribute 'cache'
+[2018-Nov-22 16:33:28][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 29, in _run
+    new_container=Container.create(Lims, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 101, in _create
+    instance = cls(lims, _create_new=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 47, in __new__
+    return lims.cache[uri]
+AttributeError: type object 'Lims' has no attribute 'cache'
+
+[2018-Nov-22 16:37:41][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-22 16:37:41][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 28, in _run
+    new_container=Container.create(L, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-22 16:38:41][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'AutoplacementQPCR384' object has no attribute 'Container'
+[2018-Nov-22 16:38:41][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 26, in _run
+    new_container=self.Container.create(self.lims, type = self.lims.get_container_types(name="384 well plate"))
+AttributeError: 'AutoplacementQPCR384' object has no attribute 'Container'
+
+[2018-Nov-23 09:48:26][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'uri'
+[2018-Nov-23 09:48:26][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 25, in _run
+    new_container= Container.create(self.lims, type = self.lims.get_container_types(name="384 well plate"))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 122, in create
+    instance = cls._create(lims, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 113, in _create
+    setattr(instance, attribute, kwargs.get(attribute))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 905, in __set__
+    node.attrib['uri'] = value.uri
+AttributeError: 'list' object has no attribute 'uri'
+
+[2018-Nov-23 09:51:27][AutoplacementQPCR384][CRITICAL] Encountered a TypeError exception: 'Container' object does not support indexing
+[2018-Nov-23 09:51:27][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 99, in _run
+    (new_container[0], plate_layout[well_counter])))
+TypeError: 'Container' object does not support indexing
+
+[2018-Nov-23 09:52:07][AutoplacementQPCR384][CRITICAL] Encountered a KeyError exception: '2A:1'
+[2018-Nov-23 09:52:07][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 102, in _run
+    output_placement_list.append((outputs_dict["2" + row + ":" + column],
+KeyError: '2A:1'
+
+[2018-Nov-23 09:53:33][AutoplacementQPCR384][CRITICAL] Encountered a TypeError exception: 'Container' object is not iterable
+[2018-Nov-23 09:53:33][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 104, in _run
+    self.process.step.set_placements(new_container, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 944, in set_placements
+    self.placements.selected_containers = output_containers
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 957, in __set__
+    return muttable.extend(value)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 501, in extend
+    for v in iterable:
+TypeError: 'Container' object is not iterable
+
+[2018-Nov-23 09:55:20][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: The request contains artifacts that are not placeable: [92-175032, 92-175032, 92-175033, 92-175033, 92-175032, 92-175033, 92-175032, 92-175033, 92-175033, 92-175033, 92-175032, 92-175033, 92-175032, 92-175033, 92-175033, 92-175033, 92-175033, 92-175032, 92-175033, 92-175033, 92-175033, 92-175032, 92-175033, 92-175033]
+[2018-Nov-23 09:55:20][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 105, in _run
+    self.process.step.set_placements(new_container, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: The request contains artifacts that are not placeable: [92-175032, 92-175032, 92-175033, 92-175033, 92-175032, 92-175033, 92-175032, 92-175033, 92-175033, 92-175033, 92-175032, 92-175033, 92-175032, 92-175033, 92-175033, 92-175033, 92-175033, 92-175032, 92-175033, 92-175033, 92-175033, 92-175032, 92-175033, 92-175033]
+
+[2018-Nov-23 09:55:43][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: The request contains duplicate placements: [27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1]
+[2018-Nov-23 09:55:43][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 105, in _run
+    self.process.step.set_placements(new_container, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: The request contains duplicate placements: [27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1, 27-4858-B:1]
+
+[2018-Nov-23 10:02:19][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'replicate_counter' is not defined
+[2018-Nov-23 10:02:19][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 86, in _run
+    if str(replicate_counter) + row + ":" + column in outputs_dict.keys():
+NameError: name 'replicate_counter' is not defined
+
+[2018-Nov-23 10:16:09][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'output_counter' is not defined
+[2018-Nov-23 10:16:09][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 37, in _run
+    outputs_dict[str(output_counter) + input.location[1]] = output
+NameError: name 'output_counter' is not defined
+
+[2018-Nov-23 10:16:47][AutoplacementQPCR384][CRITICAL] Encountered a KeyError exception: '0A:1'
+[2018-Nov-23 10:16:47][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 64, in _run
+    output_placement_list.append((outputs_dict["0" + row + ":" + column],
+KeyError: '0A:1'
+
+[2018-Nov-23 10:17:53][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: The request contains duplicate placements: [27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1]
+[2018-Nov-23 10:17:53][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_gx_384.py", line 70, in _run
+    self.process.step.set_placements(new_container, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: The request contains duplicate placements: [27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1, 27-4865-A:1]
+

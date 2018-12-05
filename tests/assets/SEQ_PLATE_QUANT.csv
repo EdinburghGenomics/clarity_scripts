@@ -1,0 +1,28 @@
+Sample ID,Source Plate BC,Source Plate Position,Destination Plate BC,Destination Plate Position
+SDNA Std A1-1,stds_container_name,11,OutputContainer1,A1
+SDNA Std B1-1,stds_container_name,11,OutputContainer1,B1
+SDNA Std C1-1,stds_container_name,11,OutputContainer1,C1
+SDNA Std D1-1,stds_container_name,11,OutputContainer1,D1
+SDNA Std E1-1,stds_container_name,11,OutputContainer1,E1
+SDNA Std F1-1,stds_container_name,11,OutputContainer1,F1
+SDNA Std G1-1,stds_container_name,11,OutputContainer1,G1
+SDNA Std H1-1,stds_container_name,11,OutputContainer1,H1
+SDNA Std A1-2,stds_container_name,11,OutputContainer1,A2
+SDNA Std B1-2,stds_container_name,11,OutputContainer1,B2
+SDNA Std C1-2,stds_container_name,11,OutputContainer1,C2
+SDNA Std D1-2,stds_container_name,11,OutputContainer1,D2
+SDNA Std E1-2,stds_container_name,11,OutputContainer1,E2
+SDNA Std F1-2,stds_container_name,11,OutputContainer1,F2
+SDNA Std G1-2,stds_container_name,11,OutputContainer1,G2
+SDNA Std H1-2,stds_container_name,11,OutputContainer1,H2
+SDNA Std A1-3,stds_container_name,11,OutputContainer1,A3
+SDNA Std B1-3,stds_container_name,11,OutputContainer1,B3
+SDNA Std C1-3,stds_container_name,11,OutputContainer1,C3
+SDNA Std D1-3,stds_container_name,11,OutputContainer1,D3
+SDNA Std F1-3,stds_container_name,11,OutputContainer1,F3
+SDNA Std G1-3,stds_container_name,11,OutputContainer1,G3
+SDNA Std H1-3,stds_container_name,11,OutputContainer1,H3
+ao1_name-1,ai1_container_name,A1,OutputContainer1,A4
+SDNA Std E1-3,stds_container_name,11,OutputContainer1,E4
+ao1_name-1,ai1_container_name,A1,OutputContainer1,A5
+ao1_name-1,ai1_container_name,A1,OutputContainer1,A6

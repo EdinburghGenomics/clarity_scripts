@@ -1,0 +1,21 @@
+[2018-Oct-11 09:07:58][Autoplacement24in96][CRITICAL] Encountered a HTTPError exception: 404: Process not found: 24-30678
+[2018-Oct-11 09:07:58][Autoplacement24in96][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_24_in_96.py", line 16, in _run
+    all_inputs = self.process.all_inputs(unique=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 474, in all_inputs
+    ids = [io[0]['limsid'] for io in self.input_output_maps]
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 949, in __get__
+    instance.get()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 86, in get
+    self.root = self.lims.get(self.uri)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 96, in get
+    return self.parse_response(r)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 404: Process not found: 24-30678
+

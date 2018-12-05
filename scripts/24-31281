@@ -1,0 +1,39 @@
+[2018-Nov-20 13:59:06][GenerateHamiltonInputIMP][CRITICAL] Encountered a AttributeError exception: 'builtin_function_or_method' object has no attribute 'container'
+[2018-Nov-20 13:59:06][GenerateHamiltonInputIMP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 288, in _run
+    csv_array = self.generate_csv_array()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 260, in generate_csv_array
+    csv_dict = self._generate_csv_dict()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_imp.py", line 54, in _generate_csv_dict
+    csv_line = [input.container.name, input_location, output.container.name, output_location,output.udf['CFP Volume (ul)']]
+AttributeError: 'builtin_function_or_method' object has no attribute 'container'
+
+[2018-Nov-20 13:59:46][GenerateHamiltonInputIMP][CRITICAL] Encountered a KeyError exception: 'CFP Volume (ul)'
+[2018-Nov-20 13:59:46][GenerateHamiltonInputIMP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 288, in _run
+    csv_array = self.generate_csv_array()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 260, in generate_csv_array
+    csv_dict = self._generate_csv_dict()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_imp.py", line 54, in _generate_csv_dict
+    csv_line = [input_art.container.name, input_location, output.container.name, output_location,output.udf['CFP Volume (ul)']]
+KeyError: 'CFP Volume (ul)'
+
+[2018-Nov-20 14:00:36][GenerateHamiltonInputIMP][CRITICAL] Encountered a KeyError exception: 'CFP Volume (ul)'
+[2018-Nov-20 14:00:36][GenerateHamiltonInputIMP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 288, in _run
+    csv_array = self.generate_csv_array()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 260, in generate_csv_array
+    csv_dict = self._generate_csv_dict()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_imp.py", line 55, in _generate_csv_dict
+    csv_line = [input_art.container.name, input_location, output.container.name, output_location,output.udf['CFP Volume (ul)']]
+KeyError: 'CFP Volume (ul)'
+

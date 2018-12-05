@@ -1,0 +1,184 @@
+[2018-Oct-12 10:51:46][AutoplacementQPCR384][CRITICAL] Encountered a AttributeError exception: 'dict_keys' object has no attribute 'sort'
+[2018-Oct-12 10:51:46][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 67, in _run
+    for key in standards_dict.keys().sort:
+AttributeError: 'dict_keys' object has no attribute 'sort'
+
+[2018-Oct-12 10:52:41][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'columns' is not defined
+[2018-Oct-12 10:52:41][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 80, in _run
+    for column in columns:
+NameError: name 'columns' is not defined
+
+[2018-Oct-12 10:53:15][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'wellcounter' is not defined
+[2018-Oct-12 10:53:15][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 84, in _run
+    if plate_layout[wellcounter][0:1] == "P":
+NameError: name 'wellcounter' is not defined
+
+[2018-Oct-12 10:53:44][AutoplacementQPCR384][CRITICAL] Encountered a KeyError exception: 'I:1'
+[2018-Oct-12 10:53:44][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 83, in _run
+    output_placement_list.append((outputs_dict[row+":"+column],(output_container_list[0],plate_layout[well_counter])))
+KeyError: 'I:1'
+
+[2018-Oct-12 10:57:43][AutoplacementQPCR384][CRITICAL] Encountered a KeyError exception: 'P:1'
+[2018-Oct-12 10:57:43][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 84, in _run
+    output_placement_list.append((outputs_dict[row+":"+column],(output_container_list[0],plate_layout[well_counter])))
+KeyError: 'P:1'
+
+[2018-Oct-12 11:01:27][AutoplacementQPCR384][CRITICAL] Encountered a TypeError exception: object of type 'int' has no len()
+[2018-Oct-12 11:01:27][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 81, in _run
+    while output_dict_counter<=len(output_dict_counter):
+TypeError: object of type 'int' has no len()
+
+[2018-Oct-12 11:01:53][AutoplacementQPCR384][CRITICAL] Encountered a KeyError exception: 'I:1'
+[2018-Oct-12 11:01:53][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 84, in _run
+    output_placement_list.append((outputs_dict[row+":"+column],(output_container_list[0],plate_layout[well_counter])))
+KeyError: 'I:1'
+
+[2018-Oct-12 11:04:51][AutoplacementQPCR384][CRITICAL] Encountered a KeyError exception: 'I:1'
+[2018-Oct-12 11:04:51][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 83, in _run
+    if outputs_dict[row+":"+column]:
+KeyError: 'I:1'
+
+[2018-Oct-12 11:05:26][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'output_placement' is not defined
+[2018-Oct-12 11:05:26][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 98, in _run
+    self.process.step.set_placements(output_container_list, output_placement)
+NameError: name 'output_placement' is not defined
+
+[2018-Oct-12 11:05:49][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: The well position Q:1 does not fit within the dimensions of a 384 well plate container
+The well position S:1 does not fit within the dimensions of a 384 well plate container
+The well position U:1 does not fit within the dimensions of a 384 well plate container
+The well position W:1 does not fit within the dimensions of a 384 well plate container
+The well position Y:1 does not fit within the dimensions of a 384 well plate container
+The well position Q:2 does not fit within the dimensions of a 384 well plate container
+The well position S:2 does not fit within the dimensions of a 384 well plate container
+The well position U:2 does not fit within the dimensions of a 384 well plate container
+The well position W:2 does not fit within the dimensions of a 384 well plate container
+[2018-Oct-12 11:05:49][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 98, in _run
+    self.process.step.set_placements(output_container_list, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: The well position Q:1 does not fit within the dimensions of a 384 well plate container
+The well position S:1 does not fit within the dimensions of a 384 well plate container
+The well position U:1 does not fit within the dimensions of a 384 well plate container
+The well position W:1 does not fit within the dimensions of a 384 well plate container
+The well position Y:1 does not fit within the dimensions of a 384 well plate container
+The well position Q:2 does not fit within the dimensions of a 384 well plate container
+The well position S:2 does not fit within the dimensions of a 384 well plate container
+The well position U:2 does not fit within the dimensions of a 384 well plate container
+The well position W:2 does not fit within the dimensions of a 384 well plate container
+
+[2018-Oct-12 11:06:39][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: One or more of the requested wells are already in use
+[2018-Oct-12 11:06:39][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 97, in _run
+    self.process.step.set_placements(output_container_list, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: One or more of the requested wells are already in use
+
+[2018-Oct-12 11:12:33][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 400: One or more of the requested wells are already in use
+[2018-Oct-12 11:12:33][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 97, in _run
+    self.process.step.set_placements(output_container_list, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: One or more of the requested wells are already in use
+
+[2018-Oct-12 11:15:33][AutoplacementQPCR384][CRITICAL] Encountered a NameError exception: name 'output_placement_list' is not defined
+[2018-Oct-12 11:15:33][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 83, in _run
+    output_placement_list.append((outputs_dict[row+":"+column],(output_container_list[0],plate_layout[well_counter])))
+NameError: name 'output_placement_list' is not defined
+
+[2018-Oct-12 11:16:38][AutoplacementQPCR384][CRITICAL] Encountered a HTTPError exception: 404: Process not found: 24-30698
+[2018-Oct-12 11:16:38][AutoplacementQPCR384][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_qpcr_384.py", line 17, in _run
+    all_inputs = self.process.all_inputs(unique=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 474, in all_inputs
+    ids = [io[0]['limsid'] for io in self.input_output_maps]
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 949, in __get__
+    instance.get()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 86, in get
+    self.root = self.lims.get(self.uri)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 96, in get
+    return self.parse_response(r)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 404: Process not found: 24-30698
+

@@ -1,0 +1,159 @@
+[2018-Oct-09 09:03:55][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'NoneType' object has no attribute 'location'
+[2018-Oct-09 09:03:55][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    output[0].container.location = plate_layout[well_counter]
+AttributeError: 'NoneType' object has no attribute 'location'
+
+[2018-Oct-09 09:06:01][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'NoneType' object has no attribute 'location'
+[2018-Oct-09 09:06:01][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 36, in _run
+    print(output[0].container.location)
+AttributeError: 'NoneType' object has no attribute 'location'
+
+[2018-Oct-09 09:06:48][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'NoneType' object has no attribute 'tag'
+[2018-Oct-09 09:06:48][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 43, in _run
+    self.lims.put_batch(list(outputs_to_update))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 659, in put_batch
+    ns_uri = re.match("{(.*)}.*", example_root.tag).group(1)
+AttributeError: 'NoneType' object has no attribute 'tag'
+
+[2018-Oct-09 09:10:36][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'container'
+[2018-Oct-09 09:10:36][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 35, in _run
+    print(output.container)
+AttributeError: 'list' object has no attribute 'container'
+
+[2018-Oct-09 09:24:40][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'NoneType' object has no attribute 'name'
+[2018-Oct-09 09:24:40][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 35, in _run
+    print(output[0].container.name)
+AttributeError: 'NoneType' object has no attribute 'name'
+
+[2018-Oct-09 09:24:53][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'NoneType' object has no attribute 'id'
+[2018-Oct-09 09:24:53][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 35, in _run
+    print(output[0].container.id)
+AttributeError: 'NoneType' object has no attribute 'id'
+
+[2018-Oct-09 09:26:10][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'Process' object has no attribute 'containers'
+[2018-Oct-09 09:26:10][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    print(self.process.containers())
+AttributeError: 'Process' object has no attribute 'containers'
+
+[2018-Oct-09 09:27:23][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'NoneType' object has no attribute 'tag'
+[2018-Oct-09 09:27:23][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 45, in _run
+    self.lims.put_batch(list(outputs_to_update))
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 659, in put_batch
+    ns_uri = re.match("{(.*)}.*", example_root.tag).group(1)
+AttributeError: 'NoneType' object has no attribute 'tag'
+
+[2018-Oct-09 09:29:00][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'Process' object has no attribute 'ProtocolStep'
+[2018-Oct-09 09:29:00][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    print(self.process.ProtocolStep.permitted_containers)
+AttributeError: 'Process' object has no attribute 'ProtocolStep'
+
+[2018-Oct-09 09:29:12][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'Step' object has no attribute 'permitted_containers'
+[2018-Oct-09 09:29:12][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    print(self.process.step.permitted_containers)
+AttributeError: 'Step' object has no attribute 'permitted_containers'
+
+[2018-Oct-09 09:36:37][AutoplacementMakeCFP][CRITICAL] Encountered a TypeError exception: 'Artifact' object is not callable
+[2018-Oct-09 09:36:37][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 35, in _run
+    output_placement.append((output[0](temporary_container_name,plate_layout[well_counter])))
+TypeError: 'Artifact' object is not callable
+
+[2018-Oct-09 09:38:06][AutoplacementMakeCFP][CRITICAL] Encountered a TypeError exception: You need to provide an <class 'pyclarity_lims.entities.Container'> not <class 'str'>
+[2018-Oct-09 09:38:06][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 46, in _run
+    self.process.step.set_placements(list(temporary_container_name),output_placement)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 944, in set_placements
+    self.placements.selected_containers = output_containers
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 957, in __set__
+    return muttable.extend(value)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 502, in extend
+    self._additem(v)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 507, in _additem
+    node = self._create_new_node(value)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 634, in _create_new_node
+    raise TypeError('You need to provide an %s not %s' % (self.klass, type(value)))
+TypeError: You need to provide an <class 'pyclarity_lims.entities.Container'> not <class 'str'>
+
+[2018-Oct-09 09:40:08][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'Step' object has no attribute 'container_type_name'
+[2018-Oct-09 09:40:08][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    print(self.process.step.container_type_name)
+AttributeError: 'Step' object has no attribute 'container_type_name'
+
+[2018-Oct-09 10:08:44][AutoplacementMakeCFP][CRITICAL] Encountered a NameError exception: name 'temporary_container_name' is not defined
+[2018-Oct-09 10:08:44][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 36, in _run
+    output_placement.append((output[0],(temporary_container_name,plate_layout[well_counter])))
+NameError: name 'temporary_container_name' is not defined
+
+[2018-Oct-09 10:12:24][AutoplacementMakeCFP][CRITICAL] Encountered a HTTPError exception: 400: The request contains duplicate placements: [27-4555-A:1, 27-4555-A:1, 27-4555-A:1]
+[2018-Oct-09 10:12:24][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 47, in _run
+    self.process.step.set_placements(output_container_list,output_placement)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: The request contains duplicate placements: [27-4555-A:1, 27-4555-A:1, 27-4555-A:1]
+

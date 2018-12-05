@@ -1,0 +1,141 @@
+[2018-Nov-13 11:08:45][GenerateHamiltonInputSeqQuantPlate][CRITICAL] Encountered a HTTPError exception: 404: Process not found: 24-31
+[2018-Nov-13 11:08:45][GenerateHamiltonInputSeqQuantPlate][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 273, in _run
+    if len(self.input_container_names) > self.permitted_input_containers:
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\cached_property.py", line 32, in __get__
+    value = obj.__dict__[self.func.__name__] = self.func(obj)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 229, in input_container_names
+    for art in self.artifacts:
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\cached_property.py", line 32, in __get__
+    value = obj.__dict__[self.func.__name__] = self.func(obj)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 79, in artifacts
+    return self.process.all_inputs(unique=True, resolve=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 474, in all_inputs
+    ids = [io[0]['limsid'] for io in self.input_output_maps]
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 949, in __get__
+    instance.get()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 86, in get
+    self.root = self.lims.get(self.uri)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 96, in get
+    return self.parse_response(r)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 404: Process not found: 24-31
+
+[2018-Nov-13 11:44:23][Autoplacement_seq_plate_quant][CRITICAL] Encountered a AttributeError exception: 'Process' object has no attribute 'outputs_per_input_perinput'
+[2018-Nov-13 11:44:23][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 53, in _run
+    outputs = self.process.outputs_per_input_perinput(input.id, PerInput=True)
+AttributeError: 'Process' object has no attribute 'outputs_per_input_perinput'
+
+[2018-Nov-13 11:45:35][Autoplacement_seq_plate_quant][CRITICAL] Encountered a TypeError exception: outputs_per_input_perinput() missing 1 required positional argument: 'inart'
+[2018-Nov-13 11:45:35][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 54, in _run
+    outputs = outputs_per_input_perinput(input.id, PerInput=True)
+TypeError: outputs_per_input_perinput() missing 1 required positional argument: 'inart'
+
+[2018-Nov-13 11:46:16][Autoplacement_seq_plate_quant][CRITICAL] Encountered a NameError exception: name 'Artifact' is not defined
+[2018-Nov-13 11:46:16][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 54, in _run
+    outputs = outputs_per_input_perinput(input.id, input, PerInput=True)
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 11, in outputs_per_input_perinput
+    if isinstance(inart, Artifact):
+NameError: name 'Artifact' is not defined
+
+[2018-Nov-13 11:49:01][Autoplacement_seq_plate_quant][CRITICAL] Encountered a AttributeError exception: 'str' object has no attribute 'process'
+[2018-Nov-13 11:49:01][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 53, in _run
+    outputs = outputs_per_input_perinput(input.id, PerInput=True)
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 12, in outputs_per_input_perinput
+    inouts = [io for io in self.process.input_output_maps if io[0]['uri']]
+AttributeError: 'str' object has no attribute 'process'
+
+[2018-Nov-13 11:50:15][Autoplacement_seq_plate_quant][CRITICAL] Encountered a NameError exception: name 'self' is not defined
+[2018-Nov-13 11:50:15][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 53, in _run
+    outputs = outputs_per_input_perinput(input.id, PerInput=True)
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 12, in outputs_per_input_perinput
+    inouts = [io for io in self.process.input_output_maps if io[0]['limsid']==inart]
+NameError: name 'self' is not defined
+
+[2018-Nov-13 11:50:44][Autoplacement_seq_plate_quant][CRITICAL] Encountered a KeyError exception: 'output-generation-type'
+[2018-Nov-13 11:50:44][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 54, in _run
+    outputs = outputs_per_input_perinput(input.id, PerInput=True)
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 31, in outputs_per_input_perinput
+    inouts = [io for io in inouts if io[0]['output-generation-type'] == 'PerInput']
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 31, in <listcomp>
+    inouts = [io for io in inouts if io[0]['output-generation-type'] == 'PerInput']
+KeyError: 'output-generation-type'
+
+[2018-Nov-13 12:16:09][Autoplacement_seq_plate_quant][CRITICAL] Encountered a HTTPError exception: 400: The request contains duplicate placements: [27-4784-A:4, 27-4784-A:5, 27-4784-B:4]
+[2018-Nov-13 12:16:09][Autoplacement_seq_plate_quant][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_seq_plate_quant.py", line 177, in _run
+    self.process.step.set_placements(output_container_list, output_placement_list)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 946, in set_placements
+    self.placements.root = self.placements.post()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 96, in post
+    return self.lims.post(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 166, in post
+    return self.parse_response(r, accept_status_codes=[200, 201, 202])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: The request contains duplicate placements: [27-4784-A:4, 27-4784-A:5, 27-4784-B:4]
+
+[2018-Nov-13 13:33:45][GenerateHamiltonInputSeqQuantPlate][CRITICAL] Encountered a HTTPError exception: 404: Process not found: 24-31253
+[2018-Nov-13 13:33:45][GenerateHamiltonInputSeqQuantPlate][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 274, in _run
+    if len(self.input_container_names) > self.permitted_input_containers:
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\cached_property.py", line 32, in __get__
+    value = obj.__dict__[self.func.__name__] = self.func(obj)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 230, in input_container_names
+    for art in self.artifacts:
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\cached_property.py", line 32, in __get__
+    value = obj.__dict__[self.func.__name__] = self.func(obj)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 79, in artifacts
+    return self.process.all_inputs(unique=True, resolve=True)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 474, in all_inputs
+    ids = [io[0]['limsid'] for io in self.input_output_maps]
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 949, in __get__
+    instance.get()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 86, in get
+    self.root = self.lims.get(self.uri)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 96, in get
+    return self.parse_response(r)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 404: Process not found: 24-31253
+

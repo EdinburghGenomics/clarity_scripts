@@ -1,0 +1,101 @@
+[2018-Nov-15 11:18:32][AssignNextStepSeqPico][CRITICAL] Encountered a AttributeError exception: 'ConnectionError' object has no attribute 'message'
+[2018-Nov-15 11:18:32][AssignNextStepSeqPico][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\connection.py", line 171, in _new_conn
+    (self._dns_host, self.port), self.timeout, **extra_kw)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\util\connection.py", line 79, in create_connection
+    raise err
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\util\connection.py", line 69, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\connectionpool.py", line 600, in urlopen
+    chunked=chunked)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\connectionpool.py", line 354, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "C:\Users\dforth\AppData\Local\Programs\Python\Python36-32\lib\http\client.py", line 1239, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\dforth\AppData\Local\Programs\Python\Python36-32\lib\http\client.py", line 1285, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\dforth\AppData\Local\Programs\Python\Python36-32\lib\http\client.py", line 1234, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\dforth\AppData\Local\Programs\Python\Python36-32\lib\http\client.py", line 1026, in _send_output
+    self.send(msg)
+  File "C:\Users\dforth\AppData\Local\Programs\Python\Python36-32\lib\http\client.py", line 964, in send
+    self.connect()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\connection.py", line 196, in connect
+    conn = self._new_conn()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\connection.py", line 180, in _new_conn
+    self, "Failed to establish a new connection: %s" % e)
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x03B697D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\requests\adapters.py", line 445, in send
+    timeout=timeout
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\connectionpool.py", line 638, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\urllib3\util\retry.py", line 398, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=9080): Max retries exceeded with url: /api/v2/steps/24-31274 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x03B697D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 92, in get
+    timeout=TIMEOUT)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\requests\sessions.py", line 525, in get
+    return self.request('GET', url, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\requests\sessions.py", line 512, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\requests\sessions.py", line 622, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\requests\adapters.py", line 513, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9080): Max retries exceeded with url: /api/v2/steps/24-31274 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x03B697D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_seq_pico.py", line 19, in _run
+    actions = self.process.step.actions
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\descriptors.py", line 891, in __get__
+    instance.get()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 86, in get
+    self.root = self.lims.get(self.uri)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 94, in get
+    raise type(e)("{0}, Error trying to reach {1}".format(e.message, uri))
+AttributeError: 'ConnectionError' object has no attribute 'message'
+
+[2018-Nov-15 11:19:24][AssignNextStepSeqPico][CRITICAL] Encountered a TypeError exception: argument of type 'NoneType' is not iterable
+[2018-Nov-15 11:19:24][AssignNextStepSeqPico][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_seq_pico.py", line 30, in _run
+    if 'FAIL' in art.udf.get("Picogreen Conc Review"):
+TypeError: argument of type 'NoneType' is not iterable
+
+[2018-Nov-15 11:21:26][AssignNextStepSeqPico][CRITICAL] Encountered a HTTPError exception: 400: Single Step Controls must have Remove from workflow as the next action
+[2018-Nov-15 11:21:26][AssignNextStepSeqPico][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 133, in run
+    return self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_seq_pico.py", line 35, in _run
+    actions.put()
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\entities.py", line 91, in put
+    return self.lims.put(self.uri, data)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 155, in put
+    return self.parse_response(r)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 209, in parse_response
+    self.validate_response(response, accept_status_codes)
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\pyclarity_lims\lims.py", line 202, in validate_response
+    raise requests.exceptions.HTTPError(message)
+requests.exceptions.HTTPError: 400: Single Step Controls must have Remove from workflow as the next action
+

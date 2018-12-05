@@ -1,0 +1,27 @@
+[2018-Oct-25 15:15:24][CalculateVolumes][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'udf'
+[2018-Oct-25 15:15:24][CalculateVolumes][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\normalisation.py", line 55, in _run
+    (target_volume * (target_concentration / input.udf.get(self.input_conc))), 1)
+AttributeError: 'list' object has no attribute 'udf'
+
+[2018-Oct-25 15:16:09][CalculateVolumes][CRITICAL] Encountered a AttributeError exception: 'CalculateVolumes' object has no attribute 'input_volume'
+[2018-Oct-25 15:16:09][CalculateVolumes][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\normalisation.py", line 55, in _run
+    (target_volume * (target_concentration / input.udf.get(self.input_conc))), 1)
+AttributeError: 'CalculateVolumes' object has no attribute 'input_volume'
+
+[2018-Oct-25 15:16:35][CalculateVolumes][CRITICAL] Encountered a NameError exception: name 'inputs_to_update' is not defined
+[2018-Oct-25 15:16:35][CalculateVolumes][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\normalisation.py", line 60, in _run
+    self.lims.put_batch(list(inputs_to_update))
+NameError: name 'inputs_to_update' is not defined
+

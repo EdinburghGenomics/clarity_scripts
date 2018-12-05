@@ -1,0 +1,9 @@
+[2018-Oct-25 14:05:56][GenerateHamiltonInputNTP][CRITICAL] Encountered a KeyError exception: 'NTP Transfer Volume (uL)'
+[2018-Oct-25 14:05:56][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 80, in _run
+    input.udf['NTP Transfer Volume (uL)'], rsb_barcode, input.udf['RSB Transfer Volume (uL)']]
+KeyError: 'NTP Transfer Volume (uL)'
+

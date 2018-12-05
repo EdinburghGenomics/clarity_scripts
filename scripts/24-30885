@@ -1,0 +1,45 @@
+[2018-Oct-25 13:53:32][AssignNextStepKAPAqPCR][CRITICAL] Encountered a NameError exception: name 'false' is not defined
+[2018-Oct-25 13:53:32][AssignNextStepKAPAqPCR][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_kapa_qpcr.py", line 45, in _run
+    if art.qc_flag == false:
+NameError: name 'false' is not defined
+
+[2018-Oct-25 13:54:04][AssignNextStepKAPAqPCR][CRITICAL] Encountered a AttributeError exception: 'Artifact' object has no attribute 'qc'
+[2018-Oct-25 13:54:04][AssignNextStepKAPAqPCR][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_kapa_qpcr.py", line 45, in _run
+    print(art.qc)
+AttributeError: 'Artifact' object has no attribute 'qc'
+
+[2018-Oct-25 13:55:00][AssignNextStepKAPAqPCR][CRITICAL] Encountered a NameError exception: name 'steps' is not defined
+[2018-Oct-25 13:55:00][AssignNextStepKAPAqPCR][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_kapa_qpcr.py", line 51, in _run
+    step_object = steps[steps.index(current_step) + 1]
+NameError: name 'steps' is not defined
+
+[2018-Oct-25 13:56:11][AssignNextStepKAPAqPCR][CRITICAL] Encountered a NameError exception: name 'protocol' is not defined
+[2018-Oct-25 13:56:11][AssignNextStepKAPAqPCR][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_kapa_qpcr.py", line 51, in _run
+    steps = protocol.steps  # a list of all the ProtocolSteps in protocol
+NameError: name 'protocol' is not defined
+
+[2018-Oct-25 13:56:56][AssignNextStepKAPAqPCR][CRITICAL] Encountered a NameError exception: name 'current_step' is not defined
+[2018-Oct-25 13:56:56][AssignNextStepKAPAqPCR][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\next_step_assignment_kapa_qpcr.py", line 54, in _run
+    step_object = steps[steps.index(current_step) + 1] #find the next step
+NameError: name 'current_step' is not defined
+

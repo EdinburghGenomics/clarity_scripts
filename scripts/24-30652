@@ -1,0 +1,63 @@
+[2018-Oct-08 17:55:42][AutoplacementMakeCFP][CRITICAL] Encountered a UnboundLocalError exception: local variable 'all_inputs' referenced before assignment
+[2018-Oct-08 17:55:42][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 14, in _run
+    if len(all_inputs)>24:
+UnboundLocalError: local variable 'all_inputs' referenced before assignment
+
+[2018-Oct-08 17:56:12][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'Artifact' object has no attribute 'outputs_per_input'
+[2018-Oct-08 17:56:12][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 33, in _run
+    output= input.outputs_per_input(Analyte=True)
+AttributeError: 'Artifact' object has no attribute 'outputs_per_input'
+
+[2018-Oct-08 17:57:50][AutoplacementMakeCFP][CRITICAL] Encountered a TypeError exception: outputs_per_input() got an unexpected keyword argument 'Analytes'
+[2018-Oct-08 17:57:50][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 33, in _run
+    output=  self.process.outputs_per_input(input, Analytes=True)
+TypeError: outputs_per_input() got an unexpected keyword argument 'Analytes'
+
+[2018-Oct-08 17:58:09][AutoplacementMakeCFP][CRITICAL] Encountered a AttributeError exception: 'list' object has no attribute 'location'
+[2018-Oct-08 17:58:09][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    output.location = plate_layout[well_counter]
+AttributeError: 'list' object has no attribute 'location'
+
+[2018-Oct-08 17:58:24][AutoplacementMakeCFP][CRITICAL] Encountered a IndexError exception: list index out of range
+[2018-Oct-08 17:58:24][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    output[0].location = plate_layout[well_counter]
+IndexError: list index out of range
+
+[2018-Oct-08 17:58:46][AutoplacementMakeCFP][CRITICAL] Encountered a IndexError exception: list index out of range
+[2018-Oct-08 17:58:46][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 35, in _run
+    output[0].location = plate_layout[well_counter]
+IndexError: list index out of range
+
+[2018-Oct-08 18:02:13][AutoplacementMakeCFP][CRITICAL] Encountered a TypeError exception: list indices must be integers or slices, not Artifact
+[2018-Oct-08 18:02:13][AutoplacementMakeCFP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\autoplacement_make_cfp.py", line 34, in _run
+    output= self.process.input_output_maps[input]
+TypeError: list indices must be integers or slices, not Artifact
+

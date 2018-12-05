@@ -1,0 +1,81 @@
+[2018-Oct-25 15:33:49][GenerateHamiltonInputNTP][CRITICAL] Encountered a KeyError exception: 'NTP Library Volume (uL)'
+[2018-Oct-25 15:33:49][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 80, in _run
+    input.udf['NTP Library Volume (uL)'], rsb_barcode, input.udf['NTP RSB Volume (uL)']]
+KeyError: 'NTP Library Volume (uL)'
+
+[2018-Oct-25 15:35:16][GenerateHamiltonInputNTP][CRITICAL] Encountered a TypeError exception: 'Artifact' object does not support indexing
+[2018-Oct-25 15:35:16][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 70, in _run
+    unique_output_containers.add(output[0].container.name)
+TypeError: 'Artifact' object does not support indexing
+
+[2018-Oct-25 15:35:41][GenerateHamiltonInputNTP][CRITICAL] Encountered a TypeError exception: 'Artifact' object does not support indexing
+[2018-Oct-25 15:35:41][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 79, in _run
+    csv_line = [input.container.name, input_location, output[0].container.name, output_location,
+TypeError: 'Artifact' object does not support indexing
+
+[2018-Oct-25 15:35:53][GenerateHamiltonInputNTP][CRITICAL] Encountered a KeyError exception: 'NTP Library Volume (uL)'
+[2018-Oct-25 15:35:53][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 80, in _run
+    output.udf['NTP Library Volume (uL)'], rsb_barcode, output.udf['NTP RSB Volume (uL)']]
+KeyError: 'NTP Library Volume (uL)'
+
+[2018-Oct-25 15:36:16][GenerateHamiltonInputNTP][CRITICAL] Encountered a KeyError exception: 'NTP Library Volume (uL)'
+[2018-Oct-25 15:36:16][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 80, in _run
+    output.udf['NTP Library Volume (uL)'], rsb_barcode, output.udf['NTP RSB Volume (uL)']]
+KeyError: 'NTP Library Volume (uL)'
+
+[2018-Oct-25 15:38:57][GenerateHamiltonInputNTP][CRITICAL] Encountered a UnboundLocalError exception: local variable 'rsb_barcode' referenced before assignment
+[2018-Oct-25 15:38:57][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 80, in _run
+    output.udf['NTP Library Volume (uL)'], rsb_barcode, output.udf['NTP RSB Volume (uL)']]
+UnboundLocalError: local variable 'rsb_barcode' referenced before assignment
+
+[2018-Oct-25 15:39:18][GenerateHamiltonInputNTP][CRITICAL] Encountered a FileNotFoundError exception: [Errno 2] No such file or directory: '/mnt/HAMILTON_INPUTS/KAPA_MAKE_NORMALISED_LIBRARIES/KAPA_NORMALISE_LIBRARIES.csv'
+[2018-Oct-25 15:39:18][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 111, in _run
+    with open(self.shared_drive_path + 'KAPA_NORMALISE_LIBRARIES.csv', 'w') as csvFile:
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/HAMILTON_INPUTS/KAPA_MAKE_NORMALISED_LIBRARIES/KAPA_NORMALISE_LIBRARIES.csv'
+
+[2018-Oct-25 15:40:05][GenerateHamiltonInputNTP][CRITICAL] Encountered a PermissionError exception: [Errno 13] Permission denied: '/KAPA_NORMALISE_LIBRARIES.csv'
+[2018-Oct-25 15:40:05][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 111, in _run
+    with open(self.shared_drive_path + 'KAPA_NORMALISE_LIBRARIES.csv', 'w') as csvFile:
+PermissionError: [Errno 13] Permission denied: '/KAPA_NORMALISE_LIBRARIES.csv'
+
+[2018-Oct-25 15:40:13][GenerateHamiltonInputNTP][CRITICAL] Encountered a PermissionError exception: [Errno 13] Permission denied: '\\KAPA_NORMALISE_LIBRARIES.csv'
+[2018-Oct-25 15:40:13][GenerateHamiltonInputNTP][ERROR] Stack trace below:
+Traceback (most recent call last):
+  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
+    self._run()
+  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_ntp.py", line 111, in _run
+    with open(self.shared_drive_path + 'KAPA_NORMALISE_LIBRARIES.csv', 'w') as csvFile:
+PermissionError: [Errno 13] Permission denied: '\\KAPA_NORMALISE_LIBRARIES.csv'
+
