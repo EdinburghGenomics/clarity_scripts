@@ -1,9 +1,0 @@
-[2018-Oct-03 15:59:00][GenerateHamiltonInputQPCR][CRITICAL] Encountered a PermissionError exception: [Errno 13] Permission denied: '92-160945-hamilton_input.csv'
-[2018-Oct-03 15:59:00][GenerateHamiltonInputQPCR][ERROR] Stack trace below:
-Traceback (most recent call last):
-  File "C:\Users\dforth\PycharmProjects\untitled\venv\lib\site-packages\clarity_scripts-0.9.dev0-py3.6.egg\EPPs\common.py", line 126, in run
-    self._run()
-  File "C:\Users\dforth\PycharmProjects\clarity_scripts\scripts\generate_hamilton_input_QPCR_layout.py", line 198, in _run
-    with open(self.hamilton_input + '-hamilton_input.csv', 'w') as csvFile:
-PermissionError: [Errno 13] Permission denied: '92-160945-hamilton_input.csv'
-
