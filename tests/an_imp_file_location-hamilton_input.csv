@@ -1,3 +1,0 @@
-Input Plate,Input Well,Output IMP Plate,Output IMP Well,CFP to IMP Volume,Output SSQC Plate,Output SSQC Well,CFP to SSQC Volume,RSB Barcode,RSB to SSQC Volume
-Name1,A1,OutputName2-IMP,B1,50,OutputName1-SSQC,A1,2,LP9999999-RSB,8
-Name1,B1,OutputName2-IMP,C1,50,OutputName1-SSQC,D1,2,LP9999999-RSB,8

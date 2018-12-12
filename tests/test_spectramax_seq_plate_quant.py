@@ -1,7 +1,7 @@
 from os.path import join, dirname, abspath
 from unittest.mock import Mock, patch
 from tests.test_common import TestEPP, NamedMock
-from scripts.parse_spectramax_seq_plate_quant import SpectramaxOutput
+from scripts.spectramax_seq_plate_quant import SpectramaxOutput
 
 
 class TestSeqPlateQuantSpectramax(TestEPP):
@@ -52,7 +52,7 @@ class TestSeqPlateQuantSpectramax(TestEPP):
              self.epp.assign_samples_to_plates()
          assert str(e.exception) == 'Badly formed spectramax file: tried to add coord E4 for sample 6 to plate a_plate'
 
-    @patch('scripts.parse_spectramax_seq_plate_quant.SpectramaxOutput.process')
+    @patch('scripts.spectramax_seq_plate_quant.SpectramaxOutput.process')
     def test_add_plates_to_step(self, mocked_process):
         fake_placements = []
         for plate in self.exp_plate_names:

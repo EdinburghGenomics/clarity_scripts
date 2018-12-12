@@ -16,6 +16,8 @@ class AssignWorkflow(StepEPP):
         self.spps = self.cmd_args.spps
         self.rrw = self.cmd_args.rrw
         self.rrs = self.cmd_args.rrs
+        self.qw = self.cmd_args.qpcrw
+        self.qs = self.cmd_args.qpcrs
 
 
     @staticmethod
@@ -24,6 +26,9 @@ class AssignWorkflow(StepEPP):
         argparser.add_argument('-ss', '--spps',  type=str, required=True, help='Sequencing plate preparation step name')
         argparser.add_argument('-rw', '--rrw', type=str, required=True, help='Request repeats workflow name')
         argparser.add_argument('-rs', '--rrs',  type=str, required=True, help='Request repeats step name')
+        argparser.add_argument('-qw', '--qpcrw', type=str, required=True, help='Make and Read QPCR workflow name')
+        argparser.add_argument('-qs', '--qpcrs',  type=str, required=True, help='Make and Read QPCR step name')
+
 
     def _run(self):
         # obtain the actions of the step then creates a StepActions entity for the current step
@@ -34,16 +39,19 @@ class AssignWorkflow(StepEPP):
 
         artifacts_to_route_spp=set()
         artifacts_to_route_rr=set()
+        artifacts_to_route_q=set()
 
         for next_action in next_actions:
-            #if KAPA Next Step is KAPA Make Normalised Libraries then assign to next step in the protocol (assumes next step is KAPA Make Normalised Libraries)
+            #check to see if next action is removed for the input artifact and then check to see if the artifact should be assigned to Sequencing
+            #Plate Preparation, Request Repeats or Make and Read QPCR
             if next_action['action'] == 'remove':
-                if self.process.outputs_per_input(next_action['artifact'].id,ResultFile=True)[0].udf.get(
-                    'KAPA Next Step') == 'Sequencing Plate Preparation':
+                if next_action['artifact'].udf.get('KAPA Next Step') == 'Sequencing Plate Preparation':
                     artifacts_to_route_spp.add(next_action['artifact'].samples[0].artifact)
                 # if KAPA Next Step is Sequencing Plate Preparation then assign to workflow and step defined by rrw and rrs
-                elif self.process.outputs_per_input(next_action['artifact'].id,ResultFile=True)[0].udf.get('KAPA Next Step') == 'Request Repeats':
+                elif next_action['artifact'].udf.get('KAPA Next Step') == 'Request Repeats':
                     artifacts_to_route_rr.add(next_action['artifact'].samples[0].artifact)
+                elif next_action['artifact'].udf.get('KAPA Next Step') == 'Make and Read qPCR Quant':
+                    artifacts_to_route_q.add(next_action['artifact'].samples[0].artifact)
 
         #if any artifacts with Sequencing Plate Preparation then assign to workflow and step for sequencing plate preparation
         if artifacts_to_route_spp:
@@ -54,6 +62,11 @@ class AssignWorkflow(StepEPP):
         if artifacts_to_route_rr:
             stage = get_workflow_stage(self.lims, self.rrw, self.rrs)
             self.lims.route_artifacts(list(artifacts_to_route_rr), stage_uri=stage.uri)
+
+        #if any artifacts with Make and Read QPCR then assign to workflow and step for Make and Read QCPR (could not achieve this with the next_action re-work)
+        if artifacts_to_route_q:
+            stage = get_workflow_stage(self.lims, self.qw, self.qs)
+            self.lims.route_artifacts(list(artifacts_to_route_q), stage_uri=stage.uri)
 
 
 if __name__ == '__main__':

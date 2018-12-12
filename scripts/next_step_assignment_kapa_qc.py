@@ -22,13 +22,16 @@ class AssignNextStep(StepEPP):
         artifacts_to_route_spp=set()
         artifacts_to_route_rr=set()
 
+        #prepare the step_object variable used for inputs that move to the next step
+        current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
+        protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
+        steps = protocol.steps  # a list of all the ProtocolSteps in protocol
+        step_object = steps[steps.index(current_step) + 1]
+
         for next_action in next_actions:
             #if KAPA Next Step is KAPA Make Normalised Libraries then assign to next step in the protocol (assumes next step is KAPA Make Normalised Libraries)
-            if  self.process.outputs_per_input(next_action['artifact'].id, ResultFile=True)[0].udf.get('KAPA Next Step') == 'KAPA Make Normalised Libraries':
-                current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
-                protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
-                steps = protocol.steps  # a list of all the ProtocolSteps in protocol
-                step_object = steps[steps.index(current_step) + 1]
+
+            if next_action['artifact'].udf.get('KAPA Next Step') == 'KAPA Make Normalised Libraries':
                 # update the next action to "next step" with the step
                 next_action['action'] = 'nextstep'
                 next_action['step'] = step_object
