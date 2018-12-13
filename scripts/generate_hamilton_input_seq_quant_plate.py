@@ -10,7 +10,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
     Hamilton method"""
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
-    csv_column_headers = ['Sample ID', 'Source Plate BC', 'Source Plate Position', 'Destination Plate BC', 'Destination Plate Position']
+    csv_column_headers = ['Sample ID', 'Source Plate BC', 'Source Plate Position','Sample Volume (ul)' 'Destination Plate BC', 'Destination Plate Position','Master Mix Volume (ul)']
     # Define the output file
     output_file_name = 'SEQ_PLATE_QUANT.csv'
 
@@ -65,7 +65,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
                 #remove semi-colon from output location in the variable as this is not compatible with Hamilton Venus software. Common.py
                 #expects key to have semi-colon.
                 #create the csv line with key based on output location that can be sorted by column then row
-                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,output_plate_name,output.location[1].replace(':', '')]
+                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,self.process.udf['Sample Volume (ul)'],output_plate_name,output.location[1].replace(':', ''),self.process.udf['Master Mix Volume (ul)']]
 
         return csv_dict
 

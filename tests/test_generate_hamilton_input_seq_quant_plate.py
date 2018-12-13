@@ -226,13 +226,21 @@ def get_fake_outputs_per_input(outputs):
 
 class TestGenerateHamiltonSeqQuantPlate(TestEPP):
     def setUp(self):
+
+        step_udfs = {
+            'Sample Volume (ul)': '2',
+            'Master Mix Volume (ul)': '198',
+        }
+
         self.patched_process1 = patch.object(
             GenerateHamiltonInputSeqQuantPlate,
             'process',
             new_callable=PropertyMock(return_value=Mock(
                 input_output_maps=fake_input_output_maps,
                 all_inputs=fake_all_inputs,
-                all_outputs=(get_fake_all_outputs(outputs1))
+                all_outputs=(get_fake_all_outputs(outputs1)),
+                udf=step_udfs
+
             )
             )
         )
@@ -243,7 +251,8 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             new_callable=PropertyMock(return_value=Mock(
                 input_output_maps=fake_input_output_maps,
                 all_inputs=fake_all_inputs2,
-                all_outputs=(get_fake_all_outputs(outputs1))
+                all_outputs=(get_fake_all_outputs(outputs1)),
+                udf=step_udfs
             )
             )
         )
@@ -254,7 +263,8 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             new_callable=PropertyMock(return_value=Mock(
                 input_output_maps=fake_input_output_maps,
                 all_inputs=fake_all_inputs,
-                all_outputs=(get_fake_all_outputs(outputs2))
+                all_outputs=(get_fake_all_outputs(outputs2)),
+                udf=step_udfs
             )
             )
         )
@@ -265,7 +275,8 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             new_callable=PropertyMock(return_value=Mock(
                 input_output_maps=fake_input_output_maps2,
                 all_inputs=fake_all_inputs,
-                all_outputs=(get_fake_all_outputs(outputs1))
+                all_outputs=(get_fake_all_outputs(outputs1)),
+                udf=step_udfs
             )
             )
         )
@@ -282,8 +293,9 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
         with self.patched_process1:
             self.epp._run()
 
-        assert self.stripped_md5('a_file_location-hamilton_input.csv') == '45feb662101bfc5117722f98fefd80cd'
-        assert self.stripped_md5(self.epp.shared_drive_file_path) == '45feb662101bfc5117722f98fefd80cd'
+
+        assert self.stripped_md5('a_file_location-hamilton_input.csv') == '4604f87ae9f27c832994d4f36756655c'
+        assert self.stripped_md5(self.epp.shared_drive_file_path) == '4604f87ae9f27c832994d4f36756655c'
 
     def test_10_input_containers(self):  # the function raises an exception if >9 input containers
         with self.patched_process2:
