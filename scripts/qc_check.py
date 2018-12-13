@@ -24,7 +24,7 @@ class QCCheck(StepEPP):
     """
     If the step has one output per input then output UDF compared against step UDF with logical operator defined in the
     arguments with a review UDF updated with text specified in the arguments.
-    If the step has replicate outputs then the input UDF is compared against the the step UDF (activated with '-r'
+    If the step has replicate outputs or if the step has no outputs then the input UDF is compared against the the step UDF (activated with '-ci'
     argument.Use logic ops as the argument defined operators to distinguish from
     the use of the operator library
     """
@@ -38,7 +38,7 @@ class QCCheck(StepEPP):
         self.qc_udf_names = self.cmd_args.qc_udf_names
         self.qc_results = self.cmd_args.qc_results
         self.passed = self.cmd_args.passed
-        self.replicates = self.cmd_args.replicates
+        self.check_inputs = self.cmd_args.check_inputs
 
 
     @staticmethod
@@ -59,8 +59,8 @@ class QCCheck(StepEPP):
                                help='entries that should go into the output QC UDFs if a fail')
         argparser.add_argument('-ps', '--passed', type=str, required=False,
                                help='entries that should go into the output QC UDFs if passes')
-        argparser.add_argument('-r', '--replicates', action='store_true',
-                               help='set the script to check the input UDF and not individual replicates',
+        argparser.add_argument('-ci', '--check_inputs', action='store_true',
+                               help='set the script to check the input UDF and not outputs',
                                default=False)
 
 
@@ -71,15 +71,17 @@ class QCCheck(StepEPP):
         else:
             passed=self.passed
 
+        artifacts_to_update = set()
+
         # we want to update all the outputs that are analytes so will have result UDF values i.e. not files. These are
         # identified as there output-generation-type is "PerInput" which is provided by input_output_maps attribute of
         # process (list of tuples, each tuple is two dictionaries, one for the input and one for the output
 
         # if -r argument not present then QC check is between the output UDF and step UDF
-        if self.replicates == False:
+        if self.check_inputs == False:
             # will update the LIMS using batch for efficiency so need a step variable to populate before the put
-            outputs_to_update = set()
 
+            #obtaining the output from the input_output maps works for steps where both the output is an analyte or a resultfile
             for input_output in self.process.input_output_maps:
 
                 if input_output[1]['output-generation-type'] == 'PerInput':
@@ -103,23 +105,24 @@ class QCCheck(StepEPP):
                         # the step UDF. If the output result UDF fails the QC check then update the qc udf (this may overwrite existing fail values).
 
                         if ComparisonMethod(output.udf.get(result_udf_name), logic_op,
-                                              self.process.udf.get(step_udf_name)) == False:
+                                              self.process.udf[step_udf_name]) == False:
                             output.udf[qc_udf_name] = qc_result
 
-                    outputs_to_update.add(output)
-                self.lims.put_batch(list(outputs_to_update))
+                    artifacts_to_update.add(output)
+
 
         # if -r argument is present then QC check is between the input UDF and step UDF
-        elif self.replicates == True:
+        elif self.check_inputs == True:
             # will update the LIMS using batch for efficiency so need a step variable to populate before the put
-            inputs_to_update = set()
+
             for input in self.process.all_inputs():
                 # update all of the qc result UDFs to the passed value as default. This will subsequently be overwritten if the sample
                 # fails a QC check
-                for qc_udf_name in self.qc_udf_names:
-                    input.udf[qc_udf_name] = self.passed
 
-                for step_udf_name, result_udf_name, logic_op, qc_udf_name, qc_result, passed in zip(self.step_udf_names,
+                for qc_udf_name in self.qc_udf_names:
+                    input.udf[qc_udf_name] = passed
+
+                for step_udf_name, result_udf_name, logic_op, qc_udf_name, qc_result in zip(self.step_udf_names,
                                                                                             self.result_udf_names,
                                                                                             self.logic_ops,
                                                                                             self.qc_udf_names,
@@ -128,14 +131,13 @@ class QCCheck(StepEPP):
                     # check to see if the input result UDF value meets the criteria of the operator when compared to
                     # the step UDF. Also don't want to update the qc UDF if it has already been set to fail for a
                     # previous check. Ignore samples that do not have results.
-
                     if input.udf.get(result_udf_name) and ComparisonMethod(input.udf.get(result_udf_name), logic_op,
                                                                              self.process.udf.get(
                                                                                  step_udf_name)) == False:
                         input.udf[qc_udf_name] = qc_result
-                inputs_to_update.add(input)
-            self.lims.put_batch(list(inputs_to_update))
+                artifacts_to_update.add(input)
 
 
+        self.lims.put_batch(list(artifacts_to_update))
 if __name__ == "__main__":
     QCCheck().run()
