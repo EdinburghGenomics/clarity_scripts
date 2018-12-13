@@ -25,13 +25,26 @@ class TestQCCheck(TestEPP):
         self.patched_lims = patch.object(QCCheck, 'lims', new_callable=PropertyMock(return_value=Mock(name='ai')))
         self.epp = QCCheck(self.default_argv + ['-n','StepMinimum', 'StepMaximum']
                            + ['-t', 'OutputResult', 'OutputResult'] + ['-o','>=','<=']
-                           + ['-v','OutputResultReview','OutputResultReview'] + ['-w', 'FAIL, output result < minimum','FAIL, output result > maximum'] )
+                           + ['-v','OutputResultReview','OutputResultReview'] + ['-w', 'FAIL, output result < minimum','FAIL, output result > maximum'])
 
-    def test_qc_check_happ_path(self):
+        self.epp2 = QCCheck(self.default_argv + ['-n','StepMinimum', 'StepMaximum']
+                           + ['-t', 'OutputResult', 'OutputResult'] + ['-o','>=','<=']
+                           + ['-v','OutputResultReview','OutputResultReview'] + ['-w', 'FAIL, output result < minimum','FAIL, output result > maximum']+
+                           ['-ps','Congratulations'])
+
+
+    def test_qc_check_happ_path_without_optional_arg(self):
         with self.patched_process, self.patched_lims:
             self.epp._run()
-            assert self.epp.process.input_output_maps[0][1]['uri'].udf.get('OutputResultReview')=='PASS'
+
+            assert self.epp.process.input_output_maps[0][1]['uri'].udf.get('OutputResultReview')=='PASSED'
             assert self.epp.process.input_output_maps[1][1]['uri'].udf.get('OutputResultReview')=='FAIL, output result < minimum'
             assert self.epp.process.input_output_maps[2][1]['uri'].udf.get('OutputResultReview') == 'FAIL, output result > maximum'
 
+    def test_qc_check_happ_path_with_optional_arg(self):
+        with self.patched_process, self.patched_lims:
+            self.epp2._run()
 
+            assert self.epp.process.input_output_maps[0][1]['uri'].udf.get('OutputResultReview')=='Congratulations'
+            assert self.epp.process.input_output_maps[1][1]['uri'].udf.get('OutputResultReview')=='FAIL, output result < minimum'
+            assert self.epp.process.input_output_maps[2][1]['uri'].udf.get('OutputResultReview') == 'FAIL, output result > maximum'
