@@ -11,7 +11,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
     Hamilton method"""
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
-    csv_column_headers = ['Sample ID', 'Source Plate BC', 'Source Plate Position','Sample Volume (ul)' 'Destination Plate BC', 'Destination Plate Position','Master Mix Volume (ul)']
+    csv_column_headers = ['Sample ID', 'Source Plate BC', 'Source Plate Position','Sample Volume (ul)' 'Destination Plate BC', 'Destination Plate Position','Master Mix Volume (ul)','SDNA Plate BC']
     # Define the output file
     output_file_name = 'SEQ_PLATE_QUANT.csv'
 
