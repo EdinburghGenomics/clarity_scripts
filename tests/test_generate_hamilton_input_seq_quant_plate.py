@@ -259,9 +259,9 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
         with self.patched_process1:
             self.epp._run()
 
-)
-        assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'a1a22088878f79cf68b8d3e5c1d9392e'
-        assert self.stripped_md5(self.epp.shared_drive_file_path) == 'a1a22088878f79cf68b8d3e5c1d9392e'
+
+        assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'b2f63eb36ee606368313ba6928807759'
+        assert self.stripped_md5(self.epp.shared_drive_file_path) == 'b2f63eb36ee606368313ba6928807759'
 
     def test_10_input_containers(self):  # the function raises an exception if >9 input containers
         with self.patched_process2:
