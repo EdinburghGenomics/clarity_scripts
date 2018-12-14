@@ -23,22 +23,22 @@ output1b_sample_mock = NamedMock(real_name="ao1_name-1", container=NamedMock(rea
                                  location=(NamedMock(real_name="OutputContainer1"), 'A:4'))
 
 # generate mock input artifacts for all standards
-input_SDNAA1_mock = NamedMock(real_name="SDNA Std A1", id='si1', container=NamedMock(real_name='stds_container_name'),
+input_SDNAA1_mock = NamedMock(real_name="SDNA Std A1", id='sa1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAB1_mock = NamedMock(real_name="SDNA Std B1", id='si2',
+input_SDNAB1_mock = NamedMock(real_name="SDNA Std B1", id='sb1',
                               container=NamedMock(real_name=NamedMock(real_name='stds_container_name')),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAC1_mock = NamedMock(real_name="SDNA Std C1", id='si3', container=NamedMock(real_name='stds_container_name'),
+input_SDNAC1_mock = NamedMock(real_name="SDNA Std C1", id='sc1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAD1_mock = NamedMock(real_name="SDNA Std D1", id='si1', container=NamedMock(real_name='stds_container_name'),
+input_SDNAD1_mock = NamedMock(real_name="SDNA Std D1", id='sd1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAE1_mock = NamedMock(real_name="SDNA Std E1", id='si1', container=NamedMock(real_name='stds_container_name'),
+input_SDNAE1_mock = NamedMock(real_name="SDNA Std E1", id='se1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAF1_mock = NamedMock(real_name="SDNA Std F1", id='si1', container=NamedMock(real_name='stds_container_name'),
+input_SDNAF1_mock = NamedMock(real_name="SDNA Std F1", id='sf1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAG1_mock = NamedMock(real_name="SDNA Std G1", id='si1', container=NamedMock(real_name='stds_container_name'),
+input_SDNAG1_mock = NamedMock(real_name="SDNA Std G1", id='sg1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
-input_SDNAH1_mock = NamedMock(real_name="SDNA Std H1", id='si1', container=NamedMock(real_name='stds_container_name'),
+input_SDNAH1_mock = NamedMock(real_name="SDNA Std H1", id='sh1', container=NamedMock(real_name='stds_container_name'),
                               location=(NamedMock(real_name='stds_container_name'), '1:1'))
 
 # generate mock outputs for the 8 standards with 3 replicates each
@@ -91,73 +91,6 @@ output2_SDNAH1_mock = NamedMock(real_name="SDNA Std H1-2", container=NamedMock(r
 output3_SDNAH1_mock = NamedMock(real_name="SDNA Std H1-3", container=NamedMock(real_name='OutputContainer1'),
                                 location=(NamedMock(real_name="OutputContainer1"), 'H:3'))
 
-fake_input_output_maps = [
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_sample_mock}],
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_sample_mock}],
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_sample_mock}],
-    [{'uri': input_SDNAA1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAA1_mock}],
-    [{'uri': input_SDNAA1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAA1_mock}],
-    [{'uri': input_SDNAA1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAA1_mock}],
-    [{'uri': input_SDNAB1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAB1_mock}],
-    [{'uri': input_SDNAB1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAB1_mock}],
-    [{'uri': input_SDNAB1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAB1_mock}],
-    [{'uri': input_SDNAC1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAC1_mock}],
-    [{'uri': input_SDNAC1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAC1_mock}],
-    [{'uri': input_SDNAC1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAC1_mock}],
-    [{'uri': input_SDNAD1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAD1_mock}],
-    [{'uri': input_SDNAD1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAD1_mock}],
-    [{'uri': input_SDNAD1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAD1_mock}],
-    [{'uri': input_SDNAE1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAE1_mock}],
-    [{'uri': input_SDNAE1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAE1_mock}],
-    [{'uri': input_SDNAE1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAE1_mock}],
-    [{'uri': input_SDNAF1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAF1_mock}],
-    [{'uri': input_SDNAF1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAF1_mock}],
-    [{'uri': input_SDNAF1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAF1_mock}],
-    [{'uri': input_SDNAG1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAG1_mock}],
-    [{'uri': input_SDNAG1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAG1_mock}],
-    [{'uri': input_SDNAG1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAG1_mock}],
-    [{'uri': input_SDNAH1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_SDNAH1_mock}],
-    [{'uri': input_SDNAH1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_SDNAH1_mock}],
-    [{'uri': input_SDNAH1_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_SDNAH1_mock}]
-]
-
-fake_input_output_maps2 = [
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output1_sample_mock}],
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output2_sample_mock}],
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_sample_mock}],
-    [{'uri': input_sample_mock},
-     {'output-generation-type': 'PerInput', 'uri': output3_sample_mock}]
-]
 
 
 # checks for number of input containers use all_inputs. Create fake inputs with less than 9 and greate than 9 input plates.
@@ -203,11 +136,24 @@ def fake_all_inputs2(unique=False, resolve=False):
 # checks for numbers of output containers users the all_outputs process function. In the patched processes feed the below outputs dictionaries to the get_all_fake_outputs function
 # to generate the required variables in the test
 
-# three outputs in one output container
-outputs1 = {'a1': [output1_sample_mock, output2_sample_mock, output3_sample_mock]}
+
+outputs={
+    'sa1':[output1_SDNAA1_mock, output2_SDNAA1_mock, output3_SDNAA1_mock],
+    'sb1':[output1_SDNAB1_mock, output2_SDNAB1_mock, output3_SDNAB1_mock],
+    'sc1':[output1_SDNAC1_mock, output2_SDNAC1_mock, output3_SDNAC1_mock],
+    'sd1':[output1_SDNAD1_mock, output2_SDNAD1_mock, output3_SDNAD1_mock],
+    'se1':[output1_SDNAE1_mock, output2_SDNAE1_mock, output3_SDNAE1_mock],
+    'sf1':[output1_SDNAF1_mock, output2_SDNAF1_mock, output3_SDNAF1_mock],
+    'sg1':[output1_SDNAG1_mock, output2_SDNAG1_mock, output3_SDNAG1_mock],
+    'sh1':[output1_SDNAH1_mock, output2_SDNAH1_mock,  output3_SDNAH1_mock],
+    'ai1':[output1_sample_mock, output2_sample_mock, output3_sample_mock]
+}
 
 # three outputs in two output containers
-outputs2 = {'a1': [output1b_sample_mock, output2_sample_mock, output3_sample_mock]}
+outputs2 = {'ai1': [output1b_sample_mock, output2_sample_mock, output3_sample_mock]}
+
+# four outputs per input
+outputs3= {'ai1': [output1_sample_mock, output1_SDNAA1_mock, output2_sample_mock, output3_sample_mock]}
 
 
 def get_fake_all_outputs(outputs):
@@ -218,7 +164,7 @@ def get_fake_all_outputs(outputs):
 
 
 def get_fake_outputs_per_input(outputs):
-    def fake_outputs_per_input(inputid, Analyte=False):
+    def fake_outputs_per_input(inputid, ResultFile=True):
         return outputs[inputid]
 
     return fake_outputs_per_input
@@ -232,14 +178,18 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             'Master Mix Volume (ul)': '198',
         }
 
+        dummystep = Mock(reagent_lots= [Mock(id='re1', lot_number='LP9999999-SDNA')])
+
         self.patched_process1 = patch.object(
             GenerateHamiltonInputSeqQuantPlate,
             'process',
             new_callable=PropertyMock(return_value=Mock(
-                input_output_maps=fake_input_output_maps,
                 all_inputs=fake_all_inputs,
-                all_outputs=(get_fake_all_outputs(outputs1)),
-                udf=step_udfs
+                all_outputs=(get_fake_all_outputs(outputs)),
+                udf=step_udfs,
+                step=dummystep,
+                outputs_per_input=get_fake_outputs_per_input(outputs)
+
 
             )
             )
@@ -249,10 +199,11 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             GenerateHamiltonInputSeqQuantPlate,
             'process',
             new_callable=PropertyMock(return_value=Mock(
-                input_output_maps=fake_input_output_maps,
                 all_inputs=fake_all_inputs2,
-                all_outputs=(get_fake_all_outputs(outputs1)),
-                udf=step_udfs
+                all_outputs=(get_fake_all_outputs(outputs)),
+                udf=step_udfs,
+                step=dummystep,
+                outputs_per_input=get_fake_outputs_per_input(outputs)
             )
             )
         )
@@ -261,10 +212,11 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             GenerateHamiltonInputSeqQuantPlate,
             'process',
             new_callable=PropertyMock(return_value=Mock(
-                input_output_maps=fake_input_output_maps,
                 all_inputs=fake_all_inputs,
                 all_outputs=(get_fake_all_outputs(outputs2)),
-                udf=step_udfs
+                udf=step_udfs,
+                step=dummystep,
+                outputs_per_input=get_fake_outputs_per_input(outputs)
             )
             )
         )
@@ -273,10 +225,24 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             GenerateHamiltonInputSeqQuantPlate,
             'process',
             new_callable=PropertyMock(return_value=Mock(
-                input_output_maps=fake_input_output_maps2,
                 all_inputs=fake_all_inputs,
-                all_outputs=(get_fake_all_outputs(outputs1)),
-                udf=step_udfs
+                all_outputs=(get_fake_all_outputs(outputs)),
+                udf=step_udfs,
+                step=dummystep,
+                outputs_per_input=get_fake_outputs_per_input(outputs3)
+            )
+            )
+        )
+
+        self.patched_process5 = patch.object(
+            GenerateHamiltonInputSeqQuantPlate,
+            'process',
+            new_callable=PropertyMock(return_value=Mock(
+                all_inputs=fake_all_inputs,
+                all_outputs=(get_fake_all_outputs(outputs)),
+                udf=step_udfs,
+                step=Mock(reagent_lots= []),
+                outputs_per_input=get_fake_outputs_per_input(outputs)
             )
             )
         )
@@ -294,8 +260,8 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             self.epp._run()
 
 
-        assert self.stripped_md5('a_file_location-hamilton_input.csv') == '4604f87ae9f27c832994d4f36756655c'
-        assert self.stripped_md5(self.epp.shared_drive_file_path) == '4604f87ae9f27c832994d4f36756655c'
+        assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'c10c41ed32a8224ddec039f54c710472'
+        assert self.stripped_md5(self.epp.shared_drive_file_path) == 'c10c41ed32a8224ddec039f54c710472'
 
     def test_10_input_containers(self):  # the function raises an exception if >9 input containers
         with self.patched_process2:
@@ -318,3 +284,17 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
                 self.epp._run()
             print(e.value.message)
             assert e.value.message == "3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?"
+
+    def test_4_output_artifacts(self):  # the function raises an exception if >3 output artifacts for one input
+        with self.patched_process4:
+            with pytest.raises(InvalidStepError) as e:
+                self.epp._run()
+            print(e.value.message)
+            assert e.value.message == "3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?"
+
+    def test_no_reagent(self):  # the function raises an exception if >3 output artifacts for one input
+        with self.patched_process5:
+            with pytest.raises(InvalidStepError) as e:
+                self.epp._run()
+            print(e.value.message)
+            assert e.value.message == 'SDNA Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.'

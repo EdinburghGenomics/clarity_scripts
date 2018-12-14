@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import re
 
 
 from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
@@ -25,27 +26,27 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
         #in a pattern for most efficient pipetting i.e. columns then rows
         csv_dict = {}
 
+        # find the corresponding lot number i.e. barcode for the SDNA plate.
+        sdna_template = "LP[0-9]{7}-SDNA"
+
+        sdna_barcode = ""
+
+        reagent_lots = list(self.process.step.reagent_lots)
+
+        for lot in reagent_lots:
+            if re.match(sdna_template, lot.lot_number):
+               sdna_barcode = lot.lot_number
 
 
-        # assemble a dictionary that only contains PerInput outputs for each input based on input_output_maps
-
-        input_output_maps = self.process.input_output_maps
-        input_output_perinput_dict = {}
-
-        for input_output in input_output_maps:
-            input = input_output[0]['uri']
-
-            if input_output[1]['output-generation-type'] == 'PerInput':
-                if not input in input_output_perinput_dict.keys():
-                    input_output_perinput_dict[input] = [input_output[1]['uri']]
-                else:
-                    input_output_perinput_dict[input].append(input_output[1]['uri'])
+        if not sdna_barcode:
+            raise InvalidStepError(
+                message='SDNA Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
 
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
-        for input in input_output_perinput_dict:
+        for input in self.process.all_inputs(unique=True):
 
-            outputs = input_output_perinput_dict[input]
+            outputs = self.process.outputs_per_input(input.id, ResultFile=True)
 
             # the step requires 3 output replicates per input
             if len(outputs) != 3:
@@ -65,7 +66,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
                 #remove semi-colon from output location in the variable as this is not compatible with Hamilton Venus software. Common.py
                 #expects key to have semi-colon.
                 #create the csv line with key based on output location that can be sorted by column then row
-                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,self.process.udf['Sample Volume (ul)'],output_plate_name,output.location[1].replace(':', ''),self.process.udf['Master Mix Volume (ul)']]
+                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,self.process.udf['Sample Volume (ul)'],output_plate_name,output.location[1].replace(':', ''),self.process.udf['Master Mix Volume (ul)'],sdna_barcode]
 
         return csv_dict
 
