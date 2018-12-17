@@ -16,7 +16,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
     output_file_name = 'SEQ_PLATE_QUANT.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 9
+    permitted_input_containers = 1
 
     # Define the number of output containers that are permitted
     permitted_output_containers = 1

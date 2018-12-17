@@ -114,22 +114,6 @@ def fake_all_inputs2(unique=False, resolve=False):
              location=('ContainerVariable1', 'A:1')),
         Mock(id='ai2', type='Analyte', container=(NamedMock(real_name='Name2')),
              location=('ContainerVariable1', 'B:1')),
-        Mock(id='ai3', type='Analyte', container=NamedMock(real_name='Name3'),
-             location=('ContainerVariable1', 'A:1')),
-        Mock(id='ai4', type='Analyte', container=(NamedMock(real_name='Name4')),
-             location=('ContainerVariable1', 'B:1')),
-        Mock(id='ai5', type='Analyte', container=NamedMock(real_name='Name5'),
-             location=('ContainerVariable1', 'A:1')),
-        Mock(id='ai6', type='Analyte', container=(NamedMock(real_name='Name6')),
-             location=('ContainerVariable1', 'B:1')),
-        Mock(id='ai7', type='Analyte', container=(NamedMock(real_name='Name7')),
-             location=('ContainerVariable1', 'B:1')),
-        Mock(id='ai8', type='Analyte', container=NamedMock(real_name='Name8'),
-             location=('ContainerVariable1', 'A:1')),
-        Mock(id='ai9', type='Analyte', container=(NamedMock(real_name='Name9')),
-             location=('ContainerVariable1', 'B:1')),
-        Mock(id='ai10', type='Analyte', container=NamedMock(real_name='Name10'),
-             location=('ContainerVariable1', 'A:1'))
     )
 
 
@@ -263,13 +247,13 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
         assert self.stripped_md5('a_file_location-hamilton_input.csv') == '3e3b87e1943f186f31a6ec5c0c6b119a'
         assert self.stripped_md5(self.epp.shared_drive_file_path) == '3e3b87e1943f186f31a6ec5c0c6b119a'
 
-    def test_10_input_containers(self):  # the function raises an exception if >9 input containers
+    def test_2_input_containers(self):  # the function raises an exception if >9 input containers
         with self.patched_process2:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
 
             print(e.value.message)
-            assert e.value.message == 'Maximum number of input plates is 9. There are 10 input plates in the step.'
+            assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
 
     def test_2_output_containers(self):  # the function raises an exception if >1 output containers
         with self.patched_process3:
@@ -285,12 +269,6 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
             print(e.value.message)
             assert e.value.message == "3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?"
 
-    def test_4_output_artifacts(self):  # the function raises an exception if >3 output artifacts for one input
-        with self.patched_process4:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == "3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?"
 
     def test_no_reagent(self):  # the function raises an exception if >3 output artifacts for one input
         with self.patched_process5:
