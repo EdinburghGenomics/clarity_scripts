@@ -11,7 +11,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
     Hamilton method"""
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
-    csv_column_headers = ['Sample ID', 'Source Plate BC', 'Source Plate Position','Sample Volume (ul)','Destination Plate BC','Destination Plate Position','Master Mix Volume (ul)','SDNA Plate BC']
+    csv_column_headers = ['Sample ID', 'Source Plate BC', 'Source Plate Position','Sample Volume (ul)','Destination Plate BC','Destination Plate Position','Master Mix Volume (ul)']
     # Define the output file
     output_file_name = 'SEQ_PLATE_QUANT.csv'
 
@@ -52,13 +52,27 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
             if len(outputs) != 3:
                 raise InvalidStepError(message="3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
 
+            # obtain input and output plate names (barcode) for use in loop below
+            output_plate_name = outputs[0].location[0].name
 
-            # remove semi-colon from input location as this is not compatible with Hamilton Venus software
-            input_location = input.location[1].replace(':', '')
+            #input container and location are not stored in the LIMS for the standards so are coded into this script rather than the hamilton method.
+            if input.name.split(" ")[0]=='SDNA':
+                input_plate_name=sdna_barcode
+                input_location = input.name.split(" ")[2]
+            else:
+                input_plate_name = input.location[0].name
+                # remove semi-colon from input location as this is not compatible with Hamilton Venus software
+                input_location = input.location[1].replace(':', '')
+
+
+
+
+
 
             #obtain input and output plate names (barcode) for use in loop below
-            input_plate_name=input.location[0].name
-            output_plate_name=outputs[0].location[0].name
+
+
+
 
             # assemble each line of the Hamilton input file in the correct structure for the Hamilton
             for output in outputs:
@@ -66,7 +80,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
                 #remove semi-colon from output location in the variable as this is not compatible with Hamilton Venus software. Common.py
                 #expects key to have semi-colon.
                 #create the csv line with key based on output location that can be sorted by column then row
-                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,self.process.udf['Sample Volume (ul)'],output_plate_name,output.location[1].replace(':', ''),self.process.udf['Master Mix Volume (ul)'],sdna_barcode]
+                csv_dict[output.location[1]]=[output.name,input_plate_name,input_location,self.process.udf['Sample Volume (ul)'],output_plate_name,output.location[1].replace(':', ''),self.process.udf['Master Mix Volume (ul)']]
 
         return csv_dict
 
