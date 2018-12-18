@@ -7,7 +7,7 @@ from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 
 class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     """"Generate a CSV containing the necessary information to transfer the fragmented sample from a covaris plate into
-    an IMP plate"""
+    an IMP plate and to create a 384 well SSQC plate with sample and RSB"""
     _use_load_config = False  # prevent the loading of the config
     # Define the column headers that will be used in the Hamilton input file
     csv_column_headers = ['Input Plate', 'Input Well', 'Output IMP Plate', 'Output IMP Well', 'CFP to IMP Volume',
