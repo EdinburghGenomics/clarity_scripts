@@ -344,6 +344,13 @@ class ParseSpectramaxEPP(StepEPP):
             elif line.startswith('Plate:') and encountered_unknowns:
                 self.plate_names.append(line.split('\t')[1])
 
+
+        if self.sample_concs[1][0] != self.starting_well:
+            raise AssertionError(
+                'Badly formed spectramax file: first well for samples is %s but expected to be %s'
+                % (str(self.sample_concs[1][0]),str(self.starting_well))
+            )
+
         self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
 
     def assign_samples_to_plates(self):

@@ -55,13 +55,16 @@ class TestSeqPlateQuantSpectramax(TestEPP):
     @patch('scripts.spectramax_seq_plate_quant.SpectramaxOutput.process')
     def test_add_plates_to_step(self, mocked_process):
         fake_placements = []
-        for plate in self.exp_plate_names:
-            for x in 'ABCDEFGH':
-                for y in range(4, 13):
-                    placement = (Mock(udf={}), (NamedMock(real_name=plate), x + ':' + str(y)))
-                    fake_placements.append(placement)
 
-        assert len(fake_placements) == 1 * 72
+        for plate in self.exp_plate_names:
+            placement = (Mock(udf={}), (NamedMock(real_name=plate), 'A:4'))
+            fake_placements.append((Mock(udf={}), (NamedMock(real_name=plate), 'A:4')))
+            fake_placements.append((Mock(udf={}), (NamedMock(real_name=plate), 'B:4')))
+            fake_placements.append((Mock(udf={}), (NamedMock(real_name=plate), 'C:4')))
+            fake_placements.append((Mock(udf={}), (NamedMock(real_name=plate), 'D:4')))
+            fake_placements.append((Mock(udf={}), (NamedMock(real_name=plate), 'E:4')))
+
+        assert len(fake_placements) == 1 * 5
 
         self.epp.plates = self.exp_plates.copy()
         mocked_process.step = Mock(placements=Mock(get_placement_list=Mock(return_value=fake_placements)))
