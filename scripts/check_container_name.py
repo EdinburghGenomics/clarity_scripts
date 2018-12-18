@@ -35,12 +35,12 @@ class CheckContainerName(StepEPP):
 
 
         for container in containers:
-            valid_container='False'
+            valid_container=False
             for suffix in suffixes:
                 name_template = 'LP[0-9]{7}-' + suffix
                 if re.match(name_template, container.name):
-                    valid_container='True'
-            if valid_container=='False':
+                    valid_container=True
+            if valid_container==False:
                 raise InvalidStepError("Container name %s is not valid for the step. Expected name format is prefix 'LP[0-9]{7}-' with one of the following suffixes: %s." %(container.name, suffixes))
 
 

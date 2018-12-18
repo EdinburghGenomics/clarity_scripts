@@ -9,11 +9,8 @@ from EPPs.common import StepEPP, InvalidStepError
 # samples with 3 replicates. Replicates are placed across columns to allow for maximum efficiency when multiple samples taken from a
 # single input plate.
 
-class Autoplacement_seq_plate_quant(StepEPP):
+class AutoplacementSeqPlateQuant(StepEPP):
     _use_load_config = False  # prevent the loading of the config
-
-    def __init__(self, argv=None):
-        super().__init__(argv)
 
     def _run(self):
 
@@ -28,28 +25,14 @@ class Autoplacement_seq_plate_quant(StepEPP):
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
         output_container_list = self.process.step.placements.get_selected_containers()
 
-        input_output_maps = self.process.input_output_maps
+        len_all_inputs_unique= len(self.process.all_inputs(unique=True))
+        if len_all_inputs_unique > 32:
+            raise InvalidStepError(message="Maximum number of inputs is 32. %s inputs present in step" % (len_all_inputs_unique))
 
-        # assemble a dictionary that only contains PerInput outputs for each input
-        input_output_PerInput_dict = {}
-
-        for input_output in input_output_maps:
-            input = input_output[0]['uri']
-
-            if input_output[1]['output-generation-type'] == 'PerInput':
-                if not input in input_output_PerInput_dict.keys():
-                    input_output_PerInput_dict[input] = [input_output[1]['uri']]
-                else:
-                    input_output_PerInput_dict[input].append(input_output[1]['uri'])
-
-
-        if len(input_output_PerInput_dict) > 32:
-            raise InvalidStepError(message="Maximum number of inputs is 32. %s inputs present in step" % (len(input_output_PerInput_dict)))
-
-        for input in input_output_PerInput_dict:
+        for art in self.process.all_inputs(unique=True):
 
             # obtain list outputs for the inputs. Sort list in case each output replicate has a unique name based on the replicate number e.g. sampleAreplicate-1, sampleAreplicate-2
-            outputs = sorted(input_output_PerInput_dict[input], key=lambda x: x.name, reverse=False)
+            outputs = sorted(self.process.outputs_per_input(art.id,ResultFile=True), key=lambda x: x.name, reverse=False)
 
             if len(outputs) != 3:
                 raise InvalidStepError(
@@ -60,16 +43,16 @@ class Autoplacement_seq_plate_quant(StepEPP):
             #  We want to be able to pipette the samples as efficiently as possible so build their key with replicate number, container name, then column then row which
             #   means if sorted alphanumerically they will sort into columns within containers
 
-            if input.name.split(" ")[0] == "SDNA":
+            if art.name.split(" ")[0] == "SDNA":
                 output_counter = 0
                 for output in outputs:
-                    standards_dict[str(output_counter) + str(input.name)] = output
+                    standards_dict[str(output_counter) + str(art.name)] = output
                     output_counter += 1
 
             else:
                 output_counter = 0
                 for output in outputs:
-                    outputs_dict[str(output_counter) + input.container.name + input.location[1][2:] + input.location[1][
+                    outputs_dict[str(output_counter) + art.container.name + art.location[1][2:] + art.location[1][
                         0]] = output
                     output_counter += 1
 
@@ -126,7 +109,7 @@ class Autoplacement_seq_plate_quant(StepEPP):
         # loop through samples dict and add to output_placement_list. Add rules to ensure that replicates are always
         # stamped across three columns to permit maximum simultaneous pipetting.
         row_counter = 1
-        total_input_samples = len(input_output_PerInput_dict) - 8
+        total_input_samples = len_all_inputs_unique - 8
 
 
 
@@ -173,4 +156,4 @@ class Autoplacement_seq_plate_quant(StepEPP):
 
 
 if __name__ == '__main__':
-    sys.exit(Autoplacement_seq_plate_quant().run())
+    sys.exit(AutoplacementSeqPlateQuant().run())

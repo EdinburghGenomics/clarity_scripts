@@ -57,7 +57,7 @@ class QCCheck(StepEPP):
                                help='output/input  QC udfs that should be updated as a result of the comparison')
         argparser.add_argument('-w', '--qc_results', nargs='*',
                                help='entries that should go into the output QC UDFs if a fail')
-        argparser.add_argument('-ps', '--passed', type=str, required=False,
+        argparser.add_argument('-d', '--passed', type=str, required=False,
                                help='entries that should go into the output QC UDFs if passes')
         argparser.add_argument('-ci', '--check_inputs', action='store_true',
                                help='set the script to check the input UDF and not outputs',

@@ -152,7 +152,6 @@ class TestAutoplacementQPCR384(TestEPP):
                 (fake_outputs_per_input[2], (fake_selected_containers[0], 'B:2'))
             ]
             self.epp.process.step.set_placements.assert_called_with(fake_selected_containers, expected_output_placement)
-            # assert self.epp.process.step.get_placement_list == ['']
 
     def test_autoplacement_qPCR_384_2_replicates(self):  # only 2 replicate outputs rather than required 3
         # per input

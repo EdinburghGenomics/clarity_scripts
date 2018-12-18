@@ -10,9 +10,6 @@ from EPPs.common import StepEPP
 class Autoplacement24in96(StepEPP):
     _use_load_config = False  # prevent the loading of the config
 
-    def __init__(self, argv=None):
-        super().__init__(argv)
-
     def _run(self):
 
         all_inputs = self.process.all_inputs(unique=True)
@@ -25,18 +22,18 @@ class Autoplacement24in96(StepEPP):
         # as efficient as possible.
         input_container_nested_dict = {}
 
-        for input in all_inputs:
+        for art in all_inputs:
 
             # obtain outputs for the input that are analytes, assume step is not configured to allow replicates
             # so will always work with output[0]
-            output = self.process.outputs_per_input(input.id, Analyte=True)[0]
+            output = self.process.outputs_per_input(art.id, Analyte=True)[0]
 
             # add the input_location_output_dict to the input_container_nested dict
-            if input.container not in input_container_nested_dict.keys():
-                input_container_nested_dict[input.container] = {}
+            if art.container not in input_container_nested_dict.keys():
+                input_container_nested_dict[art.container] = {}
             # start assembling one of the variables needed to use the set_placement function
             # note that .location returns a tuple with the container entity and the well location as the string in position [1]
-            input_container_nested_dict[input.container][input.location[1]] = output
+            input_container_nested_dict[art.container][art.location[1]] = output
 
         # update of container requires list variable containing the containers, only one container will be present in step
         # because the container has not yet been fully populated then it must be obtained from the step rather than output

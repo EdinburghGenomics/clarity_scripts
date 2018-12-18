@@ -22,17 +22,17 @@ class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
 
-        for input in self.artifacts:
+        for art in self.artifacts:
 
-            if input.type == 'Analyte':
-                output = self.process.outputs_per_input(input.id, Analyte=True)
+            if art.type == 'Analyte':
+                output = self.process.outputs_per_input(art.id, Analyte=True)
                 # the script is only compatible with 1 output for each input i.e. replicates are not allowed
                 if len(output) > 1:
                     raise InvalidStepError('Multiple outputs found for an input %s. '
-                                           'This step is not compatible with replicates.' % input.name)
+                                           'This step is not compatible with replicates.' % art.name)
 
                 # remove semi-colon from locations as this is not compatible with Hamilton Venus software
-                row, column = input.location[1].split(":")
+                row, column = art.location[1].split(":")
                 input_location = row + column
 
                 # obtain well location of reagent_label (i.e. index/barcode)
@@ -40,11 +40,11 @@ class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
                 adapter_well = output[0].reagent_labels[0].split("_")[0]
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [input.container.name, input_location, input.name, adapter_well]
+                csv_line = [art.container.name, input_location, art.name, adapter_well]
 
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines being
                 # by input container then column then row
-                csv_dict[input.location[1]] = csv_line
+                csv_dict[art.location[1]] = csv_line
         return csv_dict
 
 
