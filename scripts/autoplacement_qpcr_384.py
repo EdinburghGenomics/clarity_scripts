@@ -10,9 +10,6 @@ from EPPs.common import StepEPP
 class AutoplacementQPCR384(StepEPP):
     _use_load_config = False  # prevent the loading of the config
 
-    def __init__(self, argv=None):
-        super().__init__(argv)
-
     def _run(self):
 
         all_inputs = self.process.all_inputs(unique=True)
@@ -33,40 +30,38 @@ class AutoplacementQPCR384(StepEPP):
         standards_dict = {}
         outputs_dict = {}
 
-        for input in all_inputs:
+        for art in all_inputs:
 
             # obtain outputs for the inputs
-            outputs = self.process.outputs_per_input(input.id, ResultFile=True)
+            outputs = self.process.outputs_per_input(art.id, ResultFile=True)
             # generate error if 3 replicates not present
             if len(outputs) != 3:
-                print("3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
+                print(
+                    "3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
                 return 1
 
             # assemble dict of standards and dictionary of output artifacts
             # using numbers 0-2 to differentiate between the three replicate outputs for each input/standard
             output_counter = 0
 
-            if input.name.split(" ")[0] == "QSTD":
+            if art.name.split(" ")[0] == "QSTD":
 
                 for output in outputs:
-                    standards_dict[str(input.name) + str(output_counter)] = output
+                    standards_dict[str(art.name) + str(output_counter)] = output
                     output_counter += 1
 
-            elif input.name.split(" ")[0] == "No":
+            elif art.name.split(" ")[0] == "No":
 
                 for output in outputs:
                     # want no template controles to appear after all standards in the sorted dictionary
-                    standards_dict[str("z") + str(output_counter)] = output
+                    standards_dict["z" + str(output_counter)] = output
                     output_counter += 1
 
             else:
 
                 for output in outputs:
-                    outputs_dict[str(output_counter) + input.location[1]] = output
+                    outputs_dict[str(output_counter) + art.location[1]] = output
                     output_counter += 1
-
-
-
 
         if len(standards_dict) < 21:
             print("Step requires QSTD A to F and No Template Control with 3 replicates each")
@@ -105,22 +100,21 @@ class AutoplacementQPCR384(StepEPP):
         # the output_placement_list.
         for column in plate_layout_columns:
             for row in plate_layout_rows:
-                 # build the list of tuples required for the placement function. Checking that key exists in dict where
-                 # the key consists of replicate number+row:column.
-                    if str(replicate_counter) + row + ":" + column in outputs_dict.keys():
-                        output_placement_list.append((outputs_dict["0" + row + ":" + column],
-                                                      (output_container_list[0], plate_layout[well_counter])))
-                        output_placement_list.append((outputs_dict["1" + row + ":" + column],
-                                                      (output_container_list[0], plate_layout[well_counter + 15])))
-                        output_placement_list.append((outputs_dict["2" + row + ":" + column],
-                                                      (output_container_list[0], plate_layout[well_counter + 16])))
+                # build the list of tuples required for the placement function. Checking that key exists in dict where
+                # the key consists of replicate number+row:column.
+                if str(replicate_counter) + row + ":" + column in outputs_dict.keys():
+                    output_placement_list.append((outputs_dict["0" + row + ":" + column],
+                                                  (output_container_list[0], plate_layout[well_counter])))
+                    output_placement_list.append((outputs_dict["1" + row + ":" + column],
+                                                  (output_container_list[0], plate_layout[well_counter + 15])))
+                    output_placement_list.append((outputs_dict["2" + row + ":" + column],
+                                                  (output_container_list[0], plate_layout[well_counter + 16])))
 
-                        if plate_layout[well_counter][0] == "P":
-                            well_counter += 18
+                    if plate_layout[well_counter][0] == "P":
+                        well_counter += 18
 
-                        else:
-                            well_counter += 2
-
+                    else:
+                        well_counter += 2
 
         # push the output locations to the LIMS
         self.process.step.set_placements(output_container_list, output_placement_list)

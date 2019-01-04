@@ -12,9 +12,6 @@ class AssignNextStepKAPAqPCR(StepEPP):
     """
     _use_load_config = False  # prevent the loading of the config
 
-    def __init__(self, argv=None):
-        super().__init__(argv)
-
     def _run(self):
 
         # obtain the actions of the step then creates a StepActions entity for the current step

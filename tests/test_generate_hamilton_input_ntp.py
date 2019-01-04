@@ -1,8 +1,8 @@
 from unittest.mock import Mock, patch, PropertyMock
 
 import pytest
-
 from EPPs.common import InvalidStepError
+
 from scripts.generate_hamilton_input_ntp import GenerateHamiltonInputNTP
 from tests.test_common import TestEPP, NamedMock
 
@@ -50,7 +50,6 @@ outputs2 = {
     ]
 }
 
-
 outputs3 = {
     'ai1': [Mock(id='bo1', container=NamedMock(real_name='OutputName1'), location=('ContainerVariable1', 'A:1'),
                  udf={'NTP Library Volume (uL)': '50', 'NTP RSB Volume (uL)': '10'}, type='Analyte')],
@@ -62,21 +61,15 @@ outputs3 = {
 def get_fake_all_outputs(outputs):
     def fake_all_outputs(unique=False, resolve=False):
         return [o for sublist in outputs.values() for o in sublist]
+
     return fake_all_outputs
 
 
 def get_fake_outputs_per_input(outputs):
     def fake_outputs_per_input(inputid, Analyte=False):
         return outputs[inputid]
+
     return fake_outputs_per_input
-
-
-def fake_reagent_lots():
-    return
-    (
-        [Mock(id='re1', lot_number='LP9999999-RSB'),
-         Mock(id='re2', lot_number='LP9999999-RSA')]
-    )
 
 
 class TestGenerateHamiltonInputNTP(TestEPP):
@@ -156,4 +149,4 @@ class TestGenerateHamiltonInputNTP(TestEPP):
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
                 assert e.value.message == 'Multiple outputs found for an input ai1. ' \
-                                    'This step is not compatible with replicates.'
+                                          'This step is not compatible with replicates.'

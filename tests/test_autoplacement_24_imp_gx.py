@@ -98,51 +98,6 @@ class TestAutoplacement24IMPGX(TestEPP):
                 )
             )
 
-        # self.patched_process2 = patch.object(
-        #     Autoplacement24IMPGX,
-        #     'process',
-        #     new_callable=PropertyMock(
-        #         return_value=Mock(
-        #             all_inputs=Mock(return_value=fake_inputs2),
-        #             outputs_per_input=Mock(return_value=fake_outputs_per_input2),
-        #             step=Mock(
-        #                 id='s1',
-        #                 placements=Mock(id='p1', get_selected_containers=Mock(return_value=fake_selected_containers))
-        #             )
-        #         )
-        #     )
-        # )
-        #
-        # self.patched_process3 = patch.object(
-        #     Autoplacement24IMPGX,
-        #     'process',
-        #     new_callable=PropertyMock(
-        #         return_value=Mock(
-        #             all_inputs=Mock(return_value=fake_inputs2),
-        #             outputs_per_input=Mock(return_value=fake_outputs_per_input),
-        #             step=Mock(
-        #                 id='s1',
-        #                 placements=Mock(id='p1', get_selected_containers=Mock(return_value=fake_selected_containers))
-        #             )
-        #         )
-        #     )
-        # )
-        #
-        # self.patched_process4 = patch.object(
-        #     Autoplacement24IMPGX,
-        #     'process',
-        #     new_callable=PropertyMock(
-        #         return_value=Mock(
-        #             all_inputs=Mock(return_value=fake_inputs3()),
-        #             outputs_per_input=Mock(return_value=fake_outputs_per_input),
-        #             step=Mock(
-        #                 id='s1',
-        #                 placements=Mock(id='p1', get_selected_containers=Mock(return_value=fake_selected_containers))
-        #             )
-        #         )
-        #     )
-        # )
-
         self.patched_lims = patch.object(Autoplacement24IMPGX, 'lims', new_callable=PropertyMock)
 
         self.epp = Autoplacement24IMPGX(self.default_argv)

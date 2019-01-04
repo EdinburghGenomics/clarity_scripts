@@ -1,23 +1,26 @@
+import argparse
 import csv
 import os
 import sys
-import argparse
+from collections import defaultdict
 from io import StringIO
-from urllib import parse as urlparse
 from logging import FileHandler
+from urllib import parse as urlparse
+
+import EPPs
+from EPPs.config import load_config
 from cached_property import cached_property
-from requests.exceptions import ConnectionError
-from pyclarity_lims.lims import Lims
-from pyclarity_lims.entities import Process, Artifact
 from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
-import EPPs
-from EPPs.config import load_config
+from pyclarity_lims.entities import Process, Artifact
+from pyclarity_lims.lims import Lims
+from requests.exceptions import ConnectionError
 
 
-class InvalidStepError(Exception):
+class InvalidStepError(BaseException):
     """Exception raised when error occured during the script due to the step being Invalid"""
+
     def __init__(self, message):
         self.message = message
 
@@ -184,7 +187,6 @@ class RestCommunicationEPP:
 
 
 class GenerateHamiltonInputEPP(StepEPP):
-
     # define the rows and columns in the input plate (standard 96 well plate pattern)
     plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
@@ -203,7 +205,6 @@ class GenerateHamiltonInputEPP(StepEPP):
         assert self.output_file_name is not None, 'output_file_name needs to be set by the child class'
         assert self.permitted_input_containers is not None, 'number of permitted input containers needs to be set by the child class'
         assert self.permitted_output_containers is not None, 'number of permitted output containers needs to be set by the child class'
-
 
     @staticmethod
     def add_args(argparser):
@@ -226,22 +227,23 @@ class GenerateHamiltonInputEPP(StepEPP):
     def input_container_names(self):
         """The name of containers from input artifacts. Disregards stanards containers as these are not stored correctly
         in the LIMS. Standards are identified as the sample well location is 1:1"""
-        containers = set()
+        containers = []
+
         for art in self.artifacts:
-            #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            # check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
             if art.container and art.location[1] != '1:1':
-                containers.add(art.container.name)
-        return list(containers)
+                containers.append(art.container.name)
+        return list(frozenset(containers))
 
     @cached_property
     def output_container_names(self):
         """The name of containers from output artifacts"""
-        containers = set()
+        containers = []
         for art in self.output_artifacts:
-            #check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            # check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
             if art.container:
-                containers.add(art.container.name)
-        return list(containers)
+                containers.append(art.container.name)
+        return list(frozenset(containers))
 
     @property
     def shared_drive_file_path(self):
@@ -249,8 +251,7 @@ class GenerateHamiltonInputEPP(StepEPP):
 
     def _generate_csv_dict(self):
         """Provides the lines to write to the csv files in a dictionary
-        where the key is a well position such as A:1
-        and the value is line to add to the csv"""
+        where the key is a well position such as a  """
         raise NotImplementedError
 
     def generate_csv_array(self):
@@ -282,21 +283,105 @@ class GenerateHamiltonInputEPP(StepEPP):
         then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
         # check the number of input containers
         if len(self.input_container_names) > self.permitted_input_containers:
-            msg = 'Maximum number of input plates is %s. There are %s input plates in the step.' % (
-                self.permitted_input_containers,len(self.input_container_names)
-            )
-            raise InvalidStepError(message=msg)
+            raise InvalidStepError(
+                message='Maximum number of input plates is %s. There are %s input plates in the step.' % (
+                self.permitted_input_containers, len(self.input_container_names)))
         # check the number of output containers
         if len(self.output_container_names) > self.permitted_output_containers:
-            msg = 'Maximum number of output plates is %s. There are %s output plates in the step.' % (
-                self.permitted_output_containers,len(self.output_container_names)
-            )
-            raise InvalidStepError(message=msg)
+            raise InvalidStepError(
+                message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
+                self.permitted_output_containers, len(self.output_container_names)))
         csv_array = self.generate_csv_array()
         # Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
         # this is used by Clarity LIMS to recognise the file and attach it to the step
         self.write_csv(self.hamilton_input + '-hamilton_input.csv', csv_array)
         self.write_csv(self.shared_drive_file_path, csv_array)
+
+
+class ParseSpectramaxEPP(StepEPP):
+    _use_load_config = False  # prevent the loading of the config
+    # define the starting well for data parsing e.g. if the standards occupy the first 24 wells, parsing should start from well A4. No semi-colon
+    # separate row and column
+    starting_well = None
+
+    def __init__(self, argv=None):
+        """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
+        super().__init__(argv)
+        self.spectramax_file = self.cmd_args.spectramax_file
+        self.sample_concs = {}
+        self.plate_names = []
+        self.plates = defaultdict(dict)
+
+        assert self.starting_well is not None, 'starting_well needs to be set by the child class'
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('--spectramax_file', type=str, required=True,
+                               help='Spectramax output file from the step')
+
+    def parse_spectramax_file(self):
+        f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
+        encountered_unknowns = False
+        in_unknowns = False
+
+        for line in f:
+            if line.startswith('Group: Unknowns'):
+                assert not in_unknowns
+                in_unknowns = True
+                encountered_unknowns = True
+
+            elif line.startswith('~End'):
+                in_unknowns = False
+
+            elif in_unknowns:
+                if line.startswith('Sample') or line.startswith('Group Summaries'):
+                    pass
+                else:
+
+                    split_line = line.split('\t')
+                    self.sample_concs[int(split_line[0])] = (split_line[1], float(split_line[3]))
+
+            elif line.startswith('Plate:') and encountered_unknowns:
+                self.plate_names.append(line.split('\t')[1])
+
+
+        if self.sample_concs[1][0] != self.starting_well:
+            raise AssertionError(
+                'Badly formed spectramax file: first well for samples is %s but expected to be %s'
+                % (str(self.sample_concs[1][0]),str(self.starting_well))
+            )
+
+        self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
+
+    def assign_samples_to_plates(self):
+
+        plate_idx = -1
+        plate_name = None
+        for i in sorted(self.sample_concs):  # go through in ascending order...
+            coord, conc = self.sample_concs[i]
+            if coord == self.starting_well:  # ... and take the variable starting_well coord as the start of a new plate
+                plate_idx += 1
+                plate_name = self.plate_names[plate_idx]
+
+            if coord in self.plates[plate_name]:
+                raise AssertionError(
+                    'Badly formed spectramax file: tried to add coord %s for sample %s to plate %s' % (
+                        coord, i, plate_name
+                    )
+                )
+            self.plates[plate_name][coord] = conc
+
+    def _add_plates_to_step(self):
+        # populates the artifacts with the data from result file based on plate and well position. Data uploaded to LIMS with put batch
+        raise NotImplementedError
+
+    def _run(self):
+
+        self.parse_spectramax_file()
+        self.assign_samples_to_plates()
+        batch_artifacts = self._add_plates_to_step()
+
+        self.lims.put_batch(list(batch_artifacts))
 
 
 def get_workflow_stage(lims, workflow_name, stage_name=None):
@@ -319,6 +404,7 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
     :param process_type: the type of process that created the artifact
     :param sample_name: the name of the sample associated with this artifact.
     """
+
     def get_parent_process_id(art):
         return art.parent_process.id
 
