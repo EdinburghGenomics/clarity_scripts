@@ -18,8 +18,8 @@ from pyclarity_lims.lims import Lims
 from requests.exceptions import ConnectionError
 
 
-class InvalidStepError(BaseException):
-    """Exception raised when error occured during the script due to the step being Invalid"""
+class InvalidStepError(Exception):
+    """Exception raised when error occurred during the script due to the step being Invalid"""
 
     def __init__(self, message):
         self.message = message
@@ -227,23 +227,25 @@ class GenerateHamiltonInputEPP(StepEPP):
     def input_container_names(self):
         """The name of containers from input artifacts. Disregards stanards containers as these are not stored correctly
         in the LIMS. Standards are identified as the sample well location is 1:1"""
-        containers = []
+        containers = set()
 
         for art in self.artifacts:
-            # check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            # Check to see if artifact has a container before retrieving the container.
+            # Artifacts that are not samples will not have containers.
             if art.container and art.location[1] != '1:1':
-                containers.append(art.container.name)
-        return list(frozenset(containers))
+                containers.add(art.container.name)
+        return list(containers)
 
     @cached_property
     def output_container_names(self):
         """The name of containers from output artifacts"""
-        containers = []
+        containers = set()
         for art in self.output_artifacts:
-            # check to see if artifact has a container before retreiving the container. Artifacts that are not samples will not have containers.
+            # Check to see if artifact has a container before retreiving the container.
+            # Artifacts that are not samples will not have containers.
             if art.container:
                 containers.append(art.container.name)
-        return list(frozenset(containers))
+        return list(containers)
 
     @property
     def shared_drive_file_path(self):
@@ -279,18 +281,22 @@ class GenerateHamiltonInputEPP(StepEPP):
         return csv_rows
 
     def _run(self):
-        """Generic run that make a check of unique input container and unique output container
+        """Generic run that check the number of input and output container
         then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
         # check the number of input containers
         if len(self.input_container_names) > self.permitted_input_containers:
             raise InvalidStepError(
                 message='Maximum number of input plates is %s. There are %s input plates in the step.' % (
-                self.permitted_input_containers, len(self.input_container_names)))
+                    self.permitted_input_containers, len(self.input_container_names)
+                )
+            )
         # check the number of output containers
         if len(self.output_container_names) > self.permitted_output_containers:
             raise InvalidStepError(
                 message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
-                self.permitted_output_containers, len(self.output_container_names)))
+                    self.permitted_output_containers, len(self.output_container_names)
+                )
+            )
         csv_array = self.generate_csv_array()
         # Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
         # this is used by Clarity LIMS to recognise the file and attach it to the step
@@ -343,7 +349,6 @@ class ParseSpectramaxEPP(StepEPP):
 
             elif line.startswith('Plate:') and encountered_unknowns:
                 self.plate_names.append(line.split('\t')[1])
-
 
         if self.sample_concs[1][0] != self.starting_well:
             raise AssertionError(

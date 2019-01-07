@@ -33,8 +33,8 @@ class TestAssignNextStepKAPAqPCR(TestEPP):
             # libraries with QC flag as failed should be review.
             expected_next_actions = [
                 {'artifact': self.actions.next_actions[0]['artifact'], 'action': 'remove'},
-                {'artifact': self.actions.next_actions[1]['artifact'], 'action': 'complete'},
-                {'artifact': self.actions.next_actions[2]['artifact'], 'action': 'review'}
+                {'artifact': self.actions.next_actions[1]['artifact'], 'action': 'review'},
+                {'artifact': self.actions.next_actions[2]['artifact'], 'action': 'complete'}
             ]
 
             assert self.actions.next_actions == expected_next_actions

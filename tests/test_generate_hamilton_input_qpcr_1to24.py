@@ -1,3 +1,4 @@
+import os
 from unittest.mock import Mock, patch, PropertyMock
 
 import pytest
@@ -221,8 +222,7 @@ class TestGenerateHamiltonInputQPCR(TestEPP):
         # per input, 1 output plate
         with self.patched_process1:
             self.epp._run()
-
-            assert self.stripped_md5('assets/MAKE_QPCR-1_TO_24_INPUT.csv') == 'd0d07df6d608cc62f50bf4051779a7a5'
+            assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'd0d07df6d608cc62f50bf4051779a7a5'
             assert self.stripped_md5(self.epp.shared_drive_file_path) == 'd0d07df6d608cc62f50bf4051779a7a5'
 
     def test_2_input_containers(self):  # test that error occurs if >1 input containers
