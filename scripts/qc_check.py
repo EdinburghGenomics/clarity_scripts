@@ -57,7 +57,7 @@ class QCCheck(StepEPP):
                                help='output/input  QC udfs that should be updated as a result of the comparison')
         argparser.add_argument('-w', '--qc_results', nargs='*',
                                help='entries that should go into the output QC UDFs if a fail')
-        argparser.add_argument('-d', '--passed', type=str, required=False,
+        argparser.add_argument('-d', '--passed', type=str, required=False, default='PASSED',
                                help='entries that should go into the output QC UDFs if passes')
         argparser.add_argument('-ci', '--check_inputs', action='store_true',
                                help='set the script to check the input UDF and not outputs',
@@ -65,12 +65,6 @@ class QCCheck(StepEPP):
 
 
     def _run(self):
-        #optional argument for configuring the passed value. Set the passed variable to match this if present
-        if not self.passed:
-            passed='PASSED'
-        else:
-            passed=self.passed
-
         artifacts_to_update = set()
 
         # we want to update all the outputs that are analytes so will have result UDF values i.e. not files. These are
@@ -81,7 +75,7 @@ class QCCheck(StepEPP):
         if self.check_inputs == False:
             # will update the LIMS using batch for efficiency so need a step variable to populate before the put
 
-            #obtaining the output from the input_output maps works for steps where both the output is an analyte or a resultfile
+            # obtaining the output from the input_output maps works for steps where both the output is an analyte or a resultfile
             for input_output in self.process.input_output_maps:
 
                 if input_output[1]['output-generation-type'] == 'PerInput':
@@ -91,7 +85,7 @@ class QCCheck(StepEPP):
                     #fails a QC check
 
                     for qc_udf_name in self.qc_udf_names:
-                        output.udf[qc_udf_name] = passed
+                        output.udf[qc_udf_name] = self.passed
 
                     # assuming that order in each argument list is the same and the number of values in each argument list
                     # is the same then loop through the arguments together using the zip standard function
@@ -120,7 +114,7 @@ class QCCheck(StepEPP):
                 # fails a QC check
 
                 for qc_udf_name in self.qc_udf_names:
-                    input.udf[qc_udf_name] = passed
+                    input.udf[qc_udf_name] = self.passed
 
                 for step_udf_name, result_udf_name, logic_op, qc_udf_name, qc_result in zip(self.step_udf_names,
                                                                                             self.result_udf_names,

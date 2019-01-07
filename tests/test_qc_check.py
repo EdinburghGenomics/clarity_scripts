@@ -19,7 +19,6 @@ fake_all_inputs = [
 class TestQCCheck(TestEPP):
     def setUp(self):
 
-
         self.patched_process = patch.object(
             QCCheck,
             'process',
@@ -29,11 +28,15 @@ class TestQCCheck(TestEPP):
                     input_output_maps=fake_input_output_maps,all_inputs=Mock(return_value=fake_all_inputs)
         )))
 
-
         self.patched_lims = patch.object(QCCheck, 'lims', new_callable=PropertyMock(return_value=Mock(name='ai')))
-        self.epp = QCCheck(self.default_argv + ['-n','StepMinimum', 'StepMaximum']
-                           + ['-t', 'Result', 'Result'] + ['-o','>=','<=']
-                           + ['-v','ResultReview','ResultReview'] + ['-w', 'FAIL, result < minimum','FAIL, result > maximum'])
+        self.epp = QCCheck(
+            self.default_argv
+            + ['-n','StepMinimum', 'StepMaximum']
+            + ['-t', 'Result', 'Result']
+            + ['-o','>=', '<=']
+            + ['-v','ResultReview', 'ResultReview']
+            + ['-w', 'FAIL, result < minimum', 'FAIL, result > maximum']
+        )
 
         self.epp2 = QCCheck(
             self.default_argv
@@ -42,14 +45,18 @@ class TestQCCheck(TestEPP):
             + ['-o', '>=','<=']
             + ['-v', 'ResultReview', 'ResultReview']
             + ['-w', 'FAIL, result < minimum', 'FAIL, result > maximum']
-           # + ['-ps', 'Congratulations']
+            + ['-d', 'Congratulations']
         )
 
-        self.epp3 = QCCheck(self.default_argv + ['-n','StepMinimum', 'StepMaximum']
-                           + ['-t', 'Result', 'Result'] + ['-o','>=','<=']
-                           + ['-v','ResultReview','ResultReview'] + ['-w', 'FAIL, result < minimum','FAIL, result > maximum']+
-                           ['-ci'])
-
+        self.epp3 = QCCheck(
+            self.default_argv
+            + ['-n', 'StepMinimum', 'StepMaximum']
+            + ['-t', 'Result', 'Result']
+            + ['-o', '>=', '<=']
+            + ['-v', 'ResultReview', 'ResultReview']
+            + ['-w', 'FAIL, result < minimum', 'FAIL, result > maximum']
+            + ['-ci']
+        )
 
     def test_qc_check_happ_path_no_optional(self):
         """test with no optional arguments"""
@@ -65,7 +72,7 @@ class TestQCCheck(TestEPP):
         with self.patched_process, self.patched_lims:
             self.epp2._run()
 
-            assert self.epp.process.input_output_maps[0][1]['uri'].udf.get('ResultReview') == 'PASSED'
+            assert self.epp.process.input_output_maps[0][1]['uri'].udf.get('ResultReview') == 'Congratulations'
             assert self.epp.process.input_output_maps[1][1]['uri'].udf.get('ResultReview') == 'FAIL, result < minimum'
             assert self.epp.process.input_output_maps[2][1]['uri'].udf.get('ResultReview') == 'FAIL, result > maximum'
 

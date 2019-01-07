@@ -244,7 +244,7 @@ class GenerateHamiltonInputEPP(StepEPP):
             # Check to see if artifact has a container before retreiving the container.
             # Artifacts that are not samples will not have containers.
             if art.container:
-                containers.append(art.container.name)
+                containers.add(art.container.name)
         return list(containers)
 
     @property
