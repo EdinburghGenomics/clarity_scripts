@@ -9,7 +9,6 @@ from tests.test_common import TestEPP, NamedMock
 
 class TestAssignNextStepKAPAqPCR(TestEPP):
     def setUp(self):
-        self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[
             {'artifact': NamedMock(real_name='SDNA A1', udf={'Picogreen Conc Review': 'FAIL,<Minimum DNA Conc.'})},
             {'artifact': NamedMock(real_name='Library1', udf={'Picogreen Conc Review': 'PASS'})},
@@ -18,24 +17,22 @@ class TestAssignNextStepKAPAqPCR(TestEPP):
         self.patched_process1 = patch.object(
             AssignNextStepSeqPico,
             'process',
-            new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions, configuration=self.protostep)))
+            new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions)))
         )
 
         self.epp = AssignNextStepSeqPico(self.default_argv)
 
     def test_happy_path(self):
-        protocol = Mock(steps=[self.protostep, Mock(), Mock()])
-        patched_protocol = patch('scripts.next_step_assignment_seq_pico.Protocol', return_value=protocol)
 
-        with self.patched_process1, patched_protocol:
+        with self.patched_process1:
             self.epp._run()
-            # artifacts with QSTD or No Template should be removed, libraries with QC flag as passed should be next step and
+            # artifacts with SDNA in the name should be removed,
+            # libraries with QC flag as passed should be next step and
             # libraries with QC flag as failed should be review.
             expected_next_actions = [
                 {'artifact': self.actions.next_actions[0]['artifact'], 'action': 'remove'},
                 {'artifact': self.actions.next_actions[1]['artifact'], 'action': 'complete'},
                 {'artifact': self.actions.next_actions[2]['artifact'], 'action': 'review'}
             ]
-
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
