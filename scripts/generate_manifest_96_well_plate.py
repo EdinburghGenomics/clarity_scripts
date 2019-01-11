@@ -28,13 +28,16 @@ class GenerateManifest96WellPlate(StepEPP):
 
         # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
         # used to write the file
-        csv_column_headers = ['Sample/Name', 'UDF/User Sample Name', 'Container/Type', 'Container/Name',
-                              'Sample/Well Location','UDF/Sample Type','UDF/Prep Workflow','UDF/Coverage (X)',
-                              'UDF/Required Yield (Gb)','UDF/Delivery','UDF/Project ID','UDF/Extraction Method',
-                              'UDF/Quantification Method','UDF/User Quantification','UDF/Volume','UDF/Total Yield',
-                              'UDF/Elution Buffer','UDF/Sex','UDF/Species','UDF/Genome Version','UDF/Analysis Type',
-                              'UDF/User Prepared Library']
-        csv_array.append(csv_column_headers)
+        # csv_column_headers = ['Sample/Name', 'UDF/User Sample Name', 'Container/Type', 'Container/Name',
+        #                       'Sample/Well Location','UDF/Sample Type','UDF/Prep Workflow','UDF/Coverage (X)',
+        #                       'UDF/Required Yield (Gb)','UDF/Delivery','UDF/Project ID','UDF/Extraction Method',
+        #                       'UDF/Quantification Method','UDF/User Quantification','UDF/Volume','UDF/Total Yield',
+        #                       'UDF/Elution Buffer','UDF/Sex','UDF/Species','UDF/Genome Version','UDF/Analysis Type',
+        #                       'UDF/User Prepared Library']
+        counter=0
+        while counter <29:
+            counter+=1
+            csv_array.append('')
 
 
         print(csv_array)
