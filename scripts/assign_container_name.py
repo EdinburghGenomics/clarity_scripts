@@ -17,7 +17,7 @@ class AssignContainerName(StepEPP):
             if p.output_type == 'Analyte':
                
                 project = p.samples[0].project.name
-                new_container_name = self.find_available_container(project)
+                new_container_name = self.find_available_container(project, '96 well plate')
                 p.container.name = new_container_name
                 p.container.put()
 
