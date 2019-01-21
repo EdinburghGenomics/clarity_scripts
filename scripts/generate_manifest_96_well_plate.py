@@ -32,7 +32,7 @@ class GenerateManifest96WellPlate(StepEPP):
         counter=1
         while counter <=self.process.udf['Blank Lines  - 96 Well Plate']:
             counter+=1
-            csv_array.append('')
+            csv_array.append('\n')
 
 
         # define the set for listing the unique input containers which is used for ordering the data in the CSV
