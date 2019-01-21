@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import csv
-import sys
+
 from EPPs.common import StepEPP
 
 
 class GenerateManifest96WellPlate(StepEPP):
+    #create a CSV file continaining all of the sample metadata required by the sample manifest to be sent to the
+    #customer. Data is obtained from the sample UDFs.
     _use_load_config = False  # prevent the loading of the config file
 
-    """Generate a CSV containing the all the columns for 96 well plate sample manifest to be sent to a customer."""
 
     # additional argument required for the location of the Hamilton input file so def __init__ customised
     def __init__(self, argv=None):
@@ -21,78 +22,68 @@ class GenerateManifest96WellPlate(StepEPP):
         )
 
     def _run(self):
-        # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file. These are
+        # csv_dict will be a dictionary that consists of the lines to be present in the manifest CSV. These are
         # then sorted into correct order and added to the csv_array which is used to write the file
         csv_dict = {}
         csv_array = []
 
-        # define the column headers that will be used in the Hamilton input file and add to the csv_array to be
-        # used to write the file
-        # csv_column_headers = ['Sample/Name', 'UDF/User Sample Name', 'Container/Type', 'Container/Name',
-        #                       'Sample/Well Location','UDF/Sample Type','UDF/Prep Workflow','UDF/Coverage (X)',
-        #                       'UDF/Required Yield (Gb)','UDF/Delivery','UDF/Project ID','UDF/Extraction Method',
-        #                       'UDF/Quantification Method','UDF/User Quantification','UDF/Volume','UDF/Total Yield',
-        #                       'UDF/Elution Buffer','UDF/Sex','UDF/Species','UDF/Genome Version','UDF/Analysis Type',
-        #                       'UDF/User Prepared Library']
-        counter=0
-        while counter <29:
+
+        #The metadata for the 96 well plate manifest starts on row 29
+        counter=1
+        while counter <=self.process.udf['Blank Lines  - 96 Well Plate']:
             counter+=1
             csv_array.append('')
 
 
-        print(csv_array)
+        # define the set for listing the unique input containers which is used for ordering the data in the CSV
+        unique_container_names = set()
 
-        # define the sets for listing the unique input and output containers
-        unique_input_containers = set()
-        unique_output_containers = set()
-
-        step_udfs=self.process.udf
+        #define the set for listing the unique input container types used for checking if multiple types are present
+        unique_container_types= set()
 
         # obtain all of the inputs for the step
-        all_inputs = self.process.all_inputs()
-
-
-
-
-        print(step_udfs)
+        all_inputs = self.process.all_inputs(unique=True)
 
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for artifact in all_inputs:
             if artifact.type == 'Analyte':
+                sample=artifact.samples[0]
+                # assemble each line of the manifest csv
+                csv_line = [artifact.name,'',sample.artifact.container.type.name,sample.artifact.container.name,artifact.location[1],'',
+                sample.udf['Prep Workflow'],sample.udf['Coverage (X)'],sample.udf['Required Yield (Gb)'],
+                sample.udf['Delivery'],sample.project.name,'','','','','','','',
+                sample.udf['Species'],sample.udf['Genome Version'],sample.udf['Analysis Type'],
+                sample.udf['User Prepared Library']]
 
-                unique_input_containers.add(artifact.container.name)
-
-                # assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [artifact.name,'',step_udfs['Container'],artifact.container.name,artifact.location[1],'',
-                step_udfs['Library Type'],step_udfs['Coverage (1)'],step_udfs['Required Yield (Gb) (1)'],
-                step_udfs['fastq Merged or Split'],artifact.samples[0].project.name,'','','','','','','',
-                step_udfs['Species (1)'],step_udfs['Genome Version (1)'],step_udfs['Analysis Type'],
-                step_udfs['User Prepared Library']]
-
-
+                unique_container_names.add(artifact.container.name)
+                unique_container_types.add(artifact.container.type)
 
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates the lines
                 # being by input container then column then row
                 csv_dict[artifact.container.name + artifact.location[1]] = csv_line
 
 
+        #check if multiple container types present in the input samples
+        if len(unique_container_types) > 1:
+            raise ValueError('Multiple container types present in input samples. Only one container type permitted')
 
         # define the rows and columns in the input plate (standard 96 well plate pattern)
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
         # add the lines to the csv_array that will be used to write the Hamilton input file
-        for unique_input_container in sorted(unique_input_containers):
+        for unique_container_name in sorted(unique_container_names):
+
             for column in columns:
                 for row in rows:
-                    if unique_input_container + row + ":" + column in csv_dict.keys():
-                        csv_array.append(csv_dict[unique_input_container + row + ":" + column])
+                    if unique_container_name + row + ":" + column in csv_dict.keys():
+                        csv_array.append(csv_dict[unique_container_name + row + ":" + column])
 
         print(csv_array)
 
-        # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is
-        # used by Clarity LIMS to recognise the file and attach it to the step
+        # create and write the CSV file. This must have the file location ID as a prefix so it is recognised by the
+        #LIMS and attached to the step.
         with open(self.manifest + '-manifest.csv', 'w') as f:
             writer = csv.writer(f)
             writer.writerows(csv_array)
