@@ -130,7 +130,7 @@ class StepEPP(app_logging.AppLogger):
             new_name = project + 'P%03d' % count
             container_limit=999
 
-        if container_type=='Tube':
+        if container_type=='rack 96 positions':
             new_name = project+ 'R%02d' % count
             container_limit=99
 
