@@ -1,1 +1,5 @@
 EGCG-Core==0.8.1
+openpyxl==2.5.12
+Pillow==5.4.1
+
+
