@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import csv
+from openpyxl import load_workbook
 
 from EPPs.common import StepEPP
 
@@ -88,6 +89,10 @@ class GenerateManifest96WellPlate(StepEPP):
             writer = csv.writer(f)
             writer.writerows(csv_array)
 
+        wb= load_workbook(filename='test_workbook.xlsx')
+        ws = wb.active
+        ws['A32']='This is a test'
+        wb.save(filename='test_workbook.xlsx')
 
 if __name__ == '__main__':
     GenerateManifest96WellPlate().run()
