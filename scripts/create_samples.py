@@ -107,7 +107,7 @@ class CreateSamples(StepEPP):
                 'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
                     self.process.udf['Next Workflow'], self.process.udf['Next Step'], self.baseuri)
             )
-
+        self.lims.route_artifacts(samples_to_update, stage_uri=stage.uri)
 
 if __name__ == "__main__":
     CreateSamples().run()
