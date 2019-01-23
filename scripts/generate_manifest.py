@@ -86,6 +86,7 @@ class GenerateManifest96WellPlate(StepEPP):
 
         # create a new file with the original file name plus a suffix containing the project ID
         new_filepath = self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + all_inputs[0].samples[0].project.name + '.xlsx'
+        print(new_filepath)
         wb.save(filename=new_filepath)
 
 
