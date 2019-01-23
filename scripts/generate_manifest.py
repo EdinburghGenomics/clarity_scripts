@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from openpyxl import load_workbook
+from openpyxl.styles import Font, PatternFill
 
 from EPPs.common import StepEPP
 
@@ -62,16 +63,24 @@ class GenerateManifest96WellPlate(StepEPP):
         for artifact in all_inputs:
             sample_udf = artifact.samples[0].udf
             # populate the manifest with sample attributes
-            ws[step_udfs[con_type + 'Sample Name'] + str(row_counter)] = artifact.name
-            ws[step_udfs[con_type + 'Container Name'] + str(row_counter)] = artifact.container.name
-            ws[step_udfs[con_type + 'Well'] + str(row_counter)] = artifact.location[1]
-            ws[step_udfs[con_type + 'Project ID'] + str(row_counter)] = artifact.samples[0].project.name
+
+            if con_type == '[Plates]':
+                ws[step_udfs[con_type + 'Sample Name'] + str(row_counter)] = artifact.name
+                ws[step_udfs['[Plates]Container Name'] + str(row_counter)] = artifact.container.name
+                ws[step_udfs['[Plates]Well'] + str(row_counter)] = artifact.location[1]
+                ws[step_udfs['[Plates]Project ID'] + str(row_counter)] = artifact.samples[0].project.name
+
+            if con_type == '[Tubes]':
+                ws[step_udfs['[Tubes]Project ID Well']] = artifact.samples[0].project.name
 
             # populate the manifest with sample UDFs which are configurable by adding or removing step UDFs in the
             # format [CONTAINER TYPE - either Tubes or Plates][Sample UDF]Name of UDF
             for configurable_udf in configurable_udfs:
-                ws[step_udfs[con_type + '[Sample UDF]' + configurable_udf] + str(row_counter)] = sample_udf[
-                    configurable_udf]
+                if con_type + '[Sample UDF]' + configurable_udf in step_udfs.keys():
+                    ws[step_udfs[con_type + '[Sample UDF]' + configurable_udf] + str(row_counter)] = \
+                        sample_udf[configurable_udf]
+
+
 
             row_counter += 1
 
