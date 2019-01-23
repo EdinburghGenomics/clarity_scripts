@@ -70,6 +70,7 @@ class CreateSamples(StepEPP):
                                            name=sample_name, project=input_project)
 
                 sample.udf['Coverage (X)'] = self.process.udf['Coverage (X) (' + str(group_counter) + ')']
+                sample.udf['Required Yield (Gb)'] = self.process.udf['Required Yield (Gb) (' + str(group_counter) + ')']
                 sample.udf['Species'] = self.process.udf['Species (' + str(group_counter) + ')']
                 sample.udf['Genome Version'] = self.process.udf['Genome Version (' + str(group_counter) + ')']
                 sample.udf['Prep Workflow'] = self.process.udf['Library Type']
