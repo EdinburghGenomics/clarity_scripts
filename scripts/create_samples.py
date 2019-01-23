@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from EPPs.common import StepEPP
+from EPPs.common import StepEPP, get_workflow_stage
 from pyclarity_lims.entities import Sample, Container
 
 
