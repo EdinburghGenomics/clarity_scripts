@@ -97,6 +97,17 @@ class CreateSamples(StepEPP):
 
         self.lims.put_batch(samples_to_update)
 
+        #Assign newly created samples to the create manifest step
+        # Find the workflow stage
+
+        stage = get_workflow_stage(self.lims, self.process.udf['Next Workflow'], self.process.udf['Next Step'])
+
+        if not stage:
+            raise ValueError(
+                'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
+                    self.process.udf['Next Workflow'], self.process.udf['Next Step'], self.baseuri)
+            )
+
 
 if __name__ == "__main__":
     CreateSamples().run()
