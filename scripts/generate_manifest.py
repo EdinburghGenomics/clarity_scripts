@@ -128,7 +128,7 @@ class GenerateManifest96WellPlate(SendMailEPP):
             attachments_list.append(self.process.udf['Tubes Requirements Path'])
 
         self.send_mail(email_subject,None, project=project_name,template_name='customer_manifest.html',
-                       config_name='projects-facility-finance_only', attachments=[email_filepath])
+                       config_name='projects-facility-finance_only', attachments=attachments_list)
         #delete the copy of the manifest that was attached to the email
         os.remove(email_filepath)
 
