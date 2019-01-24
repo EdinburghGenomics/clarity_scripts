@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from openpyxl import load_workbook
-from openpyxl.styles import Font, PatternFill
+
 
 from EPPs.common import StepEPP
 
@@ -59,30 +59,40 @@ class GenerateManifest96WellPlate(StepEPP):
             if tag_position > -1:
                 configurable_udfs.append(step_udf_key[tag_position + 12:])
 
-        # populate the wells in the active work sheet in the excel in the columns defined by the step UDFs
+        # define the rows and columns of the 96 well plate/rack to be used for writing the manifest in correct order
+        rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+        columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+
+        sample_dict={}
+
+        # create a dictionary of samples so the manifest can be written by column
         for artifact in all_inputs:
-            sample_udf = artifact.samples[0].udf
-            # populate the manifest with sample attributes
-
-            if con_type == '[Plates]':
-                ws[step_udfs[con_type + 'Sample Name'] + str(row_counter)] = artifact.name
-                ws[step_udfs['[Plates]Container Name'] + str(row_counter)] = artifact.container.name
-                ws[step_udfs['[Plates]Well'] + str(row_counter)] = artifact.location[1]
-                ws[step_udfs['[Plates]Project ID'] + str(row_counter)] = artifact.samples[0].project.name
-
-            if con_type == '[Tubes]':
-                ws[step_udfs['[Tubes]Project ID Well']] = artifact.samples[0].project.name
-
-            # populate the manifest with sample UDFs which are configurable by adding or removing step UDFs in the
-            # format [CONTAINER TYPE - either Tubes or Plates][Sample UDF]Name of UDF
-            for configurable_udf in configurable_udfs:
-                if con_type + '[Sample UDF]' + configurable_udf in step_udfs.keys():
-                    ws[step_udfs[con_type + '[Sample UDF]' + configurable_udf] + str(row_counter)] = \
-                        sample_udf[configurable_udf]
+            sample_dict[artifact.location[1].replace(":","")]=artifact.samples[0]
 
 
+        for column in columns:
+            for row in rows:
+                # populate the manifest with sample attributes
+                sample_udf=sample_dict[row+column].udf
+                #sample_udf = artifact.samples[0].udf
+                # populate the wells in the active work sheet in the excel in the columns defined by the step UDFs
+                if con_type == '[Plates]':
+                    ws[step_udfs[con_type + 'Sample Name'] + str(row_counter)] = sample_dict[row+column].artifact.name
+                    ws[step_udfs['[Plates]Container Name'] + str(row_counter)] = sample_dict[row+column].artifact.container.name
+                    ws[step_udfs['[Plates]Well'] + str(row_counter)] = sample_dict[row+column].artifact.location[1]
+                    ws[step_udfs['[Plates]Project ID'] + str(row_counter)] =sample_dict[row+column].project.name
 
-            row_counter += 1
+                if con_type == '[Tubes]':
+                    ws[step_udfs['[Tubes]Project ID Well']] = sample_dict[row+column].project.name
+
+                # populate the manifest with sample UDFs which are configurable by adding or removing step UDFs in the
+                # format [CONTAINER TYPE - either Tubes or Plates][Sample UDF]Name of UDF
+                for configurable_udf in configurable_udfs:
+                    if con_type + '[Sample UDF]' + configurable_udf in step_udfs.keys():
+                        ws[step_udfs[con_type + '[Sample UDF]' + configurable_udf] + str(row_counter)] = \
+                            sample_udf[configurable_udf]
+
+                row_counter += 1
 
         # create a new file with the original file name plus a suffix containing the project ID
         new_filepath = self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + all_inputs[0].samples[0].project.name + '.xlsx'
