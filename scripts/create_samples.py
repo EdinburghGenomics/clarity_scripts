@@ -66,7 +66,7 @@ class CreateSamples(StepEPP):
                     sample=input_sample
 
                 else:
-                    sample_name = input_project.name + current_container.name + plate96_layout[
+                    sample_name = current_container.name + plate96_layout[
                         plate96_layout_counter].replace(":", "")
                     sample = Sample.create(self.lims, container=current_container,
                                            position=plate96_layout[plate96_layout_counter],
