@@ -53,6 +53,9 @@ class CreateSamples(StepEPP):
 
         # the UDFs of the newly created samples are updated by a batch put (although all samples are created individually)
         samples_to_update = []
+        #the sample artifact should be assigned to the create manifest step
+        sample_artifacts = []
+
 
         # loop through the groups 1 to 4 (if present in the step) and create the corresponding samples which the correct
         # sample UDF values pulled from the group step UDFS
@@ -79,6 +82,7 @@ class CreateSamples(StepEPP):
                 sample.udf['User Prepared Library'] = self.process.udf['User Prepared Library']
 
                 samples_to_update.append(sample)
+                sample_artifacts.append(sample.artifact)
 
                 sample_counter += 1
                 plate96_layout_counter += 1
@@ -107,7 +111,7 @@ class CreateSamples(StepEPP):
                 'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
                     self.process.udf['Next Workflow'], self.process.udf['Next Step'], self.baseuri)
             )
-        self.lims.route_artifacts(samples_to_update, stage_uri=stage.uri)
+        self.lims.route_artifacts(sample_artifacts, stage_uri=stage.uri)
 
 if __name__ == "__main__":
     CreateSamples().run()
