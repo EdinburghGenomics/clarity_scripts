@@ -173,7 +173,7 @@ class SendMailEPP(StepEPP):
         return email_config
 
     def send_mail(self, subject, msg, config_name=None, template_name=None, attachments=None, **kwargs):
-        email.send_email(msg=msg, subject=subject, strict=True,attachments=attachments,
+        email.send_email(msg=msg, subject=subject, strict=True,attachments=attachments,\
                          **self.get_config(config_name, template_name), **kwargs)
 
     def _run(self):
