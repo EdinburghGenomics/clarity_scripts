@@ -11,7 +11,7 @@ class GenerateManifest96WellPlate(SendMailEPP):
     # populate the sample manifest with the sample date. Sample manifest template is determined by a step udf.
     # The starting row and columns are determined by step UDFs.
 
-    _use_load_config = True  # prevent the loading of the config file
+    _use_load_config = True  # should the config file be loaded?
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
     def __init__(self, argv=None):
@@ -135,7 +135,7 @@ class GenerateManifest96WellPlate(SendMailEPP):
             attachments_list.append(self.process.udf['Tubes Requirements Path'])
 
         self.send_mail(email_subject,None, project=project_name,template_name='customer_manifest.html',
-                       config_name='projects-facility-finance_only', attachments=attachments_list)
+                       config_name='projects_only', attachments=attachments_list)
         #delete the copy of the manifest that was attached to the email
         os.remove(email_filepath)
 
