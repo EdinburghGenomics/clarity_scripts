@@ -172,8 +172,9 @@ class SendMailEPP(StepEPP):
             email_config['email_template'] = self.get_email_template(template_name)
         return email_config
 
-    def send_mail(self, subject, msg, config_name=None, template_name=None):
-        email.send_email(msg=msg, subject=subject, strict=True, **self.get_config(config_name, template_name))
+    def send_mail(self, subject, msg, config_name=None, template_name=None, attachments=None, **kwargs):
+        email.send_email(msg=msg, subject=subject, strict=True,attachments=attachments,
+                         **self.get_config(config_name, template_name), **kwargs)
 
     def _run(self):
         raise NotImplementedError
