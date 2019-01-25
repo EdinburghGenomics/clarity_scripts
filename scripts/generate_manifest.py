@@ -47,8 +47,10 @@ class GenerateManifest96WellPlate(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
-        elif list(container_types)[0].name == 'rack 96 positions':
+        elif list(container_types)[0].name == 'rack 96 positions' and self.process.udf['Are there special project requirements?']=='No':
             con_type = '[Tubes]'
+        elif list(container_types)[0].name == 'rack 96 positions' and self.process.udf['Are there special project requirements?']=='Scottish Genome Partnership':
+            con_type = '[SGP]'
 
         # define counter to ensure each sample is written to a new well
         row_counter = step_udfs[con_type + 'Starting Row']
@@ -94,6 +96,11 @@ class GenerateManifest96WellPlate(SendMailEPP):
             if con_type == '[Tubes]':
                 ws[step_udfs['[Tubes]Project ID Well']] = sample_dict[row+column].project.name
 
+
+            if con_type == '[SGP]':
+                ws[step_udfs['[SGP]Project ID Well']] = sample_dict[row+column].project.name
+
+
             # populate the manifest with sample UDFs which are configurable by adding or removing step UDFs in the
             # format [CONTAINER TYPE - either Tubes or Plates][Sample UDF]Name of UDF
             for configurable_udf in configurable_udfs:
@@ -122,9 +129,9 @@ class GenerateManifest96WellPlate(SendMailEPP):
         #the manifest and relevant requirements document for the container type should be attached to the email.
         attachments_list=[]
         attachments_list.append(email_filepath)
-        if container_types[0].name='96 well plate':
+        if list(container_types)[0].name=='96 well plate':
             attachments_list.append(self.process.udf['Plates Requirements Path'])
-        elif container_types[0].name='rack 96 positions':
+        elif list(container_types)[0].name=='rack 96 positions':
             attachments_list.append(self.process.udf['Tubes Requirements Path'])
 
         self.send_mail(email_subject,None, project=project_name,template_name='customer_manifest.html',
