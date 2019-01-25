@@ -156,8 +156,9 @@ class StepEPP(app_logging.AppLogger):
             raise e
 
     def __del__(self):
-        for f in self.open_files:
-            f.close()
+        if hasattr(self,'open_files'):
+            for f in self.open_files:
+                f.close()
 
 
 class SendMailEPP(StepEPP):
