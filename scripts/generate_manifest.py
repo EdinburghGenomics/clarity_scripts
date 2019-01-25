@@ -129,9 +129,9 @@ class GenerateManifest96WellPlate(SendMailEPP):
         #the manifest and relevant requirements document for the container type should be attached to the email.
         attachments_list=[]
         attachments_list.append(email_filepath)
-        if list(container_types)[0].name=='96 well plate':
+        if con_type=='[Plates]':
             attachments_list.append(self.process.udf['Plates Requirements Path'])
-        elif list(container_types)[0].name=='rack 96 positions':
+        elif con_type=='[Tubes]':
             attachments_list.append(self.process.udf['Tubes Requirements Path'])
 
         self.send_mail(email_subject,None, project=project_name,template_name='customer_manifest.html',
