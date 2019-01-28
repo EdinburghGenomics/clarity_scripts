@@ -10,7 +10,7 @@ class ContainerReadyDispatch(SendMailEPP):
         if len(self.projects) > 1:
             raise ValueError('More than one project present in step. Only one project per step permitted')
 
-        msg = 'Hi,\n\nA container is ready for dispatch for {project}. Please check the Container Shipment Preparation queue.\n\n{link}\n\nKind regards,\nClarityX'
+        msg = 'Hi,\n\nA container is ready for dispatch for {project}.\n\nPlease check the Container Shipment Preparation queue.\n\n{link}\n\nKind regards,\nClarityX'
         msg = msg.format(
             link='https://' + platform.node() + '/clarity/',
             project=self.projects[0].name
