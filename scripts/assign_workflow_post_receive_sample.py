@@ -24,7 +24,7 @@ class AssignWorkflowPostReceiveSample(StepEPP):
 
         if artifacts_to_route_sampleqc:
             # Only route artifacts if there are any artifacts to go to PreSeqLab
-            stage = get_workflow_stage(self.lims, "Sample QC and Plate Preparation EG 1.0 ST", "Spectramax Picogreen EG 6.0")
+            stage = get_workflow_stage(self.lims, "Sample QC and Plate Preparation EG 1.0 WF", "Spectramax Picogreen EG 6.0")
             self.lims.route_artifacts(list(artifacts_to_route_sampleqc), stage_uri=stage.uri)
 
 
