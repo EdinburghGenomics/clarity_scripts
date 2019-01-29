@@ -47,7 +47,7 @@ class GenerateManifest96WellPlate(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
-        elif list(container_types)[0].name == 'rack 96 positions' and self.process.udf['Are there special project requirements?']=='No':
+        elif list(container_types)[0].name == 'rack 96 positions':
             con_type = '[Tubes]'
         elif list(container_types)[0].name == 'SGP rack 96 positions':
             con_type = '[SGP]'
