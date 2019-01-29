@@ -49,7 +49,7 @@ class GenerateManifest96WellPlate(SendMailEPP):
             con_type = '[Plates]'
         elif list(container_types)[0].name == 'rack 96 positions' and self.process.udf['Are there special project requirements?']=='No':
             con_type = '[Tubes]'
-        elif list(container_types)[0].name == 'rack 96 positions' and self.process.udf['Are there special project requirements?']=='Scottish Genome Partnership':
+        elif list(container_types)[0].name == 'SGP rack 96 positions':
             con_type = '[SGP]'
 
         # define counter to ensure each sample is written to a new well
