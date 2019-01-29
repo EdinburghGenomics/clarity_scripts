@@ -25,10 +25,11 @@ class CreateSamples(StepEPP):
         # perform checks that user is working with their required container type and has been named correctly and that
         #the input sample has the correct name format
 
-        if not current_container.type.name == 'rack 96 positions' and not current_container.type.name == '96 well plate':
+        if not current_container.type.name == 'rack 96 positions' and not current_container.type.name == '96 well plate'\
+                and not current_container.type.name=='SGP rack 96 positions':
             raise ValueError(current_container.type.name + ' is not a valid container type for this step.')
 
-        if current_container.type.name == 'rack 96 positions':
+        if current_container.type.name == 'rack 96 positions' or current_container.type.name=='SGP rack 96 positions':
             # check if user has selected container type that matches the input sample
             if udf_container_type == '96 Well Plate':
                 raise ValueError('Input container is a rack but Container Type UDF is set to 96 Well Plate')
