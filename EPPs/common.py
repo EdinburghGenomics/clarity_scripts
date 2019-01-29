@@ -137,7 +137,7 @@ class StepEPP(app_logging.AppLogger):
         if count > container_limit:
             raise ValueError('Cannot allocate more than %s containers' % container_limit)
 
-        if not self.lims.get_artifacts(containername=new_name):
+        if not self.lims.get_containers(name=new_name):
             return new_name
         else:
             return self.find_available_container(project, container_type, count=count + 1)
