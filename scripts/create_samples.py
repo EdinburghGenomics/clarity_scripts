@@ -84,8 +84,8 @@ class CreateSamples(StepEPP):
         # sample_counter used for counting the number of samples added for each group of UDFS
         sample_counter = 0
 
-        # the UDFs of the newly created samples are updated by a batch put (although all samples are created individually)
-        samples_to_update = []
+        # the attributes of the new samples are defined in a list of dicts and then created with batch create
+        samples_to_create = []
         # the sample artifact should be assigned to the create manifest step
         sample_artifacts = []
 
@@ -109,34 +109,40 @@ class CreateSamples(StepEPP):
         # sample UDF values pulled from the group step UDFS
         while group_counter <= number_of_groups:
             while sample_counter < self.process.udf['Number in Group ' + str(group_counter)]:
-
+                #first create the dictionary of sample UDFs that will  either be used when adding the sample to the batch of
+                #samples for the batch create or for updating the input sample
                 if sample_counter == 0 and group_counter == 1:
-                    sample = input_sample
-
+                    sample_udf_dict=input_sample.udf
                 else:
+                    sample_udf_dict={}
                     sample_name = current_container.name + plate96_layout[
                         plate96_layout_counter].replace(":", "")
-                    sample = Sample.create(self.lims, container=current_container,
-                                           position=plate96_layout[plate96_layout_counter],
-                                           name=sample_name, project=input_project)
 
                 # add common sample udfs
                 for common_udf in sample_udf_common:
                     if str(self.process.udf[common_udf]) == '-' or str(self.process.udf[common_udf]) == '0':
                         raise ValueError(common_udf + ' has not been populated.')
                     else:
-                        sample.udf[common_udf[3:]] = self.process.udf[common_udf]
+                        sample_udf_dict[common_udf[3:]] = self.process.udf[common_udf]
 
                 # add group sample udfs
                 for group_udf in sample_udf_group:
                     if str(self.process.udf[group_udf + '(' + str(group_counter) + ')']) == '-' or \
                             str(self.process.udf[group_udf + '(' + str(group_counter) + ')']) == '0':
                         raise ValueError(group_udf + ' has not been populated.')
-                else:
-                    sample.udf[group_udf[3:]] = self.process.udf[group_udf + '(' + str(group_counter) + ')']
+                    else:
+                        sample_udf_dict[group_udf[3:]] = self.process.udf[group_udf + '(' + str(group_counter) + ')']
 
-                samples_to_update.append(sample)
-                sample_artifacts.append(sample.artifact)
+
+                if sample_counter == 0 and group_counter == 1:
+                    input_sample.put()
+
+                else:
+                    sample_dict={'container': current_container,'project': input_project, 'name': sample_name,
+                                 'position':plate96_layout[plate96_layout_counter],'udf': sample_udf_dict}
+                    samples_to_create.append(sample_dict)
+
+
 
                 sample_counter += 1
                 plate96_layout_counter += 1
@@ -153,13 +159,21 @@ class CreateSamples(StepEPP):
             group_counter += 1
             sample_counter = 0
 
-        #put the modified sample UDFs into the system
-        self.lims.put_batch(samples_to_update)
+        #create any new samples
+        if samples_to_create:
+            samples=self.lims.create_batch(Sample, samples_to_create)
+            self.lims.get_batch(samples,force=True)
+
 
         # Assign newly created samples to the create manifest step
+        for sample in samples:
+            sample_artifacts.append(sample.artifact)
+
+
 
         # Find the workflow stage
         stage = get_workflow_stage(self.lims, self.process.udf['Next Workflow'], self.process.udf['Next Step'])
+
 
         if not stage:
             raise ValueError(
