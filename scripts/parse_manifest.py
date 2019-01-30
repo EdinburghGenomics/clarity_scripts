@@ -1,15 +1,18 @@
 #!/usr/bin/env python
+import platform
+
 from numpy import unicode
 from openpyxl import load_workbook
 
 from EPPs.common import StepEPP
 
-#Scripts for parsing sample manifest for either plates, tubes or SGP tubes. The key used for the parsing is the Sample
-#Name for plates and the 2D barcode for tubes/SGP tubes. The script assemnbles a dictionary of the sampe root artifacts
-#using the appropriate keys. It obtains all the sample UDFs to be parsed by finding any step UDFs with the tag [Plate]
-#[Tube] or [SGP]. If the sample UDFs that should be parsed needs to changed then the manifest document should be changed
-#and the step UDFs updated accordingly. The step UDFs contain the column in the manifest that contains that UDF. The
-#step UDF name must match the sample UDF name.
+
+# Scripts for parsing sample manifest for either plates, tubes or SGP tubes. The key used for the parsing is the Sample
+# Name for plates and the 2D barcode for tubes/SGP tubes. The script assemnbles a dictionary of the sampe root artifacts
+# using the appropriate keys. It obtains all the sample UDFs to be parsed by finding any step UDFs with the tag [Plate]
+# [Tube] or [SGP]. If the sample UDFs that should be parsed needs to changed then the manifest document should be changed
+# and the step UDFs updated accordingly. The step UDFs contain the column in the manifest that contains that UDF. The
+# step UDF name must match the sample UDF name.
 class ParseManifest(StepEPP):
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
@@ -25,95 +28,88 @@ class ParseManifest(StepEPP):
 
     def _run(self):
 
-        #find the MS Excel manifest
+        # find the MS Excel manifest
         for output in self.process.all_outputs(unique=True):
-            if output.id==self.manifest:
-                manifest_file=output.files[0].original_location
+            if output.id == self.manifest:
+                manifest_file = output.files[0].content_location.split('sftp://' + platform.node())[1]
 
-        #open the excel manifest
+        # open the excel manifest
         wb = load_workbook(filename=manifest_file)
-        ws=wb.active
+        ws = wb.active
 
-
-
-
-        #identify the container type present in the step and assign variables appropriately. con_type is the step UDF
+        # identify the container type present in the step and assign variables appropriately. con_type is the step UDF
         # tag, key is the variable that is used for linking the sample to the matching manifest row. key column is the
-        #column in the manifest that holds the key information and current_row starts as the first row in the excel
+        # column in the manifest that holds the key information and current_row starts as the first row in the excel
         # sheet that contains sample data and is then updated as the manifest is parsed
-        if self.process.all_inputs()[0].container.type.name=='96 well plate':
-            con_type='[Plate]'
-            key='Plate Sample Name'
+        if self.process.all_inputs()[0].container.type.name == '96 well plate':
+            con_type = '[Plate]'
+            key = 'Plate Sample Name'
             key_column = self.process.udf['Plate Sample Name']
             current_row = self.process.udf['Plate Starting Row']
 
-        elif self.process.all_inputs()[0].container.type.name=='rack 96 positions':
-            con_type='[Tube]'
-            key='2D Barcode'
-            key_column=self.process.udf['2D Barcode']
+        elif self.process.all_inputs()[0].container.type.name == 'rack 96 positions':
+            con_type = '[Tube]'
+            key = '2D Barcode'
+            key_column = self.process.udf['2D Barcode']
             current_row = self.process.udf['Tube Starting Row']
 
-        elif self.process.all_inputs()[0].container.type.name=='SGP rack 96 positions':
-            con_type='[SGP]'
-            key='2D Barcode'
+        elif self.process.all_inputs()[0].container.type.name == 'SGP rack 96 positions':
+            con_type = '[SGP]'
+            key = '2D Barcode'
             key_column = self.process.udf['2D Barcode']
             current_row = self.process.udf['SGP Starting Row']
 
-        #create the dictionary of sample root artifacts associated with the step based on the appropriate key for the
-        #container type
-        sample_dict={}
+        # create the dictionary of sample root artifacts associated with the step based on the appropriate key for the
+        # container type
+        sample_dict = {}
 
-        #need to check that only one container type present in step so assemble a set of the container types
+        # need to check that only one container type present in step so assemble a set of the container types
         unique_container_types = set()
 
         for artifact in self.process.all_inputs(unique=True):
-            if key =='Plate Sample Name':
-                sample_dict[artifact.name]=artifact.samples[0]
-            if key =='2D Barcode':
+            if key == 'Plate Sample Name':
+                sample_dict[artifact.name] = artifact.samples[0]
+            if key == '2D Barcode':
                 sample_dict[artifact.udf['2D Barcode']] = artifact.samples[0]
             unique_container_types.add(artifact.container.type)
 
-        if len(unique_container_types)>1:
+        if len(unique_container_types) > 1:
             raise ValueError('Multiple container types present in step. Only 1 container type permitted')
 
-        #identify the non-key udfs that should be parsed for this container type
-        step_udfs_to_parse=set()
+        # identify the non-key udfs that should be parsed for this container type
+        step_udfs_to_parse = set()
 
         for udf in self.process.udf:
             if udf.find(con_type) >= 0:
-                    step_udfs_to_parse.add(udf)
+                step_udfs_to_parse.add(udf)
 
-        #create the list to contain the samples to be updated in a batch PUT to the API. This should match the number
-        #of input artifacts
+        # create the list to contain the samples to be updated in a batch PUT to the API. This should match the number
+        # of input artifacts
         samples_to_put = []
 
-        #sample_dict[ws['A19'].value].udf['User Sample Name'] = ws['B19'].value
-
-        key_cell=key_column+str(current_row)
-        key_value=ws[key_cell].value
-
+        key_cell = key_column + str(current_row)
+        key_value = ws[key_cell].value
 
         while key_value:
             for udf in step_udfs_to_parse:
-                lims_udf=udf.replace(con_type,'')
-                udf_cell=self.process.udf[udf]+str(current_row)
-                udf_value=unicode(ws[udf_cell].value)
-                sample_dict[key_value].udf[lims_udf]=udf_value
-
-
+                lims_udf = udf.replace(con_type, '')
+                udf_cell = self.process.udf[udf] + str(current_row)
+                udf_value = unicode(ws[udf_cell].value)
+                sample_dict[key_value].udf[lims_udf] = udf_value
 
             samples_to_put.append(sample_dict[key_value])
 
-            current_row+=1
-            key_cell = key_column+str(current_row)
+            current_row += 1
+            key_cell = key_column + str(current_row)
             key_value = ws[key_cell].value
 
-        #check that size of samples_to_put matches the number of input artifacts
+        # check that size of samples_to_put matches the number of input artifacts
 
         if not len(samples_to_put) == len(self.process.all_inputs(unique=True)):
             raise ValueError('The number of samples in the step does not match the number of samples in the manifest')
 
         self.lims.put_batch(samples_to_put)
+
 
 if __name__ == '__main__':
     ParseManifest().run()
