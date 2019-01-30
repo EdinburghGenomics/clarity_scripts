@@ -12,7 +12,9 @@ from EPPs.common import StepEPP
 # using the appropriate keys. It obtains all the sample UDFs to be parsed by finding any step UDFs with the tag [Plate]
 # [Tube] or [SGP]. If the sample UDFs that should be parsed needs to changed then the manifest document should be changed
 # and the step UDFs updated accordingly. The step UDFs contain the column in the manifest that contains that UDF. The
-# step UDF name must match the sample UDF name.
+# step UDF name must match the sample UDF name. Please note that assignment of UDFs in the LIMS as either numeric (int)
+#or single-line text (str) is not always logical so the [Str] tag was introduced to the step UDF naming to convert
+# problem data points to strings where required.
 class ParseManifest(StepEPP):
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
@@ -31,7 +33,8 @@ class ParseManifest(StepEPP):
         # find the MS Excel manifest
         for output in self.process.all_outputs(unique=True):
             if output.id == self.manifest:
-                manifest_file = output.files[0].content_location.split('sftp://' + platform.node())[1]
+                #manifest_file = output.files[0].content_location.split('sftp://' + platform.node())[1]
+                manifest_file = output.files[0].original_location
 
         # open the excel manifest
         wb = load_workbook(filename=manifest_file)
@@ -92,9 +95,18 @@ class ParseManifest(StepEPP):
 
         while key_value:
             for udf in step_udfs_to_parse:
+                #remove the container type tag from the step UDF name so can be used to find the corresponding sample UDF
                 lims_udf = udf.replace(con_type, '')
+                #use the column indicated in the step UDF and the current row counter to identify which cell in
+                #the spreadsheet should be referenced
                 udf_cell = self.process.udf[udf] + str(current_row)
-                udf_value = unicode(ws[udf_cell].value)
+                #check for udfs that need to be converted to strings as indicated by the [Str] tag in the step UDF name
+                if lims_udf.find('[Str]') >=0:
+                    lims_udf=lims_udf.replace('[Str]','')
+                    udf_value=str(ws[udf_cell].value)
+                else:
+                    udf_value=ws[udf_cell].value
+                #parse the data from the spreadsheet into the sample dictionary
                 sample_dict[key_value].udf[lims_udf] = udf_value
 
             samples_to_put.append(sample_dict[key_value])
