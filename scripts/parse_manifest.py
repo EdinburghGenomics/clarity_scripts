@@ -33,8 +33,8 @@ class ParseManifest(StepEPP):
         # find the MS Excel manifest
         for output in self.process.all_outputs(unique=True):
             if output.id == self.manifest:
-                #manifest_file = output.files[0].content_location.split('sftp://' + platform.node())[1]
-                manifest_file = output.files[0].original_location
+                manifest_file = output.files[0].content_location.split('sftp://' + platform.node())[1]
+                #LOCAL TESTING manifest_file = output.files[0].original_location
 
         # open the excel manifest
         wb = load_workbook(filename=manifest_file)
