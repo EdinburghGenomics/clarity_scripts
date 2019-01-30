@@ -1,6 +1,7 @@
 EGCG-Core==0.9.1
 openpyxl==2.5.12
 Pillow==5.4.1
-
+numpy==1.15.3
+#git+https://github.com/EdinburghGenomics/pyclarity-lims.git
 
 
