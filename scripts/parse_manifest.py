@@ -13,8 +13,8 @@ from EPPs.common import StepEPP
 # [Tube] or [SGP]. If the sample UDFs that should be parsed needs to changed then the manifest document should be changed
 # and the step UDFs updated accordingly. The step UDFs contain the column in the manifest that contains that UDF. The
 # step UDF name must match the sample UDF name. Please note that assignment of UDFs in the LIMS as either numeric (int)
-#or single-line text (str) is not always logical so the [Str] tag was introduced to the step UDF naming to convert
-# problem data points to strings where required.
+#or single-line text (str) is not always logical so the [Str] tag was introduced to the step UDF naming
+# to convert problem data points to strings where required.
 class ParseManifest(StepEPP):
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
@@ -101,11 +101,14 @@ class ParseManifest(StepEPP):
                 #the spreadsheet should be referenced
                 udf_cell = self.process.udf[udf] + str(current_row)
                 #check for udfs that need to be converted to strings as indicated by the [Str] tag in the step UDF name
+                print(udf)
                 if lims_udf.find('[Str]') >=0:
                     lims_udf=lims_udf.replace('[Str]','')
                     udf_value=str(ws[udf_cell].value)
+
                 else:
                     udf_value=ws[udf_cell].value
+                print(type(udf_value))
                 #parse the data from the spreadsheet into the sample dictionary
                 sample_dict[key_value].udf[lims_udf] = udf_value
 
