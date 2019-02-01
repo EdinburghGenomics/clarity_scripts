@@ -101,14 +101,14 @@ class ParseManifest(StepEPP):
                 #the spreadsheet should be referenced
                 udf_cell = self.process.udf[udf] + str(current_row)
                 #check for udfs that need to be converted to strings as indicated by the [Str] tag in the step UDF name
-                print(udf)
+
                 if lims_udf.find('[Str]') >=0:
                     lims_udf=lims_udf.replace('[Str]','')
                     udf_value=str(ws[udf_cell].value)
 
                 else:
                     udf_value=ws[udf_cell].value
-                print(type(udf_value))
+
                 #parse the data from the spreadsheet into the sample dictionary
                 sample_dict[key_value].udf[lims_udf] = udf_value
 
@@ -122,7 +122,7 @@ class ParseManifest(StepEPP):
 
         if not len(samples_to_put) == len(self.process.all_inputs(unique=True)):
             raise ValueError('The number of samples in the step does not match the number of samples in the manifest')
-        print(samples_to_put)
+
         self.lims.put_batch(samples_to_put)
 
 
