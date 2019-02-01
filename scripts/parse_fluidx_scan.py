@@ -2,6 +2,8 @@
 import csv
 import platform
 
+from pyclarity_lims.entities import Artifact
+
 from EPPs.common import StepEPP
 
 
@@ -23,13 +25,11 @@ class ParseFluidXScan(StepEPP):
 
 
 
-        # find the MS Excel manifest
+        # find the fluidx outpu
         for output in self.process.all_outputs(unique=True):
             if output.id == self.fluidx_scan:
-                #LOCAL TESTING location = output.files[0].original_location
-                location = output.files[0].content_location.split('sftp://' + platform.node())[1]
-                with open(location,mode='r') as fluidx_scan_file:
-                    fluidx_scan_list = list(csv.reader(fluidx_scan_file))
+                fluidx_scan_file=self.open_or_download_file(self.fluidx_scan)
+                fluidx_scan_list = list(csv.reader(fluidx_scan_file))
 
         all_inputs=self.process.all_inputs(unique=True)
 
