@@ -122,7 +122,7 @@ class ParseManifest(StepEPP):
 
         if not len(samples_to_put) == len(self.process.all_inputs(unique=True)):
             raise ValueError('The number of samples in the step does not match the number of samples in the manifest')
-
+        print(samples_to_put)
         self.lims.put_batch(samples_to_put)
 
 
