@@ -73,7 +73,7 @@ class ParseManifest(StepEPP):
             if key == 'Plate Sample Name':
                 sample_dict[artifact.name] = artifact.samples[0]
             if key == '2D Barcode':
-                sample_dict[artifact.udf['2D Barcode']] = artifact.samples[0]
+                sample_dict[artifact.samples[0].udf['2D Barcode']] = artifact.samples[0]
             unique_container_types.add(artifact.container.type)
 
         if len(unique_container_types) > 1:
