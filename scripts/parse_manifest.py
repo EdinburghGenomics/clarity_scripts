@@ -37,7 +37,7 @@ class ParseManifest(StepEPP):
                 #LOCAL TESTING manifest_file = output.files[0].original_location
 
         # open the excel manifest
-        wb = load_workbook(filename=manifest_file)
+        wb = load_workbook(filename=manifest_file,read_only=True, data_only=True)
         ws = wb.active
 
         # identify the container type present in the step and assign variables appropriately. con_type is the step UDF
