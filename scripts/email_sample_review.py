@@ -12,7 +12,7 @@ class ContainerDispatchComplete(SendMailEPP):
 
         msg = 'Hi,\n\nPlease review the samples in the step below against the Application Form:\n\n{link}\n\nKind regards,\nClarityX'
         msg = msg.format(
-            link='https://' + platform.node() + '/clarity/work-details/' + self.step_id[3:],
+            link='https://' + platform.node() + '/clarity/work-complete/' + self.step_id[3:],
             project=self.projects[0].name
         )
 
