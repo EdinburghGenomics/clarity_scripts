@@ -52,6 +52,7 @@ class GenerateManifest96WellPlate(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
+            template_file=
         elif list(container_types)[0].name == 'rack 96 positions':
             con_type = '[Tubes]'
         elif list(container_types)[0].name == 'SGP rack 96 positions':
@@ -61,6 +62,9 @@ class GenerateManifest96WellPlate(SendMailEPP):
         row_counter = step_udfs[con_type + 'Starting Row']
 
         # open the correct manifest template for the container type
+
+
+
         wb = load_workbook(filename=step_udfs[con_type + 'Manifest File Path'])
         ws = wb.active
 
