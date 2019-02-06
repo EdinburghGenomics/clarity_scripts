@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-from io import StringIO
+from io import StringIO, BytesIO
 from urllib import parse as urlparse
 from logging import FileHandler
 from cached_property import cached_property
@@ -88,13 +88,19 @@ class StepEPP(app_logging.AppLogger):
         """This is the projects associated with the input artifacts of that step"""
         return list(set([s.project for s in self.samples]))
 
-    def open_or_download_file(self, file_or_uid, encoding=None, crlf=False):
+    def open_or_download_file(self, file_or_uid, encoding=None, crlf=False, binary=False):
         if os.path.isfile(file_or_uid):
-            f = open(file_or_uid)
+            if binary:
+                f = open(file_or_uid, mode='b')
+            else:
+                f = open(file_or_uid)
         else:
             a = Artifact(self.lims, id=file_or_uid)
             if a.files:
-                f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
+                if binary:
+                    f = BytesIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf, binary=True))
+                else:
+                    f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
             else:
                 f = None
         if f:
@@ -102,7 +108,7 @@ class StepEPP(app_logging.AppLogger):
         return f
 
     # TODO: remove this when we switch to pyclarity_lims
-    def get_file_contents(self, id=None, uri=None, encoding=None, crlf=False):
+    def get_file_contents(self, id=None, uri=None, encoding=None, crlf=False, binary=False):
         """Returns the contents of the file of <ID> or <uri>"""
         if id:
             url = self.lims.get_uri('files', id, 'download')
@@ -115,8 +121,10 @@ class StepEPP(app_logging.AppLogger):
         self.lims.validate_response(r)
         if encoding:
             r.encoding = encoding
-
-        return r.text.replace('\r\n', '\n') if crlf else r.text
+        if binary:
+            return r.content
+        else:
+            return r.text.replace('\r\n', '\n') if crlf else r.text
 
     def find_available_container(self, project, container_type, count=1):
         """

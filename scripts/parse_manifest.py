@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import platform
+from io import StringIO
 
+import shutil
 from numpy import unicode
-from openpyxl import load_workbook
+from openpyxl import load_workbook, writer
 
 from EPPs.common import StepEPP
 
@@ -33,11 +35,15 @@ class ParseManifest(StepEPP):
         # find the MS Excel manifest
         for output in self.process.all_outputs(unique=True):
             if output.id == self.manifest:
-                manifest_file = output.files[0].content_location.split('sftp://' + platform.node())[1]
-                #LOCAL TESTING manifest_file = output.files[0].original_location
+
+                manifest_file = self.open_or_download_file(self.manifest, binary=True)
+
+
+
 
         # open the excel manifest
-        wb = load_workbook(filename=manifest_file,read_only=True, data_only=True)
+        wb=load_workbook(manifest_file)
+        #wb = load_workbook(filename=manifest_file,read_only=True, data_only=True)
         ws = wb.active
 
         # identify the container type present in the step and assign variables appropriately. con_type is the step UDF
