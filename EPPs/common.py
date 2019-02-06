@@ -181,6 +181,9 @@ class SendMailEPP(StepEPP):
             email_config['email_template'] = self.get_email_template(template_name)
         return email_config
 
+    def get_file_config(self, file_type, config_name):
+        file_config = cfg.query('file templates','file_type','config_name')
+
     def send_mail(self, subject, msg, config_name=None, template_name=None, attachments=None, **kwargs):
         tmp_dict = {}
         tmp_dict.update(self.get_config(config_name, template_name))
