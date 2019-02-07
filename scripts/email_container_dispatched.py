@@ -16,7 +16,7 @@ class ContainerDispatchComplete(SendMailEPP):
             project=self.projects[0].name
         )
 
-        subject = ', '.join(p.name for p in self.projects) + ': Container Ready For Dispatch'
+        subject = ', '.join(p.name for p in self.projects) + ': Container Dispatched'
 
         self.send_mail(subject, msg, config_name='projects-lab')
 
