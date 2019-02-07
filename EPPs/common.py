@@ -173,20 +173,23 @@ class SendMailEPP(StepEPP):
     def get_email_template(self, name=None):
         return os.path.join(self._etc_path, name)
 
-    def get_config(self, config_name=None, template_name=None):
-        email_config = cfg.query('email_notify', 'default')
-        if config_name:
-            email_config.update(cfg.query('email_notify', config_name))
-        if 'email_template' not in email_config and template_name:
-            email_config['email_template'] = self.get_email_template(template_name)
-        return email_config
+    def get_config(self, config_heading_1=None, config_heading_2=None, config_heading_3=None, template_name=None):
+        if config_heading_1==None or config_heading_1== 'email_notify':
+            if config_heading_2:
+                config = cfg.query('email_notify', 'default')
+                config.update(cfg.query('email_notify', config_heading_2))
+            elif not config_heading_2:
+                config = cfg.query(config_heading_1, 'default')
+            if 'email_template' not in config and template_name:
+                config['email_template'] = self.get_email_template(template_name)
+        if config_heading_1== 'file_templates':
+            config = cfg.query(config_heading_1, config_heading_2, config_heading_3)
 
-    def get_file_config(self, file_type, config_name):
-        file_config = cfg.query('file templates','file_type','config_name')
+        return config
 
     def send_mail(self, subject, msg, config_name=None, template_name=None, attachments=None, **kwargs):
         tmp_dict = {}
-        tmp_dict.update(self.get_config(config_name, template_name))
+        tmp_dict.update(self.get_config(config_heading_2=config_name, template_name=template_name))
         tmp_dict.update(kwargs)
         email.send_email(msg=msg, subject=subject, strict=True,attachments=attachments,**tmp_dict)
 

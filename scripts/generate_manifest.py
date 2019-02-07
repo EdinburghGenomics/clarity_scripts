@@ -3,11 +3,10 @@ import itertools
 from openpyxl import load_workbook
 import os
 
-
 from EPPs.common import SendMailEPP
 
 
-class GenerateManifest96WellPlate(SendMailEPP):
+class GenerateManifest(SendMailEPP):
     # populate the sample manifest with the sample date. Sample manifest template is determined by a step udf.
     # The starting row and columns are determined by step UDFs.
 
@@ -52,20 +51,19 @@ class GenerateManifest96WellPlate(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
-            template_file=
+            template_file=self.get_config( config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='plate_template')
         elif list(container_types)[0].name == 'rack 96 positions':
             con_type = '[Tubes]'
+            template_file = self.get_config( config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='tube_template')
         elif list(container_types)[0].name == 'SGP rack 96 positions':
             con_type = '[SGP]'
+            template_file = self.get_config( config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='SGP_template')
 
         # define counter to ensure each sample is written to a new well
         row_counter = step_udfs[con_type + 'Starting Row']
 
         # open the correct manifest template for the container type
-
-
-
-        wb = load_workbook(filename=step_udfs[con_type + 'Manifest File Path'])
+        wb = load_workbook(filename=template_file)
         ws = wb.active
 
         configurable_udfs = []
@@ -149,4 +147,4 @@ class GenerateManifest96WellPlate(SendMailEPP):
 
 
 if __name__ == '__main__':
-    GenerateManifest96WellPlate().run()
+    GenerateManifest().run()
