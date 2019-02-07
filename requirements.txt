@@ -4,6 +4,6 @@ Pillow==5.4.1
 numpy==1.15.3
 python-barcode==0.9.0
 python-docx==0.8.10
-#git+https://github.com/EdinburghGenomics/pyclarity-lims.git
+pyclarity-lims==0.4.6
 
 
