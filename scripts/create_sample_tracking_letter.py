@@ -13,7 +13,7 @@ class GenerateTrackingLetter (SendMailEPP):
     #Automatically generates the tracking letter sent to customers for tube shipments by populating a word template
     #with a 128 format barcode containing the container name
 
-    # additional argument required to obtain the file location for newly create manifest in the LIMS step
+    # additional argument required to obtain the file location for newly created tracking letter in the LIMS step
     def __init__(self, argv=None):
         super().__init__(argv)
         self.letter = self.cmd_args.letter
