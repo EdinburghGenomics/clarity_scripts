@@ -183,7 +183,7 @@ class SendMailEPP(StepEPP):
             if 'email_template' not in config and template_name:
                 config['email_template'] = self.get_email_template(template_name)
         if config_heading_1== 'file_templates':
-            config = cfg.query(config_heading_1, config_heading_2, config_heading_3)
+            config = cfg.query(config_heading_1, config_heading_2)
 
         return config
 
