@@ -39,6 +39,10 @@ class GenerateTrackingLetter (SendMailEPP):
         if len(container_names) >1:
             raise ValueError('Only 1 rack is permitted. Multiple racks are present')
 
+        #96 well plate so don't need tracking letter
+        if all_inputs[0].container.type.name=="96 well plate":
+            return 0
+
 
         #generate barcode to be inserted into template
         barcode.PROVIDED_BARCODES
@@ -63,7 +67,7 @@ class GenerateTrackingLetter (SendMailEPP):
                 r=p.add_run()
                 r.add_picture('code128.png',width=Cm(5))
 
-        document.save(self.letter+'_Edinburgh_Genomics_Sample_Tracking_Letter_'+all_inputs[0].samples[0].project.name+'.docx')
+        document.save(self.letter+'-Edinburgh_Genomics_Sample_Tracking_Letter_'+all_inputs[0].samples[0].project.name+'.docx')
 
 if __name__ == '__main__':
     GenerateTrackingLetter().run()
