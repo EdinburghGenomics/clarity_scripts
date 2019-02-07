@@ -8,7 +8,7 @@ from EPPs.common import SendMailEPP
 
 class GenerateManifest(SendMailEPP):
     # populate the sample manifest with the sample date. Sample manifest template is determined by a step udf.
-    # The starting row and columns are determined by step UDFs.
+    # The starting row and columns are determined by step UDFs. Uses SendMailEPP object for get_config function
 
     _use_load_config = True  # should the config file be loaded?
 
@@ -51,18 +51,18 @@ class GenerateManifest(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
-            template_file=self.get_config( config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='plate_template')
         elif list(container_types)[0].name == 'rack 96 positions':
             con_type = '[Tubes]'
-            template_file = self.get_config( config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='tube_template')
+            template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='tube_template')
         elif list(container_types)[0].name == 'SGP rack 96 positions':
             con_type = '[SGP]'
-            template_file = self.get_config( config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='SGP_template')
+            template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='SGP_template')
 
         # define counter to ensure each sample is written to a new well
         row_counter = step_udfs[con_type + 'Starting Row']
 
         # open the correct manifest template for the container type
+        print(template_file)
         wb = load_workbook(filename=template_file)
         ws = wb.active
 
@@ -120,30 +120,6 @@ class GenerateManifest(SendMailEPP):
         # create a new file with the original file name plus a suffix containing the project ID
         lims_filepath = self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + all_inputs[0].samples[0].project.name + '.xlsx'
         wb.save(filename=lims_filepath)
-        #write a copy of the file without the LIMS prefix that can be attached to a customer email
-        email_filepath='Edinburgh_Genomics_Sample_Submission_Manifest_' + all_inputs[0].samples[0].project.name + '.xlsx'
-        wb = load_workbook(filename=lims_filepath)
-        wb.save(filename=email_filepath)
-
-        #send an email to the project manager using customer manifest template with the new manifest attached
-        project_name = all_inputs[0].samples[0].project.name
-        #choose a species for the email subject, this can be updated manually by the project manager
-        species=all_inputs[0].samples[0].udf['Species']
-        email_subject= project_name+": "+species+" WGS Sample Submission"
-
-        #the manifest and relevant requirements document for the container type should be attached to the email.
-        attachments_list=[]
-        attachments_list.append(email_filepath)
-        if con_type=='[Plates]':
-            attachments_list.append(self.process.udf['Plates Requirements Path'])
-        elif con_type=='[Tubes]':
-            attachments_list.append(self.process.udf['Tubes Requirements Path'])
-
-        self.send_mail(email_subject,None, project=project_name,template_name='customer_manifest.html',
-                       config_name='projects_only', attachments=attachments_list)
-        #delete the copy of the manifest that was attached to the email
-        os.remove(email_filepath)
-
 
 
 if __name__ == '__main__':
