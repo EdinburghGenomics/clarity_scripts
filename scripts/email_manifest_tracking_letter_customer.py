@@ -30,8 +30,8 @@ class EmailManifestLetter(SendMailEPP):
     def _run(self):
 
         # obtain all of the inputs for the step
-        all_inputs = self.process.all_inputs(unique=True)
-        input_project_name=all_inputs[0].samples[0].project.name
+        all_inputs = self.process.artifacts
+        input_project_name=self.projects[0].name
 
 
         # create list of unique containers
