@@ -30,13 +30,11 @@ class GenerateTrackingLetter (SendMailEPP):
         all_inputs = self.process.all_inputs(unique=True)
 
 
-        # check only one container (rack) is present in the step and obtain the container type
+        # check only one container (rack) is present in the step
         container_names=set()
-        container_type_names=set()
 
         for artifact in all_inputs:
             container_names.add(artifact.container.name)
-            container_type_names.add(artifact.container.type.name)
 
         if len(container_names) >1:
             raise ValueError('Only 1 rack is permitted. Multiple racks are present')
@@ -55,17 +53,7 @@ class GenerateTrackingLetter (SendMailEPP):
                       'module_width':0.3}
         ean.save('code128', options=save_options)
 
-        if list(container_type_names)[0] == '96 well plate':
-            document= Document(self.get_config(config_heading_1='file_templates', config_heading_2='tracking_letter',
-                                               config_heading_3='tube_template'))
-
-        elif list(container_type_names)[0] == 'SGP rack 96 positions':
-            document= Document(self.get_config(config_heading_1='file_templates', config_heading_2='tracking_letter',
-                                               config_heading_3='SGP_template'))
-
-        elif list(container_type_names)[0] == 'rack 96 positions':
-            document= Document(self.get_config(config_heading_1='file_templates', config_heading_2='tracking_letter',
-                                               config_heading_3='tube_template'))
+        document= Document(self.get_config(config_heading_1='file_templates', config_heading_2='tracking_letter'))
 
         for paragraph in document.paragraphs:
             if 'The barcode(s) above provides confirmation' in paragraph.text:
