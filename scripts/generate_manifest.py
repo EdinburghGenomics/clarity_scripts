@@ -51,6 +51,8 @@ class GenerateManifest(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
+            template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest',
+                                            config_heading_3='plate_template')
         elif list(container_types)[0].name == 'rack 96 positions':
             con_type = '[Tubes]'
             template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='tube_template')
@@ -62,7 +64,7 @@ class GenerateManifest(SendMailEPP):
         row_counter = step_udfs[con_type + 'Starting Row']
 
         # open the correct manifest template for the container type
-        print(template_file)
+
         wb = load_workbook(filename=template_file)
         ws = wb.active
 
