@@ -28,22 +28,6 @@ class TestEmailEPP(TestEPP):
         new_callable=PropertyMock(return_value=[NamedMock(real_name='project1')])
     )
 
-    patch_container_type_name_plate = patch.object(
-        SendMailEPP,
-        'artifacts',
-        new_callable=PropertyMock(return_value=[Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species':'Homo sapiens'})],
-                                                     container=Mock(type=NamedMock(real_name='96 well plate')))]))
-
-    patch_container_type_name_rack = patch.object(
-        SendMailEPP,
-        'artifacts',
-        new_callable=PropertyMock(return_value=[Mock(container=Mock(type=NamedMock(real_name='rack 96 positions')))]))
-
-    patch_container_type_name_sgp = patch.object(
-        SendMailEPP,
-        'artifacts',
-        new_callable=PropertyMock(return_value=[Mock(container=Mock(type=NamedMock(real_name='SGP rack 96 positions')))]))
-
     patch_samples = patch.object(
         SendMailEPP,
         'samples',
