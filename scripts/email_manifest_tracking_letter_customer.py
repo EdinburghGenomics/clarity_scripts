@@ -29,8 +29,12 @@ class EmailManifestLetter(SendMailEPP):
 
     def _run(self):
 
+        if len(self.projects) > 1:
+            raise ValueError('More than one project present in step. Only one project per step permitted')
+
+
         # obtain all of the inputs for the step
-        all_inputs = self.process.artifacts
+        all_inputs = list(self.artifacts)
         input_project_name=self.projects[0].name
 
 
@@ -46,6 +50,7 @@ class EmailManifestLetter(SendMailEPP):
 
         manifest_filepath=self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + input_project_name + '.xlsx'
         letter_filepath=self.letter+'-Edinburgh_Genomics_Sample_Tracking_Letter_'+all_inputs[0].samples[0].project.name+'.docx'
+
 
         #send an email to the project manager using customer manifest template with the new manifest attached
 
