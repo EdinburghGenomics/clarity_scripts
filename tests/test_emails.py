@@ -523,6 +523,12 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
                                                      container=Mock(type=NamedMock(real_name='rack 96 positions')))])
         )
 
+        self.patch_process3 = self.create_patch_process(
+            EmailManifestLetter,
+            all_inputs=Mock(return_value=[Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species':'Homo sapiens'})],
+                                                     container=Mock(type=NamedMock(real_name='SGP rack 96 positions')))])
+        )
+
     def test_send_email(self):
         with self.patch_project_single,self.patch_process1,\
              self.patch_email as mocked_send_email:
@@ -537,6 +543,42 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
                 sender='sender@email.com',
                 recipients=['project@email.com'],
                 email_template=os.path.join(self.etc_path, 'customer_manifest.html'),
+                strict=True
+            )
+
+    def test_send_email2(self):
+        with self.patch_project_single,self.patch_process2,\
+             self.patch_email as mocked_send_email:
+            self.epp._run()
+            mocked_send_email.assert_called_with(
+                attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
+                             'tube requirements','a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_Project1.docx'],
+                msg=None,
+                subject='project1: Homo sapiens WGS Sample Submission',
+                mailhost='smtp.test.me',
+                project='project1',
+                port=25,
+                sender='sender@email.com',
+                recipients=['project@email.com'],
+                email_template=os.path.join(self.etc_path, 'customer_manifest.html'),
+                strict=True
+            )
+
+    def test_send_email3(self):
+        with self.patch_project_single,self.patch_process3,\
+             self.patch_email as mocked_send_email:
+            self.epp._run()
+            mocked_send_email.assert_called_with(
+                attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
+                             'a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_Project1.docx'],
+                msg=None,
+                subject='project1: Homo sapiens WGS Sample Submission',
+                mailhost='smtp.test.me',
+                project='project1',
+                port=25,
+                sender='sender@email.com',
+                recipients=['project@email.com'],
+                email_template=os.path.join(self.etc_path, 'basic_email_template.html'),
                 strict=True
             )
 
