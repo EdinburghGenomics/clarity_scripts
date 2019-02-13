@@ -91,7 +91,7 @@ class StepEPP(app_logging.AppLogger):
     def open_or_download_file(self, file_or_uid, encoding=None, crlf=False, binary=False):
         if os.path.isfile(file_or_uid):
             if binary:
-                f = open(file_or_uid, mode='b')
+                f = open(file_or_uid, mode='rb')
             else:
                 f = open(file_or_uid)
         else:
