@@ -35,9 +35,7 @@ class ParseManifest(StepEPP):
         # find the MS Excel manifest
         for output in self.process.all_outputs(unique=True):
             if output.id == self.manifest:
-
                 manifest_file = self.open_or_download_file(self.manifest, binary=True)
-
 
 
 
@@ -118,13 +116,19 @@ class ParseManifest(StepEPP):
                 #parse the data from the spreadsheet into the sample dictionary
                 sample_dict[key_value].udf[lims_udf] = udf_value
 
-            samples_to_put.append(sample_dict[key_value])
+            #add the modified sample to the list of modified samples to be put into the database. Raise value error if
+            #sample present in manifest but not in LIMs
+            try:
+                samples_to_put.append(sample_dict[key_value])
+            except:
+                raise ValueError(key_value+" present in manifest but not present in LIMS.")
 
             current_row += 1
             key_cell = key_column + str(current_row)
             key_value = ws[key_cell].value
 
-        # check that size of samples_to_put matches the number of input artifacts
+
+        # check that there not fewer samples in the manifest than in the LIMS
 
         if not len(samples_to_put) == len(self.process.all_inputs(unique=True)):
             raise ValueError('The number of samples in the step does not match the number of samples in the manifest')
