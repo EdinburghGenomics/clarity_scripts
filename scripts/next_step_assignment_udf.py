@@ -3,9 +3,9 @@ from EPPs.common import StepEPP
 from pyclarity_lims.entities import Protocol
 
 
-class AssignNextStepCreateManifest(StepEPP):
+class AssignNextStepUDF(StepEPP):
     """
-    Assigns next step based on UDF value
+    Assigns next step based on UDF value otherwise next step is the next step in protocol sequence
     """
 
     def __init__(self, argv=None):
@@ -66,4 +66,4 @@ class AssignNextStepCreateManifest(StepEPP):
 
 
 if __name__ == '__main__':
-    AssignNextStepCreateManifest().run()
+    AssignNextStepUDF().run()
