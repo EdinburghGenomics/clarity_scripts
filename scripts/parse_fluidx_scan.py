@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 import csv
-import platform
-
-from pyclarity_lims.entities import Artifact
 
 from EPPs.common import StepEPP
 
