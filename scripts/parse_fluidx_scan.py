@@ -34,7 +34,7 @@ class ParseFluidXScan(StepEPP):
 
         #check the number of samples in the step matches the number of tubes the fluidx scanner counted
         if not len(all_inputs) == int(fluidx_scan_list[1][1]):
-            raise ValueError('The number of samples %s in the steps does not match the number of tubes scanned %s'
+            raise ValueError('The number of samples in the step (%s) does not match the number of tubes scanned (%s)'
                              % (len(all_inputs), fluidx_scan_list[1][1]))
 
         sample_dict={}
