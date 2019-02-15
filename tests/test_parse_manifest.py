@@ -8,6 +8,7 @@ from tests.test_common import TestEPP, NamedMock, PropertyMock
 
 
 class TestParseManifest(TestEPP):
+
     sample1 = NamedMock(real_name='Key1')
     container = NamedMock(real_name='container1', type=NamedMock(real_name='96 well plate'))
     location=[container, 'A:1']
@@ -98,8 +99,10 @@ class TestParseManifest(TestEPP):
                                                                            'Manifest_To_Parse_too_few.xlsx')])
 
     def test_parse_manifest_happy_path(self):
-        with self.patch_process1, self.patched_lims:
+        with self.patch_process1, self.patched_lims as lims:
             self.epp._run()
+
+            assert lims.put_batch.call_count == 1
 
     def test_parse_manifest_sample_too_many(self):
         with self.patch_process2, self.patched_lims:
