@@ -31,6 +31,13 @@ class StepEPP(app_logging.AppLogger):
     _process = None
     _use_load_config = True
 
+    # Step Validation parameters
+    _max_nb_input_containers = None
+    _max_nb_output_containers = None
+    _max_nb_input = None
+    _nb_artifact_per_input = None
+    _max_nb_project = None
+
     def __init__(self, argv=None):
         self.argv = argv
         args = self.cmd_args
@@ -133,6 +140,7 @@ class StepEPP(app_logging.AppLogger):
 
     def run(self):
         try:
+            self._validate_step()
             return self._run()
         except InvalidStepError as e:
             print(e.message)
@@ -143,6 +151,68 @@ class StepEPP(app_logging.AppLogger):
             stacktrace = traceback.format_exc()
             self.error('Stack trace below:\n' + stacktrace)
             raise e
+
+    @cached_property
+    def input_container_names(self):
+        """The name of containers from input artifacts. """
+        containers = set()
+        for art in self.artifacts:
+            # Check to see if artifact has a container before retrieving the container.
+            # Artifacts that are not samples will not have containers.
+            if art.container:
+                containers.add(art.container.name)
+        return list(containers)
+
+    @cached_property
+    def output_container_names(self):
+        """The name of containers from output artifacts"""
+        containers = set()
+        for art in self.output_artifacts:
+            # Check to see if artifact has a container before retrieving the container.
+            # Artifacts that are not samples will not have containers.
+            if art.container:
+                containers.add(art.container.name)
+        return list(containers)
+
+    def _validate_step(self):
+        if self._max_nb_input_containers is not None:
+            # check the number of input containers
+            if len(self.input_container_names) > self._max_nb_input_containers:
+                raise InvalidStepError(
+                    message='Maximum number of input container is %s. There are %s input container in the step.' % (
+                        self._max_nb_input_containers, len(self.input_container_names)
+                    )
+                )
+        if self._max_nb_output_containers is not None:
+            # check the number of output containers
+            if len(self.output_container_names) > self._max_nb_output_containers:
+                raise InvalidStepError(
+                    message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
+                        self._max_nb_output_containers, len(self.output_container_names)
+                    )
+                )
+        if self._max_nb_input is not None:
+            if len(self.artifacts) > self._max_nb_input:
+                raise InvalidStepError(
+                    message="Maximum number of inputs is %s. %s inputs present in step." % (
+                        self._max_nb_input, len(self.artifacts)
+                    )
+                )
+        if self._nb_artifact_per_input is not None:
+            for artifact in self.artifacts:
+                outputs = self.process.outputs_per_input(artifact.id, Analyte=True)
+                if len(outputs) != self._nb_artifact_per_input:
+                    raise InvalidStepError(
+                        message="%s replicates required for each input. "
+                                "%s replicates found for %s." % (self._nb_artifact_per_input, len(outputs), artifact.id)
+                    )
+        if self._max_nb_project is not None:
+            if len(self.projects) > self._max_nb_project:
+                raise InvalidStepError(
+                    message='Maximum number of projet in step is %s. %s projects found.' % (
+                        self._max_nb_project, len(self.projects)
+                    )
+                )
 
     def __del__(self):
         for f in self.open_files:
@@ -192,8 +262,8 @@ class GenerateHamiltonInputEPP(StepEPP):
     plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     csv_column_headers = None
     output_file_name = None
-    permitted_input_containers = None
-    permitted_output_containers = None
+    _max_nb_input_containers = None
+    _max_nb_output_containers = None
 
     def __init__(self, argv=None):
         """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
@@ -203,8 +273,8 @@ class GenerateHamiltonInputEPP(StepEPP):
 
         assert self.csv_column_headers is not None, 'csv_column_headers needs to be set by the child class'
         assert self.output_file_name is not None, 'output_file_name needs to be set by the child class'
-        assert self.permitted_input_containers is not None, 'number of permitted input containers needs to be set by the child class'
-        assert self.permitted_output_containers is not None, 'number of permitted output containers needs to be set by the child class'
+        assert self._max_nb_input_containers is not None, 'number of permitted input containers needs to be set by the child class'
+        assert self._max_nb_output_containers is not None, 'number of permitted output containers needs to be set by the child class'
 
     @staticmethod
     def add_args(argparser):
@@ -225,8 +295,9 @@ class GenerateHamiltonInputEPP(StepEPP):
 
     @cached_property
     def input_container_names(self):
-        """The name of containers from input artifacts. Disregards stanards containers as these are not stored correctly
-        in the LIMS. Standards are identified as the sample well location is 1:1"""
+        """The name of containers from input artifacts.
+        Disregards standards containers as these are not stored correctly in the LIMS.
+        Standards are identified as the sample well location is 1:1"""
         containers = set()
 
         for art in self.artifacts:
@@ -236,16 +307,6 @@ class GenerateHamiltonInputEPP(StepEPP):
                 containers.add(art.container.name)
         return list(containers)
 
-    @cached_property
-    def output_container_names(self):
-        """The name of containers from output artifacts"""
-        containers = set()
-        for art in self.output_artifacts:
-            # Check to see if artifact has a container before retreiving the container.
-            # Artifacts that are not samples will not have containers.
-            if art.container:
-                containers.add(art.container.name)
-        return list(containers)
 
     @property
     def shared_drive_file_path(self):
@@ -253,7 +314,7 @@ class GenerateHamiltonInputEPP(StepEPP):
 
     def _generate_csv_dict(self):
         """Provides the lines to write to the csv files in a dictionary
-        where the key is a well position such as a  """
+        where the key is a well position such as 'A:1' and the value is the line of the csv. """
         raise NotImplementedError
 
     def generate_csv_array(self):
@@ -283,20 +344,6 @@ class GenerateHamiltonInputEPP(StepEPP):
     def _run(self):
         """Generic run that check the number of input and output container
         then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
-        # check the number of input containers
-        if len(self.input_container_names) > self.permitted_input_containers:
-            raise InvalidStepError(
-                message='Maximum number of input plates is %s. There are %s input plates in the step.' % (
-                    self.permitted_input_containers, len(self.input_container_names)
-                )
-            )
-        # check the number of output containers
-        if len(self.output_container_names) > self.permitted_output_containers:
-            raise InvalidStepError(
-                message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
-                    self.permitted_output_containers, len(self.output_container_names)
-                )
-            )
         csv_array = self.generate_csv_array()
         # Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
         # this is used by Clarity LIMS to recognise the file and attach it to the step

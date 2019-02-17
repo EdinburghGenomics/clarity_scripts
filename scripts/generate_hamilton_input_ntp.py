@@ -15,10 +15,10 @@ class GenerateHamiltonInputNTP(GenerateHamiltonInputEPP):
     output_file_name = 'KAPA_NORMALISE_LIBRARIES.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
 
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.

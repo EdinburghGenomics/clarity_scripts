@@ -1,10 +1,13 @@
+from itertools import cycle
 from unittest.mock import Mock, patch, PropertyMock
 
 import pytest
+from pyclarity_lims.entities import ReagentLot
+
 from EPPs.common import InvalidStepError
 
 from scripts.generate_hamilton_input_imp_ssqc import GenerateHamiltonInputIMPSSQC
-from tests.test_common import TestEPP, NamedMock
+from tests.test_common import TestEPP, NamedMock, FakeEntitiesMaker
 
 
 def fake_all_inputs1(unique=False, resolve=False):
@@ -146,29 +149,24 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         self.epp = GenerateHamiltonInputIMPSSQC(self.default_argv + ['-i', 'an_imp_file_location'] + ['-d', ''])
 
     def test_happy_input(self):  # test that file is written under happy path conditions i.e. 1 input plate, 1 output
-        # per input, 1 output plate
-        with self.patched_process1:
-            self.epp._run()
-            print(self.stripped_md5('an_imp_file_location-hamilton_input.csv'))
-            assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == 'f9253d16ea8bafbed28bbdd2a3f8e323'
-
-    def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
-        with self.patched_process2:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
-
-    def test_2_output_containers(self):  # test that sys exit occurs if >1 output containers
-        with self.patched_process3:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == 'Maximum number of output plates is 2. There are 3 output plates in the step.'
-
-    def test_2_output_artifacts(self):  # test that sys exit occurs if >1 output artifacts for one input
-        with self.patched_process4:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == 'Incorrect number of outputs found for Input1. This step requires two outputs per input.'
+        fem = FakeEntitiesMaker()
+        self.epp.lims = fem.lims
+        self.epp.process = fem.create_a_fake_process(
+            nb_input=2,
+            output_per_input=2,
+            nb_output_container=2,
+            output_container_name=cycle(['OutputName1-SSQC', 'OutputName2-IMP']),
+            step_udfs={
+                'CFP to IMP Volume (ul)': '50',
+                'CFP to SSQC Volume (ul)': '2',
+                'RSB to SSQC Volume (ul)': '8',
+            })
+        self.epp.process.step._reagent_lots.reagent_lots = [
+            fem.create_instance(ReagentLot, id='re1', lot_number='LP9999999-RSB'),
+        ]
+        self.epp._run()
+        expected_file = [','.join(self.epp.csv_column_headers),
+                         'input_uri_container_1,A1,OutputName2-IMP,A1,50,OutputName1-SSQC,A1,2,LP9999999-RSB,8',
+                         'input_uri_container_1,A2,OutputName2-IMP,A2,50,OutputName1-SSQC,A2,2,LP9999999-RSB,8']
+        assert self.file_content('an_imp_file_location-hamilton_input.csv') == expected_file
+        assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == '17a0e03ee689696b6d8b81bbe6e59173'

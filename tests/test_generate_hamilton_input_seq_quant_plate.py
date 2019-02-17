@@ -247,21 +247,6 @@ class TestGenerateHamiltonSeqQuantPlate(TestEPP):
         assert self.stripped_md5('a_file_location-hamilton_input.csv') == '3e3b87e1943f186f31a6ec5c0c6b119a'
         assert self.stripped_md5(self.epp.shared_drive_file_path) == '3e3b87e1943f186f31a6ec5c0c6b119a'
 
-    def test_2_input_containers(self):  # the function raises an exception if >9 input containers
-        with self.patched_process2:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-
-            print(e.value.message)
-            assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
-
-    def test_2_output_containers(self):  # the function raises an exception if >1 output containers
-        with self.patched_process3:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == 'Maximum number of output plates is 1. There are 2 output plates in the step.'
-
     def test_4_output_artifacts(self):  # the function raises an exception if >3 output artifacts for one input
         with self.patched_process4:
             with pytest.raises(InvalidStepError) as e:

@@ -16,10 +16,10 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
     output_file_name = 'SEQ_PLATE_QUANT.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
 
     def _generate_csv_dict(self):
         # build a dictionary of the csv lines with the output well as the key so can be populated into the output file in the best order for straightforward import into the Hamilton method

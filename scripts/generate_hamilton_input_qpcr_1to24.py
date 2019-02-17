@@ -20,10 +20,10 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
     output_file_name = 'MAKE_QPCR-1_TO_24_INPUT.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
 
     def _run(self):
         # libraries_csv_dict_dict will be a dictionary that consists of the lines to be present in the Hamilton input file for the input libraries.

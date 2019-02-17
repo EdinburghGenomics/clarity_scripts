@@ -137,20 +137,6 @@ class TestGenerateHamiltonInputUCT(TestEPP):
 
             assert self.stripped_md5('an_imp_file_location-hamilton_input.csv') == '9c70c381ada6235e478cb149310d62a0'
 
-    def test_2_input_containers(self):  # test that sys exit occurs if >1 input containers
-        with self.patched_process2:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-
-            assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
-
-    def test_2_output_containers(self):  # test that sys exit occurs if >1 output containers
-        with self.patched_process3:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-
-            assert e.value.message == 'Maximum number of output plates is 1. There are 2 output plates in the step.'
-
     def test_2_output_artifacts(self):  # test that sys exit occurs if >1 output artifacts for one input
         with self.patched_process4:
             with pytest.raises(InvalidStepError) as e:

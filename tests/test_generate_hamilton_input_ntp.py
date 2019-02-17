@@ -131,19 +131,6 @@ class TestGenerateHamiltonInputNTP(TestEPP):
         assert self.stripped_md5('a_file_location-hamilton_input.csv') == '9141fb8835df521d4475907a65f9af66'
         assert self.stripped_md5(self.epp.shared_drive_file_path) == '9141fb8835df521d4475907a65f9af66'
 
-    def test_2_input_containers(self):  # the function raises an exception if >1 input containers
-        with self.patched_process2:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
-
-    def test_2_output_containers(self):  # the function raises an exception if >1 output containers
-        with self.patched_process3:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            assert e.value.message == 'Maximum number of output plates is 1. There are 2 output plates in the step.'
-
     def test_2_output_artifacts(self):  # the function raises an exception if >1 output artifacts for one input
         with self.patched_process4:
             with pytest.raises(InvalidStepError) as e:

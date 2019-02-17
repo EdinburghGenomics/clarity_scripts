@@ -225,32 +225,16 @@ class TestGenerateHamiltonInputQPCR(TestEPP):
             assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'd0d07df6d608cc62f50bf4051779a7a5'
             assert self.stripped_md5(self.epp.shared_drive_file_path) == 'd0d07df6d608cc62f50bf4051779a7a5'
 
-    def test_2_input_containers(self):  # test that error occurs if >1 input containers
-        with self.patched_process2:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-
-            assert e.value.message == 'Maximum number of input plates is 1. There are 2 input plates in the step.'
-
-    def test_2_output_containers(self):  # test that error occurs if >1 output containers
-        with self.patched_process3:
-            with pytest.raises(InvalidStepError) as e:
-                self.epp._run()
-            print(e.value.message)
-            assert e.value.message == 'Maximum number of output plates is 1. There are 2 output plates in the step.'
-
     def test_2_output_artifacts(self):  # test that error occurs if not 3 output artifacts for one input
         with self.patched_process4:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
-            print(e.value.message)
             assert e.value.message == '2 outputs found for an input Input1. 3 replicates required.'
 
     def test_not_DIL1(self):  # test that sys exit occurs if DIL1 barcode does not have correct format
         with self.patched_process5:
             with pytest.raises(InvalidStepError) as e:
                 self.epp._run()
-            print(e.value.message)
             assert e.value.message == 'LP9999999-DOT1 is not a valid DIL1 container name. Container names must match LP[0-9]{7}-DIL1'
 
     def test_not_DIL2(self):  # test that sys exit occurs if DIL2 barcode does not have correct format
