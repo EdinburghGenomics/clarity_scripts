@@ -175,6 +175,15 @@ class StepEPP(app_logging.AppLogger):
         return list(containers)
 
     def _validate_step(self):
+        """Perform the Step EPP's validations when required.
+        All validations are optionals and will require sub classes to set the corresponding varaibles:
+
+         - _max_nb_input_containers: set the maximum number of input container of the step.
+         - _max_nb_output_containers: set the maximum number of output container of the step.
+         - _max_nb_input: set the maximum number of input of the step.
+         - _nb_artifact_per_input: set the maximum number of replicates of the step.
+         - _max_nb_project: set the maximum number of project in the step.
+        """
         if self._max_nb_input_containers is not None:
             # check the number of input containers
             if len(self.input_container_names) > self._max_nb_input_containers:
@@ -262,8 +271,6 @@ class GenerateHamiltonInputEPP(StepEPP):
     plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     csv_column_headers = None
     output_file_name = None
-    _max_nb_input_containers = None
-    _max_nb_output_containers = None
 
     def __init__(self, argv=None):
         """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
@@ -273,8 +280,10 @@ class GenerateHamiltonInputEPP(StepEPP):
 
         assert self.csv_column_headers is not None, 'csv_column_headers needs to be set by the child class'
         assert self.output_file_name is not None, 'output_file_name needs to be set by the child class'
-        assert self._max_nb_input_containers is not None, 'number of permitted input containers needs to be set by the child class'
-        assert self._max_nb_output_containers is not None, 'number of permitted output containers needs to be set by the child class'
+        assert self._max_nb_input_containers is not None, 'number of permitted input containers needs to be set ' \
+                                                          'by the child class'
+        assert self._max_nb_output_containers is not None, 'number of permitted output containers needs to be set ' \
+                                                           'by the child class'
 
     @staticmethod
     def add_args(argparser):
@@ -306,7 +315,6 @@ class GenerateHamiltonInputEPP(StepEPP):
             if art.container and art.location[1] != '1:1':
                 containers.add(art.container.name)
         return list(containers)
-
 
     @property
     def shared_drive_file_path(self):
