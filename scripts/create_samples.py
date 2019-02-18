@@ -58,7 +58,7 @@ class CreateSamples(StepEPP):
                 raise ValueError('Input sample name is not valid '+input_name_re)
 
         # assemble the plate layout of the 96 well plate as a list.
-        plate96_layout_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+        plate96_layout_columns = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
         plate96_layout_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         plate96_layout = []
 
