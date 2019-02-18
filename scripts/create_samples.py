@@ -166,22 +166,22 @@ class CreateSamples(StepEPP):
             self.lims.get_batch(samples,force=True)
 
 
-        # Assign newly created samples to the create manifest step
-        for sample in samples:
-            sample_artifacts.append(sample.artifact)
+            # Assign any newly created samples to the create manifest step
+            for sample in samples:
+                sample_artifacts.append(sample.artifact)
 
 
 
-        # Find the workflow stage
-        stage = get_workflow_stage(self.lims, self.process.udf['Next Workflow'], self.process.udf['Next Step'])
+            # Find the workflow stage
+            stage = get_workflow_stage(self.lims, self.process.udf['Next Workflow'], self.process.udf['Next Step'])
 
 
-        if not stage:
-            raise ValueError(
-                'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
-                    self.process.udf['Next Workflow'], self.process.udf['Next Step'], self.baseuri)
-            )
-        self.lims.route_artifacts(sample_artifacts, stage_uri=stage.uri)
+            if not stage:
+                raise ValueError(
+                    'Stage specified by workflow: %s and stage: %s does not exist in %s' % (
+                        self.process.udf['Next Workflow'], self.process.udf['Next Step'], self.baseuri)
+                )
+            self.lims.route_artifacts(sample_artifacts, stage_uri=stage.uri)
 
 
 if __name__ == "__main__":
