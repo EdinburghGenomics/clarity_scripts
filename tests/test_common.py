@@ -137,7 +137,7 @@ class FakeEntitiesMaker:
             container.name = prefix + container.uri
         else:
             container.name = _resolve_next(container_name)
-        ctype_name = _resolve_next(kwargs.get('container_type', '96 well plate'))
+        ctype_name = _resolve_next(kwargs.get('container_type') or '96 well plate')
         container.type = self.create_instance(Containertype, name=ctype_name)
         self._add_udfs(container, container_udfs)
 
@@ -173,16 +173,20 @@ class FakeEntitiesMaker:
         return sample
 
     def create_a_fake_artifact(self, artifact_name=None, artifact_position=None, artifact_type=None,
-                               is_output_artifact=False, sample=None, container=None, artifact_udfs=None, **kwargs):
+                               is_output_artifact=False, sample=None, container=None, artifact_udfs=None,
+                               from_input=None, replicate_n=None, **kwargs):
         c = _resolve_next(container)
         if not artifact_position:
             artifact_position = self._find_next_positionin_container(c)
-        if not artifact_name:
-            prefix = 'input_'
-            if is_output_artifact:
-                prefix = 'output_'
         artifact = self.create_instance(Artifact)
-        artifact.name = prefix + 'art_' + artifact_position
+        prefix = 'output_' if is_output_artifact else 'input_'
+        if artifact_name:
+            artifact.name = artifact_name
+        elif from_input:
+            artifact.name = from_input.name + '_' + prefix + str(replicate_n)
+        else:
+            artifact.name = prefix + 'art_' + artifact_position
+
         artifact.type = artifact_type
         if not sample:
             sample = self.create_a_fake_sample(**kwargs)
@@ -223,9 +227,11 @@ class FakeEntitiesMaker:
         :param project_name: the name of the project -- supports iterable
         :param nb_input_container: number of input container to create (default to 1)
         :param input_container_name: The name of the input container to set -- supports iterable
+        :param input_container_type: The type of the input container to set -- supports iterable
         :param input_container_udfs: the udfs to be set for the input container (udfs values supports iterable)
         :param nb_output_container: number of input container to create (default to 1)
         :param output_container_name: The name of the output container to set -- supports iterable
+        :param output_container_type: The type of the output container to set -- supports iterable
         :param output_container_udfs: the udfs to be set for the output container (udfs values supports iterable)
         :param step_udfs: the udfs to be set for the StepDetails and the Process (udfs values supports iterable)
         :param next_action: The action to set for the output artifacts -- supports iterable
@@ -238,6 +244,7 @@ class FakeEntitiesMaker:
         icontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_input_container', 1),
             container_name=kwargs.get('input_container_name'),
+            container_type=kwargs.get('input_container_type'),
             container_udfs=kwargs.get('input_container_udfs'),
             **kwargs))
         used_input_containers = set()
@@ -253,6 +260,7 @@ class FakeEntitiesMaker:
         ocontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_output_container', 1),
             container_name=kwargs.get('output_container_name'),
+            container_type=kwargs.get('output_container_type'),
             container_udfs= kwargs.get('output_container_udfs'),
             is_output_container=True,
             **kwargs))
@@ -264,7 +272,7 @@ class FakeEntitiesMaker:
                 oa = self.create_a_fake_artifact(is_output_artifact=True, artifact_name=_resolve_next(output_name),
                                                  artifact_type=_resolve_next(output_type),
                                                  artifact_udfs=output_artifact_udf, sample=a.samples[0],
-                                                 container=ocontainers, **kwargs)
+                                                 container=ocontainers, from_input=a, replicate_n=n+1, **kwargs)
                 used_output_containers.add(oa.container)
                 outputs.append(oa)
                 output_map = {'uri': oa, 'limsid': oa.id, 'output-generation-type': 'PerInput', 'output-type': _resolve_next(output_type)}
