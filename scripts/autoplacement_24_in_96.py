@@ -33,7 +33,7 @@ class Autoplacement24in96(StepEPP):
         # update of container requires list variable containing the containers, only one container will be present in step
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
         output_container_list = self.process.step.placements.get_selected_containers()
-        print("output container list",self.process.step.placements.get_selected_containers())
+
         # need a list of tuples for set_placements
         output_placement = []
 
@@ -55,7 +55,7 @@ class Autoplacement24in96(StepEPP):
 
         # loop through the input containers and place the samples in row-column order - this makes pipetting as efficient
         # as possible, particularly if only 1 input plate so 1:1 pipetting
-        for container in input_container_nested_dict:
+        for container in sorted(input_container_nested_dict, key=lambda x: x.name):
             for column in input_plate_layout_columns:
                 for row in input_plate_layout_rows:
                     # populate list of tuples for set_placements if well exists in input plate

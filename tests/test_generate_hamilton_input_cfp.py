@@ -24,8 +24,8 @@ class TestGenerateHamiltonInputCFP(TestEPP):
         expected_file = [
             'Input Plate,Input Well,Output Plate,Output Well,DNA Volume,RSB Barcode,RSB Volume',
             'input_uri_container_1,A1,output_uri_container_2,A1,50,LP9999999-RSB,10',
-            'input_uri_container_1,A2,output_uri_container_2,A2,50,LP9999999-RSB,10'
+            'input_uri_container_1,B1,output_uri_container_2,B1,50,LP9999999-RSB,10'
         ]
         assert self.file_content('a_file_location-hamilton_input.csv') == expected_file
-        assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'e8e966b3b7a3f38e93d05db04b56266c'
-        assert self.stripped_md5(self.epp.shared_drive_file_path) == 'e8e966b3b7a3f38e93d05db04b56266c'
+        assert self.stripped_md5('a_file_location-hamilton_input.csv') == '7dabe64d31b1097806997dc0f769eb80'
+        assert self.stripped_md5(self.epp.shared_drive_file_path) == '7dabe64d31b1097806997dc0f769eb80'

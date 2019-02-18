@@ -85,12 +85,12 @@ class FakeEntitiesMaker:
         elif container.type.name == '384 well plate':
             plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
             plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-        # search last row
+        # search last column
         if len(container.placements) > 1:
-            last_row = sorted(set([k.split(':')[0] for k in container.placements.keys()]))[-1]
-            plate_rows = plate_rows[plate_rows.index(last_row):]
-        for c, r in product(plate_rows, plate_columns):
-            k = '%s:%s' % (c, r)
+            last_col = sorted(set([k.split(':')[1] for k in container.placements.keys()]))[-1]
+            plate_columns = plate_columns[plate_columns.index(last_col):]
+        for c, r in product(plate_columns, plate_rows):
+            k = '%s:%s' % (r, c)
             if k not in container.placements:
                 return k
         raise ValueError('No more position available for %s' % container.type.name)
