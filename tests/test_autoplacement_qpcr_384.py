@@ -162,7 +162,4 @@ class TestAutoplacementQPCR384(TestEPP):
         with self.patched_process3, self.patched_lims:
             assert self.epp._run() == 1
 
-    def test_autoplacement_qPCR_384_more_than_31_inputs(self):  # >24 samples plus 7 standards
-        with self.patched_process4, self.patched_lims:
-            assert self.epp._run() == 1
 

@@ -1,4 +1,3 @@
-import collections
 import hashlib
 import os
 from collections import Counter, defaultdict
@@ -8,8 +7,8 @@ from xml.etree import ElementTree
 
 import pytest
 from pyclarity_lims.constants import nsmap
-from pyclarity_lims.entities import Process, Artifact, Sample, Container, Containertype, Project, Step, StepPlacements, \
-    StepReagentLots, StepActions, StepDetails
+from pyclarity_lims.entities import Process, Artifact, Sample, Container, Containertype, Project, Step, \
+    StepPlacements, StepReagentLots, StepActions, StepDetails
 from requests import ConnectionError
 from unittest.case import TestCase
 from unittest.mock import Mock, PropertyMock, patch, MagicMock
@@ -26,8 +25,8 @@ class NamedMock(Mock):
 
 
 def _resolve_next(o):
-    """returns the next element if a list  or return itself otherwise. list should be passed using cycle(list)"""
-    if not isinstance(o, str) and isinstance(o, collections.Iterable):
+    """returns the next element if an iterable or return itself otherwise. list should be passed using cycle(list)"""
+    if hasattr(o, '__next__'):
         return next(o)
     return o
 
@@ -94,7 +93,7 @@ class FakeEntitiesMaker:
             k = '%s:%s' % (c, r)
             if k not in container.placements:
                 return k
-        raise ValueError('No ore position available for %s' % container.type.name)
+        raise ValueError('No more position available for %s' % container.type.name)
 
     def create_instance(self, klass, uri=None, id=None, **kwargs):
         """This function create any entity instance and ensure that the root XML is populated with an empty entry."""
@@ -195,31 +194,41 @@ class FakeEntitiesMaker:
         self._add_udfs(artifact, artifact_udfs)
         return artifact
 
-
-    def create_a_fake_process(self, nb_input=1, output_per_input=1, input_type='Analyte', output_type='Analyte',
-                              input_artifact_udf=None, output_artifact_udf=None, **kwargs):
+    def create_a_fake_process(self, nb_input=1, output_per_input=1, input_name=None, output_name=None,
+                              input_type='Analyte', output_type='Analyte', input_artifact_udf=None,
+                              output_artifact_udf=None, **kwargs):
         """Create a fake process with some values pre-filled such as:
 
            - input artifacts (and associated samples/projects)
            - output artifacts
            - input container (and types)
            - output container (and types)
+           - samples
+           - project
            - step
+        Most parameters support a list of value provided as iterable.
+        Using the cycle function you can provide cycle([value1, value2])
 
         :param nb_input: Number of input artifact created (one sample is created per input artifact)
         :param output_per_input: Number of output artifact created per input artifact
-        :param output_type: the type of output artifact created - supports a list of values
+        :param input_name: the name of the input artifact created - supports an iterable of values
+        :param output_name: the name of the output artifact created - supports an iterable of values
+        :param input_type: the type of input artifact created - supports an iterable of values
+        :param output_type: the type of output artifact created - supports an iterable of values
+        :param sample_name: the name of the sample created - supports an iterable of values
+        :param sample_udfs: the udfs to be set for the samples (udfs values supports iterable)
+        :param output_type: the type of output artifact created - supports an iterable of values
         :param nb_project: the number of project created (default to 1)
-        :param project_udfs: the udfs to be set for the projects (udfs values supports list)
-        :param project_name: the name of the project -- supports lists
+        :param project_udfs: the udfs to be set for the projects (udfs values supports iterable)
+        :param project_name: the name of the project -- supports iterable
         :param nb_input_container: number of input container to create (default to 1)
+        :param input_container_name: The name of the input container to set -- supports iterable
+        :param input_container_udfs: the udfs to be set for the input container (udfs values supports iterable)
         :param nb_output_container: number of input container to create (default to 1)
-        :param container_name: The name of the container to set -- supports lists
-        :param nb_input:
-        :param nb_input:
-        :param nb_input:
-        :param nb_input:
-        :param nb_input:
+        :param output_container_name: The name of the output container to set -- supports iterable
+        :param output_container_udfs: the udfs to be set for the output container (udfs values supports iterable)
+        :param step_udfs: the udfs to be set for the StepDetails and the Process (udfs values supports iterable)
+        :param next_action: The action to set for the output artifacts -- supports iterable
         """
         # Create the projects
         projects = cycle(self.create_fake_projects(**kwargs))
@@ -229,13 +238,14 @@ class FakeEntitiesMaker:
         icontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_input_container', 1),
             container_name=kwargs.get('input_container_name'),
+            container_udfs=kwargs.get('input_container_udfs'),
             **kwargs))
         used_input_containers = set()
         # Create Artifacts
         for n in range(nb_input):
-            a = self.create_a_fake_artifact(is_output_artifact=False, artifact_type=_resolve_next(input_type),
-                                            artifact_udfs=input_artifact_udf, project=projects, container=icontainers,
-                                            **kwargs)
+            a = self.create_a_fake_artifact(is_output_artifact=False, artifact_name=_resolve_next(input_name),
+                                            artifact_type=_resolve_next(input_type), artifact_udfs=input_artifact_udf,
+                                            project=projects, container=icontainers, **kwargs)
             used_input_containers.add(a.container)
             inputs.append(a)
         outputs = []
@@ -243,6 +253,7 @@ class FakeEntitiesMaker:
         ocontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_output_container', 1),
             container_name=kwargs.get('output_container_name'),
+            container_udfs= kwargs.get('output_container_udfs'),
             is_output_container=True,
             **kwargs))
         used_output_containers = set()
@@ -250,9 +261,10 @@ class FakeEntitiesMaker:
         for a in inputs:
             input_map = {'uri': a, 'limsid': a.id, 'post-process-uri': a}
             for n in range(output_per_input):
-                oa = self.create_a_fake_artifact(is_output_artifact=True, artifact_type=_resolve_next(output_type),
-                                                 artifact_udfs=output_artifact_udf, sample=a.samples[0], container=ocontainers,
-                                                **kwargs)
+                oa = self.create_a_fake_artifact(is_output_artifact=True, artifact_name=_resolve_next(output_name),
+                                                 artifact_type=_resolve_next(output_type),
+                                                 artifact_udfs=output_artifact_udf, sample=a.samples[0],
+                                                 container=ocontainers, **kwargs)
                 used_output_containers.add(oa.container)
                 outputs.append(oa)
                 output_map = {'uri': oa, 'limsid': oa.id, 'output-generation-type': 'PerInput', 'output-type': _resolve_next(output_type)}
