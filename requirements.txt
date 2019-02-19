@@ -1,1 +1,2 @@
 EGCG-Core==0.8.1
+pyclarity-lims==0.4.7
