@@ -201,7 +201,7 @@ class FakeEntitiesMaker:
 
     def create_a_fake_artifact(self, artifact_name=None, artifact_position=None, artifact_type=None,
                                is_output_artifact=False, sample=None, container=None, artifact_udfs=None,
-                               from_input=None, replicate_n=None, **kwargs):
+                               reagent_label=None, from_input=None, replicate_n=None, **kwargs):
         artifact = self.create_instance(Artifact)
         prefix = 'output_' if is_output_artifact else 'input_'
         if artifact_name:
@@ -220,6 +220,8 @@ class FakeEntitiesMaker:
         artifact.location = (container, artifact_position)
         container.placements[artifact_position] = artifact
         self._add_udfs(artifact, artifact_udfs)
+        if reagent_label:
+            artifact.reagent_labels = [_resolve_next(reagent_label)]
         return artifact
 
     def create_fake_artifacts(self, nb_artifacts, is_output_artifact, artifact_name, artifact_type, container,
@@ -236,7 +238,8 @@ class FakeEntitiesMaker:
 
     def create_a_fake_process(self, nb_input=1, output_per_input=1, input_name=None, output_name=None,
                               input_type='Analyte', output_type='Analyte', input_artifact_udf=None,
-                              output_artifact_udf=None, input_container_population_patterns=None,
+                              output_artifact_udf=None, input_reagent_label=None, output_reagent_label=None,
+                              input_container_population_patterns=None,
                               output_container_population_patterns=None, **kwargs):
         """Create a fake process with some values pre-filled such as:
 
@@ -256,6 +259,10 @@ class FakeEntitiesMaker:
         :param output_name: the name of the output artifact created - supports an iterable of values
         :param input_type: the type of input artifact created - supports an iterable of values
         :param output_type: the type of output artifact created - supports an iterable of values
+        :param input_artifact_udf: the udfs to be set for the input artifacts (udfs values supports iterable)
+        :param output_artifact_udf: the udfs to be set for the output artifacts (udfs values supports iterable)
+        :param input_reagent_label: the reagent_label to attach to the input artifact - supports an iterable of values
+        :param output_reagent_label: the reagent_label to attach to the output artifact - supports an iterable of values
         :param sample_name: the name of the sample created - supports an iterable of values
         :param sample_udfs: the udfs to be set for the samples (udfs values supports iterable)
         :param output_type: the type of output artifact created - supports an iterable of values
@@ -288,7 +295,7 @@ class FakeEntitiesMaker:
         # Create Artifacts
         inputs = self.create_fake_artifacts(nb_artifacts=nb_input, is_output_artifact=False, artifact_name=input_name,
                                             artifact_type=input_type, artifact_udfs=input_artifact_udf,
-                                            project=projects, container=icontainers,
+                                            reagent_label=input_reagent_label, project=projects, container=icontainers,
                                             container_population_patterns=input_container_population_patterns, **kwargs)
         used_input_containers = set([a.container for a in inputs])
         outputs = []
@@ -311,6 +318,7 @@ class FakeEntitiesMaker:
                 ocontainer, output_position = next(output_container_map)
                 oa = self.create_a_fake_artifact(is_output_artifact=True, artifact_name=_resolve_next(output_name),
                                                  artifact_type=o_type, artifact_udfs=output_artifact_udf,
+                                                 reagent_label=output_reagent_label,
                                                  sample=a.samples[0], container=ocontainer,
                                                  artifact_position=output_position, from_input=a, replicate_n=n+1,
                                                  **kwargs)
@@ -379,7 +387,7 @@ class TestEPP(TestCommon):
         with pytest.raises(InvalidStepError) as e:
             self.epp._validate_step()
         assert e.value.message == "%s replicates required for each input. %s replicates found for uri_artifact_1." % (
-            self.epp._nb_artifact_per_input, output_per_input
+            self.epp._nb_analyte_per_input, output_per_input
         )
 
     def _test_max_input_container(self, nb_input_container):
@@ -429,7 +437,7 @@ class TestStepEPP(TestEPP):
 
     def test_replicate_per_input(self):
         # 3 replicates outputs rather than required 2 per input
-        self.epp._nb_artifact_per_input = 2
+        self.epp._nb_analyte_per_input = 2
         self._test_replicate_per_input(output_per_input=3)
 
     def test_max_input_container(self):

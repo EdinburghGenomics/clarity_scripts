@@ -35,7 +35,8 @@ class StepEPP(app_logging.AppLogger):
     _max_nb_input_containers = None
     _max_nb_output_containers = None
     _max_nb_input = None
-    _nb_artifact_per_input = None
+    _nb_analyte_per_input = None
+    _nb_resfile_per_input = None
     _max_nb_project = None
 
     def __init__(self, argv=None):
@@ -207,13 +208,21 @@ class StepEPP(app_logging.AppLogger):
                         self._max_nb_input, len(self.artifacts)
                     )
                 )
-        if self._nb_artifact_per_input is not None:
+        if self._nb_analyte_per_input is not None:
             for artifact in self.artifacts:
                 outputs = self.process.outputs_per_input(artifact.id, Analyte=True)
-                if len(outputs) != self._nb_artifact_per_input:
+                if len(outputs) != self._nb_analyte_per_input:
                     raise InvalidStepError(
                         message="%s replicates required for each input. "
-                                "%s replicates found for %s." % (self._nb_artifact_per_input, len(outputs), artifact.id)
+                                "%s replicates found for %s." % (self._nb_analyte_per_input, len(outputs), artifact.id)
+                    )
+        if self._nb_resfile_per_input is not None:
+            for artifact in self.artifacts:
+                outputs = self.process.outputs_per_input(artifact.id, ResultFile=True)
+                if len(outputs) != self._nb_resfile_per_input:
+                    raise InvalidStepError(
+                        message="%s replicates required for each input. "
+                                "%s replicates found for %s." % (self._nb_analyte_per_input, len(outputs), artifact.id)
                     )
         if self._max_nb_project is not None:
             if len(self.projects) > self._max_nb_project:

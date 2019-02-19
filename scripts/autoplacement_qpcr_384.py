@@ -10,7 +10,7 @@ from EPPs.common import StepEPP
 class AutoplacementQPCR384(StepEPP):
     _use_load_config = False  # prevent the loading of the config
     _max_nb_input = 31
-    _nb_artifact_per_input = 3       # generate error if 3 replicates not present
+    _nb_resfile_per_input = 3       # generate error if 3 replicates not present
 
     def _run(self):
         # loop through the inputs, assemble a nested dicitonary {containers:{input.location:output} this can then be
@@ -39,7 +39,6 @@ class AutoplacementQPCR384(StepEPP):
                     output_counter += 1
 
             elif art.name.split(" ")[0] == "No":
-
                 for output in outputs:
                     # want no template controles to appear after all standards in the sorted dictionary
                     standards_dict["z" + str(output_counter)] = output

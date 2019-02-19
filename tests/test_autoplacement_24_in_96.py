@@ -21,7 +21,7 @@ class TestAutoplacement24in96(TestEPP):
         fem = FakeEntitiesMaker()
         self.epp.lims = fem.lims
         self.epp.process = fem.create_a_fake_process(nb_input=24, nb_input_container=2)
-        # FakeEntitiesMaker places the 24 input in the two containers one after the other.
+        # FakeEntitiesMaker places the 24 input in the two containers cycling from on to the other.
         patch_step_set_placement = patch.object(Step, 'set_placements')
         with patch_step_set_placement as mock_set_placements:
             self.epp._run()

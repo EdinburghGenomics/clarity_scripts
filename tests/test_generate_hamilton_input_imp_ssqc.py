@@ -25,7 +25,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
         self.epp.process.step._reagent_lots.reagent_lots = [
             fem.create_instance(ReagentLot, id='re1', lot_number='LP9999999-RSB'),
         ]
-        self.epp._run()
+        self.epp.run()
         expected_file = [
             ','.join(self.epp.csv_column_headers),
             'input_uri_container_1,A1,OutputName2-IMP,A1,50,OutputName1-SSQC,A1,2,LP9999999-RSB,8',

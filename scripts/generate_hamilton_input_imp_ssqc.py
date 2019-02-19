@@ -23,8 +23,8 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     # Define the number of output containers that are permitted
     _max_nb_output_containers = 2
 
-    # the script is only compatible with 1 output for each input i.e. replicates are not allowed
-    _nb_artifact_per_input = 1
+    # the script is require 2 output for each input.
+    _nb_analyte_per_input = 2
 
     def _generate_csv_dict(self):
 
