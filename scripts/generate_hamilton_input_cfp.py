@@ -18,7 +18,6 @@ class GenerateHamiltonInputCFP(GenerateHamiltonInputEPP):
     #Define the number of input containers that are permitted
     _max_nb_input_containers = 9
 
-
     #Define the number of output containers that are permitted
     _max_nb_output_containers = 1
 

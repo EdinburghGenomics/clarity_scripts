@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from EPPs.common import StepEPP
+from EPPs.common import StepEPP, InvalidStepError
 
 
 # Script for performing autoplacement of samples. If 1 input and 1 output then 1:1 placement. If multiple input plates then
@@ -51,8 +51,7 @@ class AutoplacementQPCR384(StepEPP):
                     output_counter += 1
 
         if len(standards_dict) < 21:
-            print("Step requires QSTD A to F and No Template Control with 3 replicates each")
-            return 1
+            raise InvalidStepError(message="Step requires QSTD A to F and No Template Control with 3 replicates each")
 
         # assemble the plate layout of the output plate as a list
         plate_layout_columns = ["1", "2", "3", "4", "5", "6"]

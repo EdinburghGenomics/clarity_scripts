@@ -1,7 +1,9 @@
 from unittest.mock import Mock, patch, PropertyMock
 
+import pytest
 from pyclarity_lims.entities import Step
 
+from EPPs.common import InvalidStepError
 from scripts.autoplacement_qpcr_384 import AutoplacementQPCR384
 from tests.test_common import TestEPP, NamedMock, FakeEntitiesMaker
 
@@ -69,4 +71,6 @@ class TestAutoplacementQPCR384(TestEPP):
             output_type='ResultFile'
         )
         self.epp._validate_step()
-        assert self.epp._run() == 1
+        with pytest.raises(InvalidStepError) as e:
+            self.epp._run()
+        assert e.value.message == 'Step requires QSTD A to F and No Template Control with 3 replicates each'

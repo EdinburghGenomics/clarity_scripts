@@ -1,7 +1,7 @@
 from pyclarity_lims.entities import ReagentLot
 
 from scripts.generate_hamilton_input_cfp import GenerateHamiltonInputCFP
-from tests.test_common import TestEPP, NamedMock, FakeEntitiesMaker
+from tests.test_common import TestEPP, FakeEntitiesMaker
 
 
 class TestGenerateHamiltonInputCFP(TestEPP):

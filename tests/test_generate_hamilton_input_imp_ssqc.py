@@ -22,6 +22,7 @@ class TestGenerateHamiltonInputIMP(TestEPP):
                 'CFP to SSQC Volume (ul)': '2',
                 'RSB to SSQC Volume (ul)': '8',
             })
+        # Add the reagent lots
         self.epp.process.step._reagent_lots.reagent_lots = [
             fem.create_instance(ReagentLot, id='re1', lot_number='LP9999999-RSB'),
         ]
