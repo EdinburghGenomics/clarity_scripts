@@ -75,7 +75,8 @@ class FakeEntitiesMaker:
             for k, v in udfs.items():
                 instances.udf[k] = _resolve_next(v)
 
-    def _find_next_positionin_container(self, container):
+    @staticmethod
+    def _next_container_position(container, last_position):
         if container.type.name == '96 well plate':
             plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
             plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
@@ -85,15 +86,41 @@ class FakeEntitiesMaker:
         elif container.type.name == '384 well plate':
             plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
             plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-        # search last column
-        if len(container.placements) > 1:
-            last_col = sorted(set([k.split(':')[1] for k in container.placements.keys()]))[-1]
-            plate_columns = plate_columns[plate_columns.index(last_col):]
-        for c, r in product(plate_columns, plate_rows):
-            k = '%s:%s' % (r, c)
-            if k not in container.placements:
-                return k
-        raise ValueError('No more position available for %s' % container.type.name)
+        if not last_position:
+            return '%s:%s' % (plate_rows[0], plate_columns[0])
+        # Find next position moving along the row fist
+        last_row, last_col = last_position.split(':')
+        if plate_rows.index(last_row) + 1 == len(plate_rows):
+            row_index = 0
+            col_index = plate_columns.index(last_col) + 1
+        else:
+            row_index = plate_rows.index(last_row) + 1
+            col_index = plate_columns.index(last_col)
+        return '%s:%s' % (plate_rows[row_index], plate_columns[col_index])
+
+    def _build_container_map(self, nb_artifact, container, container_population_patterns):
+        """Create a list of position on the containers using the provided container_population_patterns.
+        The default population pattern populate the containers row first then move to the next column.
+        The population pattern can be:
+           - a list of numbers that specify how many artifact should go in which container.
+           - a list of list of position in the containers to specify exactly where the artifact should go."""
+        last_position_in_container = {}
+        container_map = []
+        if not container_population_patterns:
+            # create a generic pattern where each container is only used once
+            container_population_patterns = [1] * nb_artifact
+        for pattern in container_population_patterns:
+            current_container = _resolve_next(container)
+            if isinstance(pattern, int):
+                # The pattern is a number of time to use the next container.
+                # create a list of undefined position in the container.
+                pattern = [None] * pattern
+            for artifact_position in pattern:
+                if artifact_position is None:
+                    artifact_position = self._next_container_position(current_container, last_position_in_container.get(current_container))
+                container_map.append((current_container, artifact_position))
+                last_position_in_container[current_container] = artifact_position
+        return container_map
 
     def create_instance(self, klass, uri=None, id=None, **kwargs):
         """This function create any entity instance and ensure that the root XML is populated with an empty entry."""
@@ -175,9 +202,6 @@ class FakeEntitiesMaker:
     def create_a_fake_artifact(self, artifact_name=None, artifact_position=None, artifact_type=None,
                                is_output_artifact=False, sample=None, container=None, artifact_udfs=None,
                                from_input=None, replicate_n=None, **kwargs):
-        c = _resolve_next(container)
-        if not artifact_position:
-            artifact_position = self._find_next_positionin_container(c)
         artifact = self.create_instance(Artifact)
         prefix = 'output_' if is_output_artifact else 'input_'
         if artifact_name:
@@ -193,14 +217,27 @@ class FakeEntitiesMaker:
         sample.artifact = artifact
         artifact.samples = [sample]
 
-        artifact.location = (c, artifact_position)
-        c.placements[artifact_position] = artifact
+        artifact.location = (container, artifact_position)
+        container.placements[artifact_position] = artifact
         self._add_udfs(artifact, artifact_udfs)
         return artifact
 
+    def create_fake_artifacts(self, nb_artifacts, is_output_artifact, artifact_name, artifact_type, container,
+                              container_population_patterns=None, **kwargs):
+        artifacts = []
+        container_map = self._build_container_map(nb_artifacts, container, container_population_patterns)
+        for container, artifact_position in container_map:
+            artifacts.append(self.create_a_fake_artifact(
+                is_output_artifact=is_output_artifact, artifact_name=_resolve_next(artifact_name),
+                artifact_position=artifact_position, artifact_type=_resolve_next(artifact_type),
+                container=container, **kwargs
+            ))
+        return artifacts
+
     def create_a_fake_process(self, nb_input=1, output_per_input=1, input_name=None, output_name=None,
                               input_type='Analyte', output_type='Analyte', input_artifact_udf=None,
-                              output_artifact_udf=None, **kwargs):
+                              output_artifact_udf=None, input_container_population_patterns=None,
+                              output_container_population_patterns=None, **kwargs):
         """Create a fake process with some values pre-filled such as:
 
            - input artifacts (and associated samples/projects)
@@ -228,10 +265,12 @@ class FakeEntitiesMaker:
         :param nb_input_container: number of input container to create (default to 1)
         :param input_container_name: The name of the input container to set -- supports iterable
         :param input_container_type: The type of the input container to set -- supports iterable
+        :param input_container_population_patterns: the pattern used to populate intput containers
         :param input_container_udfs: the udfs to be set for the input container (udfs values supports iterable)
         :param nb_output_container: number of input container to create (default to 1)
         :param output_container_name: The name of the output container to set -- supports iterable
         :param output_container_type: The type of the output container to set -- supports iterable
+        :param output_container_population_patterns: the pattern used to populate output containers
         :param output_container_udfs: the udfs to be set for the output container (udfs values supports iterable)
         :param step_udfs: the udfs to be set for the StepDetails and the Process (udfs values supports iterable)
         :param next_action: The action to set for the output artifacts -- supports iterable
@@ -239,7 +278,6 @@ class FakeEntitiesMaker:
         # Create the projects
         projects = cycle(self.create_fake_projects(**kwargs))
         p = self.create_instance(Process, uri='p_uri')
-        inputs = []
         # Create input containers
         icontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_input_container', 1),
@@ -247,14 +285,12 @@ class FakeEntitiesMaker:
             container_type=kwargs.get('input_container_type'),
             container_udfs=kwargs.get('input_container_udfs'),
             **kwargs))
-        used_input_containers = set()
         # Create Artifacts
-        for n in range(nb_input):
-            a = self.create_a_fake_artifact(is_output_artifact=False, artifact_name=_resolve_next(input_name),
-                                            artifact_type=_resolve_next(input_type), artifact_udfs=input_artifact_udf,
-                                            project=projects, container=icontainers, **kwargs)
-            used_input_containers.add(a.container)
-            inputs.append(a)
+        inputs = self.create_fake_artifacts(nb_artifacts=nb_input, is_output_artifact=False, artifact_name=input_name,
+                                            artifact_type=input_type, artifact_udfs=input_artifact_udf,
+                                            project=projects, container=icontainers,
+                                            container_population_patterns=input_container_population_patterns, **kwargs)
+        used_input_containers = set([a.container for a in inputs])
         outputs = []
         # Create output containers
         ocontainers = cycle(self.create_fake_containers(
@@ -266,16 +302,21 @@ class FakeEntitiesMaker:
             **kwargs))
         used_output_containers = set()
         input_output_maps = []
+        output_container_map = iter(self._build_container_map(nb_input * output_per_input, ocontainers,
+                                                              output_container_population_patterns))
         for a in inputs:
             input_map = {'uri': a, 'limsid': a.id, 'post-process-uri': a}
+            o_type = _resolve_next(output_type)
             for n in range(output_per_input):
+                ocontainer, output_position = next(output_container_map)
                 oa = self.create_a_fake_artifact(is_output_artifact=True, artifact_name=_resolve_next(output_name),
-                                                 artifact_type=_resolve_next(output_type),
-                                                 artifact_udfs=output_artifact_udf, sample=a.samples[0],
-                                                 container=ocontainers, from_input=a, replicate_n=n+1, **kwargs)
+                                                 artifact_type=o_type, artifact_udfs=output_artifact_udf,
+                                                 sample=a.samples[0], container=ocontainer,
+                                                 artifact_position=output_position, from_input=a, replicate_n=n+1,
+                                                 **kwargs)
                 used_output_containers.add(oa.container)
                 outputs.append(oa)
-                output_map = {'uri': oa, 'limsid': oa.id, 'output-generation-type': 'PerInput', 'output-type': _resolve_next(output_type)}
+                output_map = {'uri': oa, 'limsid': oa.id, 'output-generation-type': 'PerInput', 'output-type': o_type}
                 input_output_maps.append((input_map, output_map))
         p.input_output_maps = input_output_maps
         # Mock those two functions because they create new Artifact instead of returning the already created ones
@@ -359,7 +400,6 @@ class TestEPP(TestCommon):
                                                      nb_output_container=nb_output_container)
         with pytest.raises(InvalidStepError) as e:
             self.epp._validate_step()
-        print(e.value.message)
         assert e.value.message == "Maximum number of output plates is %s. There are %s output plates in the step." % (
             self.epp._max_nb_output_containers, nb_output_container
         )
