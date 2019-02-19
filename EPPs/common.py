@@ -182,7 +182,8 @@ class StepEPP(app_logging.AppLogger):
          - _max_nb_input_containers: set the maximum number of input container of the step.
          - _max_nb_output_containers: set the maximum number of output container of the step.
          - _max_nb_input: set the maximum number of input of the step.
-         - _nb_artifact_per_input: set the maximum number of replicates of the step.
+         - _nb_analyte_per_input: set the number of replicates (Analytes) required for the step.
+         - _nb_resfile_per_input: set the number of replicates (ResultFiles) required for the step.
          - _max_nb_project: set the maximum number of project in the step.
         """
         if self._max_nb_input_containers is not None:
