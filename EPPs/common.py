@@ -308,7 +308,7 @@ class GenerateHamiltonInputEPP(StepEPP):
     @staticmethod
     def write_csv(filename, csv_array):
         """Write the list of list to the file provided as a csv file"""
-        with open(filename, 'w') as csvFile:
+        with open(filename, 'w', newline='') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerows(csv_array)
 

@@ -380,10 +380,10 @@ class TestEPP(TestCommon):
                 file_content.append(l.strip())
         return file_content
 
-    def _test_replicate_per_input(self, output_per_input):
+    def _test_replicate_per_input(self, output_per_input, output_type='Analyte'):
         fem = FakeEntitiesMaker()
         self.epp.lims = fem.lims
-        self.epp.process = fem.create_a_fake_process(output_per_input=output_per_input)
+        self.epp.process = fem.create_a_fake_process(output_per_input=output_per_input, output_type=output_type)
         with pytest.raises(InvalidStepError) as e:
             self.epp._validate_step()
         assert e.value.message == "%s replicates required for each input. %s replicates found for uri_artifact_1." % (
@@ -439,6 +439,11 @@ class TestStepEPP(TestEPP):
         # 3 replicates outputs rather than required 2 per input
         self.epp._nb_analyte_per_input = 2
         self._test_replicate_per_input(output_per_input=3)
+
+    def test_replicate_per_input2(self):
+        # 3 replicates outputs rather than required 2 per input
+        self.epp._nb_resfile_per_input = 2
+        self._test_replicate_per_input(output_per_input=3, output_type='ResultFile')
 
     def test_max_input_container(self):
         # 1 container is allowed and 2 are created

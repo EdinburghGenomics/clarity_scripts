@@ -43,7 +43,7 @@ class TestAutoplacementSeqPlateQuant(TestEPP):
         assert [(a.name, p) for a, (c, p) in mock_set_placements.mock_calls[0][1][1]] == expected_output_placement
 
     def test_only_1_replicate(self):  # only 1 replicate output rather than required 3
-        self._test_replicate_per_input(1)
+        self._test_replicate_per_input(1, output_type='ResultFile')
 
     def test_only_1_standard(self):  # Only 1 QSTD
         fem = FakeEntitiesMaker()
