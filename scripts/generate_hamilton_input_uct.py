@@ -4,8 +4,7 @@ from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 
 
 class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
-    """"Generate a CSV containing the necessary information to transfer the fragmented sample from a covaris plate into
-    an IMP plate"""
+    """"Generate a CSV containing the necessary information for the KAPA make libraries method"""
     _use_load_config = False  # prevent the loading of the config
     csv_column_headers = ['Input Plate', 'Input Well', 'Sample Name', 'Adapter Well']
     output_file_name = 'KAPA_MAKE_LIBRARIES.csv'
