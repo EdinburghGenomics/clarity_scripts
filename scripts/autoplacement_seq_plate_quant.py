@@ -12,7 +12,7 @@ from EPPs.common import StepEPP, InvalidStepError
 class AutoplacementSeqPlateQuant(StepEPP):
     _use_load_config = False  # prevent the loading of the config
     _max_nb_input = 32
-    _nb_analyte_per_input = 3
+    _nb_resfile_per_input = 3
 
     def _run(self):
 
