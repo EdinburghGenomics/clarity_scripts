@@ -146,29 +146,26 @@ class StepEPP(app_logging.AppLogger):
         else:
             return r.text.replace('\r\n', '\n') if crlf else r.text
 
-    def find_available_container(self, project, container_type, count=1):
+    def find_available_container(self, project, container_type, container_limit=99):
         """
         Check to see if a container name is available, and recurse with incremented container numbers until an available
         container name is found.
         :param str project:
         :param int count:
         """
+        if container_type == '96 well plate':
+            name_template = project + 'P%03d'
+            container_limit = 999
 
-        if container_type=='96 well plate':
-            new_name = project + 'P%03d' % count
-            container_limit=999
+        if container_type == 'rack 96 positions':
+            name_template = project + 'R%02d'
+            name_template = 99
 
-        if container_type=='rack 96 positions':
-            new_name = project+ 'R%02d' % count
-            container_limit=99
-
-        if count > container_limit:
-            raise ValueError('Cannot allocate more than %s containers' % container_limit)
-
-        if not self.lims.get_containers(name=new_name):
-            return new_name
-        else:
-            return self.find_available_container(project, container_type, count=count + 1)
+        for container_count in range(1, container_limit + 1):
+            new_name = name_template % container_count
+            if not self.lims.get_containers(name=new_name):
+                return new_name
+        raise ValueError('Cannot allocate more than %s containers of type %s ' % (container_limit, container_type))
 
     def _run(self):
         raise NotImplementedError

@@ -2,60 +2,110 @@
 
 import re
 
+from cached_property import cached_property
 from pyclarity_lims.entities import Sample, Container
 
-from EPPs.common import StepEPP, get_workflow_stage
+from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError
 
 
 class CreateSamples(StepEPP):
     # uses step UDF data to create all of the samples required by the Project Manager with the sample UDFs popualated
     # before created of the sample manifest for issue to the customer
     _use_load_config = False  # prevent the loading of the config
+    _max_nb_project = 1
+    _max_nb_input = 1
 
-    def _run(self):
+    udf_to_container_type = {
+        '96 well plate': ['96 well plate'],
+        'Tube': ['rack 96 positions', 'SGP rack 96 positions']
+    }
 
-        input_sample = self.process.all_inputs(unique=True)[0].samples[0]
-        input_project = input_sample.project
-        current_container = input_sample.artifact.container
+    def _validate_step(self):
+        """Perform checks that user is working with their required container type and has been named correctly and that
+        the input sample has the correct name format"""
+        # run normal validation
+        super()._validate_step()
 
+        # Check additional validation
+        current_container = self.artifacts[0].container
+        input_sample = self.samples[0]
+        input_project = self.projects[0]
         udf_container_type = self.process.udf['Container Type']
 
+        if current_container.type.name not in ['rack 96 positions', '96 well plate', 'SGP rack 96 positions']:
+            raise InvalidStepError(
+                message=current_container.type.name + ' is not a valid container type for this step.'
+            )
+
+        # Check container type
+        if current_container.type.name not in self.udf_to_container_type[udf_container_type]:
+            raise InvalidStepError(message='Input container is a %s but Container Type UDF is set to %s' %(
+                current_container.type.name, udf_container_type
+            ))
+
+        # Check input container name
+        suffix_udf_name = 'Rack Suffix'
+        if udf_container_type == '96 well plate':
+            suffix_udf_name = 'Plate Suffix'
+        expected_container_re = input_project.name + self.process.udf[suffix_udf_name]
+        print(expected_container_re, current_container.name)
+        if not re.match(expected_container_re, current_container.name):
+            raise InvalidStepError(message='Input container name is not valid for the container type. '
+                                           'It should match: ' + expected_container_re)
+
+        # check the sample name
+        expected_sample_re = expected_container_re + 'A01'
+        if not re.match(expected_sample_re, input_sample.name):
+            raise InvalidStepError(message='Input sample name is not valid. It should match: ' + expected_sample_re)
+
+    @cached_property
+    def common_sample_udfs(self):
+        """iterate through all step udfs and find those with tags [C] at the start"""
+        return [udf for udf in self.process.udf if udf.startswith('[C]')]
+
+    @cached_property
+    def sample_udfs_groups(self):
+        """iterate through all step udfs and find those with tags [G] at the start"""
+        return [udf for udf in self.process.udf if udf.startswith('[G]')]
+
+    def sample_udf_group(self, group):
+        """return the sample udf of a specific group"""
+        return [udf for udf in self.sample_udfs_groups if udf.endswith('(%s)' % group)]
+
+    def _next_sample(self):
+
+        sample_name = self.current_container.name + plate96_layout[plate96_layout_counter].replace(":", "")
+
+    def _create_sample_dict(self, group_number):
+        sample_udf_dict = {}
+        # sample_name = current_container.name + plate96_layout[plate96_layout_counter].replace(":", "")
+
+        # add common sample udfs
+        for common_udf in self.common_sample_udfs:
+            udf_value = str(self.process.udf.get(common_udf, '-'))
+            if udf_value in ['-', '0']:
+                raise InvalidStepError(message=common_udf + ' has not been populated.')
+            else:
+                sample_udf_dict[common_udf[3:]] = self.process.udf[common_udf]
+
+        # add group sample udfs
+        for group_udf in self.sample_udf_group(group_number):
+            udf_value = str(self.process.udf.get(group_udf, '-'))
+            if udf_value in ['-', '0']:
+                raise InvalidStepError(group_udf + ' has not been populated.')
+            else:
+                sample_udf_dict[group_udf[3:-3]] = udf_value
 
 
-        # perform checks that user is working with their required container type and has been named correctly and that
-        #the input sample has the correct name format
 
-        if not current_container.type.name == 'rack 96 positions' and not current_container.type.name == '96 well plate'\
-                and not current_container.type.name=='SGP rack 96 positions':
-            raise ValueError(current_container.type.name + ' is not a valid container type for this step.')
+        # sample_dict = {'container': current_container, 'project': input_project, 'name': sample_name,
+        #                'position': plate96_layout[plate96_layout_counter], 'udf': sample_udf_dict}
+        # return sample_dict
 
-        if current_container.type.name == 'rack 96 positions' or current_container.type.name=='SGP rack 96 positions':
-            # check if user has selected container type that matches the input sample
-            if udf_container_type == '96 Well Plate':
-                raise ValueError('Input container is a rack but Container Type UDF is set to 96 Well Plate')
-
-            # check that the input container name and sample name have the correct formatting
-            container_name_re = input_project.name + self.process.udf['Rack Suffix']
-            input_name_re = container_name_re + 'A01'
-            if re.search(container_name_re, current_container.name) == 'None':
-                raise ValueError('Input container name is not valid for the container type ' +
-                                 container_name_re + '.')
-            if re.search(input_name_re+'A01',input_sample.name) == 'None':
-                raise ValueError('Input sample name is not valid '+input_name_re)
-
-        if current_container.type.name == '96 well plate':
-            # check if user has selected container type that matches the input sample
-            if udf_container_type == 'Tube':
-                raise ValueError('Input container is a 96 Well Plate but Container Type UDF is set to Tube')
-
-            # check that the input container name and sample name have the correct formatting
-            container_name_re = input_project.name + self.process.udf['Plate Suffix']
-            input_name_re=container_name_re+'A01'
-
-            if re.search(container_name_re, current_container.name) == 'None':
-                raise ValueError('Input container name is not valid for the container type ' + container_name_re + '.')
-            if re.search(input_name_re+'A01',input_sample.name) == 'None':
-                raise ValueError('Input sample name is not valid '+input_name_re)
+    def _run(self):
+        input_sample = self.artifacts[0].samples[0]
+        input_project = input_sample.project
+        current_container = input_sample.artifact.container
 
         # assemble the plate layout of the 96 well plate as a list.
         plate96_layout_columns = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
@@ -104,7 +154,6 @@ class CreateSamples(StepEPP):
             elif udf[0:3] == '[G]':
                 sample_udf_group.append(udf[0:-3])
 
-
         # Assumption is that we will never have more than 4 different groups of sample configuration in a project.
         # Loop through the groups 1 to 4 (if present in the step) and create the corresponding samples which the correct
         # sample UDF values pulled from the group step UDFS
@@ -149,10 +198,9 @@ class CreateSamples(StepEPP):
                 plate96_layout_counter += 1
 
                 if plate96_layout_counter % 96 == 0:
-                    current_container = Container.create(self.lims,
-                                                         type=current_container.type)
-                    current_container.name = self.find_available_container(input_project.name,
-                                                                           current_container.type.name)
+                    current_container_name = self.find_available_container(input_project.name, current_container.type.name)
+                    print(current_container_name)
+                    current_container = Container.create(self.lims, type=current_container.type, name=current_container_name)
                     current_container.put()
 
                     plate96_layout_counter = 0

@@ -2,7 +2,7 @@ from unittest.mock import patch, Mock, PropertyMock, call
 
 from pyclarity_lims.entities import Sample
 
-from tests.test_common import TestEPP, NamedMock
+from tests.test_common import TestEPP, NamedMock, FakeEntitiesMaker
 
 from scripts.create_samples import CreateSamples, Container
 
@@ -93,12 +93,43 @@ class TestCreateSamples(TestEPP):
         self.epp=CreateSamples(self.default_argv)
 
     def test_create_sample_96_well_plate_1_sample(self): # no new samples created, input sample populated by step UDFs
-        with self.patched_process, self.patched_lims,self.patched_get_workflow_stage:
+        fem = FakeEntitiesMaker()
+        self.epp.lims = fem.lims
+        self.epp.process = fem.create_a_fake_process(
+            project_name='X99999',
+            input_container_name='X99999P001',
+            sample_name='X99999P001A01',
+            output_per_input=0,
+            step_udfs={
+                'Container Type': '96 well plate',
+                'Plate Suffix': 'P[0-9]{3}',
+                'Number in Group 1': 96,
+                'Number in Group 2': 0,
+                'Number in Group 3': 0,
+                'Number in Group 4': 0,
+                '[C]Prep Workflow': 'TruSeq Nano DNA Sample Prep',
+                '[G]Coverage (X)(1)': 30,
+                'Next Workflow': 'A workflow',
+                'Next Step': 'A step'
+            }
+        )
+        self.epp.lims.get_containers = Mock(side_effect=[['something'], ['something'], []])
+        with self.patched_get_workflow_stage:
+            self.epp._validate_step()
             self.epp._run()
-            #check that a step UDF with the [C] tag populates the matching sample UDF
-            assert self.epp.artifacts[0].samples[0].udf['Prep Workflow'] == self.epp.process.udf['[C]Prep Workflow']
-            #check that a step UDF with the [G] tag and group number populates the matching sample UDF
-            assert self.epp.artifacts[0].samples[0].udf['Coverage (X)'] == self.epp.process.udf['[G]Coverage (X)(1)']
+
+        assert self.epp.artifacts[0].samples[0].udf == {
+            'Coverage (X)': 30,
+            'Prep Workflow': 'TruSeq Nano DNA Sample Prep'
+        }
+
+
+        # with self.patched_process, self.patched_lims,self.patched_get_workflow_stage:
+        #     self.epp._run()
+        #     #check that a step UDF with the [C] tag populates the matching sample UDF
+        #     assert self.epp.artifacts[0].samples[0].udf['Prep Workflow'] == self.epp.process.udf['[C]Prep Workflow']
+        #     #check that a step UDF with the [G] tag and group number populates the matching sample UDF
+        #     assert self.epp.artifacts[0].samples[0].udf['Coverage (X)'] == self.epp.process.udf['[G]Coverage (X)(1)']
 
     def test_create_sample_96_well_plate_2_sample(self): # 1 new sample created
         with self.patched_process2, self.patched_lims, self.patched_get_workflow_stage as pws:
