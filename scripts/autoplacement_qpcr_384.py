@@ -9,8 +9,8 @@ from EPPs.common import StepEPP, InvalidStepError
 # by column-row in the output plate
 class AutoplacementQPCR384(StepEPP):
     _use_load_config = False  # prevent the loading of the config
-    _max_nb_input = 31
-    _nb_resfile_per_input = 3       # generate error if 3 replicates not present
+    _max_nb_inputs = 31
+    _nb_resfiles_per_input = 3       # generate error if 3 replicates not present
 
     def _run(self):
         # loop through the inputs, assemble a nested dicitonary {containers:{input.location:output} this can then be

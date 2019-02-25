@@ -24,7 +24,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     _max_nb_output_containers = 2
 
     # the script is require 2 output for each input.
-    _nb_analyte_per_input = 2
+    _nb_analytes_per_input = 2
 
     def _generate_csv_dict(self):
 

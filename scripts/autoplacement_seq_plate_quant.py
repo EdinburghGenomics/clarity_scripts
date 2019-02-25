@@ -11,8 +11,8 @@ from EPPs.common import StepEPP, InvalidStepError
 
 class AutoplacementSeqPlateQuant(StepEPP):
     _use_load_config = False  # prevent the loading of the config
-    _max_nb_input = 32
-    _nb_resfile_per_input = 3
+    _max_nb_inputs = 32
+    _nb_resfiles_per_input = 3
 
     def _run(self):
 
@@ -30,8 +30,7 @@ class AutoplacementSeqPlateQuant(StepEPP):
 
             # obtain list outputs for the inputs. Sort list in case each output replicate has a unique name based on
             # the replicate number e.g. sampleAreplicate-1, sampleAreplicate-2
-            outputs = sorted(self.process.outputs_per_input(art.id, ResultFile=True), key=lambda x: x.name,
-                             reverse=False)
+            outputs = sorted(self.process.outputs_per_input(art.id, ResultFile=True), key=lambda x: x.name)
 
             # assemble dict of standards and dictionary of output artifacts
             # We want to pipette the standards into the first 3 columns using all 8 channels so build the key using
