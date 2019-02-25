@@ -18,10 +18,13 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     output_file_name = 'KAPA_CFP_TO_IMP_AND_SSQC.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 2
+    _max_nb_output_containers = 2
+
+    # the script is require 2 output for each input.
+    _nb_analyte_per_input = 2
 
     def _generate_csv_dict(self):
 
@@ -49,12 +52,6 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
         for input_art in self.artifacts:
             if input_art.type == 'Analyte':
                 outputs = self.process.outputs_per_input(input_art.id, Analyte=True)
-
-                # the script is only compatible with 1 output for each input i.e. replicates are not allowed
-                if len(outputs) != 2:
-                    raise InvalidStepError(
-                        message='Incorrect number of outputs found for %s. This step requires two outputs per input.' % (
-                            input_art.name))
 
                 # remove semi-colon from locations as this is not compatible with Hamilton Venus software
                 input_location = input_art.location[1].replace(':', '')

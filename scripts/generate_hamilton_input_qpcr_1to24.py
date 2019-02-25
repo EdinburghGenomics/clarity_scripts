@@ -20,17 +20,44 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
     output_file_name = 'MAKE_QPCR-1_TO_24_INPUT.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
 
-    def _run(self):
-        # libraries_csv_dict_dict will be a dictionary that consists of the lines to be present in the Hamilton input file for the input libraries.
-        # standards_csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file for the standards. These are
-        # then sorted into correct order and added to the csv_array which is used to write the file
+    # generate_csv_array in parent needs to be redefined so can handle the writing of standards and no template control to csv_rows
+    def generate_csv_array(self, ):
+        # get the samples dict, standards dict and no template control csv line to be assembled into the csv_rows
+        csv_rows_components = self._generate_csv_dict()
+        csv_rows = [self.csv_column_headers]
+
+        libraries = csv_rows_components[0]
+        standards = csv_rows_components[1]
+        no_template = csv_rows_components[2]
+
+        # add the lines to the csv_array that will be used to write the Hamilton input file for the input libraries
+        for column in self.plate_columns:
+            for row in self.plate_rows:
+                if row + ":" + column in libraries.keys():
+                    csv_rows.append(libraries[row + ":" + column])
+
+        # standards do not have plate and well information in the LIMS. Append them to the end of the csv_array in alphanumeric order
+        # of sample name
+        for standard in sorted(standards):
+            csv_rows.append(standards[standard])
+
+        # add the No Template Control to the end of the file
+        csv_rows.append(no_template)
+
+        return csv_rows
+
+    def _generate_csv_dict(self):
+        # assemble three variables that can then be used to build the output csv file in the correct order. Libraries csv dict,
+        # standards csv dict and no_template_control. These are returned to a redefined generate_csv_array that can assemble them into
+        # csv_rows correctly.
         libraries_csv_dict = {}
         standards_csv_dict = {}
+        no_template_control = []
         csv_array = []
 
         # find the DIL1 and DIL2 barcodes
@@ -42,10 +69,9 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
         # check that DIL1 and DIL2 plate barcodes have the correct format
         if not re.match(DIL1_template, DIL1_barcode):
             raise InvalidStepError(message='%s is not a valid DIL1 container name. Container names must match %s' % (
-                DIL1_barcode, DIL1_template
-            ))
+                DIL1_barcode, DIL1_template))
 
-        if not re.match(DIL1_template, DIL1_barcode):
+        if not re.match(DIL2_template, DIL2_barcode):
             raise InvalidStepError(message='%s is not a valid DIL2 container name. Container names must match %s' % (
                 DIL2_barcode, DIL2_template))
 
@@ -86,10 +112,11 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
                 input_location = input_art.location[1].replace(':', '')
 
                 output = self.process.outputs_per_input(input_art.id, ResultFile=True)
+
                 # the script is only compatible with 3 outputs for each input i.e. replicates are not allowed
                 if len(output) != 3:
-                    raise InvalidStepError(message='%s outputs found for an input %s. 3 replicates required' %
-                                                   ((str(len(output))), input_art.name))
+                    raise InvalidStepError(message='%s outputs found for an input %s. 3 replicates required.' % (
+                        (str(len(output))), input_art.name))
 
                 # output locations i.e. wells in the QPCR plate need to appear in numerical order so they appear in column order
                 # in the QPCR well-X columns.
@@ -129,23 +156,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
                 else:
                     libraries_csv_dict[input_art.location[1]] = csv_line
 
-        def generate_csv_array(self):
-            csv_rows = [self.csv_column_headers]
-            # add the lines to the csv_array that will be used to write the Hamilton input file for the input libraries
-            for column in self.plate_columns:
-                for row in self.plate_rows:
-                    if row + ":" + column in libraries_csv_dict.keys():
-                        csv_rows.append(libraries_csv_dict[row + ":" + column])
-
-            # standards do not have plate and well information in the LIMS. Append them to the end of the csv_array in alphanumeric order
-            # of sample name
-            for standard in sorted(standards_csv_dict):
-                csv_rows.append(standards_csv_dict[standard])
-
-            # add the No Template Control to the end of the file
-            csv_rows.append(no_template_control)
-
-            return csv_rows
+        return (libraries_csv_dict, standards_csv_dict, csv_array, no_template_control)
 
 
 if __name__ == '__main__':

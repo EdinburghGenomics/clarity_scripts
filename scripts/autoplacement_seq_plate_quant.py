@@ -11,9 +11,10 @@ from EPPs.common import StepEPP, InvalidStepError
 
 class AutoplacementSeqPlateQuant(StepEPP):
     _use_load_config = False  # prevent the loading of the config
+    _max_nb_input = 32
+    _nb_resfile_per_input = 3
 
     def _run(self):
-
 
         # loop through the inputs, assemble a nested dictionary {containers:{input.location:output} this can then be
         # queried in the order container-row-column so the order of the inputs in the Hamilton input file is
@@ -25,23 +26,19 @@ class AutoplacementSeqPlateQuant(StepEPP):
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
         output_container_list = self.process.step.placements.get_selected_containers()
 
-        len_all_inputs_unique= len(self.process.all_inputs(unique=True))
-        if len_all_inputs_unique > 32:
-            raise InvalidStepError(message="Maximum number of inputs is 32. %s inputs present in step" % (len_all_inputs_unique))
+        for art in self.artifacts:
 
-        for art in self.process.all_inputs(unique=True):
-
-            # obtain list outputs for the inputs. Sort list in case each output replicate has a unique name based on the replicate number e.g. sampleAreplicate-1, sampleAreplicate-2
-            outputs = sorted(self.process.outputs_per_input(art.id,ResultFile=True), key=lambda x: x.name, reverse=False)
-
-            if len(outputs) != 3:
-                raise InvalidStepError(
-                    message="3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
+            # obtain list outputs for the inputs. Sort list in case each output replicate has a unique name based on
+            # the replicate number e.g. sampleAreplicate-1, sampleAreplicate-2
+            outputs = sorted(self.process.outputs_per_input(art.id, ResultFile=True), key=lambda x: x.name,
+                             reverse=False)
 
             # assemble dict of standards and dictionary of output artifacts
-            #  We want to pipette the standards into the first 3 columns using all 8 channels so build the key using the replicate number and then the name.
-            #  We want to be able to pipette the samples as efficiently as possible so build their key with replicate number, container name, then column then row which
-            #   means if sorted alphanumerically they will sort into columns within containers
+            # We want to pipette the standards into the first 3 columns using all 8 channels so build the key using
+            # the replicate number and then the name.
+            # We want to be able to pipette the samples as efficiently as possible so build their key with replicate
+            # number, container name, then column then row which
+            # means if sorted alphanumerically they will sort into columns within containers
 
             if art.name.split(" ")[0] == "SDNA":
                 output_counter = 0
@@ -56,8 +53,8 @@ class AutoplacementSeqPlateQuant(StepEPP):
                         0]] = output
                     output_counter += 1
 
-        #length of standards_dict is 3 x number of standards in step (i.e. 3 replicates each). Must equal 24 if
-        #all standards have been added correctly.
+        # length of standards_dict is 3 x number of standards in step (i.e. 3 replicates each). Must equal 24 if
+        # all standards have been added correctly.
         if len(standards_dict) != 24:
             raise InvalidStepError(
                 message="Standards missing from step. All 8 standards should be added to the step.")
@@ -75,17 +72,17 @@ class AutoplacementSeqPlateQuant(StepEPP):
             for row in plate_layout_rows:
                 plate_layout.append(row + ":" + column)
 
-        # layout of samples columns 4,5 and 6
+        # layout of samples columns 4, 5 and 6
         for row in plate_layout_rows:
             for column in plate_layout_columns[3:5]:
                 plate_layout.append(row + ":" + column)
 
-        # layout of samples columns 7,8 and 9
+        # layout of samples columns 7, 8 and 9
         for row in plate_layout_rows:
             for column in plate_layout_columns[6:8]:
                 plate_layout.append(row + ":" + column)
 
-        # layout of samples columns 10,11 and 12
+        # layout of samples columns 10, 11 and 12
         for row in plate_layout_rows:
             for column in plate_layout_columns[9:11]:
                 plate_layout.append(row + ":" + column)
@@ -98,21 +95,15 @@ class AutoplacementSeqPlateQuant(StepEPP):
 
         # loop through sorted standards dict and add to output_placement_list
         for key in sorted(standards_dict.keys()):
-
             output_placement_list.append(
                 (standards_dict[key], (output_container_list[0], plate_layout[well_counter])))
 
             well_counter += 1
 
-
-
         # loop through samples dict and add to output_placement_list. Add rules to ensure that replicates are always
         # stamped across three columns to permit maximum simultaneous pipetting.
         row_counter = 1
-        total_input_samples = len_all_inputs_unique - 8
-
-
-
+        total_input_samples = len(self.artifacts) - 8
 
         for key in sorted(outputs_dict.keys()):
 
@@ -149,7 +140,6 @@ class AutoplacementSeqPlateQuant(StepEPP):
             else:
                 well_counter += 1
                 row_counter += 1
-
 
         # push the output locations to the LIMS
         self.process.step.set_placements(output_container_list, output_placement_list)

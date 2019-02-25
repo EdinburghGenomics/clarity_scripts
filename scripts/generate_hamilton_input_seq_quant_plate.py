@@ -16,10 +16,13 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
     output_file_name = 'SEQ_PLATE_QUANT.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
+
+    # the step requires 3 output replicates per input
+    _nb_resfile_per_input = 3
 
     def _generate_csv_dict(self):
         # build a dictionary of the csv lines with the output well as the key so can be populated into the output file in the best order for straightforward import into the Hamilton method
@@ -42,14 +45,9 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
                 message='SDNA Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
-        for art in self.process.all_inputs(unique=True):
+        for art in self.artifacts:
 
             outputs = self.process.outputs_per_input(art.id, ResultFile=True)
-
-            # the step requires 3 output replicates per input
-            if len(outputs) != 3:
-                raise InvalidStepError(
-                    message="3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
 
             # obtain input and output plate names (barcode) for use in loop below
             output_plate_name = outputs[0].location[0].name

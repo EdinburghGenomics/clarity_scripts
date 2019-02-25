@@ -4,17 +4,16 @@ from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 
 
 class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
-    """"Generate a CSV containing the necessary information to transfer the fragmented sample from a covaris plate into
-    an IMP plate"""
+    """"Generate a CSV containing the necessary information for the KAPA make libraries method"""
     _use_load_config = False  # prevent the loading of the config
     csv_column_headers = ['Input Plate', 'Input Well', 'Sample Name', 'Adapter Well']
     output_file_name = 'KAPA_MAKE_LIBRARIES.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
 
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
