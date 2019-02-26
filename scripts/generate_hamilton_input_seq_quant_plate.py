@@ -42,7 +42,7 @@ class GenerateHamiltonInputSeqQuantPlate(GenerateHamiltonInputEPP):
 
         if not sdna_barcode:
             raise InvalidStepError(
-                message='SDNA Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
+                'SDNA Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for art in self.artifacts:

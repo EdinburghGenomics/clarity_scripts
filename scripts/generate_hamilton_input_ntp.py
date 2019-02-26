@@ -37,7 +37,7 @@ class GenerateHamiltonInputNTP(GenerateHamiltonInputEPP):
                 rsb_barcode = lot.lot_number
 
         if not rsb_barcode:
-                raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+                raise InvalidStepError('Please assign RSB lot before generating Hamilton input.')
 
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)

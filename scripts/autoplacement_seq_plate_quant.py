@@ -56,7 +56,7 @@ class AutoplacementSeqPlateQuant(StepEPP):
         # all standards have been added correctly.
         if len(standards_dict) != 24:
             raise InvalidStepError(
-                message="Standards missing from step. All 8 standards should be added to the step.")
+                "Standards missing from step. All 8 standards should be added to the step.")
 
         # assemble the plate layout of the output plate with the 8 standards stamped across the first 3 columns
         # and each set of sample replicates stamped across three neighbouring columns

@@ -51,7 +51,7 @@ class AutoplacementQPCR384(StepEPP):
                     output_counter += 1
 
         if len(standards_dict) < 21:
-            raise InvalidStepError(message="Step requires QSTD A to F and No Template Control with 3 replicates each")
+            raise InvalidStepError("Step requires QSTD A to F and No Template Control with 3 replicates each")
 
         # assemble the plate layout of the output plate as a list
         plate_layout_columns = ["1", "2", "3", "4", "5", "6"]

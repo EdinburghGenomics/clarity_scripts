@@ -191,7 +191,7 @@ class StepEPP(app_logging.AppLogger):
             # check the number of input containers
             if len(self.input_container_names) > self._max_nb_input_containers:
                 raise InvalidStepError(
-                    message='Maximum number of input container is %s. There are %s input container in the step.' % (
+                    'Maximum number of input container is %s. There are %s input container in the step.' % (
                         self._max_nb_input_containers, len(self.input_container_names)
                     )
                 )
@@ -199,14 +199,14 @@ class StepEPP(app_logging.AppLogger):
             # check the number of output containers
             if len(self.output_container_names) > self._max_nb_output_containers:
                 raise InvalidStepError(
-                    message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
+                    'Maximum number of output plates is %s. There are %s output plates in the step.' % (
                         self._max_nb_output_containers, len(self.output_container_names)
                     )
                 )
         if self._max_nb_inputs is not None:
             if len(self.artifacts) > self._max_nb_inputs:
                 raise InvalidStepError(
-                    message="Maximum number of inputs is %s. %s inputs present in step." % (
+                    "Maximum number of inputs is %s. %s inputs present in step." % (
                         self._max_nb_inputs, len(self.artifacts)
                     )
                 )
@@ -215,7 +215,7 @@ class StepEPP(app_logging.AppLogger):
                 outputs = self.process.outputs_per_input(artifact.id, Analyte=True)
                 if len(outputs) != self._nb_analytes_per_input:
                     raise InvalidStepError(
-                        message="%s replicates required for each input. "
+                        "%s replicates required for each input. "
                                 "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
                     )
         if self._nb_resfiles_per_input is not None:
@@ -223,13 +223,13 @@ class StepEPP(app_logging.AppLogger):
                 outputs = self.process.outputs_per_input(artifact.id, ResultFile=True)
                 if len(outputs) != self._nb_resfiles_per_input:
                     raise InvalidStepError(
-                        message="%s replicates required for each input. "
+                        "%s replicates required for each input. "
                                 "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
                     )
         if self._max_nb_projects is not None:
             if len(self.projects) > self._max_nb_projects:
                 raise InvalidStepError(
-                    message='Maximum number of projet in step is %s. %s projects found.' % (
+                    'Maximum number of projet in step is %s. %s projects found.' % (
                         self._max_nb_projects, len(self.projects)
                     )
                 )
@@ -356,7 +356,7 @@ class GenerateHamiltonInputEPP(StepEPP):
                     counter += 1
 
         if counter == 0:
-            raise InvalidStepError(message="No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
+            raise InvalidStepError("No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
 
         return csv_rows
 
