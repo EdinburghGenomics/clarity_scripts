@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from EPPs.common import StepEPP
+from EPPs.common import StepEPP, InvalidStepError
 
 
 # Script for performing autoplacement of samples. If 1 input and 1 output then 1:1 placement. If multiple input plates then
@@ -9,19 +9,13 @@ from EPPs.common import StepEPP
 # by column-row in the output plate
 class AutoplacementQPCR384(StepEPP):
     _use_load_config = False  # prevent the loading of the config
+    _max_nb_inputs = 31
+    _nb_resfiles_per_input = 3       # generate error if 3 replicates not present
 
     def _run(self):
-
-        all_inputs = self.process.all_inputs(unique=True)
-
-        if len(all_inputs) > 31:
-            print("Maximum number of input samples and standards is 31. %s inputs present in step" % (len(all_inputs)))
-            return 1
-
         # loop through the inputs, assemble a nested dicitonary {containers:{input.location:output} this can then be
         # queried in the order container-row-column so the order of the inputs in the Hamilton input file is
         # as efficient as possible.
-        input_container_nested_dict = {}
 
         # update of container requires list variable containing the containers, only one container will be present in step
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
@@ -30,16 +24,10 @@ class AutoplacementQPCR384(StepEPP):
         standards_dict = {}
         outputs_dict = {}
 
-        for art in all_inputs:
+        for art in self.artifacts:
 
             # obtain outputs for the inputs
             outputs = self.process.outputs_per_input(art.id, ResultFile=True)
-            # generate error if 3 replicates not present
-            if len(outputs) != 3:
-                print(
-                    "3 replicates required for each sample and standard. Did you remember to click 'Apply' when assigning replicates?")
-                return 1
-
             # assemble dict of standards and dictionary of output artifacts
             # using numbers 0-2 to differentiate between the three replicate outputs for each input/standard
             output_counter = 0
@@ -51,7 +39,6 @@ class AutoplacementQPCR384(StepEPP):
                     output_counter += 1
 
             elif art.name.split(" ")[0] == "No":
-
                 for output in outputs:
                     # want no template controles to appear after all standards in the sorted dictionary
                     standards_dict["z" + str(output_counter)] = output
@@ -64,8 +51,7 @@ class AutoplacementQPCR384(StepEPP):
                     output_counter += 1
 
         if len(standards_dict) < 21:
-            print("Step requires QSTD A to F and No Template Control with 3 replicates each")
-            return 1
+            raise InvalidStepError("Step requires QSTD A to F and No Template Control with 3 replicates each")
 
         # assemble the plate layout of the output plate as a list
         plate_layout_columns = ["1", "2", "3", "4", "5", "6"]

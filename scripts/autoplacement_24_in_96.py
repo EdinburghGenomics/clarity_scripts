@@ -9,21 +9,16 @@ from EPPs.common import StepEPP
 # by column-row in the output plate
 class Autoplacement24in96(StepEPP):
     _use_load_config = False  # prevent the loading of the config
+    _max_nb_inputs = 24
 
     def _run(self):
-
-        all_inputs = self.process.all_inputs(unique=True)
-        if len(all_inputs) > 24:
-            print("Maximum number of inputs is 24. %s inputs present in step" % (len(all_inputs)))
-            sys.exit(1)
 
         # loop through the inputs, assemble a nested dicitonary {containers:{input.location:output} this can then be
         # queried in the order container-row-column so the order of the inputs in the Hamilton input file is
         # as efficient as possible.
         input_container_nested_dict = {}
 
-        for art in all_inputs:
-
+        for art in self.artifacts:
             # obtain outputs for the input that are analytes, assume step is not configured to allow replicates
             # so will always work with output[0]
             output = self.process.outputs_per_input(art.id, Analyte=True)[0]
@@ -38,7 +33,7 @@ class Autoplacement24in96(StepEPP):
         # update of container requires list variable containing the containers, only one container will be present in step
         # because the container has not yet been fully populated then it must be obtained from the step rather than output
         output_container_list = self.process.step.placements.get_selected_containers()
-        print("output container list",self.process.step.placements.get_selected_containers())
+
         # need a list of tuples for set_placements
         output_placement = []
 
@@ -51,8 +46,6 @@ class Autoplacement24in96(StepEPP):
             for row in output_plate_layout_rows:
                 output_plate_layout.append(row + ":" + column)
 
-
-
         # define the input plate(s) column and rows to be
         input_plate_layout_columns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "11", "12"]
         input_plate_layout_rows = ["A", "B", "C", "D", "E", "F", "G", "H"]
@@ -62,7 +55,7 @@ class Autoplacement24in96(StepEPP):
 
         # loop through the input containers and place the samples in row-column order - this makes pipetting as efficient
         # as possible, particularly if only 1 input plate so 1:1 pipetting
-        for container in input_container_nested_dict:
+        for container in sorted(input_container_nested_dict, key=lambda x: x.name):
             for column in input_plate_layout_columns:
                 for row in input_plate_layout_rows:
                     # populate list of tuples for set_placements if well exists in input plate
