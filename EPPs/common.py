@@ -22,6 +22,7 @@ class InvalidStepError(Exception):
     """Exception raised when error occurred during the script due to the step being Invalid"""
 
     def __init__(self, message):
+        super().__init__(message)
         self.message = message
 
 
