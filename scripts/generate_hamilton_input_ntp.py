@@ -21,7 +21,7 @@ class GenerateHamiltonInputNTP(GenerateHamiltonInputEPP):
     _max_nb_output_containers = 1
 
     # the script is only compatible with 1 output for each input i.e. replicates are not allowed
-    _nb_analyte_per_input = 1
+    _nb_analytes_per_input = 1
 
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
@@ -37,7 +37,7 @@ class GenerateHamiltonInputNTP(GenerateHamiltonInputEPP):
                 rsb_barcode = lot.lot_number
 
         if not rsb_barcode:
-                raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+                raise InvalidStepError('Please assign RSB lot before generating Hamilton input.')
 
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)

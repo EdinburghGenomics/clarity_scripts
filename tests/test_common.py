@@ -387,7 +387,7 @@ class TestEPP(TestCommon):
         with pytest.raises(InvalidStepError) as e:
             self.epp._validate_step()
         assert e.value.message == "%s replicates required for each input. %s replicates found for uri_artifact_1." % (
-            self.epp._nb_analyte_per_input, output_per_input
+            self.epp._nb_analytes_per_input, output_per_input
         )
 
     def _test_max_input_container(self, nb_input_container):
@@ -419,7 +419,7 @@ class TestEPP(TestCommon):
         with pytest.raises(InvalidStepError) as e:
             self.epp._validate_step()
         assert e.value.message == "Maximum number of inputs is %s. %s inputs present in step." % (
-            self.epp._max_nb_input, nb_input
+            self.epp._max_nb_inputs, nb_input
         )
 
     def _test_nb_project(self, nb_project):
@@ -429,7 +429,7 @@ class TestEPP(TestCommon):
         with pytest.raises(InvalidStepError) as e:
             self.epp._validate_step()
         assert e.value.message == "Maximum number of projet in step is %s. %s projects found." % (
-            self.epp._max_nb_project, nb_project
+            self.epp._max_nb_projects, nb_project
         )
 
 
@@ -437,12 +437,12 @@ class TestStepEPP(TestEPP):
 
     def test_replicate_per_input(self):
         # 3 replicates outputs rather than required 2 per input
-        self.epp._nb_analyte_per_input = 2
+        self.epp._nb_analytes_per_input = 2
         self._test_replicate_per_input(output_per_input=3)
 
     def test_replicate_per_input2(self):
         # 3 replicates outputs rather than required 2 per input
-        self.epp._nb_resfile_per_input = 2
+        self.epp._nb_resfiles_per_input = 2
         self._test_replicate_per_input(output_per_input=3, output_type='ResultFile')
 
     def test_max_input_container(self):
@@ -457,12 +457,12 @@ class TestStepEPP(TestEPP):
 
     def test_max_nb_input(self):
         # 24 inputs are allowed and 25 are present
-        self.epp._max_nb_input = 24
+        self.epp._max_nb_inputs = 24
         self._test_max_nb_input(nb_input=25)
 
     def test_nb_project(self):
         # 1 projects are allowed and 2 are present
-        self.epp._max_nb_project = 1
+        self.epp._max_nb_projects = 1
         self._test_nb_project(nb_project=2)
 
 

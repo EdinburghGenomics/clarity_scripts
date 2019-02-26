@@ -24,6 +24,7 @@ class InvalidStepError(Exception):
     """Exception raised when error occurred during the script due to the step being Invalid"""
 
     def __init__(self, message):
+        super().__init__(message)
         self.message = message
 
 
@@ -36,10 +37,10 @@ class StepEPP(app_logging.AppLogger):
     # Step Validation parameters
     _max_nb_input_containers = None
     _max_nb_output_containers = None
-    _max_nb_input = None
-    _nb_analyte_per_input = None
-    _nb_resfile_per_input = None
-    _max_nb_project = None
+    _max_nb_inputs = None
+    _nb_analytes_per_input = None
+    _nb_resfiles_per_input = None
+    _max_nb_projects = None
 
     def __init__(self, argv=None):
         self.argv = argv
@@ -193,7 +194,7 @@ class StepEPP(app_logging.AppLogger):
             # Artifacts that are not samples will not have containers.
             if art.container:
                 containers.add(art.container.name)
-        return list(containers)
+        return sorted(containers)
 
     @cached_property
     def output_container_names(self):
@@ -204,7 +205,7 @@ class StepEPP(app_logging.AppLogger):
             # Artifacts that are not samples will not have containers.
             if art.container:
                 containers.add(art.container.name)
-        return list(containers)
+        return sorted(containers)
 
     def _validate_step(self):
         """Perform the Step EPP's validations when required.
@@ -221,7 +222,7 @@ class StepEPP(app_logging.AppLogger):
             # check the number of input containers
             if len(self.input_container_names) > self._max_nb_input_containers:
                 raise InvalidStepError(
-                    message='Maximum number of input container is %s. There are %s input container in the step.' % (
+                    'Maximum number of input container is %s. There are %s input container in the step.' % (
                         self._max_nb_input_containers, len(self.input_container_names)
                     )
                 )
@@ -229,38 +230,38 @@ class StepEPP(app_logging.AppLogger):
             # check the number of output containers
             if len(self.output_container_names) > self._max_nb_output_containers:
                 raise InvalidStepError(
-                    message='Maximum number of output plates is %s. There are %s output plates in the step.' % (
+                    'Maximum number of output plates is %s. There are %s output plates in the step.' % (
                         self._max_nb_output_containers, len(self.output_container_names)
                     )
                 )
-        if self._max_nb_input is not None:
-            if len(self.artifacts) > self._max_nb_input:
+        if self._max_nb_inputs is not None:
+            if len(self.artifacts) > self._max_nb_inputs:
                 raise InvalidStepError(
-                    message="Maximum number of inputs is %s. %s inputs present in step." % (
-                        self._max_nb_input, len(self.artifacts)
+                    "Maximum number of inputs is %s. %s inputs present in step." % (
+                        self._max_nb_inputs, len(self.artifacts)
                     )
                 )
-        if self._nb_analyte_per_input is not None:
+        if self._nb_analytes_per_input is not None:
             for artifact in self.artifacts:
                 outputs = self.process.outputs_per_input(artifact.id, Analyte=True)
-                if len(outputs) != self._nb_analyte_per_input:
+                if len(outputs) != self._nb_analytes_per_input:
                     raise InvalidStepError(
-                        message="%s replicates required for each input. "
-                                "%s replicates found for %s." % (self._nb_analyte_per_input, len(outputs), artifact.id)
+                        "%s replicates required for each input. "
+                                "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
                     )
-        if self._nb_resfile_per_input is not None:
+        if self._nb_resfiles_per_input is not None:
             for artifact in self.artifacts:
                 outputs = self.process.outputs_per_input(artifact.id, ResultFile=True)
-                if len(outputs) != self._nb_resfile_per_input:
+                if len(outputs) != self._nb_resfiles_per_input:
                     raise InvalidStepError(
-                        message="%s replicates required for each input. "
-                                "%s replicates found for %s." % (self._nb_analyte_per_input, len(outputs), artifact.id)
+                        "%s replicates required for each input. "
+                                "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
                     )
-        if self._max_nb_project is not None:
-            if len(self.projects) > self._max_nb_project:
+        if self._max_nb_projects is not None:
+            if len(self.projects) > self._max_nb_projects:
                 raise InvalidStepError(
-                    message='Maximum number of projet in step is %s. %s projects found.' % (
-                        self._max_nb_project, len(self.projects)
+                    'Maximum number of projet in step is %s. %s projects found.' % (
+                        self._max_nb_projects, len(self.projects)
                     )
                 )
 
@@ -368,7 +369,7 @@ class GenerateHamiltonInputEPP(StepEPP):
             # Artifacts that are not samples will not have containers.
             if art.container and art.location[1] != '1:1':
                 containers.add(art.container.name)
-        return list(containers)
+        return sorted(containers)
 
     @property
     def shared_drive_file_path(self):
@@ -399,7 +400,7 @@ class GenerateHamiltonInputEPP(StepEPP):
                     counter += 1
 
         if counter == 0:
-            raise InvalidStepError(message="No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
+            raise InvalidStepError("No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
 
         return csv_rows
 
