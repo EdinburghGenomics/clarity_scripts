@@ -106,6 +106,10 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
 
         while key_value:
 
+            if key_value not in sample_dict:
+                # Raise value error if sample present in manifest but not in LIMS
+                raise ValueError(key_value + " present in manifest but not present in LIMS.")
+
             for udf in self.step_udfs_to_parse:
                 # remove the container type tag from the step UDF name so can be used to find the corresponding sample UDF
                 lims_udf = udf.replace(self.con_type, '')
@@ -125,15 +129,12 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
                 elif 'Genome Version' in lims_udf and not self.validate_genome_version(udf_value):
                     raise InvalidStepError(udf_value + ' in ' + lims_udf + 'is not a valid genome version')
 
-            # parse the data from the spreadsheet into the sample dictionary
+                # parse the data from the spreadsheet into the sample dictionary
                 sample_dict[key_value].udf[lims_udf] = udf_value
 
-            # add the modified sample to the list of modified samples to be put into the database. Raise value error if
-            # sample present in manifest but not in LIMs
-            try:
-                samples_to_put.append(sample_dict[key_value])
-            except:
-                raise ValueError(key_value + " present in manifest but not present in LIMS.")
+            # add the modified sample to the list of modified samples to be put into the database.
+            samples_to_put.append(sample_dict[key_value])
+
 
             self.current_row += 1
             key_cell = self.key_column + str(self.current_row)

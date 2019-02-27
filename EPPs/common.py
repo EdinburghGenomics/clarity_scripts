@@ -1,11 +1,9 @@
-import argparse
 import csv
 import os
 import sys
 import argparse
 from collections import defaultdict
 from io import StringIO, BytesIO
-from urllib import parse as urlparse
 from logging import FileHandler
 from urllib import parse as urlparse
 
