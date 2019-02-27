@@ -25,10 +25,6 @@ class TestSpectramaxOutput(TestEPP):
 
     def setUp(self):
 
-        self.patched_object = patch.object(
-            SpectramaxOutput,
-            'parse_spectramax_file', new_callable='Complete')
-
         self.epp = spectramax.SpectramaxOutput(
             self.default_argv + [
                 '--spectramax_file',

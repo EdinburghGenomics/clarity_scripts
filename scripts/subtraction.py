@@ -3,7 +3,7 @@
 from EPPs.common import step_argparser, StepEPP
 
 
-class VolumeUpdate(StepEPP):
+class Subtraction(StepEPP):
     """
     Update a volume UDF on the input or output. Argument used to define if input or output UDF updated. Always
     subtracts a step UDF, defined by an argument from a sample UDF, defined by an argument. If the value in the
@@ -11,12 +11,22 @@ class VolumeUpdate(StepEPP):
     """
 
     # define init with the udf, operator and result text required
-    def __init__(self, step_uri, username, password, step_udf_names, sample_udf_names,
-                 log_file=None, input=False):
-        super().__init__(step_uri, username, password, log_file)
-        self.step_udf_names = step_udf_names
-        self.sample_udf_names = sample_udf_names
-        self.inputs = input
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        self.step_udf_names = self.cmd_args.step_udf_names
+        self.sample_udf_names = self.cmd_args.sample_udf_names
+        self.inputs = self.cmd.args.input
+
+    @staticmethod
+    def add_args(argparser):
+        argparser.add_argument('-n', '--step_udf_names', nargs='*',
+                   help='step udfs containing the values to be subtracted')
+        argparser.add_argument('-t', '--sample_udf_names', nargs='*',
+                   help='output/inputs udfs which will be modified')
+
+        argparser.add_argument('-i', '--inputs', action='store_true',
+                   help='if present then the input UDFs are updated', default=False)
+
 
     def _run(self):
 
@@ -60,33 +70,5 @@ class VolumeUpdate(StepEPP):
             self.lims.put_batch(list(inputs_to_update))
 
 
-def main():
-    # Get the default command line options
-    p = step_argparser()
-    p.add_argument('-n', '--step_udf_names', nargs='*',
-                   help='step udfs containing the values to be subtracted')
-    p.add_argument('-t', '--sample_udf_names', nargs='*',
-                   help='output/inputs udfs which will be modified')
-
-    p.add_argument('-i', '--inputs', action='store_true',
-                   help='if present then the input UDFs are updated', default=False)
-
-    # the -n argument can have as many entries as required, if there are spaces within the udfnames and when running locally
-    # then they must be enclosed in speech marks " not quotes ' -n "udf name 1" "udf name 2" "udfname 3" BUT use quotes ' when configuring the EPP as speech marks close the
-    # bash command e.g.
-
-    # Parse command line options
-    args = p.parse_args()
-
-    # Setup the EPP
-    action = VolumeUpdate(
-        args.step_uri, args.username, args.password, args.step_udf_names, args.sample_udf_names, args.log_file,
-        args.inputs
-    )
-
-    # Run the EPP
-    action.run()
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    Subtraction().run()

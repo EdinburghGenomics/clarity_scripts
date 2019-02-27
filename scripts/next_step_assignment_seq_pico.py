@@ -12,7 +12,6 @@ class AssignNextStepSeqPico(StepEPP):
     """
 
     def __init__(self, argv=None):
-        super().__init__(argv)
 
     def _run(self):
         # Artifacts that are standards next step is "remove".

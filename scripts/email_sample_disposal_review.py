@@ -18,8 +18,6 @@ class SampleDisposalFMEmail(SendMailEPP):
         # fill in message with parameters
         msg = msg.format(
             link='https://' + platform.node() + '/clarity/work-details/' + self.step_id[3:],
-            sample_count=len(self.samples),
-            project=self.projects[0].name,
         )
         subject = 'Review Samples for Disposal'
 
