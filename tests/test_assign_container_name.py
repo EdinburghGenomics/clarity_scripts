@@ -42,7 +42,7 @@ class TestAssignContainerName(TestEPP):
     def test_findAvailableContainer(self):
 
         with patch.object(self.epp.lims, 'get_artifacts', side_effect=[['something'], ['something'], []]):
-            assert self.epp.find_available_container(project='project1', count=1) == 'project1P003'
+            assert self.epp.find_available_container(project='project1') == 'project1P003'
 
         with patch.object(self.epp.lims, 'get_artifacts', side_effect=[['a']] * 500 + [[]]):
-            assert self.epp.find_available_container(project='project1', count=1) == 'project1P501'
+            assert self.epp.find_available_container(project='project1') == 'project1P501'

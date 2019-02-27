@@ -119,40 +119,22 @@ class StepEPP(app_logging.AppLogger):
             a = Artifact(self.lims, id=file_or_uid)
             if a.files:
                 if binary:
-                    f = BytesIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf, binary=True))
+                    f = BytesIO(self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf, binary=True))
                 else:
-                    f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
+                    f = StringIO(self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
             else:
                 f = None
         if f:
             self.open_files.append(f)
         return f
 
-    # TODO: remove this when we switch to pyclarity_lims
-    def get_file_contents(self, id=None, uri=None, encoding=None, crlf=False, binary=False):
-        """Returns the contents of the file of <ID> or <uri>"""
-        if id:
-            url = self.lims.get_uri('files', id, 'download')
-        elif uri:
-            url = uri.rstrip('/') + '/download'
-        else:
-            raise ValueError('id or uri required')
-
-        r = self.lims.request_session.get(url, auth=(self.username, self.password), timeout=16)
-        self.lims.validate_response(r)
-        if encoding:
-            r.encoding = encoding
-        if binary:
-            return r.content
-        else:
-            return r.text.replace('\r\n', '\n') if crlf else r.text
-
-    def find_available_container(self, project, container_type, container_limit=99):
+    def find_available_container(self, project, container_type=None, container_limit=99):
         """
         Check to see if a container name is available, and recurse with incremented container numbers until an available
         container name is found.
         :param str project:
-        :param int count:
+        :param str container_type:
+        :param int container_limit:
         """
         if container_type == '96 well plate':
             name_template = project + 'P%03d'
@@ -160,7 +142,7 @@ class StepEPP(app_logging.AppLogger):
 
         if container_type == 'rack 96 positions':
             name_template = project + 'R%02d'
-            name_template = 99
+            container_limit = 99
 
         for container_count in range(1, container_limit + 1):
             new_name = name_template % container_count

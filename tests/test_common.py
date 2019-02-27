@@ -195,7 +195,7 @@ class FakeEntitiesMaker:
 
     def create_a_fake_sample(self, project, sample_name=None, sample_udfs=None, **kwargs):
         sample = self.create_instance(Sample, project=_resolve_next(project))
-        sample.name = sample_name or sample.uri
+        sample.name = _resolve_next(sample_name) or sample.uri
         self._add_udfs(sample, sample_udfs)
         return sample
 
@@ -300,13 +300,16 @@ class FakeEntitiesMaker:
         used_input_containers = set([a.container for a in inputs])
         outputs = []
         # Create output containers
-        ocontainers = cycle(self.create_fake_containers(
-            kwargs.get('nb_output_container', 1),
-            container_name=kwargs.get('output_container_name'),
-            container_type=kwargs.get('output_container_type'),
-            container_udfs= kwargs.get('output_container_udfs'),
-            is_output_container=True,
-            **kwargs))
+        if output_per_input:
+            ocontainers = cycle(self.create_fake_containers(
+                kwargs.get('nb_output_container', 1),
+                container_name=kwargs.get('output_container_name'),
+                container_type=kwargs.get('output_container_type'),
+                container_udfs= kwargs.get('output_container_udfs'),
+                is_output_container=True,
+                **kwargs))
+        else:
+            ocontainers = []
         used_output_containers = set()
         input_output_maps = []
         output_container_map = iter(self._build_container_map(nb_input * output_per_input, ocontainers,
