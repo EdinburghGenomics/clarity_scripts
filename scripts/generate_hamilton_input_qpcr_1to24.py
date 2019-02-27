@@ -20,10 +20,10 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
     output_file_name = 'MAKE_QPCR-1_TO_24_INPUT.csv'
 
     # Define the number of input containers that are permitted
-    permitted_input_containers = 1
+    _max_nb_input_containers = 1
 
     # Define the number of output containers that are permitted
-    permitted_output_containers = 1
+    _max_nb_output_containers = 1
 
     # generate_csv_array in parent needs to be redefined so can handle the writing of standards and no template control to csv_rows
     def generate_csv_array(self, ):
@@ -68,11 +68,11 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
 
         # check that DIL1 and DIL2 plate barcodes have the correct format
         if not re.match(DIL1_template, DIL1_barcode):
-            raise InvalidStepError(message='%s is not a valid DIL1 container name. Container names must match %s' % (
+            raise InvalidStepError('%s is not a valid DIL1 container name. Container names must match %s' % (
                 DIL1_barcode, DIL1_template))
 
         if not re.match(DIL2_template, DIL2_barcode):
-            raise InvalidStepError(message='%s is not a valid DIL2 container name. Container names must match %s' % (
+            raise InvalidStepError('%s is not a valid DIL2 container name. Container names must match %s' % (
                 DIL2_barcode, DIL2_template))
 
         # find the corresponding lot number i.e. barcode for the QMX and QSTD.
@@ -92,16 +92,16 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
 
         if not qmx_barcode:
             raise InvalidStepError(
-                message='qPCR Master Mix (QMX) lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
+                'qPCR Master Mix (QMX) lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
 
         if not qstd_barcode:
             raise InvalidStepError(
-                message='QSTD Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
+                'QSTD Plate lot not selected. Please select in "Reagent Lot Tracking" at top of step.')
 
         # check that no more than 31 inputs present in the step. 7 standards and a maximum of 24 samples.
         if len(self.artifacts) > 31:
             raise InvalidStepError(
-                message='%s samples and standards present in step. There should be 7 standards and up to 24 samples present' % (
+                '%s samples and standards present in step. There should be 7 standards and up to 24 samples present' % (
                     len(self.artifacts)))
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files) then add them to a set
@@ -115,7 +115,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
 
                 # the script is only compatible with 3 outputs for each input i.e. replicates are not allowed
                 if len(output) != 3:
-                    raise InvalidStepError(message='%s outputs found for an input %s. 3 replicates required.' % (
+                    raise InvalidStepError('%s outputs found for an input %s. 3 replicates required.' % (
                         (str(len(output))), input_art.name))
 
                 # output locations i.e. wells in the QPCR plate need to appear in numerical order so they appear in column order
