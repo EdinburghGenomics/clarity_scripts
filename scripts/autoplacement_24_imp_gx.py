@@ -13,8 +13,8 @@ class Autoplacement24IMPGX(StepEPP):
     """
     _use_load_config = False  # prevent the loading of the config
     _max_nb_input_containers = 1  # only 1 input container
-    _nb_analyte_per_input = 2  # Each input needs 2 output
-    _max_nb_input = 24  # Maximum number of input in this step 24
+    _nb_analytes_per_input = 2  # Each input needs 2 output
+    _max_nb_inputs = 24  # Maximum number of input in this step 24
 
     def _run(self):
 

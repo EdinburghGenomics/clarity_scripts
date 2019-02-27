@@ -24,7 +24,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
     _max_nb_output_containers = 2
 
     # the script is require 2 output for each input.
-    _nb_analyte_per_input = 2
+    _nb_analytes_per_input = 2
 
     def _generate_csv_dict(self):
 
@@ -46,7 +46,7 @@ class GenerateHamiltonInputIMPSSQC(GenerateHamiltonInputEPP):
                 rsb_barcode = lot.lot_number
 
         if not rsb_barcode:
-            raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+            raise InvalidStepError('Please assign RSB lot before generating Hamilton input.')
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:

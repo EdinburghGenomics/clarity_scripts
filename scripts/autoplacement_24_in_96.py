@@ -9,7 +9,7 @@ from EPPs.common import StepEPP
 # by column-row in the output plate
 class Autoplacement24in96(StepEPP):
     _use_load_config = False  # prevent the loading of the config
-    _max_nb_input = 24
+    _max_nb_inputs = 24
 
     def _run(self):
 

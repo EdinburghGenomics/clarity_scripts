@@ -35,7 +35,7 @@ class GenerateHamiltonInputCFP(GenerateHamiltonInputEPP):
                 rsb_barcode = lot.lot_number
 
         if not rsb_barcode:
-            raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+            raise InvalidStepError('Please assign RSB lot before generating Hamilton input.')
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
@@ -43,7 +43,7 @@ class GenerateHamiltonInputCFP(GenerateHamiltonInputEPP):
                 outputs = self.process.outputs_per_input(input_art.id, Analyte=True)
                 # the script is only compatible with 1 output for each input i.e. replicates are not allowed
                 if len(outputs) > 1:
-                    raise InvalidStepError(message='Multiple outputs found for an input %s. '
+                    raise InvalidStepError('Multiple outputs found for an input %s. '
                                            'This step is not compatible with replicates.' % input_art.name)
                 output = outputs[0]
 
