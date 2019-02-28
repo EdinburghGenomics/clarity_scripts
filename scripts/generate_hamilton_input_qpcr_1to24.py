@@ -29,6 +29,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
     def generate_csv_array(self, ):
         # get the samples dict, standards dict and no template control csv line to be assembled into the csv_rows
         csv_rows_components = self._generate_csv_dict()
+
         csv_rows = [self.csv_column_headers]
 
         libraries = csv_rows_components[0]
@@ -58,7 +59,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
         libraries_csv_dict = {}
         standards_csv_dict = {}
         no_template_control = []
-        csv_array = []
+        # csv_array = []
 
         # find the DIL1 and DIL2 barcodes
         DIL1_template = "LP[0-9]{7}-DIL1"
@@ -106,6 +107,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files) then add them to a set
         for input_art in self.artifacts:
+
             if input_art.type == 'Analyte':
 
                 # remove semi-colon from the input location as this is not compatible with Hamilton Venus software
@@ -149,6 +151,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
                 # by input container then column then row. Standards do not have an input well location and are appended
                 # at the end of the file in alphanumeric order. No Template Control must be the last row in the file.
                 if input_art.location[1] == "1:1":
+
                     if input_art.name == "No Template Control":
                         no_template_control = csv_line
                     else:
@@ -156,7 +159,7 @@ class GenerateHamiltonInputQPCR(GenerateHamiltonInputEPP):
                 else:
                     libraries_csv_dict[input_art.location[1]] = csv_line
 
-        return (libraries_csv_dict, standards_csv_dict, csv_array, no_template_control)
+        return (libraries_csv_dict, standards_csv_dict, no_template_control)
 
 
 if __name__ == '__main__':
