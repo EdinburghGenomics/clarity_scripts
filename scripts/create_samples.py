@@ -12,7 +12,6 @@ from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError, RestCommu
 class CreateSamples(StepEPP, RestCommunicationEPP):
     """uses step UDF data to create all of the samples required by the Project Manager with the sample UDFs populated
     before created of the sample manifest for issue to the customer."""
-    _use_load_config = True  # prevent the loading of the config
     _max_nb_project = 1
     _max_nb_input = 1
 

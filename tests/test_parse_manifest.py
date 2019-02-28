@@ -2,6 +2,8 @@ from os.path import join
 from unittest.mock import patch
 
 import pytest
+
+from EPPs.common import InvalidStepError
 from scripts.parse_manifest import ParseManifest
 from tests.test_common import TestEPP,  FakeEntitiesMaker
 
@@ -41,7 +43,7 @@ class TestParseManifest(TestEPP):
         epp = ParseManifest(self.default_argv + ['--manifest', join(self.assets, 'Manifest_To_Parse_too_many.xlsx')])
         epp.lims = self.fem.lims
         epp.process = self.process
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(InvalidStepError) as e:
             epp._run()
         assert str(e.value) == 'Key3 present in manifest but not present in LIMS.'
 
@@ -49,6 +51,6 @@ class TestParseManifest(TestEPP):
         epp = ParseManifest(self.default_argv + ['--manifest', join(self.assets, 'Manifest_To_Parse_too_few.xlsx')])
         epp.lims = self.fem.lims
         epp.process = self.process
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(InvalidStepError) as e:
             epp._run()
         assert str(e.value) == 'The number of samples in the step does not match the number of samples in the manifest'
