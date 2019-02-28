@@ -5,6 +5,7 @@ import sys
 from collections import defaultdict
 from io import StringIO
 from logging import FileHandler
+import re
 from urllib import parse as urlparse
 
 import EPPs
@@ -326,6 +327,20 @@ class GenerateHamiltonInputEPP(StepEPP):
             if art.container and art.location[1] != '1:1':
                 containers.add(art.container.name)
         return sorted(containers)
+
+    def rsb_barcode(self):
+        # find the lot number, i.e. barcode, of the RSB reagent.
+        RSB_template = "LP[0-9]{7}-RSB"
+        reagent_lots = list(self.process.step.reagent_lots)
+
+        rsb_barcode = None
+        for lot in reagent_lots:
+            if re.match(RSB_template, lot.lot_number):
+                rsb_barcode = lot.lot_number
+
+        if not rsb_barcode:
+            raise InvalidStepError(message='Please assign RSB lot before generating Hamilton input.')
+        return rsb_barcode
 
     @property
     def shared_drive_file_path(self):
