@@ -12,7 +12,7 @@ from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError, RestCommu
 class CreateSamples(StepEPP, RestCommunicationEPP):
     """uses step UDF data to create all of the samples required by the Project Manager with the sample UDFs populated
     before created of the sample manifest for issue to the customer."""
-    _use_load_config = False  # prevent the loading of the config
+    _use_load_config = True  # prevent the loading of the config
     _max_nb_project = 1
     _max_nb_input = 1
 
@@ -90,9 +90,9 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
                     if udf_value in ['-', '0']:
                         raise InvalidStepError(group_udf + ' has not been populated.')
                     elif 'Species' in group_udf and not self.validate_species(udf_value):
-                        raise InvalidStepError(udf_value + ' in ' + group_udf + 'is not a valid species')
+                        raise InvalidStepError(udf_value + ' in ' + group_udf + ' is not a valid species')
                     elif 'Genome Version' in group_udf and not self.validate_genome_version(udf_value):
-                        raise InvalidStepError(udf_value + ' in ' + group_udf + 'is not a valid genome version')
+                        raise InvalidStepError(udf_value + ' in ' + group_udf + ' is not a valid genome version')
 
     def validate_species(self, species_name):
         """Validate species name against REST API."""
@@ -102,7 +102,7 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
 
     def validate_genome_version(self, genome_version):
         """Validate genome version against REST API unless it is empty."""
-        if genome_version == '' or self.get_documents('genomes', where={'name': genome_version}):
+        if genome_version == '' or self.get_documents('genomes', where={'assembly_name': genome_version}):
             return True
         return False
 

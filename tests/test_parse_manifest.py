@@ -1,4 +1,6 @@
 from os.path import join
+from unittest.mock import patch
+
 import pytest
 from scripts.parse_manifest import ParseManifest
 from tests.test_common import TestEPP,  FakeEntitiesMaker
@@ -9,22 +11,8 @@ class TestParseManifest(TestEPP):
     process_udfs = {
         'Plate Sample Name': 'A',
         '[Plate]Container Name': 'B',
-        # '[Plate]Well': 'C',
-        # '[Plate]Project ID': 'D',
-        # '[Plate][Sample UDF]Column': 'E',
+        '[Plate]Well': 'C',
         'Plate Starting Row': 1,
-        # '[Tube]Sample Name': 'A',
-        # '[Tube]Container Name': 'B',
-        # '[Tube]Well': 'C',
-        # '[Tube]Project ID': 'D',
-        # '[Tube][Sample UDF]Column': 'E',
-        # '[Tube]Starting Row': 1,
-        # '[SGP]Sample Name': 'A',
-        # '[SGP]Container Name': 'B',
-        # '[SGP]Well': 'C',
-        # '[SGP]Project ID': 'D',
-        # '[SGP][Sample UDF]Column': 'E',
-        # '[SGP]Starting Row': 1
     }
 
     def setUp(self):
@@ -39,9 +27,13 @@ class TestParseManifest(TestEPP):
         epp.lims = self.fem.lims
         epp.process = self.process
 
-        epp._run()
+        with patch.object(ParseManifest, 'warning') as mwarning:
+            epp._run()
         # Check the udfs have been updated in the samples
         assert [s.udf for s in epp.samples] == [{'Container Name': 'Value1'}, {'Container Name': 'Value2'}]
+        # Check that the warning were logged
+        mwarning.assert_any_call('Value UDF %s is not set for sample %s (cell %s).', 'Well', 'Key1', 'C1')
+        mwarning.assert_any_call('Value UDF %s is not set for sample %s (cell %s).', 'Well', 'Key2', 'C2')
         # Check the samples have been uploaded
         epp.lims.put_batch.assert_call_once_with(epp.samples)
 

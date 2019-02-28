@@ -39,7 +39,7 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
 
     def validate_genome_version(self, genome_version):
         """Validate genome version against REST API unless it is empty."""
-        if genome_version == '' or self.get_documents('genomes', where={'name': genome_version}):
+        if genome_version == '' or self.get_documents('genomes', where={'assembly_name': genome_version}):
             return True
         return False
 
@@ -124,6 +124,10 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
                 else:
                     udf_value = ws[udf_cell].value
 
+                if udf_value is None:
+                    self.warning('Value UDF %s is not set for sample %s (cell %s).', lims_udf, key_value, udf_cell)
+                    continue
+
                 if 'Species' in lims_udf and not self.validate_species(udf_value):
                     raise InvalidStepError(udf_value + ' in ' + lims_udf + 'is not a valid species')
                 elif 'Genome Version' in lims_udf and not self.validate_genome_version(udf_value):
@@ -134,7 +138,6 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
 
             # add the modified sample to the list of modified samples to be put into the database.
             samples_to_put.append(sample_dict[key_value])
-
 
             self.current_row += 1
             key_cell = self.key_column + str(self.current_row)

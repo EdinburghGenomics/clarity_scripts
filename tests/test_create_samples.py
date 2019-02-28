@@ -80,6 +80,8 @@ class TestCreateSamples(TestEPP):
     def test_create_sample_96_well_plate_1_sample(self):  # no new samples created, input sample populated by step UDFs
         fem = FakeEntitiesMaker()
         self.epp.lims = fem.lims
+        # Add genome version
+        self.fem_params['step_udfs']['[G]Genome Version(1)'] = 'hg38'
         self.epp.process = fem.create_a_fake_process(**self.fem_params)
 
         with self.patched_get_workflow_stage, self.patched_get_documents as mgetdoc:
@@ -89,11 +91,15 @@ class TestCreateSamples(TestEPP):
         assert self.epp.samples[0].udf == {
             'Coverage (X)': 30,
             'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
-            'Species': 'Homo sapiens'
+            'Species': 'Homo sapiens',
+            'Genome Version': 'hg38'
         }
         # sample has been uploaded
         assert self.epp.lims.put.call_count == 1
-        mgetdoc.assert_called_with('species', where={'name': 'Homo sapiens'})
+        # REST API was contacted
+        mgetdoc.assert_any_called_with('species', where={'name': 'Homo sapiens'})
+        mgetdoc.assert_any_called_with('genomes', where={'assembly_name': 'hg38'})
+        assert mgetdoc.call_count == 2
 
     def test_create_sample_96_well_plate_4_samples(self):
         """ Test how 4 new samples are created"""
