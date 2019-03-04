@@ -330,7 +330,9 @@ Clarity X'''
                 recipients=['facility@email.com', 'project@email.com'],
                 strict=True
             )
-
+    #this step can have samples from multiple projects so should not run the "test_only_one_project" test
+    def test_only_one_project(self):
+        pass
 
 class TestSampleDisposalNotification(TestEmailEPP):
     def setUp(self):

@@ -1,7 +1,8 @@
 from os.path import join, dirname, abspath
 from unittest.mock import Mock, patch
-from tests.test_common import TestEPP, NamedMock
+from scripts.spectramax import SpectramaxOutput
 from scripts import spectramax
+from tests.test_common import TestEPP, NamedMock
 
 
 class TestSpectramaxOutput(TestEPP):
@@ -19,7 +20,11 @@ class TestSpectramaxOutput(TestEPP):
 
     exp_plate_names = ['a_plate', 'another_plate', 'yet_another_plate']
 
+
+
+
     def setUp(self):
+
         self.epp = spectramax.SpectramaxOutput(
             self.default_argv + [
                 '--spectramax_file',
@@ -36,9 +41,11 @@ class TestSpectramaxOutput(TestEPP):
         self.epp.plate_names = self.exp_plate_names
         self.epp.sample_concs = self.exp_concs.copy()
         self.epp.assign_samples_to_plates()
+
         assert self.epp.plates == self.exp_plates
 
         self.epp.plates.clear()
+
         del self.epp.sample_concs[6]
         with self.assertRaises(AssertionError) as e:
             self.epp.assign_samples_to_plates()
@@ -66,4 +73,4 @@ class TestSpectramaxOutput(TestEPP):
                     'Unadjusted Pico Conc (ng/ul)': self.epp.plates[container.name][coord],
                     'Spectramax Well': coord
                 }
-                artifact.put.assert_called_once()
+
