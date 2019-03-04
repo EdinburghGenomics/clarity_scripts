@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from EPPs.common import StepEPP
-from pyclarity_lims.entities import Protocol
 
 
 class AssignNextStepSeqPico(StepEPP):
@@ -10,9 +9,6 @@ class AssignNextStepSeqPico(StepEPP):
     This script assigns the next step for samples in the Sequencing Plate Picgreen step to either "review" if they
     have failed or complete (as last step in the protocol).
     """
-
-    def __init__(self, argv=None):
-        super().__init__(argv)
 
     def _run(self):
         # Artifacts that are standards next step is "remove".

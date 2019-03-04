@@ -16,8 +16,8 @@ class TestAssignNextStep(TestEPP):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])
         self.patched_protocol = patch('scripts.next_step_assignment_kapa_qc.Protocol', return_value=protocol)
 
-        self.epp = AssignWorkflow(self.default_argv + ['-sw', 'SeqPlatePrepWF'] + ['-ss', 'SeqPlatePrepST']
-                                  + ['-rw', 'RepeatWF'] + ['-rs', 'RepeatST'] + ['-qw','MakeQPCRWF'] + ['-qs','MakeQPCRST'])
+        self.epp = AssignWorkflow(self.default_argv + ['-a', 'SeqPlatePrepWF'] + ['-b', 'SeqPlatePrepST']
+                                  + ['-c', 'RepeatWF'] + ['-x', 'RepeatST'] + ['-y','MakeQPCRWF'] + ['-z','MakeQPCRST'])
 
     def test_assign_next_step_seq_plate_prep(self): # show that samples are assigned to Sequencing Plate Prep
         fem = FakeEntitiesMaker()
