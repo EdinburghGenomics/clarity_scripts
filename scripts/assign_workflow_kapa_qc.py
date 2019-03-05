@@ -22,12 +22,12 @@ class AssignWorkflow(StepEPP):
 
     @staticmethod
     def add_args(argparser):
-        argparser.add_argument('-sw', '--sppw', type=str, required=True, help='Sequencing plate prepration workflow name')
-        argparser.add_argument('-ss', '--spps',  type=str, required=True, help='Sequencing plate preparation step name')
-        argparser.add_argument('-rw', '--rrw', type=str, required=True, help='Request repeats workflow name')
-        argparser.add_argument('-rs', '--rrs',  type=str, required=True, help='Request repeats step name')
-        argparser.add_argument('-qw', '--qpcrw', type=str, required=True, help='Make and Read QPCR workflow name')
-        argparser.add_argument('-qs', '--qpcrs',  type=str, required=True, help='Make and Read QPCR step name')
+        argparser.add_argument('-a', '--sppw', type=str, required=True, help='Sequencing plate prepration workflow name')
+        argparser.add_argument('-b', '--spps',  type=str, required=True, help='Sequencing plate preparation step name')
+        argparser.add_argument('-c', '--rrw', type=str, required=True, help='Request repeats workflow name')
+        argparser.add_argument('-x', '--rrs',  type=str, required=True, help='Request repeats step name')
+        argparser.add_argument('-y', '--qpcrw', type=str, required=True, help='Make and Read QPCR workflow name')
+        argparser.add_argument('-z', '--qpcrs',  type=str, required=True, help='Make and Read QPCR step name')
 
 
     def _run(self):

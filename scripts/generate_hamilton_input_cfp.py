@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import re
 import sys
 
 from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
@@ -25,17 +24,7 @@ class GenerateHamiltonInputCFP(GenerateHamiltonInputEPP):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
         csv_dict = {}
 
-        # find the lot number, i.e. barcode, of the RSB reagent.
-        RSB_template = "LP[0-9]{7}-RSB"
-        reagent_lots = list(self.process.step.reagent_lots)
-
-        rsb_barcode = None
-        for lot in reagent_lots:
-            if re.match(RSB_template, lot.lot_number):
-                rsb_barcode = lot.lot_number
-
-        if not rsb_barcode:
-            raise InvalidStepError('Please assign RSB lot before generating Hamilton input.')
+        rsb_barcode = self.rsb_barcode()
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
