@@ -48,7 +48,7 @@ class ParseManifest(StepEPP):
         # tag, key is the variable that is used for linking the sample to the matching manifest row. key column is the
         # column in the manifest that holds the key information and current_row starts as the first row in the excel
         # sheet that contains sample data and is then updated as the manifest is parsed
-        if self.process.all_inputs()[0].container.type.name == '96 well plate':
+        if self.artifacts[0].container.type.name == '96 well plate':
             con_type = '[Plate]'
             key = 'Plate Sample Name'
             key_column = self.process.udf['Plate Sample Name']

@@ -27,21 +27,21 @@ class ProjectUDFStepUDF(StepEPP):
             for step_udf, project_udf in zip(self.step_udfs, self.project_udfs):
                 if not step_udf in self.process.udf:
                     raise ValueError('Step UDF '+step_udf+' not present')
-                elif not project_udf in self.process.all_inputs()[0].samples[0].project.udf:
+                elif not project_udf in self.artifacts[0].samples[0].project.udf:
                     raise ValueError('Project UDF ' + project_udf + ' not present')
                 else:
                     if self.reverse == False:
-                        self.process.udf[step_udf] = self.process.all_inputs()[0].samples[0].project.udf[project_udf]
+                        self.process.udf[step_udf] = self.artifacts[0].samples[0].project.udf[project_udf]
 
                     if self.reverse == True:
-                        self.process.all_inputs()[0].samples[0].project.udf[project_udf] = self.process.udf[step_udf]
+                        self.artifacts[0].samples[0].project.udf[project_udf] = self.process.udf[step_udf]
 
             if self.reverse == False:
                 self.process.put()
 
             if self.reverse == True:
-                self.process.all_inputs()[0].samples[0].project.put()
-                #self.lims.put_batch([self.process.all_inputs()[0].samples[0].project])
+                self.artifacts[0].samples[0].project.put()
+
 
 if __name__ == '__main__':
     ProjectUDFStepUDF().run()

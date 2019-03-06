@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 import itertools
+
+from egcg_core.config import cfg
 from openpyxl import load_workbook
 import os
 
-from EPPs.common import SendMailEPP
+from EPPs.common import SendMailEPP, StepEPP
 
 
-class GenerateManifest(SendMailEPP):
+class GenerateManifest(StepEPP):
     # populate the sample manifest with the sample date. Sample manifest template is determined by a step udf.
     # The starting row and columns are determined by step UDFs. Uses SendMailEPP object for get_config function
 
     _use_load_config = True  # should the config file be loaded?
+    _max_nb_project = 1
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
     def __init__(self, argv=None):
@@ -26,8 +29,8 @@ class GenerateManifest(SendMailEPP):
     def _run(self):
 
         # obtain all of the inputs for the step
-        all_inputs = self.process.all_inputs(unique=True)
-        input_project_name=all_inputs[0].samples[0].project.name
+        all_inputs = self.artifacts
+        input_project_name=self.projects[0]
 
 
 
@@ -51,14 +54,14 @@ class GenerateManifest(SendMailEPP):
         # obtain the name of container type of the samples
         if list(container_types)[0].name == '96 well plate':
             con_type = '[Plates]'
-            template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest',
-                                            config_heading_3='plate_template')
+            template_file = cfg.query('file_templates', 'manifest', 'plate_template')
+            cfg.query('file_templates', 'manifest', 'plate_template')
         elif list(container_types)[0].name == 'rack 96 positions':
             con_type = '[Tubes]'
-            template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='tube_template')
+            template_file = cfg.query('file_templates', 'manifest', 'tube_template')
         elif list(container_types)[0].name == 'SGP rack 96 positions':
             con_type = '[SGP]'
-            template_file = self.get_config(config_heading_1='file_templates', config_heading_2='manifest', config_heading_3='SGP_template')
+            template_file = cfg.query('file_templates', 'manifest', 'SGP_template')
 
         # define counter to ensure each sample is written to a new well
         row_counter = step_udfs[con_type + 'Starting Row']
@@ -120,7 +123,7 @@ class GenerateManifest(SendMailEPP):
             ws[step_udfs['[SGP]Project ID Well']] = input_project_name
 
         # create a new file with the original file name plus a suffix containing the project ID
-        lims_filepath = self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + all_inputs[0].samples[0].project.name + '.xlsx'
+        lims_filepath = self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + self.projects[0] + '.xlsx'
         wb.save(filename=lims_filepath)
 
 

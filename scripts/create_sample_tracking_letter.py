@@ -6,12 +6,16 @@ from barcode.writer import ImageWriter
 from docx import Document
 from docx.shared import Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from egcg_core.config import cfg
+
 from EPPs.common import SendMailEPP
 
 
 class GenerateTrackingLetter (SendMailEPP):
     #Automatically generates the tracking letter sent to customers for tube shipments by populating a word template
     #with a 128 format barcode containing the container name
+
+    _max_nb_project = 1
 
     # additional argument required to obtain the file location for newly created tracking letter in the LIMS step
     def __init__(self, argv=None):
@@ -27,7 +31,7 @@ class GenerateTrackingLetter (SendMailEPP):
     def _run(self):
 
         # obtain all of the inputs for the step
-        all_inputs = self.process.all_inputs(unique=True)
+        all_inputs = self.artifacts
 
 
         # check only one container (rack) is present in the step
@@ -57,7 +61,7 @@ class GenerateTrackingLetter (SendMailEPP):
                       'module_width':0.3}
         ean.save('code128', options=save_options)
 
-        document= Document(self.get_config(config_heading_1='file_templates', config_heading_2='tracking_letter'))
+        document= Document(cfg.query('file_templates', 'tracking_letter'))
 
         for paragraph in document.paragraphs:
             if 'The barcode(s) above provides confirmation' in paragraph.text:
@@ -67,7 +71,7 @@ class GenerateTrackingLetter (SendMailEPP):
                 r=p.add_run()
                 r.add_picture('code128.png',width=Cm(5))
 
-        document.save(self.letter+'-Edinburgh_Genomics_Sample_Tracking_Letter_'+all_inputs[0].samples[0].project.name+'.docx')
+        document.save(self.letter+'-Edinburgh_Genomics_Sample_Tracking_Letter_'+self.projects[0]+'.docx')
 
 if __name__ == '__main__':
     GenerateTrackingLetter().run()

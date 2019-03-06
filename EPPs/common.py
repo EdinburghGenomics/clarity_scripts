@@ -270,10 +270,11 @@ class StepEPP(app_logging.AppLogger):
                 )
 
     def __del__(self):
-        if hasattr(self,'open_files'):
+        try:
             for f in self.open_files:
                 f.close()
-
+        except Exception:
+            pass
 
 class SendMailEPP(StepEPP):
     def get_email_template(self, name=None):
