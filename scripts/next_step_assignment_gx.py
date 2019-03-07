@@ -22,7 +22,7 @@ class AssignNextStep(StepEPP):
         #on the SSQC Result
         for next_action in next_actions:
 
-            if next_action['artifact'].udf['SSQC Result']=='PASSED':
+            if next_action['artifact'].samples[0].udf['SSQC Result']=='PASSED':
                 next_action['action'] = 'remove'
 
 

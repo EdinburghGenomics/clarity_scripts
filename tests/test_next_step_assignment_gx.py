@@ -8,8 +8,8 @@ class TestAssignNextStep(TestEPP):
     def setUp(self):
 
         self.actions = Mock(next_actions=[
-            {'artifact': NamedMock(real_name='Sample1',udf={'SSQC Result':'PASSED'} )},
-            {'artifact': NamedMock(real_name='Sample2', udf={'SSQC Result':'FAILED'})},
+            {'artifact': Mock(id='ai1',samples=[Mock(id='s1',udf={'SSQC Result':'PASSED'} )])},
+            {'artifact': Mock(id='ai2', samples=[Mock(id='s2',udf={'SSQC Result':'FAILED'})])},
             ])
 
         self.patched_process1 = patch.object(
