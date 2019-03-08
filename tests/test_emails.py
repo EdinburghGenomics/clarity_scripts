@@ -300,6 +300,9 @@ class TestSampleDisposalFacilityManager(TestEmailEPP):
         super().setUp()
         self.epp = self.create_epp(SampleDisposalFMEmail)
 
+    def test_only_one_project(self):
+        pass
+
     def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
             self.epp._run()
@@ -335,6 +338,9 @@ class TestSampleDisposalNotification(TestEmailEPP):
     def setUp(self):
         super().setUp()
         self.epp = self.create_epp(SampleDisposalNotificationEmail)
+
+    def test_only_one_project(self):
+        pass
 
     def test_send_email(self):
         with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
