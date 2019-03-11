@@ -12,8 +12,8 @@ class TestAssignNextStepKAPAqPCR(TestEPP):
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{'artifact':NamedMock(real_name='QSTD A')},
                                           {'artifact':NamedMock(real_name='No Template Control')},
-                                          {'artifact': NamedMock(real_name='Library1', qc_flag='PASSED')},
-                                          {'artifact': NamedMock(real_name='Library2', qc_flag='FAILED')}])
+                                          {'artifact': NamedMock(real_name='Library1', udf={'QPCR QC':'PASSED'})},
+                                          {'artifact': NamedMock(real_name='Library2', udf={'QPCR QC':'FAILED'})}])
 
 
         self.patched_process1 = patch.object(
