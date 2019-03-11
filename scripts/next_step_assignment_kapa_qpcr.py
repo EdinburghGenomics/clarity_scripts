@@ -37,10 +37,10 @@ class AssignNextStepKAPAqPCR(StepEPP):
                         next_action['action'] = 'repeat'
 
                     elif self.process.udf.get('Standard Curve Result') == 'Pass QSTD Curve':
-                        if art.qc_flag == 'FAILED':
+                        if art.udf['QPCR QC'] == 'FAILED':
                             # if an input sample has failed QC then this should go to manager review
                             next_action['action'] = 'review'
-                        elif art.qc_flag == 'PASSED':
+                        elif art.udf['QPCR QC'] == 'PASSED':
                             # if an input sample has passed QC then it can be assigned to the next step
                             current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
                             protocol = Protocol(self.process.lims,
