@@ -12,8 +12,8 @@ class TestAssignNextStepKAPAqPCR(TestEPP):
         self.protostep = Mock(uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(next_actions=[{'artifact':NamedMock(real_name='QSTD A')},
                                           {'artifact':NamedMock(real_name='No Template Control')},
-                                          {'artifact': NamedMock(real_name='Library1', udf={'QPCR QC':'PASSED'})},
-                                          {'artifact': NamedMock(real_name='Library2', udf={'QPCR QC':'FAILED'})}])
+                                          {'artifact': NamedMock(real_name='Library1')},
+                                          {'artifact': NamedMock(real_name='Library2')}])
 
 
         self.patched_process1 = patch.object(
@@ -32,7 +32,7 @@ class TestAssignNextStepKAPAqPCR(TestEPP):
         self.patched_process3 = patch.object(
             AssignNextStepKAPAqPCR,
             'process',
-            new_callable=PropertyMock(return_value=Mock(udf={'Standard Curver Result':''}))
+            new_callable=PropertyMock(return_value=Mock(udf={'Standard Curve Result':''}))
         )
 
         self.epp = AssignNextStepKAPAqPCR(self.default_argv)
@@ -50,7 +50,7 @@ class TestAssignNextStepKAPAqPCR(TestEPP):
                 {'artifact':self.actions.next_actions[0]['artifact'],'action': 'remove'},
                 {'artifact':self.actions.next_actions[1]['artifact'],'action': 'remove'},
                 {'artifact':self.actions.next_actions[2]['artifact'],'action': 'nextstep', 'step': protocol.steps[1]},
-                {'artifact':self.actions.next_actions[3]['artifact'],'action': 'review'}
+                {'artifact':self.actions.next_actions[3]['artifact'],'action': 'nextstep', 'step': protocol.steps[1]}
             ]
             assert self.actions.next_actions == expected_next_actions
             assert self.actions.put.call_count == 1
