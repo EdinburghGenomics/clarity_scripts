@@ -358,11 +358,19 @@ class TestEPP(TestCommon):
             '--log_file', TestCommon.log_file
         ]
         os.environ['CLARITYSCRIPTCONFIG'] = join(self.etc_path, 'example_clarity_script.yml')
+        self.current_wd = os.curdir
 
     def setUp(self):
         argv = self.default_argv.copy()
         argv[1] = 'http://server:8080/some/extra/stuff'
         self.epp = StepEPP(argv)
+        self.current_wd = os.curdir
+        # move to base directory as most of the test should be run from there
+        os.chdir(dirname(dirname(abspath(__file__))))
+
+    def tearDown(self):
+        os.chdir(self.current_wd)
+
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'

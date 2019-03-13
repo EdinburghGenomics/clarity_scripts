@@ -60,11 +60,11 @@ rest_api:
 
 file_templates:
   manifest:
-    plate_template: assets/Blank_Manifest.xlsx
-    tube_template: assets/Blank_Manifest.xlsx
-    SGP_template: assets/Blank_Manifest.xlsx
+    plate_template: tests/assets/Blank_Manifest.xlsx
+    tube_template: tests/assets/Blank_Manifest.xlsx
+    SGP_template: tests/assets/Blank_Manifest.xlsx
 
-  tracking_letter: assets/Template_tracking_letter.docx
+  tracking_letter: tests/assets/Template_tracking_letter.docx
   requirements:
     plate: plate requirements
     tube: tube requirements
