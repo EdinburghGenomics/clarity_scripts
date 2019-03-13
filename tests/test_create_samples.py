@@ -146,8 +146,8 @@ class TestCreateSamples(TestEPP):
         # sample has been uploaded
         assert self.epp.lims.put.call_count == 1
         # REST API was contacted
-        mgetdoc.assert_any_called_with('species', where={'name': 'Homo sapiens'})
-        mgetdoc.assert_any_called_with('genomes', where={'assembly_name': 'hg38'})
+        mgetdoc.assert_any_call('species', where={'name': 'Homo sapiens'})
+        mgetdoc.assert_any_call('genomes', where={'assembly_name': 'hg38'})
         assert mgetdoc.call_count == 2
 
     def test_create_sample_96_well_plate_4_samples(self):
@@ -162,6 +162,7 @@ class TestCreateSamples(TestEPP):
         with self.get_patch_create_container(fem.create_a_fake_container(container_name='X99999P002')) as mcreate, \
                 self.patched_get_workflow_stage:
             self.epp._validate_step()
+
     def test_create_sample_96_well_plate_4_samples(self):
         """ Test how 4 new samples are created"""
         fem = FakeEntitiesMaker()

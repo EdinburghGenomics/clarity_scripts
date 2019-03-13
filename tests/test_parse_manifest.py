@@ -1,5 +1,5 @@
 from os.path import join
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import pytest
 
@@ -28,7 +28,6 @@ class TestParseManifest(TestEPP):
         epp = ParseManifest(self.default_argv + ['--manifest', join(self.assets, 'Manifest_To_Parse.xlsx')])
         epp.lims = self.fem.lims
         epp.process = self.process
-
         with patch.object(ParseManifest, 'warning') as mwarning:
             epp._run()
         # Check the udfs have been updated in the samples
@@ -37,7 +36,7 @@ class TestParseManifest(TestEPP):
         mwarning.assert_any_call('Value UDF %s is not set for sample %s (cell %s).', 'Well', 'Key1', 'C1')
         mwarning.assert_any_call('Value UDF %s is not set for sample %s (cell %s).', 'Well', 'Key2', 'C2')
         # Check the samples have been uploaded
-        epp.lims.put_batch.assert_call_once_with(epp.samples)
+        epp.lims.put_batch.assert_called_once_with(epp.samples)
 
     def test_parse_manifest_sample_too_many(self):
         epp = ParseManifest(self.default_argv + ['--manifest', join(self.assets, 'Manifest_To_Parse_too_many.xlsx')])
