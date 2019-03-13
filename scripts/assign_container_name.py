@@ -23,5 +23,6 @@ class AssignContainerName(StepEPP):
 
                 break
 
+
 if __name__ == '__main__':
     AssignContainerName().run()

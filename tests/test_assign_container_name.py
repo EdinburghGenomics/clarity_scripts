@@ -15,15 +15,13 @@ class TestAssignContainerName(TestEPP):
     def setUp(self):
         self.epp = AssignContainerName(self.default_argv)
 
-    def _test_assign(self, get_artifact_calls, expected_container_name):
+    def _test_assign(self, get_containers_calls, expected_container_name):
         fake_outputs = [fake_output('Not an Analyte'), fake_output('Analyte')]
         fake_process = Mock(all_outputs=Mock(return_value=fake_outputs))
         patched_process = patch.object(AssignContainerName, 'process', new=fake_process)
-        patched_get_arts = patch.object(
-            AssignContainerName, 'lims', new=Mock(get_artifacts=Mock(side_effect=get_artifact_calls))
-        )
+        patched_get_conts = patch.object(self.epp.lims, 'get_containers', side_effect=get_containers_calls)
 
-        with patched_get_arts, patched_process:
+        with patched_get_conts, patched_process:
             self.epp._run()
 
         assert fake_outputs[1].container.name == expected_container_name
@@ -41,8 +39,8 @@ class TestAssignContainerName(TestEPP):
 
     def test_findAvailableContainer(self):
 
-        with patch.object(self.epp.lims, 'get_artifacts', side_effect=[['something'], ['something'], []]):
+        with patch.object(self.epp.lims, 'get_containers', side_effect=[['something'], ['something'], []]):
             assert self.epp.find_available_container(project='project1') == 'project1P003'
 
-        with patch.object(self.epp.lims, 'get_artifacts', side_effect=[['a']] * 500 + [[]]):
-            assert self.epp.find_available_container(project='project1') == 'project1P501'
+        with patch.object(self.epp.lims, 'get_containers', side_effect=[['a']] * 500 + [[]]):
+            assert self.epp.find_available_container(project='project1', container_type='96 well plate') == 'project1P501'

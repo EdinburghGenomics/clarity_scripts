@@ -40,7 +40,7 @@ class StepEPP(app_logging.AppLogger):
     _nb_analytes_per_input = None
     _nb_resfiles_per_input = None
     _max_nb_projects = None
-    _max_input_container_types = None
+    _max_nb_input_container_types = None
 
     def __init__(self, argv=None):
         self.argv = argv
@@ -136,8 +136,8 @@ class StepEPP(app_logging.AppLogger):
         :param str container_type:
         :param int container_limit:
         """
+        name_template = project + 'P%03d'
         if container_type == '96 well plate':
-            name_template = project + 'P%03d'
             container_limit = 999
 
         if container_type == 'rack 96 positions':

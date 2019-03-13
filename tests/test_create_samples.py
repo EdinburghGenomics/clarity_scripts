@@ -127,9 +127,12 @@ class TestCreateSamples(TestEPP):
             self.epp._validate_step()
             self.epp._run()
         # UDFs have been applied
+        print(self.epp.samples[0].udf)
         assert self.epp.samples[0].udf == {
             'Coverage (X)': 30,
-            'Prep Workflow': 'TruSeq Nano DNA Sample Prep'
+            'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
+            'Genome Version': 'hg38',
+            'Species': 'Homo sapiens'
         }
         # sample has been uploaded
         assert self.epp.lims.put.call_count == 1
@@ -173,7 +176,7 @@ class TestCreateSamples(TestEPP):
             self.epp._validate_step()
             self.epp._run()
 
-        udfs_g1 = {'Prep Workflow': 'TruSeq Nano DNA Sample Prep', 'Coverage (X)': 30}
+        udfs_g1 = {'Species': 'Homo sapiens', 'Prep Workflow': 'TruSeq Nano DNA Sample Prep', 'Coverage (X)': 30}
         p = fem.object_store_per_type['Project'][0]
         c = fem.object_store_per_type['Container'][0]
         # Fill up the container by column first

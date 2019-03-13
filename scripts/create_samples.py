@@ -129,7 +129,20 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
     def next_stage(self):
         return get_workflow_stage(self.lims,  self.process.udf['Next Workflow'], self.process.udf['Next Step'])
 
-
+    def _next_sample_name_and_pos(self):
+        """Provide the next available position on the current container and generate the associated sample name.
+        When the container runs out of positions, create a new container and start again."""
+        if not self.current_container:
+            self.current_container = self.artifacts[0].container
+        elif self.plate96_layout_counter >= 96:
+            self.current_container = Container.create(
+                self.lims,
+                type=self.current_container.type,
+                name=self.find_available_container(self.projects[0].name, self.current_container.type.name)
+            )
+            self.plate96_layout_counter = 0
+        r, c = self.plate96_layout[self.plate96_layout_counter]
+        sample_name = self.current_container.name + '%s%02d' % (c, r)
         self.plate96_layout_counter += 1
         return sample_name, '%s:%d' % (c, r)
 
