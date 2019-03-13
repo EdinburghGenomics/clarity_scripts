@@ -371,7 +371,6 @@ class TestEPP(TestCommon):
     def tearDown(self):
         os.chdir(self.current_wd)
 
-
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'
 
