@@ -9,6 +9,8 @@ from EPPs.common import SendMailEPP
 
 
 class EmailManifestLetter(SendMailEPP):
+    _max_nb_projects = 1
+
     # populate the sample manifest with the sample date. Sample manifest template is determined by a step udf.
     # The starting row and columns are determined by step UDFs.
 
@@ -31,10 +33,6 @@ class EmailManifestLetter(SendMailEPP):
 
     def _run(self):
 
-        if len(self.projects) > 1:
-            raise ValueError('More than one project present in step. Only one project per step permitted')
-
-
         # obtain all of the inputs for the step
         all_inputs = list(self.artifacts)
         input_project_name=self.projects[0].name
@@ -51,13 +49,14 @@ class EmailManifestLetter(SendMailEPP):
 
 
         manifest_filepath=self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + input_project_name + '.xlsx'
-        letter_filepath=self.letter+'-Edinburgh_Genomics_Sample_Tracking_Letter_'+self.projects[0]+'.docx'
+        letter_filepath=self.letter+'-Edinburgh_Genomics_Sample_Tracking_Letter_'+self.projects[0].name+'.docx'
 
 
         #send an email to the project manager using customer manifest template with the new manifest attached
 
         #choose a species for the email subject, this can be updated manually by the project manager
-        species=all_inputs[0].samples[0].udf['Species']
+        species=', '.join(set(s.udf['Species'] for s in self.samples))
+
         email_subject= input_project_name+": "+species+" WGS Sample Submission"
 
         #the manifest and relevant requirements document for the container type should be attached to the email.

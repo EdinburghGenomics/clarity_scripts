@@ -16,7 +16,7 @@ from cached_property import cached_property
 from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
-from pyclarity_lims.entities import Process, Artifact
+from pyclarity_lims.entities import Process, Artifact, Protocol
 from pyclarity_lims.lims import Lims
 from requests.exceptions import ConnectionError
 
@@ -42,6 +42,7 @@ class StepEPP(app_logging.AppLogger):
     _nb_analytes_per_input = None
     _nb_resfiles_per_input = None
     _max_nb_projects = None
+    _max_input_container_types = None
 
     def __init__(self, argv=None):
         self.argv = argv
@@ -172,6 +173,33 @@ class StepEPP(app_logging.AppLogger):
         else:
             return self.find_available_container(project, container_type, count=count + 1)
 
+    def next_step_or_complete(self, next_actions):
+        """
+        Assigns the next action to all artifacts as either workflow complete or the next available step.
+        :param next_actions:
+        :return: next_actions
+        """
+        current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
+        protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
+        steps = protocol.steps  # a list of all the ProtocolSteps in protocol
+        # If the step is the last step in the protocol then set the next action to complete
+        if current_step == steps[-1]:
+            # for all artifacts in next_actions update the action to "complete"
+            for next_action in next_actions:
+                next_action['action'] = 'complete'
+
+        # If the step is not the last step in the protocol then set the next action to the next step
+        # and assign the identity of that step with the step_object
+        else:
+            step_object = steps[steps.index(current_step) + 1]
+            # for all artifacts in next_actions update the action to "next step" with the step
+            # as the next step in the protocol
+            for next_action in next_actions:
+                next_action['action'] = 'nextstep'
+                next_action['step'] = step_object
+
+        return next_actions
+
     def _run(self):
         raise NotImplementedError
 
@@ -201,6 +229,17 @@ class StepEPP(app_logging.AppLogger):
         return sorted(containers)
 
     @cached_property
+    def input_container_name_types(self):
+        """The name of containers from input artifacts. """
+        container_types = set()
+        for art in self.artifacts:
+            # Check to see if artifact has a container before retrieving the container.
+            # Artifacts that are not samples will not have containers.
+            if art.container:
+                container_types.add(art.container.type.name)
+        return sorted(container_types)
+
+    @cached_property
     def output_container_names(self):
         """The name of containers from output artifacts"""
         containers = set()
@@ -216,11 +255,13 @@ class StepEPP(app_logging.AppLogger):
         All validations are optionals and will require sub classes to set the corresponding varaibles:
 
          - _max_nb_input_containers: set the maximum number of input container of the step.
+         - _max_nb_input_container_types: set the maximum number of input container types of the step
          - _max_nb_output_containers: set the maximum number of output container of the step.
          - _max_nb_input: set the maximum number of input of the step.
          - _nb_analyte_per_input: set the number of replicates (Analytes) required for the step.
          - _nb_resfile_per_input: set the number of replicates (ResultFiles) required for the step.
          - _max_nb_project: set the maximum number of project in the step.
+
         """
         if self._max_nb_input_containers is not None:
             # check the number of input containers
@@ -230,6 +271,16 @@ class StepEPP(app_logging.AppLogger):
                         self._max_nb_input_containers, len(self.input_container_names)
                     )
                 )
+
+        if self._max_nb_input_container_types is not None:
+            # check the number of input containers
+            if len(self.input_container_name_types) > self._max_nb_input_containers:
+                raise InvalidStepError(
+                    'Maximum number of input container types is %s. There are %s input container types in the step.' % (
+                        self._max_nb_input_container_types, len(self.input_container_name_types)
+                    )
+                )
+
         if self._max_nb_output_containers is not None:
             # check the number of output containers
             if len(self.output_container_names) > self._max_nb_output_containers:

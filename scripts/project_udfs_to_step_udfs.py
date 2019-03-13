@@ -4,6 +4,7 @@ from EPPs.common import StepEPP
 
 
 class ProjectUDFStepUDF(StepEPP):
+    _max_nb_projects = 1
     """
     Pushes and pulls values from step UDF to project UDF.
     """
@@ -31,10 +32,10 @@ class ProjectUDFStepUDF(StepEPP):
                     raise ValueError('Project UDF ' + project_udf + ' not present')
                 else:
                     if self.reverse == False:
-                        self.process.udf[step_udf] = self.artifacts[0].samples[0].project.udf[project_udf]
+                        self.process.udf[step_udf] = self.projects[0].udf[project_udf]
 
                     if self.reverse == True:
-                        self.artifacts[0].samples[0].project.udf[project_udf] = self.process.udf[step_udf]
+                        self.projects[0].udf[project_udf] = self.process.udf[step_udf]
 
             if self.reverse == False:
                 self.process.put()

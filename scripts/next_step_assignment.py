@@ -40,24 +40,25 @@ class AssignNextStep(StepEPP):
 
         # If review argument flag is not present then either nextstep or complete are the options
         else:
-            current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
-            protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
-            steps = protocol.steps  # a list of all the ProtocolSteps in protocol
-            # If the step is the last step in the protocol then set the next action to complete
-            if current_step == steps[-1]:
-                # for all artifacts in next_actions update the action to "complete"
-                for next_action in next_actions:
-                    next_action['action'] = 'complete'
-
-            # If the step is not the last step in the protocol then set the next action to the next step
-            # and assign the identity of that step with the step_object
-            else:
-                step_object = steps[steps.index(current_step) + 1]
-                # for all artifacts in next_actions update the action to "next step" with the step
-                # as the next step in the protocol
-                for next_action in next_actions:
-                    next_action['action'] = 'nextstep'
-                    next_action['step'] = step_object
+            self.next_step_or_complete(next_actions)
+            # current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
+            # protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
+            # steps = protocol.steps  # a list of all the ProtocolSteps in protocol
+            # # If the step is the last step in the protocol then set the next action to complete
+            # if current_step == steps[-1]:
+            #     # for all artifacts in next_actions update the action to "complete"
+            #     for next_action in next_actions:
+            #         next_action['action'] = 'complete'
+            #
+            # # If the step is not the last step in the protocol then set the next action to the next step
+            # # and assign the identity of that step with the step_object
+            # else:
+            #     step_object = steps[steps.index(current_step) + 1]
+            #     # for all artifacts in next_actions update the action to "next step" with the step
+            #     # as the next step in the protocol
+            #     for next_action in next_actions:
+            #         next_action['action'] = 'nextstep'
+            #         next_action['step'] = step_object
 
         actions.put()
 

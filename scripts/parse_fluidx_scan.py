@@ -22,11 +22,9 @@ class ParseFluidXScan(StepEPP):
 
 
 
-        # find the fluidx outpu
-        for output in self.process.all_outputs(unique=True):
-            if output.id == self.fluidx_scan:
-                fluidx_scan_file=self.open_or_download_file(self.fluidx_scan)
-                fluidx_scan_list = list(csv.reader(fluidx_scan_file))
+        # open the fluidx scan file
+        fluidx_scan_file=self.open_or_download_file(self.fluidx_scan)
+        fluidx_scan_list = list(csv.reader(fluidx_scan_file))
 
         all_inputs=self.artifacts
 

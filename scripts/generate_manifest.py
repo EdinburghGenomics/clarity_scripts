@@ -3,9 +3,8 @@ import itertools
 
 from egcg_core.config import cfg
 from openpyxl import load_workbook
-import os
 
-from EPPs.common import SendMailEPP, StepEPP
+from EPPs.common import StepEPP
 
 
 class GenerateManifest(StepEPP):
@@ -14,6 +13,11 @@ class GenerateManifest(StepEPP):
 
     _use_load_config = True  # should the config file be loaded?
     _max_nb_project = 1
+    _max_nb_input_container_types = 1
+
+    @property
+    def configurable_udfs(self):
+        return [udf for udf in self.process.udf if udf.find('[Sample UDF]') > -1]
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
     def __init__(self, argv=None):
@@ -30,23 +34,13 @@ class GenerateManifest(StepEPP):
 
         # obtain all of the inputs for the step
         all_inputs = self.artifacts
-        input_project_name=self.projects[0]
+        input_project_name = self.projects[0].name
 
-
-
-        # check all input containers have the same type and also create list of unique containers
+        # check all input containers have the same type
         container_types = set()
-        unique_container_names=set()
-
 
         for artifact in all_inputs:
             container_types.add(artifact.container.type)
-            unique_container_names.add(artifact.container.name)
-
-
-
-        if len(container_types) > 1:
-            raise ValueError('Only 1 container type is permitted. Multiple container types are present in the step')
 
         # obtain step udfs
         step_udfs = self.process.udf
@@ -71,59 +65,59 @@ class GenerateManifest(StepEPP):
         wb = load_workbook(filename=template_file)
         ws = wb.active
 
-        configurable_udfs = []
-
-        for step_udf_key in step_udfs.keys():
-            tag_position = step_udf_key.find('[Sample UDF]')
-
-            if tag_position > -1:
-                configurable_udfs.append(step_udf_key[tag_position + 12:])
+        # configurable_udfs = []
+        #
+        # for step_udf_key in step_udfs:
+        #     tag_position = step_udf_key.find('[Sample UDF]')
+        #
+        #     if tag_position > -1:
+        #         configurable_udfs.append(step_udf_key[tag_position + 12:])
 
         # define the rows and columns of the 96 well plate/rack to be used for writing the manifest in correct order
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
-        sample_dict={}
+        sample_dict = {}
 
         # create a dictionary of samples so the manifest can be written by column
         for artifact in all_inputs:
-            sample_dict[artifact.container.name+artifact.location[1].replace(":","")]=artifact.samples[0]
+            sample_dict[artifact.container.name + artifact.location[1].replace(":", "")] = artifact.samples[0]
 
-        for container in sorted(unique_container_names):
-            for column,row in itertools.product(columns,rows):
-                if container+row+column not in sample_dict:
+        for container in sorted(self.input_container_names):
+            for column, row in itertools.product(columns, rows):
+                if container + row + column not in sample_dict:
                     continue
-                #if condition met then 'continue' means will skip back to beginning of loop
+                # if condition met then 'continue' means will skip back to beginning of loop
 
                 # populate the manifest with sample attributes
-                sample_udf=sample_dict[container+row+column].udf
+                sample_udf = sample_dict[container + row + column].udf
 
-                #sample_udf = artifact.samples[0].udf
+                # sample_udf = artifact.samples[0].udf
                 # populate the wells in the active work sheet in the excel in the columns defined by the step UDFs
                 if con_type == '[Plates]':
-                    ws[step_udfs[con_type + 'Sample Name'] + str(row_counter)] = sample_dict[container+row+column].artifact.name
-                    ws[step_udfs['[Plates]Container Name'] + str(row_counter)] = sample_dict[container+row+column].artifact.container.name
-                    ws[step_udfs['[Plates]Well'] + str(row_counter)] = sample_dict[container+row+column].artifact.location[1]
-                    ws[step_udfs['[Plates]Project ID'] + str(row_counter)] =sample_dict[container+row+column].project.name
+                    ws[step_udfs[con_type + 'Sample Name'] + str(row_counter)] = sample_dict[
+                        container + row + column].artifact.name
+                    ws[step_udfs['[Plates]Container Name'] + str(row_counter)] = sample_dict[
+                        container + row + column].artifact.container.name
+                    ws[step_udfs['[Plates]Well'] + str(row_counter)] = \
+                        sample_dict[container + row + column].artifact.location[1]
+                    ws[step_udfs['[Plates]Project ID'] + str(row_counter)] = sample_dict[
+                        container + row + column].project.name
 
                 # populate the manifest with sample UDFs which are configurable by adding or removing step UDFs in the
                 # format [CONTAINER TYPE - either Tubes or Plates][Sample UDF]Name of UDF
-                for configurable_udf in configurable_udfs:
-                    if con_type + '[Sample UDF]' + configurable_udf in step_udfs.keys():
-                        ws[step_udfs[con_type + '[Sample UDF]' + configurable_udf] + str(row_counter)] = \
+                for configurable_udf in self.configurable_udfs:
+                    if con_type + configurable_udf in step_udfs.keys():
+                        ws[step_udfs[con_type + configurable_udf] + str(row_counter)] = \
                             sample_udf[configurable_udf]
-
 
                 row_counter += 1
 
-        if con_type == '[Tubes]':
-            ws[step_udfs['[Tubes]Project ID Well']] = input_project_name
-
-        if con_type == '[SGP]':
-            ws[step_udfs['[SGP]Project ID Well']] = input_project_name
+        if con_type in ['[Tubes]', '[SGP]']:
+            ws[step_udfs[con_type + 'Project ID Well']] = input_project_name
 
         # create a new file with the original file name plus a suffix containing the project ID
-        lims_filepath = self.manifest + '-'+'Edinburgh_Genomics_Sample_Submission_Manifest_' + self.projects[0] + '.xlsx'
+        lims_filepath = self.manifest + '-' + 'Edinburgh_Genomics_Sample_Submission_Manifest_' + input_project_name + '.xlsx'
         wb.save(filename=lims_filepath)
 
 
