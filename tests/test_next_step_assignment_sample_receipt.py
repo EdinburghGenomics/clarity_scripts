@@ -11,41 +11,41 @@ class TestNextStepSampleReceipt(TestEPP):
 
     protocol = Mock(steps=[protostep1, protostep2, protostep3])
 
-    patched_protocol = patch('scripts.next_step_assignment_sample_receipt.Protocol', return_value=protocol)
+    patched_protocol= patch('EPPs.common.Protocol', return_value=protocol)
 
     udfs1 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'Yes',
-        'Samples present in wells or tubes?': 'Yes'
+        '>= 50ul sample present in wells or tubes?': 'Yes'
     }
 
     udfs2 = {
         'Dry ice remaining in package?': 'No',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'Yes',
-        'Samples present in wells or tubes?': 'Yes'
+        '>= 50ul sample present in wells or tubes?': 'Yes'
     }
 
     udfs3 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'No',
         'Samples frozen?': 'Yes',
-        'Samples present in wells or tubes?': 'Yes'
+        '>= 50ul sample present in wells or tubes?': 'Yes'
     }
 
     udfs4 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'No',
-        'Samples present in wells or tubes?': 'Yes'
+        '>= 50ul sample present in wells or tubes?': 'Yes'
     }
 
     udfs5 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'Yes',
-        'Samples present in wells or tubes?': 'No'
+        '>= 50ul sample present in wells or tubes?': 'No'
     }
 
     protostep = Mock(uri='http://test.com/config/protocols/1/step/2')

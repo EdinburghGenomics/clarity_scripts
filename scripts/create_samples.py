@@ -12,6 +12,7 @@ from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError, RestCommu
 class CreateSamples(StepEPP, RestCommunicationEPP):
     """uses step UDF data to create all of the samples required by the Project Manager with the sample UDFs populated
     before created of the sample manifest for issue to the customer."""
+    _use_load_config = False  # prevent the loading of the config
     _max_nb_project = 1
     _max_nb_input = 1
 
@@ -89,9 +90,9 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
                     if udf_value in ['-', '0']:
                         raise InvalidStepError(group_udf + ' has not been populated.')
                     elif 'Species' in group_udf and not self.validate_species(udf_value):
-                        raise InvalidStepError(udf_value + ' in ' + group_udf + ' is not a valid species')
+                        raise InvalidStepError(udf_value + ' in ' + group_udf + 'is not a valid species')
                     elif 'Genome Version' in group_udf and not self.validate_genome_version(udf_value):
-                        raise InvalidStepError(udf_value + ' in ' + group_udf + ' is not a valid genome version')
+                        raise InvalidStepError(udf_value + ' in ' + group_udf + 'is not a valid genome version')
 
     def validate_species(self, species_name):
         """Validate species name against REST API."""
@@ -99,6 +100,11 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
             return True
         return False
 
+    def validate_genome_version(self, genome_version):
+        """Validate genome version against REST API unless it is empty."""
+        if genome_version == '' or self.get_documents('genomes', where={'name': genome_version}):
+            return True
+        return False
     def validate_genome_version(self, genome_version):
         """Validate genome version against REST API unless it is empty."""
         if genome_version == '' or self.get_documents('genomes', where={'assembly_name': genome_version}):
@@ -123,20 +129,6 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
     def next_stage(self):
         return get_workflow_stage(self.lims,  self.process.udf['Next Workflow'], self.process.udf['Next Step'])
 
-    def _next_sample_name_and_pos(self):
-        """Provide the next available position on the current container and generate the associated sample name.
-        When the container runs out of positions, create a new container and start again."""
-        if not self.current_container:
-            self.current_container = self.artifacts[0].container
-        elif self.plate96_layout_counter >= 96:
-            self.current_container = Container.create(
-                self.lims,
-                type=self.current_container.type,
-                name=self.find_available_container(self.projects[0].name, self.current_container.type.name)
-            )
-            self.plate96_layout_counter = 0
-        r, c = self.plate96_layout[self.plate96_layout_counter]
-        sample_name = self.current_container.name + '%s%02d' % (c, r)
 
         self.plate96_layout_counter += 1
         return sample_name, '%s:%d' % (c, r)

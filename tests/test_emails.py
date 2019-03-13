@@ -40,16 +40,6 @@ class TestEmailEPP(TestEPP):
         super().setUp()
         self.patch_process = self.create_patch_process(SendMailEPP)
 
-
-    def test_only_one_project(self):
-        try:
-            with self.assertRaises(ValueError):
-                with self.patch_project_multi:
-                    self.epp._run()
-
-        except NotImplementedError:
-            print('Skipping test for abstract class: ' + self.epp.__class__.__name__)
-
     def create_epp(self, klass):
         return klass(self.default_argv)
 
@@ -450,10 +440,6 @@ ClarityX'''
                 strict=True
             )
 
-    def test_send_email2(self):
-        with self.patch_project_multi, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
-            with self.assertRaises(ValueError):
-                self.epp._run()
 
 class TestEmailContainerReadyDispatch(TestEmailEPP):
     def setUp(self):
@@ -494,10 +480,6 @@ ClarityX'''
 
             )
 
-    def test_send_email2(self):
-        with self.patch_project_multi, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
-            with self.assertRaises(ValueError):
-                self.epp._run()
 
 class TestEmailManifestTrackingLetter(TestEmailEPP):
     def setUp(self):
@@ -544,7 +526,7 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
             self.epp._run()
             mocked_send_email.assert_called_with(
                 attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
-                             'tube requirements','a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_Project1.docx'],
+                             'tube requirements','a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_project1.docx'],
                 msg=None,
                 subject='project1: Homo sapiens WGS Sample Submission',
                 mailhost='smtp.test.me',
@@ -562,7 +544,7 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
             self.epp._run()
             mocked_send_email.assert_called_with(
                 attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
-                             'a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_Project1.docx'],
+                             'a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_project1.docx'],
                 msg=None,
                 subject='project1: Homo sapiens WGS Sample Submission',
                 mailhost='smtp.test.me',

@@ -57,3 +57,14 @@ rest_api:
   url: localhost
   username: user
   password: password
+
+file_templates:
+  manifest:
+    plate_template: assets/Blank_Manifest.xlsx
+    tube_template: assets/Blank_Manifest.xlsx
+    SGP_template: assets/Blank_Manifest.xlsx
+
+  tracking_letter: assets/Template_tracking_letter.docx
+  requirements:
+    plate: plate requirements
+    tube: tube requirements
