@@ -8,7 +8,6 @@ class SpectramaxOutput(ParseSpectramaxEPP):
     # Standards will not be present in the results table to be parsed
     starting_well = 'A1'
 
-
     def parse_spectramax_file(self):
         f = self.open_or_download_file(self.spectramax_file, encoding='utf-16', crlf=True)
         encountered_unknowns = False
@@ -36,7 +35,7 @@ class SpectramaxOutput(ParseSpectramaxEPP):
         if self.sample_concs[1][0] != self.starting_well:
             raise AssertionError(
                 'Badly formed spectramax file: first well for samples is %s but expected to be %s'
-                % (str(self.sample_concs[1][0]),str(self.starting_well))
+                % (str(self.sample_concs[1][0]), str(self.starting_well))
             )
 
         self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))

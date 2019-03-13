@@ -1,5 +1,6 @@
 from os.path import join, dirname, abspath
 from unittest.mock import Mock, patch
+
 from scripts import spectramax_sample_quant
 from tests.test_common import TestEPP, NamedMock
 
@@ -18,9 +19,6 @@ class TestSpectramaxOutput(TestEPP):
     }
 
     exp_plate_names = ['a_plate', 'another_plate', 'yet_another_plate']
-
-
-
 
     def setUp(self):
 
@@ -71,4 +69,3 @@ class TestSpectramaxOutput(TestEPP):
                 assert artifact.udf == {
                     'Raw Value': self.epp.plates[container.name][coord],
                 }
-
