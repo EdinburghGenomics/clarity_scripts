@@ -68,13 +68,14 @@ class QCCheck(StepEPP):
         """For each artifacts provided compare the value in the UDF with the value in the Step UDF.
         Then assign the value in the qc_result to the QC UDF"""
         for art in artifacts:
-            for qc_udf_name in self.qc_udf_names:
-                art.udf[qc_udf_name] = self.passed
+            if art.name.find("Std")==-1:
+                for qc_udf_name in self.qc_udf_names:
+                    art.udf[qc_udf_name] = self.passed
 
-            for step_udf_name, result_udf_name, logic_op, qc_udf_name, qc_result in \
-                    zip(self.step_udf_names, self.result_udf_names, self.logic_ops, self.qc_udf_names, self.qc_results):
-                if not self._compare_true(art.udf.get(result_udf_name), logic_op, self.process.udf.get(step_udf_name)):
-                    art.udf[qc_udf_name] = qc_result
+                for step_udf_name, result_udf_name, logic_op, qc_udf_name, qc_result in \
+                        zip(self.step_udf_names, self.result_udf_names, self.logic_ops, self.qc_udf_names, self.qc_results):
+                    if not self._compare_true(art.udf.get(result_udf_name), logic_op, self.process.udf.get(step_udf_name)):
+                        art.udf[qc_udf_name] = qc_result
 
     def _run(self):
         # will update the LIMS using batch for efficiency so need a step variable to populate before the put

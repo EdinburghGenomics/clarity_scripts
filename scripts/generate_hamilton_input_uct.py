@@ -35,8 +35,8 @@ class GenerateHamiltonInputUCT(GenerateHamiltonInputEPP):
                 input_location = row + column
 
                 # obtain well location of reagent_label (i.e. index/barcode)
-                # which is stored as the first 2 or 3 characters of the label name
-                adapter_well = output[0].reagent_labels[0].split("_")[0]
+                # which is stored as the third charater (column) and fourth character (row)
+                adapter_well = output[0].reagent_labels[0][3]+output[0].reagent_labels[0][2]
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 csv_line = [art.container.name, input_location, art.name, adapter_well]
