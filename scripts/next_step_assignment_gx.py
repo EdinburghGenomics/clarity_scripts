@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from EPPs.common import StepEPP
-from pyclarity_lims.entities import Protocol
 
 
 class AssignNextStep(StepEPP):
@@ -18,18 +17,19 @@ class AssignNextStep(StepEPP):
         # obtain the next actions in the step then creates a list of dict for next_actions for the step
         next_actions = actions.next_actions
 
-        #go through all of the "next actions" and the corresponding artifact and assign to the correct next step based
-        #on the SSQC Result
+        self.output_artifacts
+        self.samples
+
+        # go through all of the "next actions" and the corresponding artifact and assign to the correct next step based
+        # on the SSQC Result
         for next_action in next_actions:
 
-            if next_action['artifact'].samples[0].udf['SSQC Result']=='PASSED':
+            if next_action['artifact'].samples[0].udf['SSQC Result'] == 'PASSED':
                 next_action['action'] = 'remove'
 
 
             else:
                 next_action['action'] = 'review'
-
-
 
         actions.put()
 

@@ -1,21 +1,24 @@
 from unittest.mock import Mock, patch, PropertyMock
 
 from scripts.next_step_assignment_gx import AssignNextStep
-from tests.test_common import TestEPP, NamedMock
+from tests.test_common import TestEPP
 
+
+artifact1 = Mock(id='ai1', samples=[Mock(id='s1', udf={'SSQC Result': 'PASSED'})])
+artifact2 = Mock(id='ai2', samples=[Mock(id='s2', udf={'SSQC Result': 'FAILED'})])
 
 class TestAssignNextStep(TestEPP):
     def setUp(self):
-
         self.actions = Mock(next_actions=[
-            {'artifact': Mock(id='ai1',samples=[Mock(id='s1',udf={'SSQC Result':'PASSED'} )])},
-            {'artifact': Mock(id='ai2', samples=[Mock(id='s2',udf={'SSQC Result':'FAILED'})])},
-            ])
+            {'artifact': artifact1},
+            {'artifact': artifact2},
+        ])
 
         self.patched_process1 = patch.object(
             AssignNextStep,
             'process',
-            new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions, configuration=Mock(uri='uri'))))
+            new_callable=PropertyMock(return_value=Mock(step=Mock(actions=self.actions, configuration=Mock(uri='uri')),
+                                                        all_inputs=Mock(return_value=[artifact1, artifact2])))
         )
 
         self.epp = AssignNextStep(self.default_argv)
