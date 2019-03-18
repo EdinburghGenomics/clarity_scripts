@@ -105,6 +105,11 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
         if genome_version == '' or self.get_documents('genomes', where={'name': genome_version}):
             return True
         return False
+    def validate_genome_version(self, genome_version):
+        """Validate genome version against REST API unless it is empty."""
+        if genome_version == '' or self.get_documents('genomes', where={'assembly_name': genome_version}):
+            return True
+        return False
 
     @cached_property
     def common_sample_udfs(self):
@@ -138,7 +143,6 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
             self.plate96_layout_counter = 0
         r, c = self.plate96_layout[self.plate96_layout_counter]
         sample_name = self.current_container.name + '%s%02d' % (c, r)
-
         self.plate96_layout_counter += 1
         return sample_name, '%s:%d' % (c, r)
 

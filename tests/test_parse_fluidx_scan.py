@@ -40,16 +40,14 @@ class TestParseFluidXScan(TestEPP):
 
     def setUp(self):
 
-        self.epp = ParseFluidXScan(self.default_argv+['--fluidx_scan',join(dirname(abspath(__file__)), 'assets',
-                                                      'fluidx_example_scan.csv')])
+        self.epp = ParseFluidXScan(self.default_argv + ['--fluidx_scan', join(dirname(abspath(__file__)), 'assets',
+                                                        'fluidx_example_scan.csv')])
 
-        self.epp2 = ParseFluidXScan(self.default_argv+['--fluidx_scan',join(dirname(abspath(__file__)), 'assets',
-                                                      'fluidx_example_scan_too_many_samples.csv')])
-
-
+        self.epp2 = ParseFluidXScan(self.default_argv + ['--fluidx_scan', join(dirname(abspath(__file__)), 'assets',
+                                                         'fluidx_example_scan_too_many_samples.csv')])
 
     def test_parse_fluidx_scan(self):
-        with self.patched_process1,self.patched_lims as lims:
+        with self.patched_process1, self.patched_lims as lims:
             self.epp._run()
 
             assert lims.put_batch.call_count == 1
@@ -58,4 +56,4 @@ class TestParseFluidXScan(TestEPP):
         with self.patched_process2, pytest.raises(ValueError) as e:
             self.epp2._run()
 
-        assert str(e.value)=='The number of samples in the step (1) does not match the number of tubes scanned (2)'
+        assert str(e.value) == 'The number of samples in the step (1) does not match the number of tubes scanned (2)'
