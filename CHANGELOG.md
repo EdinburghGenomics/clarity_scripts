@@ -1,10 +1,28 @@
 Changelog for clarity_scripts
 =============================
 
-0.10 (unreleased)
+0.11 (unreleased)
 -----------------
 
 - Nothing changed yet.
+
+
+0.10 (2019-03-15)
+-----------------
+
+- EPP common: 
+   - New validation framework that check step parameters before the `_run` function is used.
+   - generic GenerateHamiltonInputEPP and ParseSpectramaxEPP class
+- Test common: new class to generate Fake entities within a step or a process.
+- KAPA library prep support scripts that helps:
+   - with autoplacement in plates (`autoplacement_24_imp_gx`, `autoplacement_24_in_96`, `autoplacement_qpcr_384`)
+   - Hamilton worklist generation (`generate_hamilton_input_cfp`, `generate_hamilton_input_imp_ssqc`, `generate_hamilton_input_ntp`, `generate_hamilton_input_qpcr_1to24`, `generate_hamilton_input_seq_quant_plate`, `generate_hamilton_input_uct`)
+   - next step assignment (`next_step_assignment_gx`, `next_step_assignment_imp_ssqc`, `next_step_assignment_kapa_qc`, `next_step_assignment_kapa_qpcr`, `next_step_assignment_seq_pico`
+   - out of workflow routing (`assign_workflow_kapa_qc`, `assign_workflow_preseqlab`, `assign_workflow_seqlab_quantstudio`)
+   - `normalisation`: used to calculate volume of sample and buffer
+   - `qc_check`: generic script to check specific UDF values
+   - `check_container_name`: Ensure the name of container follows a specific format
+- Spectramax parsing: `spectramax_sample_quant` `spectramax_seq_plate_quant` both parse spectramax output file at different time 
 
 
 0.9.1 (2018-11-13)
