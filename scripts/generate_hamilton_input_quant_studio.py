@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import csv
 
 from EPPs.common import InvalidStepError, StepEPP
