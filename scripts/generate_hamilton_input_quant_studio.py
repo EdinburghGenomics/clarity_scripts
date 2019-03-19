@@ -1,12 +1,13 @@
-from EPPs.common import InvalidStepError, StepEPP
 import csv
+
+from EPPs.common import InvalidStepError, StepEPP
 
 
 class GenerateHamiltonInputQuantStudio(StepEPP):
     # define the rows and columns in the input plate (standard 96 well plate pattern)
     plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-    csv_column_headers = ['Input Plate','Input Well','Output Plate','Output Well','DNA Volume','TE Volume']
+    csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'DNA Volume', 'TE Volume']
     _max_nb_input_containers = 27
     _max_nb_output_containers = 1
 
@@ -43,7 +44,6 @@ class GenerateHamiltonInputQuantStudio(StepEPP):
             writer = csv.writer(csvFile)
             writer.writerows(csv_array)
 
-
     def generate_csv_dict(self):
         csv_dict = {}
 
@@ -56,7 +56,8 @@ class GenerateHamiltonInputQuantStudio(StepEPP):
                                            'This step is not compatible with replicates.' % art.name)
 
                 csv_line = [art.container.name, art.location[1], output[0].container.name, output[0].location[1],
-                            output[0].udf['Genotyping Sample Volume (ul)'], output[0].udf['Genotyping Buffer Volume']]
+                            output[0].udf['Genotyping Sample Volume (ul)'],
+                            output[0].udf['Genotyping Buffer Volume (ul)']]
 
                 csv_dict[art.container.name + art.location[1]] = csv_line
 
@@ -72,7 +73,7 @@ class GenerateHamiltonInputQuantStudio(StepEPP):
         csv_rows = [self.csv_column_headers]
 
         # prepare csv_row_dict so can accept rows for up to three Hamilton input files
-        csv_rows_list = [csv_rows.copy(), csv_rows.copy(),csv_rows.copy()]
+        csv_rows_list = [csv_rows.copy(), csv_rows.copy(), csv_rows.copy()]
 
         well_counter = 0
         container_counter = 0

@@ -9,10 +9,10 @@ class TestGenerateHamiltonInputCFP(TestEPP):
                                                     ['-k', '99-99999'])
 
         self.epp2 = GenerateHamiltonInputQuantStudio(self.default_argv + ['-i', '11-11111'] + ['-j', '22-22222'] +
-                                                    ['-k', '33-33333'])
+                                                     ['-k', '33-33333'])
 
         self.epp3 = GenerateHamiltonInputQuantStudio(self.default_argv + ['-i', '44-44444'] + ['-j', '55-55555'] +
-                                                    ['-k', '66-66666'])
+                                                     ['-k', '66-66666'])
 
     def test_1_input_plate(
             self):  # test that file is written under happy path conditions for 1 input plate and 1 output plate
@@ -65,7 +65,7 @@ class TestGenerateHamiltonInputCFP(TestEPP):
         expected_file_2 = [
             'Input Plate,Input Well,Output Plate,Output Well,DNA Volume,TE Volume',
             'input_uri_container_9,A:1,output_uri_container_11,A:2,10,50',
-          ]
+        ]
 
         assert self.file_content('11-11111-hamilton_input_1.csv') == expected_file_1
         assert self.stripped_md5('11-11111-hamilton_input_1.csv') == '707ad37393ee90d1d58ee64f93cc57cf'
@@ -81,7 +81,7 @@ class TestGenerateHamiltonInputCFP(TestEPP):
             nb_input=27,
             nb_input_container=27,
             nb_output_container=1,
-            output_artifact_udf={'Genotyping Sample Volume (ul)': '10', 'Genotyping Buffer Volume': '50'}
+            output_artifact_udf={'Genotyping Sample Volume (ul)': '10', 'Genotyping Buffer Volume (ul)': '50'}
         )
 
         self.epp3._run()

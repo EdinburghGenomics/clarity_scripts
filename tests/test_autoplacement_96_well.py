@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch, PropertyMock
+from unittest.mock import patch, PropertyMock
 
 from pyclarity_lims.entities import Step
 
@@ -29,7 +29,6 @@ class TestAutoplacement24in96(TestEPP):
         fake_outputs_artifacts = fem.object_store_per_type.get('Artifact')[27:]
         # take the output artifact from first container first (even index)
         # then from the second container (odd index)
-
 
         exp_placements = [
             (fake_outputs_artifacts[0], (fake_output_container, 'A:1')),
@@ -63,4 +62,3 @@ class TestAutoplacement24in96(TestEPP):
         print(exp_placements)
 
         mock_set_placements.assert_called_with([fake_output_container], exp_placements)
-
