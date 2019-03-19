@@ -48,12 +48,17 @@ class CalculateVolumes(StepEPP):
         for art in self.process.all_inputs():
             output = self.process.outputs_per_input(art.id, Analyte=True)[0]  # assumes 1 output per input
 
-            if art.udf.get(self.input_conc) < target_concentration:
+            if art.id == art.samples[0].artifact.id:
+                udfs = art.samples[0].udf
+            else:
+                udfs = art.udf
+
+            if udfs[self.input_conc] < target_concentration:
                 output.udf[self.output_volume] = target_volume
                 output.udf[self.output_buffer] = 0
             else:
                 output.udf[self.output_volume] = round(
-                    (target_volume * (target_concentration / art.udf.get(self.input_conc))), 1)
+                    (target_volume * (target_concentration / udfs[self.input_conc])), 1)
 
                 output.udf[self.output_buffer] = target_volume - output.udf.get(self.output_volume)
 
