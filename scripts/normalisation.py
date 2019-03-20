@@ -10,7 +10,6 @@ class CalculateVolumes(StepEPP):
     """
     _use_load_config = False  # prevent the loading of the config
 
-
     def __init__(self, argv=None):
         super().__init__(argv)
         self.target_volume_udf = self.cmd_args.target_volume_udf
@@ -44,21 +43,22 @@ class CalculateVolumes(StepEPP):
         # create the set to hold the inputs to be updated with the output form the calculation
         artifacts_to_update = set()
 
-        # obtain the concentration of each input and use that calculate the volume of sample and buffer required
+        # obtain the concentration of each input and use that calculate the volume of sample and buffer required. Assumes
+        # that the two submitted sample artifacts will never both have input_conc udf values
+
         for art in self.process.all_inputs():
             output = self.process.outputs_per_input(art.id, Analyte=True)[0]  # assumes 1 output per input
 
-            if art.id == art.samples[0].artifact.id:
-                udfs = art.samples[0].udf
-            else:
-                udfs = art.udf
+            input_conc = art.udf.get(self.input_conc)
+            if not input_conc:
+                input_conc = art.samples[0].udf[self.input_conc]
 
-            if udfs[self.input_conc] < target_concentration:
+            if input_conc < target_concentration:
                 output.udf[self.output_volume] = target_volume
                 output.udf[self.output_buffer] = 0
             else:
                 output.udf[self.output_volume] = round(
-                    (target_volume * (target_concentration / udfs[self.input_conc])), 1)
+                    (target_volume * (target_concentration / input_conc)), 1)
 
                 output.udf[self.output_buffer] = target_volume - output.udf.get(self.output_volume)
 

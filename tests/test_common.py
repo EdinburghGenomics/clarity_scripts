@@ -1,8 +1,10 @@
 import hashlib
 import os
 from collections import Counter, defaultdict
-from itertools import cycle, product
+from itertools import cycle
 from os.path import join, dirname, abspath
+from unittest.case import TestCase
+from unittest.mock import Mock, PropertyMock, patch, MagicMock
 from xml.etree import ElementTree
 
 import pytest
@@ -10,8 +12,7 @@ from pyclarity_lims.constants import nsmap
 from pyclarity_lims.entities import Process, Artifact, Sample, Container, Containertype, Project, Step, \
     StepPlacements, StepReagentLots, StepActions, StepDetails
 from requests import ConnectionError
-from unittest.case import TestCase
-from unittest.mock import Mock, PropertyMock, patch, MagicMock
+
 import EPPs
 from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from, InvalidStepError
 
@@ -64,7 +65,7 @@ class FakeEntitiesMaker:
         return 'uri_%s_%s' % (klass.__name__.lower(), self.uri_counter[klass])
 
     def _store_object(self, instance):
-        self.object_store[instance.uri]=instance
+        self.object_store[instance.uri] = instance
         self.object_store_per_type[instance.__class__.__name__].append(instance)
 
     def _retrieve_object(self, uri):
@@ -117,7 +118,8 @@ class FakeEntitiesMaker:
                 pattern = [None] * pattern
             for artifact_position in pattern:
                 if artifact_position is None:
-                    artifact_position = self._next_container_position(current_container, last_position_in_container.get(current_container))
+                    artifact_position = self._next_container_position(current_container,
+                                                                      last_position_in_container.get(current_container))
                 container_map.append((current_container, artifact_position))
                 last_position_in_container[current_container] = artifact_position
         return container_map
@@ -155,7 +157,8 @@ class FakeEntitiesMaker:
     def create_fake_projects(self, nb_project=1, **kwargs):
         return [self.create_a_fake_project(**kwargs) for _ in range(nb_project)]
 
-    def create_a_fake_container(self, container_name=None, is_output_container=False, container_udfs=None, **kwargs):
+    def create_a_fake_container(self, container_name=None, is_output_container=False, container_udfs=None,
+                                container_number=1, **kwargs):
         container = self.create_instance(Container)
         if not container_name:
             prefix = 'input_'
@@ -163,7 +166,8 @@ class FakeEntitiesMaker:
                 prefix = 'output_'
             container.name = prefix + container.uri
         else:
-            container.name = _resolve_next(container_name)
+            container.name = container_name[container_number]
+
         ctype_name = _resolve_next(kwargs.get('container_type') or '96 well plate')
         container.type = self.create_instance(Containertype, name=ctype_name)
         self._add_udfs(container, container_udfs)
@@ -171,7 +175,7 @@ class FakeEntitiesMaker:
         return container
 
     def create_fake_containers(self, nb_container=1, **kwargs):
-        return [self.create_a_fake_container(**kwargs) for _ in range(nb_container)]
+        return [self.create_a_fake_container(container_number=_, **kwargs) for _ in range(nb_container)]
 
     def create_a_fake_step(self, step_id=None, selected_containers=None, step_udfs=None, output_artifacts=None,
                            next_action=None, **kwargs):
@@ -292,19 +296,21 @@ class FakeEntitiesMaker:
             container_type=kwargs.get('input_container_type'),
             container_udfs=kwargs.get('input_container_udfs'),
             **kwargs))
+
         # Create Artifacts
         inputs = self.create_fake_artifacts(nb_artifacts=nb_input, is_output_artifact=False, artifact_name=input_name,
                                             artifact_type=input_type, artifact_udfs=input_artifact_udf,
                                             reagent_label=input_reagent_label, project=projects, container=icontainers,
                                             container_population_patterns=input_container_population_patterns, **kwargs)
         used_input_containers = set([a.container for a in inputs])
+
         outputs = []
         # Create output containers
         ocontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_output_container', 1),
             container_name=kwargs.get('output_container_name'),
             container_type=kwargs.get('output_container_type'),
-            container_udfs= kwargs.get('output_container_udfs'),
+            container_udfs=kwargs.get('output_container_udfs'),
             is_output_container=True,
             **kwargs))
         used_output_containers = set()
@@ -320,7 +326,7 @@ class FakeEntitiesMaker:
                                                  artifact_type=o_type, artifact_udfs=output_artifact_udf,
                                                  reagent_label=output_reagent_label,
                                                  sample=a.samples[0], container=ocontainer,
-                                                 artifact_position=output_position, from_input=a, replicate_n=n+1,
+                                                 artifact_position=output_position, from_input=a, replicate_n=n + 1,
                                                  **kwargs)
                 used_output_containers.add(oa.container)
                 outputs.append(oa)
@@ -431,6 +437,15 @@ class TestEPP(TestCommon):
         assert e.value.message == "Maximum number of projet in step is %s. %s projects found." % (
             self.epp._max_nb_projects, nb_project
         )
+
+    def generate_container_names(self, prefix, number):
+        # generates container names in alphanumeric order
+        counter = 1
+        container_names = []
+        while counter <= number:
+            container_names.append(prefix + 'container_' + format(counter, '03d'))
+            counter += 1
+        return container_names
 
 
 class TestStepEPP(TestEPP):
