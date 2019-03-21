@@ -3,12 +3,7 @@
 from EPPs.common import Autoplacement
 
 
-# Script for performing autoplacement of samples from multiple input plates into a single output plate.
-# If 1 input and 1 output then 1:1 placement. If multiple input plates then
-# takes all samples from each plate before next plate Loops through all inputs and assigns them to the next available space
-# by column-row in the output plate
 class Autoplacement96well(Autoplacement):
-
     _max_nb_input_containers = 27
 
     output_plate_layout_rows = ["A", "B", "C", "D", "E", "F", "G", "H"]

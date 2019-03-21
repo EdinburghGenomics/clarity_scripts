@@ -12,6 +12,7 @@ class GenerateHamiltonInputQuantStudio(StepEPP):
     csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'DNA Volume', 'TE Volume']
     _max_nb_input_containers = 27
     _max_nb_output_containers = 1
+    _nb_analytes_per_input = 1
 
     def __init__(self, argv=None):
         """ additional argument required for the location of the Hamilton input file so def __init__ customised."""
@@ -28,7 +29,7 @@ class GenerateHamiltonInputQuantStudio(StepEPP):
     def add_args(argparser):
 
         argparser.add_argument(
-            '-i', '--hamilton_input', nargs='*', help='Add up to 3 file spaces in LIMS step for Hamilton inputs')
+            '-i', '--hamilton_input', nargs='+', help='Add up to 3 file spaces in LIMS step for Hamilton inputs')
 
     @staticmethod
     def write_csv(filename, csv_array):
@@ -43,10 +44,6 @@ class GenerateHamiltonInputQuantStudio(StepEPP):
         for art in self.artifacts:
             if art.type == 'Analyte':
                 output = self.process.outputs_per_input(art.id, Analyte=True)
-                # the script is only compatible with 1 output for each input i.e. replicates are not allowed
-                if len(output) > 1:
-                    raise InvalidStepError('Multiple outputs found for an input %s. '
-                                           'This step is not compatible with replicates.' % art.name)
 
                 csv_line = [art.container.name, art.location[1], output[0].container.name, output[0].location[1],
                             output[0].udf['Genotyping Sample Volume (ul)'],

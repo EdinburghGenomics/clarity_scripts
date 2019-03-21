@@ -388,7 +388,9 @@ class GenerateHamiltonInputEPP(StepEPP):
 
 
 class Autoplacement(StepEPP):
-
+    """Script for performing autoplacement of samples. If 1 input and 1 output then 1:1 placement. If multiple input plates then
+     takes all samples from each plate before next plate Loops through all inputs and assigns them to the next available space
+     by column-row in the output plate"""
     output_plate_layout_rows = None
     output_plate_layout_columns = None
     input_plate_layout_columns = None
@@ -438,7 +440,7 @@ class Autoplacement(StepEPP):
             for column in self.input_plate_layout_columns:
                 for row in self.input_plate_layout_rows:
                     # populate list of tuples for set_placements if well exists in input plate
-                    if row + ":" + column in input_container_nested_dict[container].keys():
+                    if row + ":" + column in input_container_nested_dict[container]:
                         placement.append((input_container_nested_dict[container][row + ":" + column],
                                           (output_container, output_plate_layout[well_counter])))
                         well_counter += 1

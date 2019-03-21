@@ -6,7 +6,6 @@ from tests.test_common import TestEPP, FakeEntitiesMaker
 
 class TestGenerateHamiltonInputQuantStudio(TestEPP):
     def setUp(self):
-        # argument -d left blank to write file to local directory
         self.epp = GenerateHamiltonInputQuantStudio(self.default_argv + ['-i', '77-77777'])
 
         self.epp2 = GenerateHamiltonInputQuantStudio(self.default_argv + ['-i', '11-11111', '22-22222'])
