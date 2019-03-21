@@ -65,14 +65,6 @@ class GenerateManifest(StepEPP):
         wb = load_workbook(filename=template_file)
         ws = wb.active
 
-        # configurable_udfs = []
-        #
-        # for step_udf_key in step_udfs:
-        #     tag_position = step_udf_key.find('[Sample UDF]')
-        #
-        #     if tag_position > -1:
-        #         configurable_udfs.append(step_udf_key[tag_position + 12:])
-
         # define the rows and columns of the 96 well plate/rack to be used for writing the manifest in correct order
         rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
         columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
