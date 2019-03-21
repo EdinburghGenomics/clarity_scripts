@@ -1,8 +1,10 @@
+from itertools import cycle
+
 from scripts.generate_hamilton_input_quant_studio import GenerateHamiltonInputQuantStudio
 from tests.test_common import TestEPP, FakeEntitiesMaker
 
 
-class TestGenerateHamiltonInputCFP(TestEPP):
+class TestGenerateHamiltonInputQuantStudio(TestEPP):
     def setUp(self):
         # argument -d left blank to write file to local directory
         self.epp = GenerateHamiltonInputQuantStudio(self.default_argv + ['-i', '77-77777'])
@@ -41,7 +43,7 @@ class TestGenerateHamiltonInputCFP(TestEPP):
             nb_input=10,
             nb_input_container=10,
             nb_output_container=1,
-            input_container_name=self.generate_container_names('input_uri_', 10),
+            input_container_name=cycle(['input_uri_container_%03d' % (i + 1) for i in range(10)]),
             output_artifact_udf={'Genotyping Sample Volume (ul)': 10, 'Genotyping Buffer Volume (ul)': 50}
         )
 
@@ -73,13 +75,15 @@ class TestGenerateHamiltonInputCFP(TestEPP):
 
     def test_27_input_plate(self):
         # test that file is written under happy path conditions for 27 input plates and 1 output plates
+
         fem = FakeEntitiesMaker()
         self.epp3.lims = fem.lims
+
         self.epp3.process = fem.create_a_fake_process(
             nb_input=27,
             nb_input_container=27,
             nb_output_container=1,
-            input_container_name=self.generate_container_names('input_uri_', 27),
+            input_container_name=cycle(['input_uri_container_%03d' % (i + 1) for i in range(27)]),
             output_artifact_udf={'Genotyping Sample Volume (ul)': 10, 'Genotyping Buffer Volume (ul)': 50}
         )
 

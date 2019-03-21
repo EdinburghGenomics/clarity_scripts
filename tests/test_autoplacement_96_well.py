@@ -1,3 +1,4 @@
+from itertools import cycle
 from unittest.mock import patch, PropertyMock
 
 from pyclarity_lims.entities import Step
@@ -19,7 +20,7 @@ class TestAutoplacement24in96(TestEPP):
         fem = FakeEntitiesMaker()
         self.epp.lims = fem.lims
         self.epp.process = fem.create_a_fake_process(nb_input=27, nb_input_container=27,
-                                                     input_container_name=self.generate_container_names(27))
+                                                     input_container_name=cycle(['input_uri_container_%03d' % (i + 1) for i in range(27)]))
         # FakeEntitiesMaker places the 27 input in the 27 containers cycling from on to the other.
         patch_step_set_placement = patch.object(Step, 'set_placements')
         with patch_step_set_placement as mock_set_placements:
