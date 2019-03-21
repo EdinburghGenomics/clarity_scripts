@@ -24,7 +24,6 @@ class TestParseFluidXScan(TestEPP):
         StepEPP,
         'process',
         new_callable=PropertyMock(return_value=Mock(
-            all_outputs=Mock(return_value=[output1]),
             all_inputs=Mock(return_value=[input1])
         )
     ))
@@ -33,7 +32,6 @@ class TestParseFluidXScan(TestEPP):
         StepEPP,
         'process',
         new_callable=PropertyMock(return_value=Mock(
-            all_outputs=Mock(return_value=[output2]),
             all_inputs=Mock(return_value=[input1])
         )
     ))

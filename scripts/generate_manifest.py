@@ -17,7 +17,7 @@ class GenerateManifest(StepEPP):
 
     @property
     def configurable_udfs(self):
-        return [udf for udf in self.process.udf if udf.find('[Sample UDF]') > -1]
+        return [udf for udf in self.process.udf if '[Sample UDF]' in udf]
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
     def __init__(self, argv=None):

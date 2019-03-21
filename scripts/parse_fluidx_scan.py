@@ -43,7 +43,7 @@ class ParseFluidXScan(StepEPP):
         sample_list=[]
 
         for line in fluidx_scan_list:
-            if not line[0] == 'Rack ID' and not line[0] == 'Tube Count':
+            if line[0] not in ['Rack ID','Tube Count']:
                 if line[0]+line[1] in sample_dict:
                     sample_dict[line[0]+line[1]].udf['2D Barcode'] = line[2]
                     sample_list.append(sample_dict[line[0] + line[1]])

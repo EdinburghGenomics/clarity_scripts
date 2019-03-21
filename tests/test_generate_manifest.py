@@ -1,7 +1,7 @@
-from os.path import join, dirname, abspath
-from unittest.mock import Mock, patch
-from tests.test_common import TestEPP, NamedMock,PropertyMock
+from unittest.mock import patch
+
 from scripts.generate_manifest import GenerateManifest
+from tests.test_common import TestEPP, FakeEntitiesMaker
 
 
 class TestGenerateManifest(TestEPP):
@@ -24,56 +24,6 @@ class TestGenerateManifest(TestEPP):
            '[SGP][Sample UDF]Column': 'E',
            '[SGP]Starting Row': 1}
 
-
-    patch_process_plate = patch.object(
-        GenerateManifest,
-        'process',
-        new_callable=PropertyMock(return_value=
-                            Mock(
-                                udf=udf,
-                                all_inputs=Mock(return_value=[NamedMock(
-                                    real_name='Artifact1',
-                                    samples=[Mock(project=NamedMock(real_name='Project1'),
-                                                  udf={'Species':'Homo sapiens','Column':'value'},
-                                                  artifact=NamedMock(real_name='Artifact1',
-                                                                     container=NamedMock(real_name='container1'),
-                                                                     location=[NamedMock(real_name='container1'),'A:1']))],
-                                    container=NamedMock(real_name='container1',type=NamedMock(real_name='96 well plate'))
-                                    ,location=[NamedMock(real_name='container1'),'A:1'])]))))
-
-    patch_process_tube = patch.object(
-        GenerateManifest,
-        'process',
-        new_callable=PropertyMock(return_value=
-                            Mock(
-                                udf=udf,
-                                all_inputs=Mock(return_value=[NamedMock(
-                                    real_name='Artifact1',
-                                    samples=[Mock(project=NamedMock(real_name='Project1'),
-                                                  udf={'Species':'Homo sapiens','Column':'value'},
-                                                  artifact=NamedMock(real_name='Artifact1',
-                                                                     container=NamedMock(real_name='container1'),
-                                                                     location=[NamedMock(real_name='container1'),'A:1']))],
-                                    container=NamedMock(real_name='container1',type=NamedMock(real_name='rack 96 positions'))
-                                    ,location=[NamedMock(real_name='container1'),'A:1'])]))))
-
-    patch_process_sgp = patch.object(
-        GenerateManifest,
-        'process',
-        new_callable=PropertyMock(return_value=
-                            Mock(
-                                udf=udf,
-                                all_inputs=Mock(return_value=[NamedMock(
-                                    real_name='Artifact1',
-                                    samples=[Mock(project=NamedMock(real_name='Project1'),
-                                                  udf={'Species':'Homo sapiens','Column':'value'},
-                                                  artifact=NamedMock(real_name='Artifact1',
-                                                                     container=NamedMock(real_name='container1'),
-                                                                     location=[NamedMock(real_name='container1'),'A:1']))],
-                                    container=NamedMock(real_name='container1',type=NamedMock(real_name='SGP rack 96 positions'))
-                                    ,location=[NamedMock(real_name='container1'),'A:1'])]))))
-
-
     def setUp(self):
         self.epp = GenerateManifest(
             self.default_argv + [
@@ -83,19 +33,39 @@ class TestGenerateManifest(TestEPP):
         )
 
     def test_generate_manifest_plate(self):
-        with self.patch_process_plate, patch('openpyxl.workbook.workbook.Workbook.save') as mocked_save:
-            self.epp._run()
-
-            mocked_save.assert_called_with(filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')
+        fem = FakeEntitiesMaker()
+        process_plate = fem.create_a_fake_process(step_udfs=self.udf, project_name='Project1', nb_input=1,
+                                                  sample_udfs={'Species': 'Homo sapiens', 'Column': 'value'},
+                                                  input_container_type='96 well plate')
+        epp = self.epp
+        epp.process = process_plate
+        with patch('openpyxl.workbook.workbook.Workbook.save') as mocked_save:
+            epp._run()
+            mocked_save.assert_called_with(
+                filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')
 
     def test_generate_manifest_tube(self):
-        with self.patch_process_tube, patch('openpyxl.workbook.workbook.Workbook.save') as mocked_save:
+        fem = FakeEntitiesMaker()
+        process_tube = fem.create_a_fake_process(step_udfs=self.udf, project_name='Project1', nb_input=1,
+                                                 sample_udfs={'Species': 'Homo sapiens', 'Column': 'value'},
+                                                 input_container_type='rack 96 positions')
+        epp = self.epp
+        epp.process = process_tube
+        with patch('openpyxl.workbook.workbook.Workbook.save') as mocked_save:
             self.epp._run()
 
-            mocked_save.assert_called_with(filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')
+            mocked_save.assert_called_with(
+                filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')
 
     def test_generate_manifest_sgp(self):
-        with self.patch_process_sgp, patch('openpyxl.workbook.workbook.Workbook.save') as mocked_save:
+        fem = FakeEntitiesMaker()
+        process_sgp = fem.create_a_fake_process(step_udfs=self.udf, project_name='Project1', nb_input=1,
+                                                sample_udfs={'Species': 'Homo sapiens', 'Column': 'value'},
+                                                input_container_type='SGP rack 96 positions')
+        epp = self.epp
+        epp.process = process_sgp
+        with patch('openpyxl.workbook.workbook.Workbook.save') as mocked_save:
             self.epp._run()
 
-            mocked_save.assert_called_with(filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')
+            mocked_save.assert_called_with(
+                filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')

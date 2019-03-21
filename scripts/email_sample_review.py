@@ -5,10 +5,9 @@ from EPPs.common import SendMailEPP
 
 class ContainerDispatchComplete(SendMailEPP):
     """Notifies the project team and facilities that a container is ready for dispatch"""
+    _max_nb_projects = 1
 
     def _run(self):
-        if len(self.projects) > 1:
-            raise ValueError('More than one project present in step. Only one project per step permitted')
 
         msg = 'Hi,\n\nPlease review the samples in the step below against the Application Form:\n\n{link}\n\nKind regards,\nClarityX'
         msg = msg.format(

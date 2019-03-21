@@ -30,5 +30,7 @@ class TestCreateTrackingLetter(TestEPP):
                                           )
 
     def test_generate_letter_happy_path(self):
-        with self.patched_process1, self.patched_lims:
+        with self.patched_process1, self.patched_lims, patch('docx.document.Document.save') as mocked_save:
             self.epp._run()
+
+            mocked_save.assert_called_with(join(dirname(abspath(__file__)),'assets','99-99999-Edinburgh_Genomics_Sample_Tracking_Letter_project1.docx'))

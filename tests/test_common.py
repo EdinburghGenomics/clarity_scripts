@@ -77,7 +77,7 @@ class FakeEntitiesMaker:
 
     @staticmethod
     def _next_container_position(container, last_position):
-        if container.type.name == '96 well plate':
+        if container.type.name in ['96 well plate','rack 96 positions','SGP rack 96 positions']:
             plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
             plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
         elif container.type.name == 'Tube':
