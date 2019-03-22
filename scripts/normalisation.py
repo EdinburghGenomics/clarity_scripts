@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from EPPs.common import StepEPP
+from EPPs.common import StepEPP, InvalidStepError
 
 
 class CalculateVolumes(StepEPP):
@@ -51,16 +51,21 @@ class CalculateVolumes(StepEPP):
 
             input_conc = art.udf.get(self.input_conc)
             if not input_conc:
-                input_conc = art.samples[0].udf[self.input_conc]
+                input_conc = art.samples[0].udf.get(self.input_conc)
 
-            if input_conc < target_concentration:
-                output.udf[self.output_volume] = target_volume
-                output.udf[self.output_buffer] = 0
+            if all(v is not None for v in [input_conc,target_concentration,target_volume]):
+                if input_conc < target_concentration:
+                    output.udf[self.output_volume] = target_volume
+                    output.udf[self.output_buffer] = 0
+                else:
+                    output.udf[self.output_volume] = round(
+                        (target_volume * (target_concentration / input_conc)), 1)
+
+                    output.udf[self.output_buffer] = target_volume - output.udf.get(self.output_volume)
             else:
-                output.udf[self.output_volume] = round(
-                    (target_volume * (target_concentration / input_conc)), 1)
-
-                output.udf[self.output_buffer] = target_volume - output.udf.get(self.output_volume)
+                raise InvalidStepError('Volume calculation failed due to missing value! Input concentration =  %s, target '
+                                       'concentration = %s and target volume UDF = %s.'
+                                       % (input_conc,target_concentration,target_volume))
 
             artifacts_to_update.add(output)
 
