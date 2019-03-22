@@ -1,15 +1,14 @@
 import argparse
 import csv
+import itertools
 import os
+import re
 import sys
 from collections import defaultdict
 from io import StringIO
 from logging import FileHandler
-import re
 from urllib import parse as urlparse
 
-import EPPs
-from EPPs.config import load_config
 from cached_property import cached_property
 from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
@@ -17,6 +16,9 @@ from egcg_core.notifications import email
 from pyclarity_lims.entities import Process, Artifact
 from pyclarity_lims.lims import Lims
 from requests.exceptions import ConnectionError
+
+import EPPs
+from EPPs.config import load_config
 
 
 class InvalidStepError(Exception):
@@ -217,7 +219,7 @@ class StepEPP(app_logging.AppLogger):
                 if len(outputs) != self._nb_analytes_per_input:
                     raise InvalidStepError(
                         "%s replicates required for each input. "
-                                "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
+                        "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
                     )
         if self._nb_resfiles_per_input is not None:
             for artifact in self.artifacts:
@@ -225,7 +227,7 @@ class StepEPP(app_logging.AppLogger):
                 if len(outputs) != self._nb_resfiles_per_input:
                     raise InvalidStepError(
                         "%s replicates required for each input. "
-                                "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
+                        "%s replicates found for %s." % (self._nb_analytes_per_input, len(outputs), artifact.id)
                     )
         if self._max_nb_projects is not None:
             if len(self.projects) > self._max_nb_projects:
@@ -385,6 +387,78 @@ class GenerateHamiltonInputEPP(StepEPP):
         self.write_csv(self.shared_drive_file_path, csv_array)
 
 
+class Autoplacement(StepEPP):
+    """Script for performing autoplacement of samples. If 1 input and 1 output then 1:1 placement. If multiple input plates then
+     takes all samples from each plate before next plate Loops through all inputs and assigns them to the next available space
+     by column-row in the output plate"""
+    output_plate_layout_rows = None
+    output_plate_layout_columns = None
+    input_plate_layout_columns = None
+    input_plate_layout_rows = None
+
+    def __init__(self, argv=None):
+        super().__init__(argv)
+        assert self.output_plate_layout_rows is not None, 'output_plate_layout_rows needs to be set by the child class'
+        assert self.output_plate_layout_columns is not None, 'output_plate_layout_columns needs to be set by the child class'
+        assert self.input_plate_layout_rows is not None, 'input_plate_layout_rows needs to be set by the child class'
+        assert self.input_plate_layout_columns is not None, 'input_plate_layout_columns needs to be set by the child class'
+
+    def generate_input_container_nested_dict(self):
+        # loop through the inputs, assemble a nested dicitonary {containers:{input.location:output} this can then be
+        # queried in the order container-row-column so the order of the inputs in the Hamilton input file is
+        # as efficient as possible.
+        nested_dict = {}
+        for art in self.artifacts:
+
+            # obtain outputs for the input that are analytes, assume step is not configured to allow replicates
+            # so will always work with output[0]
+            output = self.process.outputs_per_input(art.id, Analyte=True)[0]
+
+            # add the input_location_output_dict to the input_container_nested dict
+            if art.container not in nested_dict.keys():
+                nested_dict[art.container] = {}
+            # start assembling one of the variables needed to use the set_placement function
+            # note that .location returns a tuple with the container entity and the well location as the string in position [1]
+            nested_dict[art.container][art.location[1]] = output
+        return nested_dict
+
+    def generate_output_placement(self, output_container):
+
+        output_plate_layout = [(row + ":" + column) for column, row in
+                               itertools.product(self.output_plate_layout_columns, self.output_plate_layout_rows)]
+
+        placement = []
+        # obtain the dictionary containing the source information
+        input_container_nested_dict = self.generate_input_container_nested_dict()
+
+        # create a counter so only use each available well in the output plate once (24 wells available in the 96 well plate
+        well_counter = 0
+
+        # loop through the input containers and place the samples in row-column order - this makes pipetting as efficient
+        # as possible, particularly if only 1 input plate so 1:1 pipetting
+        for container in sorted(input_container_nested_dict, key=lambda x: x.name):
+            for column in self.input_plate_layout_columns:
+                for row in self.input_plate_layout_rows:
+                    # populate list of tuples for set_placements if well exists in input plate
+                    if row + ":" + column in input_container_nested_dict[container]:
+                        placement.append((input_container_nested_dict[container][row + ":" + column],
+                                          (output_container, output_plate_layout[well_counter])))
+                        well_counter += 1
+        return placement
+
+    def _run(self):
+
+        # update of container requires list variable containing the containers, only one container will be present in step
+        # because the container has not yet been fully populated then it must be obtained from the step rather than output
+        output_container_list = self.process.step.placements.get_selected_containers()
+
+        # need a list of tuples for set_placements
+        output_placement = self.generate_output_placement(output_container_list[0])
+
+        # push the output locations to the LIMS
+        self.process.step.set_placements(output_container_list, output_placement)
+
+
 class ParseSpectramaxEPP(StepEPP):
     _use_load_config = False  # prevent the loading of the config
     # define the starting well for data parsing e.g. if the standards occupy the first 24 wells, parsing should start from well A4. No semi-colon
@@ -433,7 +507,7 @@ class ParseSpectramaxEPP(StepEPP):
         if self.sample_concs[1][0] != self.starting_well:
             raise AssertionError(
                 'Badly formed spectramax file: first well for samples is %s but expected to be %s'
-                % (str(self.sample_concs[1][0]),str(self.starting_well))
+                % (str(self.sample_concs[1][0]), str(self.starting_well))
             )
 
         self.debug('Found %s samples and %s plates', len(self.sample_concs), len(self.plate_names))
