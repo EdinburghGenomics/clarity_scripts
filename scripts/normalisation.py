@@ -53,7 +53,7 @@ class CalculateVolumes(StepEPP):
             if not input_conc:
                 input_conc = art.samples[0].udf.get(self.input_conc)
 
-            if all(v is not None for v in [input_conc,target_concentration,target_volume]):
+            if None not in [input_conc, target_concentration, target_volume]:
                 if input_conc < target_concentration:
                     output.udf[self.output_volume] = target_volume
                     output.udf[self.output_buffer] = 0
