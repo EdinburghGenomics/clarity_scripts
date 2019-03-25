@@ -51,7 +51,7 @@ class AssignWorkflowSeqLabQuantStudio(StepEPP):
             self.lims.route_artifacts(list(artifacts_to_route_pcr_free), stage_uri=stage.uri)
 
         if artifacts_to_route_nano:
-            stage_wf_st= cfg.query('workflow_stage', 'nano')
+            stage_wf_st = cfg.query('workflow_stage', 'nano')
             stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_nano), stage_uri=stage.uri)
 
