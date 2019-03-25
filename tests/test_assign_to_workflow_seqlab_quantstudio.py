@@ -37,7 +37,7 @@ class TestAssignWorkflowSeqLabQuantStudio(TestEPP):
             pws.assert_has_calls((
                 call(self.epp.lims, 'TruSeq PCR-Free DNA Sample Prep', 'Visual QC'),
                 call(self.epp.lims, 'TruSeq Nano DNA Sample Prep', 'Visual QC'),
-                call(self.epp.lims, 'KAPA Non-Pooling Sample Prep EG 1.0 WFDEV2',
+                call(self.epp.lims, 'KAPA Non-Pooling Sample Prep EG 1.0 WF',
                      'Sequencing Plate Picogreen EG 1.0 ST'),
                 call(self.epp.lims, 'QuantStudio EG1.0', 'QuantStudio Plate Preparation EG1.0'),
 

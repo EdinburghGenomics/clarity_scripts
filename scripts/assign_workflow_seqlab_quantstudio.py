@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from egcg_core.config import cfg
+
 from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_originating_from
 
 
 class AssignWorkflowSeqLabQuantStudio(StepEPP):
-    _use_load_config = False  # prevent the loading of the config file
+    _use_load_config = True  # prevent the loading of the config file
     """
     Assigns plates of submitted samples or FluidX derived artifacts to the correct library prep workflow and assigns to the
     QuantStudio workflow if required based on UDFs "Prep Workflow", "Species" and "Skip genotyping for (human) sample?"
@@ -38,27 +40,29 @@ class AssignWorkflowSeqLabQuantStudio(StepEPP):
                 else:
                     artifact = find_newest_artifact_originating_from(
                         self.lims,
-                        process_type="FluidX Transfer From Rack Into Plate EG 1.0 ST",
+                        process_type=cfg.query('process_type', 'fluidx_transfer'),
                         sample_name=sample.name
                     )
                     artifacts_to_route_quant.add(artifact)
 
         if artifacts_to_route_pcr_free:
-            stage = get_workflow_stage(self.lims, "TruSeq PCR-Free DNA Sample Prep", "Visual QC")
+            stage_wf_st = cfg.query('workflow_stage', 'pcr-free')
+            stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_pcr_free), stage_uri=stage.uri)
 
         if artifacts_to_route_nano:
-            stage = get_workflow_stage(self.lims, "TruSeq Nano DNA Sample Prep", "Visual QC")
+            stage_wf_st= cfg.query('workflow_stage', 'nano')
+            stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_nano), stage_uri=stage.uri)
 
         if artifacts_to_route_kapa:
-            stage = get_workflow_stage(self.lims, "KAPA Non-Pooling Sample Prep EG 1.0 WFDEV2",
-                                       "Sequencing Plate Picogreen EG 1.0 ST")
-
+            stage_wf_st = cfg.query('workflow_stage', 'kapa')
+            stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_kapa), stage_uri=stage.uri)
 
         if artifacts_to_route_quant:
-            stage = get_workflow_stage(self.lims, "QuantStudio EG1.0", "QuantStudio Plate Preparation EG1.0")
+            stage_wf_st = cfg.query('workflow_stage', 'quantstudio')
+            stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_quant), stage_uri=stage.uri)
 
 
