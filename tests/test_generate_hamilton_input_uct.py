@@ -16,7 +16,7 @@ class TestGenerateHamiltonInputUCT(TestEPP):
         self.epp.lims = fem.lims
         self.epp.process = fem.create_a_fake_process(
             nb_input=2,
-            output_reagent_label='A1_TATAGCCT_ATTACTCG (TATAGCCT_ATTACTCG)'
+            output_reagent_label='001A IDT-ILMN(TATAGCCT-ATTACTCG)'
         )
         self.epp._run()
         expected_lines = [
@@ -34,7 +34,7 @@ class TestGenerateHamiltonInputUCT(TestEPP):
         self.epp.process = fem.create_a_fake_process(
             nb_input=2,
             output_per_input=2,
-            output_reagent_label='A1_TATAGCCT_ATTACTCG (TATAGCCT_ATTACTCG)'
+            output_reagent_label='001A IDT-ILMN(TATAGCCT-ATTACTCG)'
         )
         with pytest.raises(InvalidStepError) as e:
             self.epp._run()
