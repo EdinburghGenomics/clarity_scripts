@@ -1,10 +1,13 @@
 Changelog for clarity_scripts
 =============================
 
-0.11 (unreleased)
+0.11 (2019-03-25)
 -----------------
 
-- Nothing changed yet.
+- EPP common: Generic Autoplacement class 
+- `autoplacement_96_well.py`: place all input from up to 27 input plate to 1 output plate. (input plate are ordered by name)
+- `generate_hamilton_input_quant_studio.py` : create one to three hamilon input files from up to load sample from up to 27 input plates
+- `normalisation.py`: look up the udf from artifact or sample when normalising concentration
 
 
 0.10 (2019-03-15)
