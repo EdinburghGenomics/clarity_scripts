@@ -60,6 +60,9 @@ class EmailManifestLetter(SendMailEPP):
             attachments_list.append(letter_filepath)
             template_name = 'basic_email_template.html'
 
+        else:
+            raise ValueError('Unexpected container type name: %s' % container_type_name)
+
         self.send_mail(email_subject, None, project=input_project_name, template_name=template_name,
                        config_name='projects_only', attachments=attachments_list)
 

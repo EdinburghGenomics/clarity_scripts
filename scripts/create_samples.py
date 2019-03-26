@@ -49,7 +49,7 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
 
         # Check container type
         if current_container.type.name not in self.udf_to_container_type[udf_container_type]:
-            raise InvalidStepError(message='Input container is a %s but Container Type UDF is set to %s' %(
+            raise InvalidStepError(message='Input container is a %s but Container Type UDF is set to %s' % (
                 current_container.type.name, udf_container_type
             ))
 
@@ -102,11 +102,6 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
 
     def validate_genome_version(self, genome_version):
         """Validate genome version against REST API unless it is empty."""
-        if genome_version == '' or self.get_documents('genomes', where={'name': genome_version}):
-            return True
-        return False
-    def validate_genome_version(self, genome_version):
-        """Validate genome version against REST API unless it is empty."""
         if genome_version == '' or self.get_documents('genomes', where={'assembly_name': genome_version}):
             return True
         return False
@@ -127,7 +122,7 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
 
     @cached_property
     def next_stage(self):
-        return get_workflow_stage(self.lims,  self.process.udf['Next Workflow'], self.process.udf['Next Step'])
+        return get_workflow_stage(self.lims, self.process.udf['Next Workflow'], self.process.udf['Next Step'])
 
     def _next_sample_name_and_pos(self):
         """Provide the next available position on the current container and generate the associated sample name.

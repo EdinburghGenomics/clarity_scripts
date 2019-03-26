@@ -56,6 +56,8 @@ class GenerateManifest(StepEPP):
         elif list(container_types)[0].name == 'SGP rack 96 positions':
             con_type = '[SGP]'
             template_file = cfg.query('file_templates', 'manifest', 'SGP_template')
+        else:
+            raise ValueError('Unexpected container type name: %s' % list(container_types)[0].name)
 
         # define counter to ensure each sample is written to a new well
         row_counter = step_udfs[con_type + 'Starting Row']

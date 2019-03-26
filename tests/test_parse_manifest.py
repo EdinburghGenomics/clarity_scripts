@@ -1,15 +1,14 @@
 from os.path import join
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 import pytest
 
 from EPPs.common import InvalidStepError
 from scripts.parse_manifest import ParseManifest
-from tests.test_common import TestEPP,  FakeEntitiesMaker
+from tests.test_common import TestEPP, FakeEntitiesMaker
 
 
 class TestParseManifest(TestEPP):
-
     process_udfs = {
         'Plate Sample Name': 'A',
         '[Plate]Container Name': 'B',

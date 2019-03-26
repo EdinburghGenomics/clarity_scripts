@@ -1,7 +1,7 @@
-from unittest.mock import patch
+from unittest.mock import patch, Mock, PropertyMock
 
 from scripts.generate_manifest import GenerateManifest
-from tests.test_common import TestEPP, FakeEntitiesMaker
+from tests.test_common import TestEPP, FakeEntitiesMaker, NamedMock
 
 
 class TestGenerateManifest(TestEPP):
@@ -69,3 +69,18 @@ class TestGenerateManifest(TestEPP):
 
             mocked_save.assert_called_with(
                 filename='99-9999-Edinburgh_Genomics_Sample_Submission_Manifest_Project1.xlsx')
+
+    def test_generate_manifest_no_container_type(self):
+        self.patch_process = patch.object(
+            GenerateManifest,
+            'process',
+            new_callable=PropertyMock(
+                return_value=Mock(
+                    all_inputs=Mock(return_value=[
+                        Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species': 'Homo sapiens'})],
+                             container=Mock(type=NamedMock(real_name=None)))])))
+        )
+
+        with self.patch_process:
+            with self.assertRaises(ValueError):
+                self.epp._run()

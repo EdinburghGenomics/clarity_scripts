@@ -1,7 +1,9 @@
 import os
 import platform
 from unittest.mock import Mock, patch, PropertyMock
+
 from EPPs.common import SendMailEPP
+from scripts.email_container_dispatched import ContainerDispatchComplete
 from scripts.email_container_ready_for_dispatch import ContainerReadyDispatch
 from scripts.email_data_release import DataReleaseEmail
 from scripts.email_data_release_facility_manager import DataReleaseFMEmail
@@ -11,7 +13,6 @@ from scripts.email_manifest_tracking_letter_customer import EmailManifestLetter
 from scripts.email_receive_sample import ReceiveSampleEmail
 from scripts.email_sample_disposal_notification import SampleDisposalNotificationEmail
 from scripts.email_sample_disposal_review import SampleDisposalFMEmail
-from scripts.email_container_dispatched import ContainerDispatchComplete
 from tests.test_common import TestEPP, NamedMock
 
 
@@ -31,7 +32,8 @@ class TestEmailEPP(TestEPP):
     patch_samples = patch.object(
         SendMailEPP,
         'samples',
-        new_callable=PropertyMock(return_value=[NamedMock(real_name='sample1',udf={'Species':'Homo sapiens'}), NamedMock(real_name='sample2')])
+        new_callable=PropertyMock(return_value=[NamedMock(real_name='sample1', udf={'Species': 'Homo sapiens'}),
+                                                NamedMock(real_name='sample2')])
     )
 
     patch_email = patch('egcg_core.notifications.email.send_email')
@@ -43,7 +45,7 @@ class TestEmailEPP(TestEPP):
     def create_epp(self, klass):
         return klass(self.default_argv)
 
-    def manifest_epp(self,klass):
+    def manifest_epp(self, klass):
         argv = self.default_argv + [
             '--manifest', 'a_manifest',
             '--letter', 'a_letter',
@@ -305,6 +307,7 @@ Clarity X'''
                 strict=True
             )
 
+
 class TestSampleDisposalFacilityManager(TestEmailEPP):
     def setUp(self):
         super().setUp()
@@ -341,9 +344,7 @@ Clarity X'''
                 recipients=['facility@email.com', 'project@email.com'],
                 strict=True
             )
-    #this step can have samples from multiple projects so should not run the "test_only_one_project" test
-    def test_only_one_project(self):
-        pass
+
 
 class TestSampleDisposalNotification(TestEmailEPP):
     def setUp(self):
@@ -377,39 +378,6 @@ Clarity X'''
                 strict=True
             )
 
-class TestEmailContainerDispatched(TestEmailEPP):
-    def setUp(self):
-        super().setUp()
-        self.epp = self.create_epp(ContainerDispatchComplete)
-
-    def test_send_email(self):
-        with self.patch_project_single, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
-            self.epp._run()
-            msg = '''Hi,
-
-The container dispatch has been completed for project1.
-
-https://{localmachine}/clarity/work-details/tep_uri
-
-Kind regards,
-ClarityX'''
-            msg = msg.format(localmachine=platform.node())
-
-            mocked_send_email.assert_called_with(
-                attachments=None,
-                msg=msg,
-                subject='project1: Container Ready For Dispatch',
-                mailhost='smtp.test.me',
-                port=25,
-                sender='sender@email.com',
-                recipients=['lab@email.com', 'project@email.com'],
-                strict=True
-            )
-
-    def test_send_email2(self):
-        with self.patch_project_multi, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
-            with self.assertRaises(ValueError):
-                self.epp._run()
 
 class TestEmailContainerDispatched(TestEmailEPP):
     def setUp(self):
@@ -487,28 +455,39 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
         self.epp = self.manifest_epp(EmailManifestLetter)
         self.patch_process1 = self.create_patch_process(
             EmailManifestLetter,
-            all_inputs=Mock(return_value=[Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species':'Homo sapiens'})],
-                                                     container=Mock(type=NamedMock(real_name='96 well plate')))])
+            all_inputs=Mock(return_value=[
+                Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species': 'Homo sapiens'})],
+                     container=Mock(type=NamedMock(real_name='96 well plate')))])
         )
 
         self.patch_process2 = self.create_patch_process(
             EmailManifestLetter,
-            all_inputs=Mock(return_value=[Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species':'Homo sapiens'})],
-                                                     container=Mock(type=NamedMock(real_name='rack 96 positions')))])
+            all_inputs=Mock(return_value=[
+                Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species': 'Homo sapiens'})],
+                     container=Mock(type=NamedMock(real_name='rack 96 positions')))])
         )
 
         self.patch_process3 = self.create_patch_process(
             EmailManifestLetter,
-            all_inputs=Mock(return_value=[Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species':'Homo sapiens'})],
-                                                     container=Mock(type=NamedMock(real_name='SGP rack 96 positions')))])
+            all_inputs=Mock(return_value=[
+                Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species': 'Homo sapiens'})],
+                     container=Mock(type=NamedMock(real_name='SGP rack 96 positions')))])
+        )
+
+        self.patch_process4 = self.create_patch_process(
+            EmailManifestLetter,
+            all_inputs=Mock(return_value=[
+                Mock(samples=[Mock(project=NamedMock(real_name='Project1'), udf={'Species': 'Homo sapiens'})],
+                     container=Mock(type=NamedMock(real_name=None)))])
         )
 
     def test_send_email(self):
-        with self.patch_project_single,self.patch_process1,\
+        with self.patch_project_single, self.patch_process1, \
              self.patch_email as mocked_send_email:
             self.epp._run()
             mocked_send_email.assert_called_with(
-                attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx', 'plate requirements'],
+                attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
+                             'plate requirements'],
                 msg=None,
                 subject='project1: Homo sapiens WGS Sample Submission',
                 mailhost='smtp.test.me',
@@ -521,12 +500,12 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
             )
 
     def test_send_email2(self):
-        with self.patch_project_single,self.patch_process2,\
+        with self.patch_project_single, self.patch_process2, \
              self.patch_email as mocked_send_email:
             self.epp._run()
             mocked_send_email.assert_called_with(
                 attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
-                             'tube requirements','a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_project1.docx'],
+                             'tube requirements', 'a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_project1.docx'],
                 msg=None,
                 subject='project1: Homo sapiens WGS Sample Submission',
                 mailhost='smtp.test.me',
@@ -539,7 +518,7 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
             )
 
     def test_send_email3(self):
-        with self.patch_project_single,self.patch_process3,\
+        with self.patch_project_single, self.patch_process3, \
              self.patch_email as mocked_send_email:
             self.epp._run()
             mocked_send_email.assert_called_with(
@@ -556,7 +535,7 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
                 strict=True
             )
 
-    # def test_send_email2(self):
-    #     with self.patch_project_multi, self.patch_process, self.patch_samples, self.patch_email as mocked_send_email:
-    #         with self.assertRaises(ValueError):
-    #             self.epp._run()
+    def test_send_email4(self):
+        with self.patch_project_single, self.patch_process4:
+            with self.assertRaises(ValueError):
+                self.epp._run()
