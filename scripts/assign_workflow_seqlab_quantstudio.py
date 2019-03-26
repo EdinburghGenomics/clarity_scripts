@@ -5,7 +5,6 @@ from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_origin
 
 
 class AssignWorkflowSeqLabQuantStudio(StepEPP):
-    _use_load_config = True  # prevent the loading of the config file
     """
     Assigns plates of submitted samples or FluidX derived artifacts to the correct library prep workflow and assigns to the
     QuantStudio workflow if required based on UDFs "Prep Workflow", "Species" and "Skip genotyping for (human) sample?"
