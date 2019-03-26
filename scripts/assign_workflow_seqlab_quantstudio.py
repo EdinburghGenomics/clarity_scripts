@@ -46,22 +46,22 @@ class AssignWorkflowSeqLabQuantStudio(StepEPP):
                     artifacts_to_route_quant.add(artifact)
 
         if artifacts_to_route_pcr_free:
-            stage_wf_st = cfg.query('workflow_stage', 'pcr-free')
+            stage_wf_st = cfg.query('workflow_stage', 'pcr-free','start')
             stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_pcr_free), stage_uri=stage.uri)
 
         if artifacts_to_route_nano:
-            stage_wf_st = cfg.query('workflow_stage', 'nano')
+            stage_wf_st = cfg.query('workflow_stage', 'nano','start')
             stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_nano), stage_uri=stage.uri)
 
         if artifacts_to_route_kapa:
-            stage_wf_st = cfg.query('workflow_stage', 'kapa')
+            stage_wf_st = cfg.query('workflow_stage', 'kapa','start')
             stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_kapa), stage_uri=stage.uri)
 
         if artifacts_to_route_quant:
-            stage_wf_st = cfg.query('workflow_stage', 'quantstudio')
+            stage_wf_st = cfg.query('workflow_stage', 'quantstudio','start')
             stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
             self.lims.route_artifacts(list(artifacts_to_route_quant), stage_uri=stage.uri)
 
