@@ -358,7 +358,7 @@ class TestEPP(TestCommon):
             '--log_file', TestCommon.log_file
         ]
         os.environ['CLARITYSCRIPTCONFIG'] = join(self.etc_path, 'example_clarity_script.yml')
-        self.current_wd = os.curdir
+        self.current_wd = os.getcwd()
 
     def setUp(self):
         argv = self.default_argv.copy()
