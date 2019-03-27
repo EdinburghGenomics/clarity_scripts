@@ -364,7 +364,7 @@ class TestEPP(TestCommon):
         argv = self.default_argv.copy()
         argv[1] = 'http://server:8080/some/extra/stuff'
         self.epp = StepEPP(argv)
-        self.current_wd = os.curdir
+        self.current_wd = os.getcwd()
         # move to base directory as most of the test should be run from there
         os.chdir(dirname(dirname(abspath(__file__))))
 
