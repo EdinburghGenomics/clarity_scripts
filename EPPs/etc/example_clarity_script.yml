@@ -57,3 +57,24 @@ rest_api:
   url: localhost
   username: user
   password: password
+
+workflow_stage:
+  kapa:
+    start:
+      - KAPA Non-Pooling Sample Prep EG 1.0 WF
+      - Sequencing Plate Picogreen EG 1.0 ST
+  pcr-free:
+    start:
+      - TruSeq PCR-Free DNA Sample Prep
+      - Visual QC
+  nano:
+    start:
+      - TruSeq Nano DNA Sample Prep
+      - Visual QC
+  quantstudio:
+    start:
+      - QuantStudio EG1.0
+      - QuantStudio Plate Preparation EG1.0
+
+process_type:
+  fluidx_transfer: FluidX Transfer From Rack Into Plate EG 1.0 ST
