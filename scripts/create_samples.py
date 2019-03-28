@@ -57,8 +57,8 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
         suffix_udf_name = 'Rack Suffix'
         if udf_container_type == '96 well plate':
             suffix_udf_name = 'Plate Suffix'
-            expected_container_re = '^' + input_project.name + self.process.udf[suffix_udf_name] + '$'
-        if not re.match(expected_container_re, current_container.name):
+            expected_container_re = input_project.name + self.process.udf[suffix_udf_name]
+        if not re.fullmatch(expected_container_re, current_container.name):
             raise InvalidStepError(message='Input container name is not valid for the container type. '
                                            'It should match: ' + expected_container_re)
 
