@@ -20,7 +20,7 @@ class TestAssignNextStep(TestEPP):
 
     def test_assign_next_step(self):
         protocol = Mock(steps=[self.protostep, Mock(), Mock()])
-        patched_protocol = patch('scripts.next_step_assignment.Protocol', return_value=protocol)
+        patched_protocol = patch('EPPs.common.Protocol', return_value=protocol)
 
         with self.patched_process, patched_protocol:
             self.epp._run()
@@ -33,7 +33,7 @@ class TestAssignNextStep(TestEPP):
             assert self.actions.put.call_count == 1
 
         protocol = Mock(steps=[Mock(), self.protostep, Mock()])
-        patched_protocol = patch('scripts.next_step_assignment.Protocol', return_value=protocol)
+        patched_protocol = patch('EPPs.common.Protocol', return_value=protocol)
 
         self.actions.put.reset_mock()
         with self.patched_process, patched_protocol:
@@ -48,7 +48,7 @@ class TestAssignNextStep(TestEPP):
 
     def test_assign_complete(self):
         protocol = Mock(steps=[Mock(), Mock(), self.protostep])
-        patched_protocol = patch('scripts.next_step_assignment.Protocol', return_value=protocol)
+        patched_protocol = patch('EPPs.common.Protocol', return_value=protocol)
 
         with self.patched_process, patched_protocol:
             self.epp._run()

@@ -17,28 +17,11 @@ class AssignContainerName(StepEPP):
             if p.output_type == 'Analyte':
                
                 project = p.samples[0].project.name
-                new_container_name = self.find_available_container(project)
+                new_container_name = self.find_available_container(project, '96 well plate')
                 p.container.name = new_container_name
                 p.container.put()
 
                 break
-
-    def find_available_container(self, project, count=1):
-        """
-        Check to see if a container name is available, and recurse with incremented container numbers until an available
-        container name is found.
-        :param str project:
-        :param int count:
-        """
-        if count > 999:
-            raise ValueError('Cannot allocate more than 999 containers')
-
-        new_name = project + 'P%03d' % count
-
-        if not self.lims.get_artifacts(containername=new_name):
-            return new_name
-        else:
-            return self.find_available_container(project, count=count + 1)
 
 
 if __name__ == '__main__':

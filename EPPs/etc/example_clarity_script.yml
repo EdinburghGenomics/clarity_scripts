@@ -58,6 +58,18 @@ rest_api:
   username: user
   password: password
 
+
+file_templates:
+  manifest:
+    plate_template: tests/assets/Blank_Manifest.xlsx
+    tube_template: tests/assets/Blank_Manifest.xlsx
+    SGP_template: tests/assets/Blank_Manifest.xlsx
+
+  tracking_letter: tests/assets/Template_tracking_letter.docx
+  requirements:
+    plate: plate requirements
+    tube: tube requirements
+
 workflow_stage:
   kapa:
     start:
@@ -78,3 +90,4 @@ workflow_stage:
 
 process_type:
   fluidx_transfer: FluidX Transfer From Rack Into Plate EG 1.0 ST
+

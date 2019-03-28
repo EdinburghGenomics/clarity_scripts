@@ -77,7 +77,7 @@ class FakeEntitiesMaker:
 
     @staticmethod
     def _next_container_position(container, last_position):
-        if container.type.name == '96 well plate':
+        if container.type.name in ['96 well plate','rack 96 positions','SGP rack 96 positions']:
             plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
             plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
         elif container.type.name == 'Tube':
@@ -195,7 +195,7 @@ class FakeEntitiesMaker:
 
     def create_a_fake_sample(self, project, sample_name=None, sample_udfs=None, **kwargs):
         sample = self.create_instance(Sample, project=_resolve_next(project))
-        sample.name = sample_name or sample.uri
+        sample.name = _resolve_next(sample_name) or sample.uri
         self._add_udfs(sample, sample_udfs)
         return sample
 
@@ -300,13 +300,16 @@ class FakeEntitiesMaker:
         used_input_containers = set([a.container for a in inputs])
         outputs = []
         # Create output containers
-        ocontainers = cycle(self.create_fake_containers(
-            kwargs.get('nb_output_container', 1),
-            container_name=kwargs.get('output_container_name'),
-            container_type=kwargs.get('output_container_type'),
-            container_udfs= kwargs.get('output_container_udfs'),
-            is_output_container=True,
-            **kwargs))
+        if output_per_input:
+            ocontainers = cycle(self.create_fake_containers(
+                kwargs.get('nb_output_container', 1),
+                container_name=kwargs.get('output_container_name'),
+                container_type=kwargs.get('output_container_type'),
+                container_udfs= kwargs.get('output_container_udfs'),
+                is_output_container=True,
+                **kwargs))
+        else:
+            ocontainers = []
         used_output_containers = set()
         input_output_maps = []
         output_container_map = iter(self._build_container_map(nb_input * output_per_input, ocontainers,
@@ -355,11 +358,18 @@ class TestEPP(TestCommon):
             '--log_file', TestCommon.log_file
         ]
         os.environ['CLARITYSCRIPTCONFIG'] = join(self.etc_path, 'example_clarity_script.yml')
+        self.current_wd = os.getcwd()
 
     def setUp(self):
         argv = self.default_argv.copy()
         argv[1] = 'http://server:8080/some/extra/stuff'
         self.epp = StepEPP(argv)
+        self.current_wd = os.getcwd()
+        # move to base directory as most of the test should be run from there
+        os.chdir(dirname(dirname(abspath(__file__))))
+
+    def tearDown(self):
+        os.chdir(self.current_wd)
 
     def test_init(self):
         assert self.epp.baseuri == 'http://server:8080'

@@ -1,11 +1,11 @@
-import argparse
 import csv
 import itertools
 import os
 import re
 import sys
+import argparse
 from collections import defaultdict
-from io import StringIO
+from io import StringIO, BytesIO
 from logging import FileHandler
 from urllib import parse as urlparse
 
@@ -13,7 +13,7 @@ from cached_property import cached_property
 from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
-from pyclarity_lims.entities import Process, Artifact
+from pyclarity_lims.entities import Process, Artifact, Protocol
 from pyclarity_lims.lims import Lims
 from requests.exceptions import ConnectionError
 
@@ -42,6 +42,7 @@ class StepEPP(app_logging.AppLogger):
     _nb_analytes_per_input = None
     _nb_resfiles_per_input = None
     _max_nb_projects = None
+    _max_nb_input_container_types = None
 
     def __init__(self, argv=None):
         self.argv = argv
@@ -110,35 +111,73 @@ class StepEPP(app_logging.AppLogger):
         """This is the projects associated with the input artifacts of that step"""
         return list(set([s.project for s in self.samples]))
 
-    def open_or_download_file(self, file_or_uid, encoding=None, crlf=False):
+    def open_or_download_file(self, file_or_uid, encoding=None, crlf=False, binary=False):
         if os.path.isfile(file_or_uid):
-            f = open(file_or_uid)
+            if binary:
+                f = open(file_or_uid, mode='rb')
+            else:
+                f = open(file_or_uid)
         else:
             a = Artifact(self.lims, id=file_or_uid)
             if a.files:
-                f = StringIO(self.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
+                if binary:
+                    f = BytesIO(self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf, binary=True))
+                else:
+                    f = StringIO(self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
             else:
                 f = None
         if f:
             self.open_files.append(f)
         return f
 
-    # TODO: remove this when we switch to pyclarity_lims
-    def get_file_contents(self, id=None, uri=None, encoding=None, crlf=False):
-        """Returns the contents of the file of <ID> or <uri>"""
-        if id:
-            url = self.lims.get_uri('files', id, 'download')
-        elif uri:
-            url = uri.rstrip('/') + '/download'
+    def find_available_container(self, project, container_type=None, container_limit=99):
+        """
+        Check to see if a container name is available, and recurse with incremented container numbers until an available
+        container name is found.
+        :param str project:
+        :param str container_type:
+        :param int container_limit:
+        """
+        name_template = project + 'P%03d'
+        if container_type == '96 well plate':
+            container_limit = 999
+
+        if container_type == 'rack 96 positions':
+            name_template = project + 'R%02d'
+            container_limit = 99
+
+        for container_count in range(1, container_limit + 1):
+            new_name = name_template % container_count
+            if not self.lims.get_containers(name=new_name):
+                return new_name
+        raise ValueError('Cannot allocate more than %s containers of type %s ' % (container_limit, container_type))
+
+    def next_step_or_complete(self, next_actions):
+        """
+        Assigns the next action to all artifacts as either workflow complete or the next available step.
+        :param next_actions:
+        :return: next_actions
+        """
+        current_step = self.process.step.configuration  # configuration gives the ProtocolStep entity.
+        protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
+        steps = protocol.steps  # a list of all the ProtocolSteps in protocol
+        # If the step is the last step in the protocol then set the next action to complete
+        if current_step == steps[-1]:
+            # for all artifacts in next_actions update the action to "complete"
+            for next_action in next_actions:
+                next_action['action'] = 'complete'
+
+        # If the step is not the last step in the protocol then set the next action to the next step
+        # and assign the identity of that step with the step_object
         else:
-            raise ValueError('id or uri required')
+            step_object = steps[steps.index(current_step) + 1]
+            # for all artifacts in next_actions update the action to "next step" with the step
+            # as the next step in the protocol
+            for next_action in next_actions:
+                next_action['action'] = 'nextstep'
+                next_action['step'] = step_object
 
-        r = self.lims.request_session.get(url, auth=(self.username, self.password), timeout=16)
-        self.lims.validate_response(r)
-        if encoding:
-            r.encoding = encoding
-
-        return r.text.replace('\r\n', '\n') if crlf else r.text
+        return next_actions
 
     def _run(self):
         raise NotImplementedError
@@ -169,6 +208,17 @@ class StepEPP(app_logging.AppLogger):
         return sorted(containers)
 
     @cached_property
+    def input_container_name_types(self):
+        """The name of containers from input artifacts. """
+        container_types = set()
+        for art in self.artifacts:
+            # Check to see if artifact has a container before retrieving the container.
+            # Artifacts that are not samples will not have containers.
+            if art.container:
+                container_types.add(art.container.type.name)
+        return sorted(container_types)
+
+    @cached_property
     def output_container_names(self):
         """The name of containers from output artifacts"""
         containers = set()
@@ -184,11 +234,13 @@ class StepEPP(app_logging.AppLogger):
         All validations are optionals and will require sub classes to set the corresponding varaibles:
 
          - _max_nb_input_containers: set the maximum number of input container of the step.
+         - _max_nb_input_container_types: set the maximum number of input container types of the step
          - _max_nb_output_containers: set the maximum number of output container of the step.
          - _max_nb_input: set the maximum number of input of the step.
          - _nb_analyte_per_input: set the number of replicates (Analytes) required for the step.
          - _nb_resfile_per_input: set the number of replicates (ResultFiles) required for the step.
          - _max_nb_project: set the maximum number of project in the step.
+
         """
         if self._max_nb_input_containers is not None:
             # check the number of input containers
@@ -198,6 +250,16 @@ class StepEPP(app_logging.AppLogger):
                         self._max_nb_input_containers, len(self.input_container_names)
                     )
                 )
+
+        if self._max_nb_input_container_types is not None:
+            # check the number of input containers
+            if len(self.input_container_name_types) > self._max_nb_input_containers:
+                raise InvalidStepError(
+                    'Maximum number of input container types is %s. There are %s input container types in the step.' % (
+                        self._max_nb_input_container_types, len(self.input_container_name_types)
+                    )
+                )
+
         if self._max_nb_output_containers is not None:
             # check the number of output containers
             if len(self.output_container_names) > self._max_nb_output_containers:
@@ -238,24 +300,38 @@ class StepEPP(app_logging.AppLogger):
                 )
 
     def __del__(self):
-        for f in self.open_files:
-            f.close()
-
+        try:
+            for f in self.open_files:
+                f.close()
+        except Exception:
+            pass
 
 class SendMailEPP(StepEPP):
     def get_email_template(self, name=None):
         return os.path.join(self._etc_path, name)
 
-    def get_config(self, config_name=None, template_name=None):
-        email_config = cfg.query('email_notify', 'default')
-        if config_name:
-            email_config.update(cfg.query('email_notify', config_name))
-        if 'email_template' not in email_config and template_name:
-            email_config['email_template'] = self.get_email_template(template_name)
-        return email_config
+    def get_config(self, config_heading_1=None, config_heading_2=None, config_heading_3=None, template_name=None):
+        if config_heading_1==None or config_heading_1== 'email_notify':
+            if config_heading_2:
+                config = cfg.query('email_notify', 'default')
+                config.update(cfg.query('email_notify', config_heading_2))
+            elif not config_heading_2:
+                config = cfg.query(config_heading_1, 'default')
+            if 'email_template' not in config and template_name:
+                config['email_template'] = self.get_email_template(template_name)
+        if config_heading_1== 'file_templates':
+            if config_heading_3:
+                config = cfg.query(config_heading_1,config_heading_2,config_heading_3)
+            else:
+                config = cfg.query(config_heading_1, config_heading_2)
 
-    def send_mail(self, subject, msg, config_name=None, template_name=None):
-        email.send_email(msg=msg, subject=subject, strict=True, **self.get_config(config_name, template_name))
+        return config
+
+    def send_mail(self, subject, msg, config_name=None, template_name=None, attachments=None, **kwargs):
+        tmp_dict = {}
+        tmp_dict.update(self.get_config(config_heading_2=config_name, template_name=template_name))
+        tmp_dict.update(kwargs)
+        email.send_email(msg=msg, subject=subject, strict=True,attachments=attachments,**tmp_dict)
 
     def _run(self):
         raise NotImplementedError
@@ -563,7 +639,6 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
     :param process_type: the type of process that created the artifact
     :param sample_name: the name of the sample associated with this artifact.
     """
-
     def get_parent_process_id(art):
         return art.parent_process.id
 
