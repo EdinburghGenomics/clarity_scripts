@@ -12,7 +12,6 @@ from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError, RestCommu
 class CreateSamples(StepEPP, RestCommunicationEPP):
     """uses step UDF data to create all of the samples required by the Project Manager with the sample UDFs populated
     before created of the sample manifest for issue to the customer."""
-    _use_load_config = False  # prevent the loading of the config
     _max_nb_project = 1
     _max_nb_input = 1
 
@@ -64,7 +63,7 @@ class CreateSamples(StepEPP, RestCommunicationEPP):
 
         # check the sample name format is as expected
         expected_sample_re = expected_container_re + 'A01'
-        if not re.match(expected_sample_re, input_sample.name):
+        if not re.fullmatch(expected_sample_re, input_sample.name):
             raise InvalidStepError(message='Input sample name is not valid. It should match: ' + expected_sample_re)
 
         # Check that the workflow stage exists
