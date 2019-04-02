@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.12 (unreleased)
------------------
+0.11.1 (2019-04-02)
+-------------------
 
-- Nothing changed yet.
+- Fix for unexpected NotImplementedError in spectramax.py
 
 
 0.11 (2019-03-25)
