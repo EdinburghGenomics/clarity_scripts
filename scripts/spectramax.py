@@ -8,7 +8,7 @@ class SpectramaxOutput(ParseSpectramaxEPP):
     # Standards will not be present in the results table to be parsed
     starting_well = 'A1'
 
-    def add_plates_to_step(self):
+    def _add_plates_to_step(self):
         self.info('Updating step %s with data: %s', self.step_id, self.plates)
         updated_input_artifacts = []
 

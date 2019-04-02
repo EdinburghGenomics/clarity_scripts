@@ -64,7 +64,7 @@ class TestSpectramaxOutput(TestEPP):
 
         self.epp.plates = self.exp_plates.copy()
         mocked_process.step = Mock(placements=Mock(get_placement_list=Mock(return_value=fake_placements)))
-        self.epp.add_plates_to_step()
+        self.epp._add_plates_to_step()
 
         for artifact, (container, coord) in fake_placements:
             coord = coord.replace(':', '')
