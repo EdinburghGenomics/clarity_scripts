@@ -18,7 +18,7 @@ class TestParseFluidXScan(TestEPP):
     container=NamedMock(real_name='container1')
     location=[container,'A:1']
     sample1=Mock(udf={'2D Barcode':'-'})
-    input1=Mock(location=location, samples=[sample1])
+    input1=Mock(location=location, samples=[sample1], container=container)
 
     patched_process1 = patch.object(
         StepEPP,
@@ -44,6 +44,9 @@ class TestParseFluidXScan(TestEPP):
         self.epp2 = ParseFluidXScan(self.default_argv + ['--fluidx_scan', join(dirname(abspath(__file__)), 'assets',
                                                          'fluidx_example_scan_too_many_samples.csv')])
 
+        self.epp3 = ParseFluidXScan(self.default_argv + ['--fluidx_scan', join(dirname(abspath(__file__)), 'assets',
+                                                         'fluidx_example_scan_wrong_rack.csv')])
+
     def test_parse_fluidx_scan(self):
         with self.patched_process1, self.patched_lims as lims:
             self.epp._run()
@@ -55,3 +58,9 @@ class TestParseFluidXScan(TestEPP):
             self.epp2._run()
 
         assert str(e.value) == 'The number of samples in the step (1) does not match the number of tubes scanned (2)'
+
+    def test_parse_fluidx_scan_wrong_rack(self):
+        with self.patched_process2, pytest.raises(ValueError) as e:
+            self.epp3._run()
+
+        assert str(e.value) == 'The scanned rack barcode (container2) does not match the container name in the LIMS (container1)'
