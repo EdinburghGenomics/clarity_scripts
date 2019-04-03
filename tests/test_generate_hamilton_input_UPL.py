@@ -1,5 +1,5 @@
-import hashlib
 from unittest.mock import Mock, patch, PropertyMock
+
 from scripts.generate_hamilton_input_UPL import GenerateHamiltonInputUPL
 from tests.test_common import TestEPP, NamedMock
 
@@ -116,14 +116,13 @@ class TestGenerateHamiltonInputUPL(TestEPP):
         with self.patched_process1:
             self.epp._run()
 
-        def md5(fname):
-            hash_md5 = hashlib.md5()
-            with open(fname, 'rb') as f:
-                for chunk in iter(lambda: f.read(4096), b''):
-                    hash_md5.update(chunk)
-            return hash_md5.hexdigest()
+        expected_lines = ['Input Plate,Input Well,Output Plate,Output Well,DNA Volume,TE Volume',
+                          'Name1,A:1,OutputName1,A:1,200,0',
+                          'Name2,A:1,OutputName1,B:1,200,0',
+                          ]
 
-        assert md5('a_file_location-hamilton_input.csv') == '8bbee080bc09abf9a4773ba14fc766e4'
+        assert self.file_content('a_file_location-hamilton_input.csv') == expected_lines
+        assert self.stripped_md5('a_file_location-hamilton_input.csv') == 'da6961a426d838d4be206364a61329bb'
 
     def test_10_input_containers(self):  # test that sys exit occurs if >9 input containers
         with self.patched_process2, patch('sys.exit') as mexit:
