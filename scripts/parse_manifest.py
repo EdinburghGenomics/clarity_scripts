@@ -81,7 +81,7 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
 
         manifest_file = self.open_or_download_file(self.manifest, binary=True)
         # open the excel manifest
-        wb = load_workbook(manifest_file)
+        wb = load_workbook(manifest_file, data_only=True)
         ws = wb.active
         # create the dictionary of sample based on the appropriate key (sample id or 2D barcode) for the container type
         sample_dict = {}
