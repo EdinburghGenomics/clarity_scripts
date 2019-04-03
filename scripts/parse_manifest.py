@@ -120,9 +120,9 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
                     continue
 
                 if 'Species' in lims_udf and not self.validate_species(udf_value):
-                    raise InvalidStepError(udf_value + ' in ' + lims_udf + 'is not a valid species')
+                    raise InvalidStepError(udf_value + ' in ' + lims_udf + ' is not a valid species')
                 elif 'Genome Version' in lims_udf and not self.validate_genome_version(udf_value):
-                    raise InvalidStepError(udf_value + ' in ' + lims_udf + 'is not a valid genome version')
+                    raise InvalidStepError(udf_value + ' in ' + lims_udf + ' is not a valid genome version')
 
                 # parse the data from the spreadsheet into the sample dictionary
                 sample_dict[sample_id].udf[lims_udf] = udf_value
