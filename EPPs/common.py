@@ -253,7 +253,7 @@ class StepEPP(app_logging.AppLogger):
 
         if self._max_nb_input_container_types is not None:
             # check the number of input containers
-            if len(self.input_container_name_types) > self._max_nb_input_containers:
+            if len(self.input_container_name_types) > self._max_nb_input_container_types:
                 raise InvalidStepError(
                     'Maximum number of input container types is %s. There are %s input container types in the step.' % (
                         self._max_nb_input_container_types, len(self.input_container_name_types)

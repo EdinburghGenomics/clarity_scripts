@@ -14,7 +14,7 @@ class GenerateTrackingLetter(SendMailEPP):
     with a 128 format barcode containing the container name'''
 
     _max_nb_project = 1
-    _max_nb_input_containers = 1
+
 
     # additional argument required to obtain the file location for newly created tracking letter in the LIMS step
     def __init__(self, argv=None):

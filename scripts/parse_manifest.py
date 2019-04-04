@@ -81,7 +81,7 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
 
         manifest_file = self.open_or_download_file(self.manifest, binary=True)
         # open the excel manifest
-        wb = load_workbook(manifest_file)
+        wb = load_workbook(manifest_file, data_only=True)
         ws = wb.active
         # create the dictionary of sample based on the appropriate key (sample id or 2D barcode) for the container type
         sample_dict = {}
@@ -120,9 +120,9 @@ class ParseManifest(StepEPP, RestCommunicationEPP):
                     continue
 
                 if 'Species' in lims_udf and not self.validate_species(udf_value):
-                    raise InvalidStepError(udf_value + ' in ' + lims_udf + 'is not a valid species')
+                    raise InvalidStepError(udf_value + ' in ' + lims_udf + ' is not a valid species')
                 elif 'Genome Version' in lims_udf and not self.validate_genome_version(udf_value):
-                    raise InvalidStepError(udf_value + ' in ' + lims_udf + 'is not a valid genome version')
+                    raise InvalidStepError(udf_value + ' in ' + lims_udf + ' is not a valid genome version')
 
                 # parse the data from the spreadsheet into the sample dictionary
                 sample_dict[sample_id].udf[lims_udf] = udf_value

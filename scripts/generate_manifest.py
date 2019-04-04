@@ -15,10 +15,6 @@ class GenerateManifest(StepEPP):
     _max_nb_project = 1
     _max_nb_input_container_types = 1
 
-    @property
-    def configurable_udfs(self):
-        return [udf for udf in self.process.udf if '[Sample UDF]' in udf]
-
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
     def __init__(self, argv=None):
         super().__init__(argv)
@@ -42,7 +38,6 @@ class GenerateManifest(StepEPP):
         for artifact in all_inputs:
             container_types.add(artifact.container.type)
 
-        # obtain step udfs
         step_udfs = self.process.udf
 
         # obtain the name of container type of the samples
@@ -77,8 +72,17 @@ class GenerateManifest(StepEPP):
         for artifact in all_inputs:
             sample_dict[artifact.container.name + artifact.location[1].replace(":", "")] = artifact.samples[0]
 
+        # build a list of configurable udfs that are used to write metadata to the sample manifest
+        configurable_udfs = []
+        for step_udf_key in step_udfs.keys():
+            tag_position = step_udf_key.find('[Sample UDF]')
+            if tag_position > -1:
+                configurable_udfs.append(step_udf_key[tag_position + 12:])
+
         for container in sorted(self.input_container_names):
+
             for column, row in itertools.product(columns, rows):
+
                 if container + row + column not in sample_dict:
                     continue
                 # if condition met then 'continue' means will skip back to beginning of loop
@@ -100,9 +104,12 @@ class GenerateManifest(StepEPP):
 
                 # populate the manifest with sample UDFs which are configurable by adding or removing step UDFs in the
                 # format [CONTAINER TYPE - either Tubes or Plates][Sample UDF]Name of UDF
-                for configurable_udf in self.configurable_udfs:
-                    if con_type + configurable_udf in step_udfs.keys():
-                        ws[step_udfs[con_type + configurable_udf] + str(row_counter)] = \
+
+                # for configurable_udf in self.configurable_udfs:
+                for configurable_udf in configurable_udfs:
+
+                    if con_type + '[Sample UDF]' + configurable_udf in step_udfs.keys():
+                        ws[step_udfs[con_type + '[Sample UDF]' + configurable_udf] + str(row_counter)] = \
                             sample_udf[configurable_udf]
 
                 row_counter += 1

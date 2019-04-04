@@ -6,6 +6,7 @@ from EPPs.common import StepEPP
 
 
 class ParseFluidXScan(StepEPP):
+    _max_nb_input_containers = 1
 
     # additional argument required to obtain the file location for newly create manifest in the LIMS step
     def __init__(self, argv=None):
@@ -34,6 +35,11 @@ class ParseFluidXScan(StepEPP):
         if not len(all_inputs) == int(fluidx_scan_list[1][1]):
             raise ValueError('The number of samples in the step (%s) does not match the number of tubes scanned (%s)'
                              % (len(all_inputs), fluidx_scan_list[1][1]))
+
+        #check that the rack barcode in the step matches the fluidx output
+        if not all_inputs[0].container.name == fluidx_scan_list[0][1]:
+            raise ValueError('The scanned rack barcode (%s) does not match the container name in the LIMS (%s)'
+                             %(fluidx_scan_list[0][1],all_inputs[0].container.name))
 
         sample_dict={}
 

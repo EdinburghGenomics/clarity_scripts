@@ -85,7 +85,7 @@ class GenerateHamiltonInputUPL(StepEPP):
 
         # create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as this is
         # used by Clarity LIMS to recognise the file and attach it to the step
-        with open(self.hamilton_input + '-hamilton_input.csv', 'w') as f:
+        with open(self.hamilton_input + '-hamilton_input.csv', 'w',newline='') as f:
             writer = csv.writer(f)
             writer.writerows(csv_array)
 
