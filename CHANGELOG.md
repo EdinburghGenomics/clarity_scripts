@@ -1,16 +1,42 @@
 Changelog for clarity_scripts
 =============================
 
-0.12 (unreleased)
------------------
+0.11.2 (2019-04-11)
+-------------------
 
-- Nothing changed yet.
+- `assign_workflow_post_receive_sample.py`: routing FluidX tubes to FluidX receipt/transfer workflow
+- `create_samples.py`: fixing container name regexes
+- `create_sample_tracking_letter.py`: removing single input container constraint
+- `generate_hamilton_input_UPL.py`: fixing blank lines in output file
+- `generate_manifest.py`: fixing UDF parsing - reverting refactor
+- `parse_fluidx_scan.py`: adding container name check
+- fixing StepEPP max_nb_input_container_types 
 
 
 0.11.1 (2019-04-02)
 -------------------
 
 - Fix for unexpected NotImplementedError in spectramax.py
+- Configurable workflow stage names for assigning samples to PCR-free/Nano/KAPA/Quant
+- Fixed KAPA workflow stage name
+- Fixed autoplacement input columns
+- Binary file support
+- Customer manifest email template
+- New scripts:
+    - assign_workflow_post_receive_sample.py
+    - create_sample_tracking_letter.py
+    - create_samples.py
+    - email_container_dispatched.py
+    - email_container_ready_for_dispatch.py
+    - email_manifest_tracking_letter_customer.py
+    - email_sample_review.py
+    - generate_sample_manifest.py
+    - next_step_assignment_sample_receipt.py
+    - next_step_assignment_udf.py
+    - parse_fluidx_scan.py
+    - parse_manifest.py
+    - project_udfs_to_step_udfs.py
+    - step_udf_completion_check.py
 
 
 0.11 (2019-03-25)
