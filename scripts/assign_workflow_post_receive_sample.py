@@ -7,15 +7,28 @@ class AssignWorkflowPostReceiveSample(StepEPP):
     Assigns a dispatched plate to either Sample QC and Plate Prep or User Prepared Library Plate Prep
     """
     def _run(self):
+        artifacts_to_route_tube_transfer = set()
         artifacts_to_route_userprepared = set()
         artifacts_to_route_sampleqc = set()
 
         for art in self.artifacts:
             sample = art.samples[0]
-            if sample.udf.get("User Prepared Library") == "Yes":
+
+            if not sample.container.type.name == '96 well plate':
+                artifacts_to_route_tube_transfer.add(art)
+
+            elif sample.udf.get("User Prepared Library") == "Yes":
                 artifacts_to_route_userprepared.add(art)
+
             else:
                 artifacts_to_route_sampleqc.add(art)
+
+
+
+        if artifacts_to_route_tube_transfer:
+            #Only route artifacts if there are any artifacts to go to tube transfer
+            stage = get_workflow_stage(self.lims,"FluidX Receipt & Transfer EG 1.0 WF", "FluidX Transfer From Rack Into Plate EG 1.0 ST")
+            self.lims.route_artifacts(list(artifacts_to_route_tube_transfer))
 
         if artifacts_to_route_userprepared:
             # Only route artifacts if there are any artifacts to go to User Prepared Library
