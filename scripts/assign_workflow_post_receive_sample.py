@@ -14,7 +14,7 @@ class AssignWorkflowPostReceiveSample(StepEPP):
         for art in self.artifacts:
             sample = art.samples[0]
 
-            if not sample.container.type.name == '96 well plate':
+            if not art.container.type.name == '96 well plate':
                 artifacts_to_route_tube_transfer.add(art)
 
             elif sample.udf.get("User Prepared Library") == "Yes":
@@ -28,7 +28,7 @@ class AssignWorkflowPostReceiveSample(StepEPP):
         if artifacts_to_route_tube_transfer:
             #Only route artifacts if there are any artifacts to go to tube transfer
             stage = get_workflow_stage(self.lims,"FluidX Receipt & Transfer EG 1.0 WF", "FluidX Transfer From Rack Into Plate EG 1.0 ST")
-            self.lims.route_artifacts(list(artifacts_to_route_tube_transfer))
+            self.lims.route_artifacts(list(artifacts_to_route_tube_transfer),stage_uri=stage.uri)
 
         if artifacts_to_route_userprepared:
             # Only route artifacts if there are any artifacts to go to User Prepared Library

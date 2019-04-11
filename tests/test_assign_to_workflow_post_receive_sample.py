@@ -9,11 +9,11 @@ def fake_all_inputs(unique=False, resolve=False):
 
     return (
         Mock(id='ai1', samples=[
-            Mock(udf={'User Prepared Library': 'No'}, container=Mock(type=NamedMock(real_name='rack 96 positions')))]),
+            Mock(udf={'User Prepared Library': 'No'})], container=Mock(type=NamedMock(real_name='rack 96 positions'))),
         Mock(id='ai2', samples=[
-            Mock(udf={'User Prepared Library': 'Yes'}, container=Mock(type=NamedMock(real_name='96 well plate')))]),
+            Mock(udf={'User Prepared Library': 'Yes'})], container=Mock(type=NamedMock(real_name='96 well plate'))),
         Mock(id='ai3', samples=[
-            Mock(udf={'User Prepared Library': 'No'}, container=Mock(type=NamedMock(real_name='96 well plate')))])
+            Mock(udf={'User Prepared Library': 'No'})], container=Mock(type=NamedMock(real_name='96 well plate')))
     )
 
 
