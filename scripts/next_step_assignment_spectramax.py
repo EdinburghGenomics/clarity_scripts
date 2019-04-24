@@ -36,7 +36,7 @@ class AssignmentNextStepSpectramax(StepEPP):
                 next_action['action'] = 'nextstep'
                 next_action['step'] = next_step_object
 
-            elif next_action['artifact'].samples[0].udf.get('Prep Workflow') == 'KAPA DNA Library Prep'\
+            elif next_action['artifact'].samples[0].udf.get('Prep Workflow') == 'KAPA DNA Sample Prep'\
                     or next_action['artifact'].samples[0].udf.get('PreSeqLab Fragment Analyser Complete'):
                 #update the next action to the second step from this step i.e. QC Review
                 next_step_object = steps[steps.index(current_step) + 2]

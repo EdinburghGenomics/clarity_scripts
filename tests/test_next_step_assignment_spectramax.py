@@ -20,7 +20,7 @@ class TestAssignmentNextStepSpectramax(TestEPP):
         self.protostep = NamedMock(real_name='SeqPlatePrepST', uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(
             next_actions=[{'artifact': Mock(id='ai1', samples=[Mock(udf={})])},
-                          {'artifact': Mock(id='ai2', samples=[Mock(udf={'Prep Workflow': 'KAPA DNA Library Prep'})])},
+                          {'artifact': Mock(id='ai2', samples=[Mock(udf={'Prep Workflow': 'KAPA DNA Sample Prep'})])},
                           {'artifact': Mock(id='ai3', samples=[Mock(udf={})])},
                           {'artifact': Mock(id='ai4',
                                             samples=[Mock(udf={'PreSeqLab Fragment Analyser Complete': True})])}
