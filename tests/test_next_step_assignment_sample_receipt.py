@@ -17,35 +17,35 @@ class TestNextStepSampleReceipt(TestEPP):
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'Yes',
-        '>= 50ul sample present in wells or tubes?': 'Yes'
+        'Is sample present in wells or tubes?': 'Yes'
     }
 
     udfs2 = {
         'Dry ice remaining in package?': 'No',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'Yes',
-        '>= 50ul sample present in wells or tubes?': 'Yes'
+        'Is sample present in wells or tubes?': 'Yes'
     }
 
     udfs3 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'No',
         'Samples frozen?': 'Yes',
-        '>= 50ul sample present in wells or tubes?': 'Yes'
+        'Is sample present in wells or tubes?': 'Yes'
     }
 
     udfs4 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'No',
-        '>= 50ul sample present in wells or tubes?': 'Yes'
+        'Is sample present in wells or tubes?': 'Yes'
     }
 
     udfs5 = {
         'Dry ice remaining in package?': 'Yes',
         'Container(s) undamaged and sealed?': 'Yes',
         'Samples frozen?': 'Yes',
-        '>= 50ul sample present in wells or tubes?': 'No'
+        'Is sample present in wells or tubes?': 'No'
     }
 
     protostep = Mock(uri='http://test.com/config/protocols/1/step/2')

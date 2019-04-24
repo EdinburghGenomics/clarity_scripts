@@ -19,7 +19,7 @@ class AssignNextStepSampleReceipt(StepEPP):
         if self.process.udf['Dry ice remaining in package?'] == 'No' \
                 or self.process.udf['Container(s) undamaged and sealed?'] == 'No' \
                 or self.process.udf['Samples frozen?'] == 'No' \
-                or self.process.udf['Is sample present in wells or tube?'] == 'No':
+                or self.process.udf['Is sample present in wells or tubes?'] == 'No':
 
             # for all artifacts in next_actions update the action to "review"
             for next_action in next_actions:
