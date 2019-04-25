@@ -47,10 +47,10 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
 
                 # assemble each line of the Hamilton input file in the correct structure for the Hamilton
                 # in this step the barcode is transferred from the input to the output plate so no new analyte is
-                # created and not output location exists. The transfer is 1:1 so therefore the input location is used
-                #for both input and output locations in the hamilton input file
+                # created and not output location exists. The transfer is 1:1 so therefore the input container and input
+                #  location are used for both input and output locations in the hamilton input file
                 csv_line = [
-                    input_art.container.name, input_location, output.container.name, input_location,
+                    input_art.container.name, input_location, input_art.container.name, input_location,
                     self.process.udf['DCT Volume (ul)'], buffer_barcode, output.udf['RSB Volume (ul)']
                 ]
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates
