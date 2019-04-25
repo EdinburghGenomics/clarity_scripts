@@ -22,19 +22,19 @@ class QPCRDilutionCalculation(StepEPP):
 
         for input_art in input_artifacts:
 
-            output = self.process.outputs_per_input(input_art, ResultFile=True)[0]
+            output = self.process.outputs_per_input(input_art.id, ResultFile=True)[0]
             udf_names = ['Adjusted Conc. (nM)', 'Ave. Conc. (nM)', 'Original Conc. (nM)', '%CV']
 
             if None not in udf_names:
                 for name in udf_names:
-                    output.udf[name] = input_art.udf[name]
+                    output.udf[name] =input_art.udf[name]
             else:
                 raise InvalidStepError('UDF population failed due to missing input value in %s' % udf_names)
 
             if int(input_art.udf['Adjusted Conc. (nM)']) > int(step_udfs['Threshold Concentration (nM)']):
                 try:
                     total_volume = int(step_udfs['DCT Volume (ul)']) * (
-                            int(input_art.udf['Adjusted Conc. (nM)']) / int(step_udfs['Target Concentration (nM)']))
+                            int(output.udf['Adjusted Conc. (nM)']) / int(step_udfs['Target Concentration (nM)']))
                     output.udf['RSB Volume (ul)'] = str(round(total_volume - int(step_udfs['DCT Volume (ul)'])))
                 except:
                     raise InvalidStepError('Missing value. Check that step UDFs (Adjusted Conc. (nM) and Target '
