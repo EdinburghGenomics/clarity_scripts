@@ -4,7 +4,6 @@ from pyclarity_lims.entities import Protocol
 
 
 class AssignmentNextStepSpectramax(StepEPP):
-    _use_load_config = False  # prevent the loading of the config file
     """
     This script assigns the next step to samples in the Spectramax Picogreen step at initial sample QC. 
     Samples with output udf 'Repeat Picogreen with 1:10 Dilution?' as true will be directed to a dilution step.
@@ -14,6 +13,7 @@ class AssignmentNextStepSpectramax(StepEPP):
     to the QC Review step.
     All other samples with will be queued to Fragment Analyser. 
     """
+    _use_load_config = False  # prevent the loading of the config file
 
     def _run(self):
         # obtain the actions of the step then creates a StepActions entity for the current step
@@ -43,10 +43,8 @@ class AssignmentNextStepSpectramax(StepEPP):
                 next_action['action'] = 'nextstep'
                 next_action['step'] = next_step_object
 
-            # all other artifacts should be route to remove from workflow as the submitted sample will reassigned elsewhere
+            # all other artifacts should be routed to the next step in the protocol
             else:
-
-
                 next_step_object = steps[steps.index(current_step) + 1]
                 next_action['action'] = 'nextstep'
 
