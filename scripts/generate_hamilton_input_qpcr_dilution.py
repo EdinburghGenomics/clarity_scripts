@@ -10,7 +10,6 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
     # used to write the file
     csv_column_headers = ['Input Plate', 'Input Well', 'Output Plate', 'Output Well', 'Sample Volume', 'Buffer Barcode',
                           'Buffer Volume']
-
     # Define the output file
     output_file_name = 'QPCR DILUTION.csv'
 
@@ -19,6 +18,12 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
 
     # Define the number of output containers that are permitted
     _max_nb_output_containers = 1
+
+    # create the set to hold the inputs to be updated with the output from the calculation
+    artifacts_to_update = set()
+    # input udfs to be transposed to output udfs
+    udf_names = ['Adjusted Conc. (nM)', 'Ave. Conc. (nM)', 'Original Conc. (nM)', '%CV']
+
 
     def calculate_rsb_volume(self, input_art):
         """
@@ -29,11 +34,12 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
           future.
         """
         output = self.process.outputs_per_input(input_art.id, ResultFile=True)[0]
-        if None not in self.udf_names:
-            for name in self.udf_names:
+
+        for name in self.udf_names:
+            try:
                 output.udf[name] = input_art.udf[name]
-        else:
-            raise InvalidStepError('UDF population failed due to missing input value in %s' % self.udf_names)
+            except:
+                raise InvalidStepError('UDF population failed due to missing input value in %s' % name)
 
         if float(input_art.udf['Adjusted Conc. (nM)']) > float(self.step_udfs['Threshold Concentration (nM)']):
             try:
@@ -50,6 +56,9 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
         return output
 
     def _generate_csv_dict(self):
+        #define the step_udf variable for use by the two methods above
+        self.step_udfs = self.process.udf
+
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
         csv_dict = {}
 
@@ -88,21 +97,7 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
         return csv_dict
 
     def _run(self):
-        # create the set to hold the inputs to be updated with the output from the calculation
-        self.artifacts_to_update = set()
-        #input udfs to be transposed to output udfs
-        self.udf_names = ['Adjusted Conc. (nM)', 'Ave. Conc. (nM)', 'Original Conc. (nM)', '%CV']
-
-        self.step_udfs = self.process.udf
-
-        """Generic run that checks the number of input and output container
-        then creates the two csv files ('-hamilton_input.csv' and the one on the shared drive)."""
-        csv_array = self.generate_csv_array()
-
-        """Create and write the Hamilton input file, this must have the hamilton_input argument as the prefix as
-         this is used by Clarity LIMS to recognise the file and attach it to the step"""
-        self.write_csv(self.hamilton_input + '-hamilton_input.csv', csv_array)
-        self.write_csv(self.shared_drive_file_path, csv_array)
+        super()._run()
 
         # update all output artifacts with input artifact values and new RSB volumes
         self.lims.put_batch(list(self.artifacts_to_update))
