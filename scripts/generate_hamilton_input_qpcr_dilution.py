@@ -24,7 +24,6 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
     # input udfs to be transposed to output udfs
     udf_names = ['Adjusted Conc. (nM)', 'Ave. Conc. (nM)', 'Original Conc. (nM)', '%CV']
 
-
     def calculate_rsb_volume(self, input_art):
         """
         The purpose of this function is to calculate the required volume of buffer to be added to a set volume of a DCT sample
@@ -41,11 +40,12 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
             except:
                 raise InvalidStepError('UDF population failed due to missing input value in %s' % name)
 
-        if float(input_art.udf['Adjusted Conc. (nM)']) > float(self.step_udfs['Threshold Concentration (nM)']):
+        if float(input_art.udf['Adjusted Conc. (nM)']) > float(self.process.udf['Threshold Concentration (nM)']):
             try:
-                total_volume = float(self.step_udfs['DCT Volume (ul)']) * (
-                        float(output.udf['Adjusted Conc. (nM)']) / float(self.step_udfs['Target Concentration (nM)']))
-                output.udf['RSB Volume (ul)'] = str(int(round(total_volume - float(self.step_udfs['DCT Volume (ul)']),1)))
+                total_volume = float(self.process.udf['DCT Volume (ul)']) * (
+                        float(output.udf['Adjusted Conc. (nM)']) / float(self.process.udf['Target Concentration (nM)']))
+                output.udf['RSB Volume (ul)'] = str(
+                    int(round(total_volume - float(self.process.udf['DCT Volume (ul)']), 1)))
             except:
                 raise InvalidStepError('Missing value. Check that step UDFs (Adjusted Conc. (nM) and Target '
                                        'Concentration (nM)) are populated')
@@ -56,8 +56,6 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
         return output
 
     def _generate_csv_dict(self):
-        #define the step_udf variable for use by the two methods above
-        self.step_udfs = self.process.udf
 
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
         csv_dict = {}
@@ -88,7 +86,7 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
                 #  location are used for both input and output locations in the hamilton input file
                 csv_line = [
                     input_art.container.name, input_location, input_art.container.name, input_location,
-                    self.step_udfs['DCT Volume (ul)'], buffer_barcode, output.udf['RSB Volume (ul)']
+                    self.process.udf['DCT Volume (ul)'], buffer_barcode, output.udf['RSB Volume (ul)']
                 ]
                 # build a dictionary of the lines for the Hamilton input file with a key that facilitates
                 # the lines being by input container then column then row
