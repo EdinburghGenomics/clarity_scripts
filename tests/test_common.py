@@ -281,10 +281,17 @@ class FakeEntitiesMaker:
         :param output_container_udfs: the udfs to be set for the output container (udfs values supports iterable)
         :param step_udfs: the udfs to be set for the StepDetails and the Process (udfs values supports iterable)
         :param next_action: The action to set for the output artifacts -- supports iterable
+        :param process_id: Define the process id
         """
         # Create the projects
         projects = cycle(self.create_fake_projects(**kwargs))
-        p = self.create_instance(Process, uri='p_uri')
+        # Assign process id
+        if kwargs.get('process_id'):
+            uri = kwargs.get('process_id')
+        else:
+            uri = 'p_uri'
+
+        p = self.create_instance(Process, uri=uri)
         # Create input containers
         icontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_input_container', 1),
