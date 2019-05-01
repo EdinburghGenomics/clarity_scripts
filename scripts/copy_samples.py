@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 import platform
-import time
 from itertools import product
 
 from egcg_core.config import cfg
 from pyclarity_lims.entities import Sample, Container, Step
-from requests import HTTPError
 
 from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError
 
 
 class CopySamples(StepEPP):
-    """uses step UDF data to create all of the samples required by the Project Manager with the sample UDFs populated
-    before created of the sample manifest for issue to the customer."""
+    """Creates duplicate submitted samples with the same sample UDF values as the input samples"""
     _max_nb_project = 1
 
     # mapping used to link udf value to the container type
@@ -23,24 +20,6 @@ class CopySamples(StepEPP):
     plate96_layout_counter = 0
     plate96_layout = list(product([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']))
     current_container = None
-
-    @staticmethod
-    def _finish_step(step, try_count=1):
-        """
-        This function will try to advance a step three time waiting for a ongoing program to finish.
-        It waits for 5 seconds in between each try
-        """
-        try:
-            step.get(force=True)
-            step.advance()
-        except HTTPError as e:
-            if try_count < 3 and str(e) == '400: Cannot advance a step that has an external program queued, ' \
-                                           'running or pending acknowledgement':
-                # wait for whatever needs to happen to happen
-                time.sleep(5)
-                CopySamples._finish_step(step, try_count=try_count + 1)
-            else:
-                raise e
 
     def complete_remove_from_processing(self, stage):
         # Create new step with the routed artifacts
@@ -64,7 +43,6 @@ class CopySamples(StepEPP):
         """Provide the next available position on the current container and generate the associated sample name.
         When the container runs out of positions, create a new container and start again."""
         if not self.current_container:
-
             try:
                 self.current_container = Container.create(
                     self.lims,
@@ -110,23 +88,16 @@ class CopySamples(StepEPP):
         samples = self.lims.create_batch(Sample, self.create_samples_list())
         self.lims.get_batch(samples, force=True)
 
-        # Assign any newly created samples to the create manifest step
+        # Assign newly created samples to the create manifest step
         sample_artifacts = [s.artifact for s in samples]
         stage_wf_st = cfg.query('workflow_stage', 'container_dispatch', 'start')
         stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
-
         self.lims.route_artifacts(sample_artifacts, stage_uri=stage.uri)
 
         # Assign the input samples to remove from processing step then complete the remove from processing step
         stage_wf_st = cfg.query('workflow_stage', 'remove_from_processing', 'start')
         stage = get_workflow_stage(self.lims, stage_wf_st[0], stage_wf_st[1])
-
-
-        input_samples = []
-        for art in self.artifacts:
-            input_samples.append(art.samples[0])
         self.lims.route_artifacts(self.artifacts, stage_uri=stage.uri)
-
         self.complete_remove_from_processing(stage)
 
 

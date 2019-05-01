@@ -3,6 +3,7 @@ import os
 from collections import Counter, defaultdict
 from itertools import cycle, product
 from os.path import join, dirname, abspath
+from requests import HTTPError
 from xml.etree import ElementTree
 
 import pytest
@@ -482,6 +483,23 @@ class TestStepEPP(TestEPP):
         self.epp._max_nb_projects = 1
         self._test_nb_project(nb_project=2)
 
+    def test_finish_step(self):
+        # Successful attempt
+        step = Mock()
+        self.epp._finish_step(step)
+        assert step.get.call_count == 1
+        assert step.advance.call_count == 1
+
+        # 3 failed attempts before raising
+        step = Mock(
+            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
+                                               'running or pending acknowledgement'))
+        )
+        with patch('time.sleep'):
+            with pytest.raises(HTTPError):
+                self.epp._finish_step(step)
+        assert step.get.call_count == 3
+        assert step.advance.call_count == 3
 
 class TestRestCommunicationEPP(TestCase):
     @staticmethod

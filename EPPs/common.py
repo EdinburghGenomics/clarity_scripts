@@ -9,12 +9,14 @@ from io import StringIO, BytesIO
 from logging import FileHandler
 from urllib import parse as urlparse
 
+import time
 from cached_property import cached_property
 from egcg_core import rest_communication, app_logging
 from egcg_core.config import cfg
 from egcg_core.notifications import email
 from pyclarity_lims.entities import Process, Artifact, Protocol
 from pyclarity_lims.lims import Lims
+from requests import HTTPError
 from requests.exceptions import ConnectionError
 
 import EPPs
@@ -305,6 +307,24 @@ class StepEPP(app_logging.AppLogger):
                 f.close()
         except Exception:
             pass
+
+
+    def _finish_step(self, step, try_count=1):
+        """
+        This function will try to advance a step three time waiting for a ongoing program to finish.
+        It waits for 5 seconds in between each try
+        """
+        try:
+            step.get(force=True)
+            step.advance()
+        except HTTPError as e:
+            if try_count < 3 and str(e) == '400: Cannot advance a step that has an external program queued, ' \
+                                           'running or pending acknowledgement':
+                # wait for whatever needs to happen to happen
+                time.sleep(5)
+                self._finish_step(step, try_count=try_count + 1)
+            else:
+                raise e
 
 class SendMailEPP(StepEPP):
     def get_email_template(self, name=None):

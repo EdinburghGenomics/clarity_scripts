@@ -10,24 +10,6 @@ from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_origin
 
 class AssignWorkflowPreSeqLab(StepEPP):
 
-    @staticmethod
-    def _finish_step(step, try_count=1):
-        """
-        This function will try to advance a step three time waiting for a ongoing program to finish.
-        It waits for 5 seconds in between each try
-        """
-        try:
-            step.get(force=True)
-            step.advance()
-        except HTTPError as e:
-            if try_count < 3 and str(e) == '400: Cannot advance a step that has an external program queued, ' \
-                                           'running or pending acknowledgement':
-                # wait for whatever needs to happen to happen
-                time.sleep(5)
-                AssignWorkflowPreSeqLab._finish_step(step, try_count=try_count + 1)
-            else:
-                raise e
-
     def _run(self):
         artifacts_to_route_to_seq_lab = set()
         artifacts_to_route_to_remove = set()
