@@ -76,7 +76,15 @@ class CopySamples(StepEPP):
                 'project': self.projects[0],
                 'name': new_sample_name,
                 'position': new_sample_position,
-                'udf': input_sample.udf
+                'udf':{'Prep Workflow':input_sample.udf['Prep Workflow'],
+                       'Coverage (X)':input_sample.udf['Coverage (X)'],
+                       'Required Yield (Gb)': input_sample.udf['Required Yield (Gb)'],
+                       'Delivery':input_sample.udf['Delivery'],
+                       'User Prepared Library': input_sample.udf['User Prepared Library'],
+                       'Analysis Type': input_sample.udf['Analysis Type'],
+                       'Rapid Analysis': input_sample.udf['Rapid Analysis'],
+                       'Species': input_sample.udf['Species'],
+                       'Genome Version': input_sample.udf['Genome Version']}
             }
 
             samples_to_create.append(new_sample_dict)

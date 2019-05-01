@@ -31,13 +31,14 @@ class TestCopySamples(TestEPP):
             'sample_udfs': {
                 'Prep Workflow': cycle(['TruSeq Nano DNA Sample Prep', 'TruSeq PCR-Free DNA Sample Prep']),
                 'Coverage (X)': cycle([30, 60]),
-                'Required Yield': cycle([120, 240]),
-                'Species': cycle(['Homo sapiens', 'Mus musculus']),
-                'Genome Version': cycle(['hg38', 'hg19']),
+                'Required Yield (Gb)': cycle([120, 240]),
                 'Delivery': cycle(['merged', 'split']),
                 'Analysis Type': cycle(['Variant Calling gatk', 'None']),
                 'Rapid Analysis': cycle(['No', 'Yes']),
-                'User Prepared library': cycle(['No', 'Yes'])},
+                'User Prepared Library': cycle(['No', 'Yes']),
+                'Species': cycle(['Homo sapiens', 'Mus musculus']),
+                'Genome Version': cycle(['hg38', 'hg19']),
+            },
             'step_udfs': {'Container Type': '96 well plate'},
             'output_per_input': 0,
             'process_id': '99-9999'
@@ -60,13 +61,14 @@ class TestCopySamples(TestEPP):
             'project': fem.object_store_per_type['Project'][0],
             'name': 'X99999P002A01', 'position': 'A:1',
             'udf': {'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
-                    'Coverage (X)': 30, 'Required Yield': 120,
-                    'Species': 'Homo sapiens',
-                    'Genome Version': 'hg38',
+                    'Coverage (X)': 30,
+                    'Required Yield (Gb)': 120,
                     'Delivery': 'merged',
+                    'User Prepared Library': 'No',
                     'Analysis Type': 'Variant Calling gatk',
                     'Rapid Analysis': 'No',
-                    'User Prepared library': 'No'
+                    'Species': 'Homo sapiens',
+                    'Genome Version': 'hg38',
                     }},
             {
                 'container': fem.object_store_per_type['Container'][1],
@@ -74,13 +76,16 @@ class TestCopySamples(TestEPP):
                 'name': 'X99999P002B01',
                 'position': 'B:1',
                 'udf': {'Prep Workflow': 'TruSeq PCR-Free DNA Sample Prep',
-                        'Coverage (X)': 60, 'Required Yield': 240,
-                        'Species': 'Mus musculus',
-                        'Genome Version': 'hg19',
+                        'Coverage (X)': 60,
+                        'Required Yield (Gb)': 240,
                         'Delivery': 'split',
                         'Analysis Type': 'None',
+                        'User Prepared Library': 'Yes',
                         'Rapid Analysis': 'Yes',
-                        'User Prepared library': 'Yes'}},
+                        'Species': 'Mus musculus',
+                        'Genome Version': 'hg19',
+                        }},
+
 
         ]
 
