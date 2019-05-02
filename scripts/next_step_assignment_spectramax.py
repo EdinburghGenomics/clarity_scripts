@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-from EPPs.common import StepEPP
+from egcg_core.config import cfg
 from pyclarity_lims.entities import Protocol
+
+from EPPs.common import StepEPP
 
 
 class AssignmentNextStepSpectramax(StepEPP):
@@ -13,7 +15,6 @@ class AssignmentNextStepSpectramax(StepEPP):
     to the QC Review step.
     All other samples with will be queued to Fragment Analyser. 
     """
-    _use_load_config = False  # prevent the loading of the config file
 
     def _run(self):
         # obtain the actions of the step then creates a StepActions entity for the current step
@@ -27,28 +28,29 @@ class AssignmentNextStepSpectramax(StepEPP):
         protocol = Protocol(self.process.lims, uri='/'.join(self.process.step.configuration.uri.split('/')[:-2]))
 
         steps = protocol.steps  # a list of all the ProtocolSteps in protocol
+        steps_dict = {}
+        for step in protocol.steps:
+            print(step.name)
+            steps_dict[step.name] = step
 
         for next_action in next_actions:
 
-            if self.process.outputs_per_input(next_action['artifact'].id,ResultFile=True)[0].udf.get('Repeat Picogreen with 1:10 Dilution?'):
-                # update the next action to the third step from this step i.e. Picogreen 1-10 Dilution
-                next_step_object = steps[steps.index(current_step) + 3]
+            if self.process.outputs_per_input(next_action['artifact'].id, ResultFile=True)[0].udf.get(
+                    'Repeat Picogreen with 1:10 Dilution?'):
+                # update the next action to the Picogreen 1-10 Dilution step
                 next_action['action'] = 'nextstep'
-                next_action['step'] = next_step_object
+                next_action['step'] = steps_dict[cfg.query('workflow_stage', 'sample_qc', 'repeat_pico')[1]]
 
-            elif next_action['artifact'].samples[0].udf.get('Prep Workflow') == 'KAPA DNA Sample Prep'\
+            elif next_action['artifact'].samples[0].udf.get('Prep Workflow') == 'KAPA DNA Sample Prep' \
                     or next_action['artifact'].samples[0].udf.get('PreSeqLab Fragment Analyser Complete'):
-                #update the next action to the second step from this step i.e. QC Review
-                next_step_object = steps[steps.index(current_step) + 2]
+                # update the next action to the QC Review step
                 next_action['action'] = 'nextstep'
-                next_action['step'] = next_step_object
+                next_action['step'] = steps_dict[cfg.query('workflow_stage', 'sample_qc', 'qc_review')[1]]
 
-            # all other artifacts should be routed to the next step in the protocol
+            # all other artifacts should be routed to the fragment analyser step
             else:
-                next_step_object = steps[steps.index(current_step) + 1]
                 next_action['action'] = 'nextstep'
-
-                next_action['step'] = next_step_object
+                next_action['step'] = steps_dict[cfg.query('workflow_stage', 'sample_qc', 'frag_analy')[1]]
 
         # put the next step actions into LIMS
         actions.put()
