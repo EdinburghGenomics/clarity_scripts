@@ -88,6 +88,17 @@ workflow_stage:
       - QuantStudio EG1.0
       - QuantStudio Plate Preparation EG1.0
 
+  sample_qc:
+    frag_analy:
+      - Submitted Sample QC EG 4.0
+      - Fragment Analyser (DNA) EG 2.0
+    repeat_pico:
+      - Submitted Sample QC EG 4.0
+      - Picogreen 1-10 Dilution EG 2.0
+    qc_review:
+      - Submitted Sample QC EG 4.0
+      - QC Review EG 2.1
+
 process_type:
   fluidx_transfer: FluidX Transfer From Rack Into Plate EG 1.0 ST
 
