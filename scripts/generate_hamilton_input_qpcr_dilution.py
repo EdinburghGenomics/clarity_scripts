@@ -41,14 +41,10 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
                 raise InvalidStepError('UDF population failed due to missing input value in %s' % name)
 
         if float(input_art.udf['Adjusted Conc. (nM)']) > float(self.process.udf['Threshold Concentration (nM)']):
-            try:
-                total_volume = float(self.process.udf['DCT Volume (ul)']) * (
-                        float(output.udf['Adjusted Conc. (nM)']) / float(self.process.udf['Target Concentration (nM)']))
-                output.udf['RSB Volume (ul)'] = str(
-                    round(total_volume - float(self.process.udf['DCT Volume (ul)']), 1))
-            except:
-                raise InvalidStepError('Missing value. Check that step UDFs (Adjusted Conc. (nM) and Target '
-                                       'Concentration (nM)) are populated')
+            total_volume = float(self.process.udf['DCT Volume (ul)']) * (
+                    float(output.udf['Adjusted Conc. (nM)']) / float(self.process.udf['Target Concentration (nM)']))
+            output.udf['RSB Volume (ul)'] = str(
+                round(total_volume - float(self.process.udf['DCT Volume (ul)']), 1))
         else:
 
             output.udf['RSB Volume (ul)'] = '0'
