@@ -45,7 +45,7 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
                 total_volume = float(self.process.udf['DCT Volume (ul)']) * (
                         float(output.udf['Adjusted Conc. (nM)']) / float(self.process.udf['Target Concentration (nM)']))
                 output.udf['RSB Volume (ul)'] = str(
-                    int(round(total_volume - float(self.process.udf['DCT Volume (ul)']), 1)))
+                    round(total_volume - float(self.process.udf['DCT Volume (ul)']), 1))
             except:
                 raise InvalidStepError('Missing value. Check that step UDFs (Adjusted Conc. (nM) and Target '
                                        'Concentration (nM)) are populated')
