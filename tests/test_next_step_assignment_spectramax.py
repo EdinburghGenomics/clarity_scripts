@@ -17,7 +17,10 @@ def fake_outputs_per_input(id,ResultFile=None):
 class TestAssignmentNextStepSpectramax(TestEPP):
 
     def setUp(self):
-        self.protostep = NamedMock(real_name='SeqPlatePrepST', uri='http://test.com/config/protocols/1/step/2')
+        self.protostep = NamedMock(real_name='Picogreen', uri='http://test.com/config/protocols/1/step/2')
+        self.protostep2 = NamedMock(real_name='Fragment Analyser (DNA) EG 2.0', uri='http://test.com/config/protocols/1/step/2')
+        self.protostep3 = NamedMock(real_name='QC Review EG 2.1', uri='http://test.com/config/protocols/1/step/2')
+        self.protostep4 = NamedMock(real_name='Picogreen 1-10 Dilution EG 2.0', uri='http://test.com/config/protocols/1/step/2')
         self.actions = Mock(
             next_actions=[{'artifact': Mock(id='ai1', samples=[Mock(udf={})])},
                           {'artifact': Mock(id='ai2', samples=[Mock(udf={'Prep Workflow': 'KAPA DNA Sample Prep'})])},
@@ -34,7 +37,7 @@ class TestAssignmentNextStepSpectramax(TestEPP):
                 step=Mock(actions=self.actions, configuration=self.protostep), outputs_per_input=fake_outputs_per_input)
             ))
 
-        self.protocol = Mock(steps=[self.protostep, Mock(), Mock(), Mock()])
+        self.protocol = Mock(steps=[self.protostep, self.protostep2, self.protostep3, self.protostep4])
         self.patched_protocol = patch('scripts.next_step_assignment_spectramax.Protocol', return_value=self.protocol)
         self.epp = AssignmentNextStepSpectramax(self.default_argv)
 
@@ -54,5 +57,4 @@ class TestAssignmentNextStepSpectramax(TestEPP):
             ]
 
             actual_next_actions = self.epp.process.step.actions.next_actions
-
             assert expected_next_actions == actual_next_actions
