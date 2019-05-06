@@ -4,8 +4,8 @@ from unittest.mock import patch, Mock
 
 from pyclarity_lims.entities import Sample
 
-from scripts.copy_samples import CopySamples
 from scripts.copy_samples import Container
+from scripts.copy_samples import CopySamples
 from tests.test_common import TestEPP, FakeEntitiesMaker
 
 
@@ -86,7 +86,6 @@ class TestCopySamples(TestEPP):
                         'Species': 'Mus musculus',
                         'Genome Version': 'hg19',
                         }},
-
 
         ]
 

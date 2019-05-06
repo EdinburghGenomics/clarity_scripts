@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import platform
 
-import time
 from pyclarity_lims.entities import Step
-from requests import HTTPError
 
 from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_originating_from, finish_step
 
@@ -36,7 +34,8 @@ class AssignWorkflowPreSeqLab(StepEPP):
             self.lims.route_artifacts(list(artifacts_to_route_to_seq_lab), stage_uri=stage.uri)
 
         if artifacts_to_route_to_remove:
-            stage = get_workflow_stage(self.lims, "Remove From Processing EG 1.0 WF", "Remove From Processing EG 1.0 ST")
+            stage = get_workflow_stage(self.lims, "Remove From Processing EG 1.0 WF",
+                                       "Remove From Processing EG 1.0 ST")
             self.lims.route_artifacts(list(artifacts_to_route_to_remove), stage_uri=stage.uri)
 
             # Create new step with the routed artifacts
