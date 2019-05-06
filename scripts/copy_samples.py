@@ -5,7 +5,7 @@ from itertools import product
 from egcg_core.config import cfg
 from pyclarity_lims.entities import Sample, Container, Step
 
-from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError
+from EPPs.common import StepEPP, get_workflow_stage, InvalidStepError, finish_step
 
 
 class CopySamples(StepEPP):
@@ -37,7 +37,7 @@ class CopySamples(StepEPP):
         s.actions.put()
 
         # Complete the step
-        self._finish_step(s)
+        finish_step(s)
 
     def next_sample_name_and_pos(self):
         """Provide the next available position on the current container and generate the associated sample name.

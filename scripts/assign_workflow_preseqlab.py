@@ -5,7 +5,7 @@ import time
 from pyclarity_lims.entities import Step
 from requests import HTTPError
 
-from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_originating_from
+from EPPs.common import StepEPP, get_workflow_stage, find_newest_artifact_originating_from, finish_step
 
 
 class AssignWorkflowPreSeqLab(StepEPP):
@@ -55,7 +55,7 @@ class AssignWorkflowPreSeqLab(StepEPP):
             s.actions.put()
 
             # Complete the step
-            self._finish_step(s)
+            finish_step(s)
 
 
 if __name__ == "__main__":

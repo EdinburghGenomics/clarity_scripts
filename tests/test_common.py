@@ -14,7 +14,8 @@ from requests import ConnectionError
 from unittest.case import TestCase
 from unittest.mock import Mock, PropertyMock, patch, MagicMock
 import EPPs
-from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from, InvalidStepError
+from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from, InvalidStepError, \
+    finish_step
 
 
 class NamedMock(Mock):
@@ -286,13 +287,7 @@ class FakeEntitiesMaker:
         """
         # Create the projects
         projects = cycle(self.create_fake_projects(**kwargs))
-        # Assign process id
-        if kwargs.get('process_id'):
-            uri = kwargs.get('process_id')
-        else:
-            uri = 'p_uri'
-
-        p = self.create_instance(Process, uri=uri)
+        p = self.create_instance(Process, uri=kwargs.get('process_id') or 'p_uri')
         # Create input containers
         icontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_input_container', 1),
@@ -483,23 +478,7 @@ class TestStepEPP(TestEPP):
         self.epp._max_nb_projects = 1
         self._test_nb_project(nb_project=2)
 
-    def test_finish_step(self):
-        # Successful attempt
-        step = Mock()
-        self.epp._finish_step(step)
-        assert step.get.call_count == 1
-        assert step.advance.call_count == 1
 
-        # 3 failed attempts before raising
-        step = Mock(
-            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
-                                               'running or pending acknowledgement'))
-        )
-        with patch('time.sleep'):
-            with pytest.raises(HTTPError):
-                self.epp._finish_step(step)
-        assert step.get.call_count == 3
-        assert step.advance.call_count == 3
 
 class TestRestCommunicationEPP(TestCase):
     @staticmethod
@@ -543,3 +522,22 @@ class TestFindNewestArtifactOriginatingFrom(TestCase):
         lims.get_artifacts.return_value = []
         artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
         assert artifact is None
+
+class TestFinishStep(TestCase):
+    def test_finish_step(self):
+        # Successful attempt
+        step = Mock()
+        finish_step(step)
+        assert step.get.call_count == 1
+        assert step.advance.call_count == 1
+
+        # 3 failed attempts before raising
+        step = Mock(
+            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
+                                               'running or pending acknowledgement'))
+        )
+        with patch('time.sleep'):
+            with pytest.raises(HTTPError):
+                finish_step(step)
+        assert step.get.call_count == 3
+        assert step.advance.call_count == 3

@@ -309,22 +309,7 @@ class StepEPP(app_logging.AppLogger):
             pass
 
 
-    def _finish_step(self, step, try_count=1):
-        """
-        This function will try to advance a step three time waiting for a ongoing program to finish.
-        It waits for 5 seconds in between each try
-        """
-        try:
-            step.get(force=True)
-            step.advance()
-        except HTTPError as e:
-            if try_count < 3 and str(e) == '400: Cannot advance a step that has an external program queued, ' \
-                                           'running or pending acknowledgement':
-                # wait for whatever needs to happen to happen
-                time.sleep(5)
-                self._finish_step(step, try_count=try_count + 1)
-            else:
-                raise e
+
 
 class SendMailEPP(StepEPP):
     def get_email_template(self, name=None):
@@ -675,3 +660,21 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
 
     if artifacts:
         return artifacts[0]
+
+
+def finish_step(step, try_count=1):
+    """
+    This function will try to advance a step three time waiting for a ongoing program to finish.
+    It waits for 5 seconds in between each try
+    """
+    try:
+        step.get(force=True)
+        step.advance()
+    except HTTPError as e:
+        if try_count < 3 and str(e) == '400: Cannot advance a step that has an external program queued, ' \
+                                       'running or pending acknowledgement':
+            # wait for whatever needs to happen to happen
+            time.sleep(5)
+            finish_step(step, try_count=try_count + 1)
+        else:
+            raise e

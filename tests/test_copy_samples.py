@@ -65,6 +65,7 @@ class TestCopySamples(TestEPP):
                     'Required Yield (Gb)': 120,
                     'Delivery': 'merged',
                     'User Prepared Library': 'No',
+
                     'Analysis Type': 'Variant Calling gatk',
                     'Rapid Analysis': 'No',
                     'Species': 'Homo sapiens',

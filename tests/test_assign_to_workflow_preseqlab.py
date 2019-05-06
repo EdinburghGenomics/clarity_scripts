@@ -27,6 +27,8 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
             'scripts.assign_workflow_preseqlab.get_workflow_stage',
             return_value=self.workflow_stage
         )
+
+
         self.patch_find_art = patch(
             'scripts.assign_workflow_preseqlab.find_newest_artifact_originating_from',
             return_value=Mock(id='fx2')
@@ -66,23 +68,6 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
             # Test advance has been called.
             assert self.mocked_step.advance.call_count == 2
 
-    def test_finish_step(self):
-        # Successful attempt
-        step = Mock()
-        self.epp._finish_step(step)
-        assert step.get.call_count == 1
-        assert step.advance.call_count == 1
-
-        # 3 failed attempts before raising
-        step = Mock(
-            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
-                                               'running or pending acknowledgement'))
-        )
-        with patch('time.sleep'):
-            with pytest.raises(HTTPError):
-                self.epp._finish_step(step)
-        assert step.get.call_count == 3
-        assert step.advance.call_count == 3
 
 
 
