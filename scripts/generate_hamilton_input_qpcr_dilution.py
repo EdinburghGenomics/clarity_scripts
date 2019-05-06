@@ -35,9 +35,9 @@ class GenerateHamiltonInputQPCRDilution(GenerateHamiltonInputEPP):
         output = self.process.outputs_per_input(input_art.id, ResultFile=True)[0]
 
         for name in self.udf_names:
-            try:
+            if input_art.udf.get(name) is not None:
                 output.udf[name] = input_art.udf[name]
-            except:
+            else:
                 raise InvalidStepError('UDF population failed due to missing input value in %s' % name)
 
         if float(input_art.udf['Adjusted Conc. (nM)']) > float(self.process.udf['Threshold Concentration (nM)']):
