@@ -1,8 +1,10 @@
 import hashlib
 import os
 from collections import Counter, defaultdict
-from itertools import cycle, product
+from itertools import cycle
 from os.path import join, dirname, abspath
+from unittest.case import TestCase
+from unittest.mock import Mock, PropertyMock, patch, MagicMock
 from xml.etree import ElementTree
 
 import pytest
@@ -10,10 +12,11 @@ from pyclarity_lims.constants import nsmap
 from pyclarity_lims.entities import Process, Artifact, Sample, Container, Containertype, Project, Step, \
     StepPlacements, StepReagentLots, StepActions, StepDetails
 from requests import ConnectionError
-from unittest.case import TestCase
-from unittest.mock import Mock, PropertyMock, patch, MagicMock
+from requests import HTTPError
+
 import EPPs
-from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from, InvalidStepError
+from EPPs.common import StepEPP, RestCommunicationEPP, find_newest_artifact_originating_from, InvalidStepError, \
+    finish_step
 
 
 class NamedMock(Mock):
@@ -64,7 +67,7 @@ class FakeEntitiesMaker:
         return 'uri_%s_%s' % (klass.__name__.lower(), self.uri_counter[klass])
 
     def _store_object(self, instance):
-        self.object_store[instance.uri]=instance
+        self.object_store[instance.uri] = instance
         self.object_store_per_type[instance.__class__.__name__].append(instance)
 
     def _retrieve_object(self, uri):
@@ -77,7 +80,7 @@ class FakeEntitiesMaker:
 
     @staticmethod
     def _next_container_position(container, last_position):
-        if container.type.name in ['96 well plate','rack 96 positions','SGP rack 96 positions']:
+        if container.type.name in ['96 well plate', 'rack 96 positions', 'SGP rack 96 positions']:
             plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
             plate_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
         elif container.type.name == 'Tube':
@@ -117,7 +120,8 @@ class FakeEntitiesMaker:
                 pattern = [None] * pattern
             for artifact_position in pattern:
                 if artifact_position is None:
-                    artifact_position = self._next_container_position(current_container, last_position_in_container.get(current_container))
+                    artifact_position = self._next_container_position(current_container,
+                                                                      last_position_in_container.get(current_container))
                 container_map.append((current_container, artifact_position))
                 last_position_in_container[current_container] = artifact_position
         return container_map
@@ -281,10 +285,11 @@ class FakeEntitiesMaker:
         :param output_container_udfs: the udfs to be set for the output container (udfs values supports iterable)
         :param step_udfs: the udfs to be set for the StepDetails and the Process (udfs values supports iterable)
         :param next_action: The action to set for the output artifacts -- supports iterable
+        :param process_id: Define the process id
         """
         # Create the projects
         projects = cycle(self.create_fake_projects(**kwargs))
-        p = self.create_instance(Process, uri='p_uri')
+        p = self.create_instance(Process, uri=kwargs.get('process_id') or 'p_uri')
         # Create input containers
         icontainers = cycle(self.create_fake_containers(
             kwargs.get('nb_input_container', 1),
@@ -305,7 +310,7 @@ class FakeEntitiesMaker:
                 kwargs.get('nb_output_container', 1),
                 container_name=kwargs.get('output_container_name'),
                 container_type=kwargs.get('output_container_type'),
-                container_udfs= kwargs.get('output_container_udfs'),
+                container_udfs=kwargs.get('output_container_udfs'),
                 is_output_container=True,
                 **kwargs))
         else:
@@ -323,7 +328,7 @@ class FakeEntitiesMaker:
                                                  artifact_type=o_type, artifact_udfs=output_artifact_udf,
                                                  reagent_label=output_reagent_label,
                                                  sample=a.samples[0], container=ocontainer,
-                                                 artifact_position=output_position, from_input=a, replicate_n=n+1,
+                                                 artifact_position=output_position, from_input=a, replicate_n=n + 1,
                                                  **kwargs)
                 used_output_containers.add(oa.container)
                 outputs.append(oa)
@@ -518,3 +523,23 @@ class TestFindNewestArtifactOriginatingFrom(TestCase):
         lims.get_artifacts.return_value = []
         artifact = find_newest_artifact_originating_from(lims, process_type, sample_name)
         assert artifact is None
+
+
+class TestFinishStep(TestCase):
+    def test_finish_step(self):
+        # Successful attempt
+        step = Mock()
+        finish_step(step)
+        assert step.get.call_count == 1
+        assert step.advance.call_count == 1
+
+        # 3 failed attempts before raising
+        step = Mock(
+            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
+                                               'running or pending acknowledgement'))
+        )
+        with patch('time.sleep'):
+            with pytest.raises(HTTPError):
+                finish_step(step)
+        assert step.get.call_count == 3
+        assert step.advance.call_count == 3

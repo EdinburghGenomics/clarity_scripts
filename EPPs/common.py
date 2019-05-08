@@ -1,9 +1,10 @@
+import argparse
 import csv
 import itertools
 import os
 import re
 import sys
-import argparse
+import time
 from collections import defaultdict
 from io import StringIO, BytesIO
 from logging import FileHandler
@@ -15,6 +16,7 @@ from egcg_core.config import cfg
 from egcg_core.notifications import email
 from pyclarity_lims.entities import Process, Artifact, Protocol
 from pyclarity_lims.lims import Lims
+from requests import HTTPError
 from requests.exceptions import ConnectionError
 
 import EPPs
@@ -121,7 +123,8 @@ class StepEPP(app_logging.AppLogger):
             a = Artifact(self.lims, id=file_or_uid)
             if a.files:
                 if binary:
-                    f = BytesIO(self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf, binary=True))
+                    f = BytesIO(
+                        self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf, binary=True))
                 else:
                     f = StringIO(self.lims.get_file_contents(uri=a.files[0].uri, encoding=encoding, crlf=crlf))
             else:
@@ -306,12 +309,13 @@ class StepEPP(app_logging.AppLogger):
         except Exception:
             pass
 
+
 class SendMailEPP(StepEPP):
     def get_email_template(self, name=None):
         return os.path.join(self._etc_path, name)
 
     def get_config(self, config_heading_1=None, config_heading_2=None, config_heading_3=None, template_name=None):
-        if config_heading_1==None or config_heading_1== 'email_notify':
+        if config_heading_1 == None or config_heading_1 == 'email_notify':
             if config_heading_2:
                 config = cfg.query('email_notify', 'default')
                 config.update(cfg.query('email_notify', config_heading_2))
@@ -319,9 +323,9 @@ class SendMailEPP(StepEPP):
                 config = cfg.query(config_heading_1, 'default')
             if 'email_template' not in config and template_name:
                 config['email_template'] = self.get_email_template(template_name)
-        if config_heading_1== 'file_templates':
+        if config_heading_1 == 'file_templates':
             if config_heading_3:
-                config = cfg.query(config_heading_1,config_heading_2,config_heading_3)
+                config = cfg.query(config_heading_1, config_heading_2, config_heading_3)
             else:
                 config = cfg.query(config_heading_1, config_heading_2)
 
@@ -331,7 +335,7 @@ class SendMailEPP(StepEPP):
         tmp_dict = {}
         tmp_dict.update(self.get_config(config_heading_2=config_name, template_name=template_name))
         tmp_dict.update(kwargs)
-        email.send_email(msg=msg, subject=subject, strict=True,attachments=attachments,**tmp_dict)
+        email.send_email(msg=msg, subject=subject, strict=True, attachments=attachments, **tmp_dict)
 
     def _run(self):
         raise NotImplementedError
@@ -639,6 +643,7 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
     :param process_type: the type of process that created the artifact
     :param sample_name: the name of the sample associated with this artifact.
     """
+
     def get_parent_process_id(art):
         return art.parent_process.id
 
@@ -655,3 +660,21 @@ def find_newest_artifact_originating_from(lims, process_type, sample_name):
 
     if artifacts:
         return artifacts[0]
+
+
+def finish_step(step, try_count=1):
+    """
+    This function will try to advance a step three time waiting for a ongoing program to finish.
+    It waits for 5 seconds in between each try
+    """
+    try:
+        step.get(force=True)
+        step.advance()
+    except HTTPError as e:
+        if try_count < 3 and str(e) == '400: Cannot advance a step that has an external program queued, ' \
+                                       'running or pending acknowledgement':
+            # wait for whatever needs to happen to happen
+            time.sleep(5)
+            finish_step(step, try_count=try_count + 1)
+        else:
+            raise e

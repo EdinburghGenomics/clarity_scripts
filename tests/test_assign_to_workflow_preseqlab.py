@@ -1,16 +1,15 @@
-import pytest
-from requests import HTTPError
+from unittest.mock import Mock, patch, PropertyMock
 
 from scripts.assign_workflow_preseqlab import AssignWorkflowPreSeqLab
 from tests.test_common import TestEPP, fake_artifact
-from unittest.mock import Mock, patch, PropertyMock
 
 
 def fake_all_inputs(unique=False, resolve=False):
     """Return a list of mocked artifacts which contain samples which contain artifacts ... Simple!"""
     return (
         Mock(samples=[Mock(artifact=fake_artifact('a1'), id='s1', udf={'Proceed To SeqLab': True})]),
-        Mock(samples=[Mock(artifact=fake_artifact('a2'), id='s2', udf={'Proceed To SeqLab': True, '2D Barcode': 'fluidX1'})]),
+        Mock(samples=[
+            Mock(artifact=fake_artifact('a2'), id='s2', udf={'Proceed To SeqLab': True, '2D Barcode': 'fluidX1'})]),
         Mock(samples=[Mock(artifact=fake_artifact('a3'), id='s3', udf={'Proceed To SeqLab': False})])
     )
 
@@ -27,6 +26,7 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
             'scripts.assign_workflow_preseqlab.get_workflow_stage',
             return_value=self.workflow_stage
         )
+
         self.patch_find_art = patch(
             'scripts.assign_workflow_preseqlab.find_newest_artifact_originating_from',
             return_value=Mock(id='fx2')
@@ -37,7 +37,7 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
 
     def test_assign(self):
         with self.patched_get_workflow_stage as pws, self.patched_lims, self.patched_process, self.patch_find_art, \
-             self.patch_Step_create as psc:
+                                                     self.patch_Step_create as psc:
             self.epp._run()
 
             pws.assert_any_call(self.epp.lims, 'PreSeqLab EG 6.0', 'Sequencing Plate Preparation EG 2.0')
@@ -65,24 +65,3 @@ class TestAssignWorkflowPreSeqLab(TestEPP):
 
             # Test advance has been called.
             assert self.mocked_step.advance.call_count == 2
-
-    def test_finish_step(self):
-        # Successful attempt
-        step = Mock()
-        self.epp._finish_step(step)
-        assert step.get.call_count == 1
-        assert step.advance.call_count == 1
-
-        # 3 failed attempts before raising
-        step = Mock(
-            advance=Mock(side_effect=HTTPError('400: Cannot advance a step that has an external program queued, '
-                                               'running or pending acknowledgement'))
-        )
-        with patch('time.sleep'):
-            with pytest.raises(HTTPError):
-                self.epp._finish_step(step)
-        assert step.get.call_count == 3
-        assert step.advance.call_count == 3
-
-
-

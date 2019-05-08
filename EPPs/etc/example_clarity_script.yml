@@ -88,6 +88,16 @@ workflow_stage:
       - QuantStudio EG1.0
       - QuantStudio Plate Preparation EG1.0
 
+  container_dispatch:
+    start:
+      - PreSeqLab EG2.1 WF
+      - Create Manifest EG 1.0 ST
+
+  remove_from_processing:
+    start:
+      - Remove From Processing EG 1.0 WF
+      - Remove From Processing EG 1.0 ST
+
   sample_qc:
     frag_analy:
       - Submitted Sample QC EG 4.0
