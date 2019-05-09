@@ -1,10 +1,16 @@
 Changelog for clarity_scripts
 =============================
 
-0.12 (unreleased)
+0.12 (2019-05-09)
 -----------------
 
-- Nothing changed yet.
+New scripts:
+- `copy_samples.py` : Create new samples from the ones in the step
+- `generate_hamilton_input_qpcr_dilution.py`: Generate Hamilton input file for the the QPCR dilution 
+- `next_step_assignment_spectramax.py`: Set next step after spectramax step
+Other changes:
+- `next_step_assignment_sample_receipt.py`: Change Step UDF name
+- `common.py`: Add finish_step function to safely finish an "in progress" step
 
 
 0.11.2 (2019-04-11)
