@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.13 (unreleased)
------------------
+0.12.1 (2019-05-09)
+-------------------
 
-- Nothing changed yet.
+- `common.py` - Bugfix to allow naming of SGP tube racks
 
 
 0.12 (2019-05-09)
