@@ -145,7 +145,7 @@ class StepEPP(app_logging.AppLogger):
         if container_type == '96 well plate':
             container_limit = 999
 
-        if container_type == 'rack 96 positions' or container_type == 'SGP rack 96 positions':
+        if container_type in ['rack 96 positions', 'SGP rack 96 positions']:
             name_template = project + 'R%02d'
             container_limit = 99
 
