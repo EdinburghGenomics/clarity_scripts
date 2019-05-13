@@ -21,9 +21,9 @@ class CheckPlatesLibrariesAdapters(StepEPP):
             else:
                 #create an instance of the reagent type by obtaining the reagent type with get reagent type using
                 # the reagent label as the name
-                print(self.lims.get_reagent_types(name=art.reagent_labels[0])[0])
+
                 reagent_type= self.lims.get_reagent_types(name=art.reagent_labels[0])[0]
-                print(reagent_type.name)
+
                 #now that we have an instance of the reagent_type we can obtain the class variable "category"
                 adapter_type_categories.add(reagent_type.category)
 
