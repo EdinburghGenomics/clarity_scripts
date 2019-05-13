@@ -10,7 +10,7 @@ from xml.etree import ElementTree
 import pytest
 from pyclarity_lims.constants import nsmap
 from pyclarity_lims.entities import Process, Artifact, Sample, Container, Containertype, Project, Step, \
-    StepPlacements, StepReagentLots, StepActions, StepDetails
+    StepPlacements, StepReagentLots, StepActions, StepDetails, ReagentType
 from requests import ConnectionError
 from requests import HTTPError
 
@@ -203,6 +203,11 @@ class FakeEntitiesMaker:
         self._add_udfs(sample, sample_udfs)
         return sample
 
+    def create_a_fake_reagent_type(self, reagent_label, reagent_category, **kwargs):
+        reagent_type = self.create_instance(ReagentType, name=_resolve_next(reagent_label))
+        reagent_type.category = _resolve_next(reagent_category)
+        return reagent_type
+
     def create_a_fake_artifact(self, artifact_name=None, artifact_position=None, artifact_type=None,
                                is_output_artifact=False, sample=None, container=None, artifact_udfs=None,
                                reagent_label=None, from_input=None, replicate_n=None, **kwargs):
@@ -225,7 +230,11 @@ class FakeEntitiesMaker:
         container.placements[artifact_position] = artifact
         self._add_udfs(artifact, artifact_udfs)
         if reagent_label:
-            artifact.reagent_labels = [_resolve_next(reagent_label)]
+            #allow user to provide reagent_labels as a list of variables and not just a single variable or a cycle
+            if type(_resolve_next(reagent_label)) == list:
+                artifact.reagent_labels = _resolve_next(reagent_label)
+            else:
+                artifact.reagent_labels = [_resolve_next(reagent_label)]
         return artifact
 
     def create_fake_artifacts(self, nb_artifacts, is_output_artifact, artifact_name, artifact_type, container,
@@ -244,7 +253,7 @@ class FakeEntitiesMaker:
                               input_type='Analyte', output_type='Analyte', input_artifact_udf=None,
                               output_artifact_udf=None, input_reagent_label=None, output_reagent_label=None,
                               input_container_population_patterns=None,
-                              output_container_population_patterns=None, **kwargs):
+                              output_container_population_patterns=None, reagent_category=None, **kwargs):
         """Create a fake process with some values pre-filled such as:
 
            - input artifacts (and associated samples/projects)
@@ -286,6 +295,7 @@ class FakeEntitiesMaker:
         :param step_udfs: the udfs to be set for the StepDetails and the Process (udfs values supports iterable)
         :param next_action: The action to set for the output artifacts -- supports iterable
         :param process_id: Define the process id
+        :param reagent_category: Define the reagent categories in the lims
         """
         # Create the projects
         projects = cycle(self.create_fake_projects(**kwargs))
@@ -342,6 +352,10 @@ class FakeEntitiesMaker:
         # Can't assign the step to the process but they are linked because they use the same id.
         step = self.create_a_fake_step(step_id=p.id, selected_containers=list(used_output_containers),
                                        output_artifacts=outputs, **kwargs)
+
+        if reagent_category:
+
+
         return p
 
 
