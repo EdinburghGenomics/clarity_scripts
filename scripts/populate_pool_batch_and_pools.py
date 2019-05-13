@@ -32,21 +32,20 @@ class PopulatePoolBatchPools(StepEPP):
     def _run(self):
         # output analytes obtained by self.process.analytes
         self.process.analytes()[0][0].container.name = self.create_pool_batch_id()
+        self.process.analytes()[0][0].container.put()
         # assumes input artifacts have already been checked to allow only 1 library type at beginning of step
-
         prep_workflow = self.process.all_inputs()[0].samples[0].udf['Prep Workflow']
         # assumes input artifacts have already been checked to allow only 1 adapter type
         adapter_type = self.lims.get_reagent_types(name=self.process.all_inputs()[0].reagent_labels[0])[0].category
 
-        # Name all pools and assign the prep workflow and adapter type to them
+        # Name all pools and assign the prep workflow and adapter type to them then put into LIMS
         for o_art in self.process.analytes()[0]:
             o_art.name = self.create_pool_id()
 
             o_art.udf['Prep Workflow'] = prep_workflow
             o_art.udf['Adapter Type'] = adapter_type
+            o_art.put()
 
-        # put the updated pools into the lims
-        self.lims.put_batch(self.process.analytes()[0])
 
 if __name__ == '__main__':
     PopulatePoolBatchPools().run()

@@ -25,7 +25,7 @@ class TestPopulatePoolBatchPools(TestEPP):
             'nb_input': 1,
             'input_reagent_label': 'Adapter1',
             'project_name': 'X99999',
-            'input_artifact_udf': {
+            'sample_udfs': {
                 'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
             }
         }
@@ -35,7 +35,7 @@ class TestPopulatePoolBatchPools(TestEPP):
         self.epp.process = self.fem.create_a_fake_process(**self.fem_params)
         self.epp.lims.get_containers = Mock(return_value=[])
         self.epp.lims.get_artifacts = Mock(return_value=[])
-        self.epp.lims.get_reagent_types = Mock(return_value=[NamedMock(real_name='rt1')])
+        self.epp.lims.get_reagent_types = Mock(return_value=[Mock(category='rt1')])
         self.epp._run()
 
         expected_output_container_name = 'PDP_Batch_ID:_'+self.today+'_PDP_Batch#1'
