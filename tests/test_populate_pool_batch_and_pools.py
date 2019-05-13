@@ -38,7 +38,7 @@ class TestPopulatePoolBatchPools(TestEPP):
         self.epp.lims.get_reagent_types = Mock(return_value=[Mock(category='rt1')])
         self.epp._run()
 
-        expected_output_container_name = 'PDP_Batch_ID:_'+self.today+'_PDP_Batch#1'
+        expected_output_container_name = self.today+'_PDP_Batch#1'
         actual_output_container_name = self.epp.process.analytes()[0][0].container.name
 
         expected_output_pool_name = self.today + '_PDP_Pool#1'

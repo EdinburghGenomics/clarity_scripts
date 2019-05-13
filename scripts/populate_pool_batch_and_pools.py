@@ -9,7 +9,7 @@ class PopulatePoolBatchPools(StepEPP):
 
     def create_pool_batch_id(self):
         today = str(date.today())
-        name_template = 'PDP_Batch_ID:_' + today + '_PDP_Batch#%d'
+        name_template = today + '_PDP_Batch#%d'
         # find next available batch id and use range limit to prevent infinite loop
         for batch_count in range(1, 999):
             new_batch_name = name_template % batch_count
