@@ -1,11 +1,10 @@
-from itertools import cycle
 from unittest.mock import patch
 
 import pytest
 
 from EPPs.common import InvalidStepError
 from scripts.check_plates_libraries_adapters import CheckPlatesLibrariesAdapters
-from tests.test_common import TestEPP, FakeEntitiesMaker, _resolve_next, NamedMock
+from tests.test_common import TestEPP, FakeEntitiesMaker, NamedMock
 
 
 class TestCheckPlatesLibrariesAdapters(TestEPP):
