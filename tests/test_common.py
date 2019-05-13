@@ -203,10 +203,6 @@ class FakeEntitiesMaker:
         self._add_udfs(sample, sample_udfs)
         return sample
 
-    def create_a_fake_reagent_type(self, reagent_label, reagent_category, **kwargs):
-        reagent_type = self.create_instance(ReagentType, name=_resolve_next(reagent_label))
-        reagent_type.category = _resolve_next(reagent_category)
-        return reagent_type
 
     def create_a_fake_artifact(self, artifact_name=None, artifact_position=None, artifact_type=None,
                                is_output_artifact=False, sample=None, container=None, artifact_udfs=None,
@@ -352,9 +348,6 @@ class FakeEntitiesMaker:
         # Can't assign the step to the process but they are linked because they use the same id.
         step = self.create_a_fake_step(step_id=p.id, selected_containers=list(used_output_containers),
                                        output_artifacts=outputs, **kwargs)
-
-        if reagent_category:
-
 
         return p
 
