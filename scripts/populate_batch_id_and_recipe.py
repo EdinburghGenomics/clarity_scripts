@@ -30,7 +30,7 @@ class PopulateBatchIDRecipe(StepEPP):
         #set the recipe in the relevant step UDF
 
         self.process.udf['Sequencing Run Configuration'] = recipe
-        self.process.udf.put()
+        self.process.put()
 
 if __name__ == "__main__":
     PopulateBatchIDRecipe().run()
