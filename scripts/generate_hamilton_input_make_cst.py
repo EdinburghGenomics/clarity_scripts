@@ -7,11 +7,20 @@ from EPPs.common import GenerateHamiltonInputEPP, InvalidStepError
 class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
     """Generat a csv input file for Hamilton for running Make CST method"""
 
+    # Define the number of input containers that are permitted
     _max_nb_input_containers = 1
+
+    # Define the number of output containers that are permitted
     _max_nb_output_containers = 1
 
+    # Define the output file
+    output_file_name = 'MAKE_CST.csv'
+
     csv_column_headers = ['Input Container', 'Input Well', 'Output Container', 'Output Well', 'EPX 1', 'EPX 2',
-                          'EPX 3', 'Stopping Buffer', 'EPX Master Mix', 'PhiX', 'NaOH', 'Sample']
+                          'EPX 3', 'Stopping Buffer', 'EPX Master Mix', 'PhiX', 'NaOH', 'Library']
+
+    # create set of input parent containers
+    parent_container_set = set()
 
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
@@ -19,7 +28,9 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
+
             if input_art.type == 'Analyte':
+
                 outputs = self.process.outputs_per_input(input_art.id, Analyte=True)
                 # the script is only compatible with 1 output for each input i.e. replicates are not allowed
                 if len(outputs) > 1:
@@ -28,19 +39,67 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                 output = outputs[0]
 
                 # remove semi-colon from locations as this is not compatible with Hamilton Venus software
-                input_location = input_art.location[1].replace(':', '')
                 output_location = output.location[1].replace(':', '')
 
-                # assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                csv_line = [
-                    input_art.container.name, input_location, output.container.name, output_location,
-                    self.process.udf['Library Volume (uL)']
-                ]
-                # build a dictionary of the lines for the Hamilton input file with a key that facilitates
-                # the lines being by input container then column then row
-                csv_dict[input_art.location[1]] = csv_line
+                # obtain the list of artifacts that were used to make the pool
+                parent_process_artifacts = input_art.input_artifact_list()
+
+                for parent_artifact in parent_process_artifacts:
+                    # remove semi-colon from locations as this is not compatible with Hamilton Venus software
+                    parent_input_location = parent_artifact.location[1].replace(':', '')
+
+                    parent_input_container = parent_artifact.location[0].name
+
+                    self.parent_container_set.add(parent_input_container)
+
+                    # assemble each line of the Hamilton input file in the correct structure for the Hamilton
+                    csv_line = [
+                        parent_input_container,
+                        parent_input_location,
+                        output.location[0].name,
+                        output_location,
+                        self.process.udf['EPX 1 (uL)'],
+                        self.process.udf['EPX 2 (uL)'],
+                        self.process.udf['EPX 3 (uL)'],
+                        self.process.udf['Stop Buffer (uL)'],
+                        self.process.udf['EPX Master Mix (uL)'],
+                        self.process.udf['PhiX (uL)'],
+                        self.process.udf['NaOH (uL)'],
+                        self.process.udf['Library Volume (uL)']
+                    ]
+                    # build a dictionary of the lines for the Hamilton input file with a key that facilitates
+                    # the lines being by input container then column then row
+                    csv_dict[parent_input_container + parent_artifact.location[1]] = csv_line
 
         return csv_dict
+
+    def generate_csv_array(self):
+        """
+        Generate the csv array from the implemented csv dictionary.
+        It sorts the csv lines by column (self.plate_columns) then row (self.plate_rows)
+        """
+        csv_dict = self._generate_csv_dict()
+
+        if self.csv_column_headers:
+            csv_rows = [self.csv_column_headers]
+        else:
+            csv_rows = []
+
+        counter = 0
+
+        # create list of parent containers
+
+        for container in sorted(self.parent_container_set):
+            for column in self.plate_columns:
+                for row in self.plate_rows:
+                    if container + row + ":" + column in csv_dict.keys():
+                        csv_rows.append(csv_dict[container + row + ":" + column])
+                        counter += 1
+
+        if counter == 0:
+            raise InvalidStepError("No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
+
+        return csv_rows
 
 
 if __name__ == '__main__':

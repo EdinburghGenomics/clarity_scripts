@@ -1,28 +1,47 @@
+from unittest.mock import PropertyMock, Mock, patch
+
 from scripts.generate_hamilton_input_make_pdp import GenerateHamiltonInputMakePDP
-from tests.test_common import TestEPP, FakeEntitiesMaker
+from tests.test_common import TestEPP, NamedMock
 
 
-class TestGenerateHamiltonInputCFP(TestEPP):
+class TestGenerateHamiltonInputPDP(TestEPP):
+
     def setUp(self):
+        fake_outputs_per_input = [
+            Mock(id='ao1', location=[NamedMock(real_name='container3'), 'A:1'])]
+
+        fake_input_artifact_list = [Mock(location=[NamedMock(real_name='container1'), 'A:1']),
+                                    Mock(location=[NamedMock(real_name='container2'), 'A:1']),
+                                    Mock(location=[NamedMock(real_name='container2'), 'B:1'])]
+
+        fake_artifact = Mock(type='Analyte', input_artifact_list=Mock(return_value=fake_input_artifact_list))
+
+        fake_inputs = [fake_artifact]
+
+        step_udfs = {'Library Volume (uL)': '5'}
+
+        self.patched_process1 = patch.object(
+            GenerateHamiltonInputMakePDP,
+            'process',
+            new_callable=PropertyMock(return_value=Mock(all_inputs=Mock(return_value=fake_inputs),
+                                                        udf=step_udfs,
+                                                        outputs_per_input=Mock(return_value=fake_outputs_per_input))
+                                      ))
+
         # argument -d left blank to write file to local directory
         self.epp = GenerateHamiltonInputMakePDP(self.default_argv + ['-i', 'a_file_location'] + ['-d', ''])
 
     def test_run(self):  # test that file is written under happy path conditions i.e. <=9 input plates, 1 output
-        fem = FakeEntitiesMaker()
-        self.epp.lims = fem.lims
-        self.epp.process = fem.create_a_fake_process(
-            nb_input=2,
-            step_udfs={'Library Volume (uL)': '5'}
-        )
+        with self.patched_process1:
+            self.epp._run()
+            expected_file = [
+                'Input Plate,Input Well,Output Plate,Output Well,Library Volume',
+                'container1,A1,container3,A1,5',
+                'container2,A1,container3,A1,5',
+                'container2,B1,container3,A1,5'
+            ]
+            expected_md5 = 'd24f396c94712a544166d29b283d49c2'
 
-        self.epp._run()
-        expected_file = [
-            'Input Plate,Input Well,Output Plate,Output Well,Library Volume',
-            'input_uri_container_1,A1,output_uri_container_2,A1,5',
-            'input_uri_container_1,B1,output_uri_container_2,B1,5'
-        ]
-        expected_md5 = 'f144811c3d200f184670c2befe4e9ee7'
-
-        assert self.file_content('a_file_location-hamilton_input.csv') == expected_file
-        assert self.stripped_md5('a_file_location-hamilton_input.csv') == expected_md5
-        assert self.stripped_md5(self.epp.shared_drive_file_path) == expected_md5
+            assert self.file_content('a_file_location-hamilton_input.csv') == expected_file
+            assert self.stripped_md5('a_file_location-hamilton_input.csv') == expected_md5
+            assert self.stripped_md5(self.epp.shared_drive_file_path) == expected_md5
