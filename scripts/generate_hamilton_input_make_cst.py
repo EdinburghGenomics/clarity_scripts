@@ -17,7 +17,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
     output_file_name = 'MAKE_CST.csv'
 
     csv_column_headers = ['Input Container', 'Input Well', 'Output Container', 'Output Well', 'EPX 1', 'EPX 2',
-                          'EPX 3', 'Stopping Buffer', 'EPX Master Mix', 'PhiX', 'NaOH', 'Library']
+                          'EPX 3', 'HT1', 'EPX Master Mix', 'PhiX', 'NaOH', 'Library']
 
     # create set of input parent containers
     parent_container_set = set()
@@ -61,7 +61,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                         self.process.udf['EPX 1 (uL)'],
                         self.process.udf['EPX 2 (uL)'],
                         self.process.udf['EPX 3 (uL)'],
-                        self.process.udf['Stop Buffer (uL)'],
+                        self.process.udf['HT1 (uL)'],
                         self.process.udf['EPX Master Mix (uL)'],
                         self.process.udf['PhiX (uL)'],
                         self.process.udf['NaOH (uL)'],

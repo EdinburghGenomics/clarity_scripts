@@ -18,7 +18,7 @@ class TestGenerateHamiltonInputMakeCST(TestEPP):
         fake_inputs = [fake_artifact]
 
         step_udfs = {'EPX 1 (uL)': '231', 'EPX 2 (uL)': '33', 'EPX 3 (uL)': '121',
-                     'Stop Buffer (uL)': '2.5', 'EPX Master Mix (uL)': '35',
+                     'HT1 (uL)': '2.5', 'EPX Master Mix (uL)': '35',
                      'PhiX (uL)': '1', 'Library Volume (uL)': '10', 'NaOH (uL)': '2.5',}
 
         self.patched_process1 = patch.object(
@@ -37,13 +37,13 @@ class TestGenerateHamiltonInputMakeCST(TestEPP):
 
             self.epp._run()
 
-            expected_file = ['Input Container,Input Well,Output Container,Output Well,EPX 1,EPX 2,EPX 3,Stopping Buffer,'
+            expected_file = ['Input Container,Input Well,Output Container,Output Well,EPX 1,EPX 2,EPX 3,HT1,'
                              'EPX Master Mix,PhiX,NaOH,Library',
                             'container1,A1,container3,A1,231,33,121,2.5,35,1,2.5,10',
                              'container2,A1,container3,A1,231,33,121,2.5,35,1,2.5,10',
                              'container2,B1,container3,A1,231,33,121,2.5,35,1,2.5,10']
 
-            expected_md5s = "b19f3d56ead75a4a80fd73ae441e6b00"
+            expected_md5s = "b72b2c3e9d6df1e8abeabccf31f91ded"
 
             actual_file = self.file_content('a_file_location-hamilton_input.csv')
             actual_lims_md5s = self.stripped_md5('a_file_location-hamilton_input.csv')
