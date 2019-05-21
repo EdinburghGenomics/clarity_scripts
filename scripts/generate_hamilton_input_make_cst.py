@@ -16,15 +16,49 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
     # Define the output file
     output_file_name = 'MAKE_CST.csv'
 
-    csv_column_headers = ['Input Container', 'Input Well', 'Output Container', 'Output Well', 'EPX 1', 'EPX 2',
-                          'EPX 3', 'HT1', 'EPX Master Mix', 'PhiX', 'NaOH', 'Library']
+    csv_column_headers = ['Input Container',
+                          'Input Well',
+                          'Output Container',
+                          'Output Well',
+                          'EPX1 Barcode',
+                          'EPX1',
+                          'EPX2 Barcode',
+                          'EPX2',
+                          'EPX3 Barcode',
+                          'EPX3',
+                          'EPX Master Mix',
+                          'NaOH Barcode'
+                          'NaOH',
+                          'Tris-HCL Barcode'
+                          'Tris-HCL',
+                          'PhiX Barcode'
+                          'PhiX',
+                          'Library']
 
     # create set of input parent containers
     parent_container_set = set()
 
+    def get_reagent_barcodes(self):
+        # find the lot number, i.e. barcode, of the reagent.
+        RSB_template = "LP[0-9]{7}-RSB"
+        reagent_lots = list(self.process.step.reagent_lots)
+        reagent_barcodes = {}
+        expected_reagent_names = ['EPX1', 'EPX2', 'EPX3', 'EPX Master Mix','NaOH', 'Tris-HCL', 'PhiX']
+
+        for lot in reagent_lots:
+            reagent_barcodes[lot.name] = lot.lot_number
+
+        for expected_reagent_name in expected_reagent_names:
+            if not reagent_barcodes[expected_reagent_name]:
+                raise InvalidStepError(
+                    message='Please assign ' + expected_reagent_name + ' lot before generating Hamilton input.')
+
+        return reagent_barcodes
+
     def _generate_csv_dict(self):
         # csv_dict will be a dictionary that consists of the lines to be present in the Hamilton input file.
         csv_dict = {}
+        reagent_barcodes = self.get_reagent_barcodes()
 
         # find all the inputs for the step that are analytes (i.e. samples and not associated files)
         for input_art in self.artifacts:
@@ -58,13 +92,20 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                         parent_input_location,
                         output.location[0].name,
                         output_location,
+                        reagent_barcodes['EPX1'],
                         self.process.udf['EPX 1 (uL)'],
+                        reagent_barcodes['EPX2'],
                         self.process.udf['EPX 2 (uL)'],
+                        reagent_barcodes['EPX3'],
                         self.process.udf['EPX 3 (uL)'],
-                        self.process.udf['HT1 (uL)'],
+                        reagent_barcodes['EPX Master Mix'],
                         self.process.udf['EPX Master Mix (uL)'],
-                        self.process.udf['PhiX (uL)'],
+                        reagent_barcodes['NaOH'],
                         self.process.udf['NaOH (uL)'],
+                        reagent_barcodes['Tris-HCL'],
+                        self.process.udf['Tris-HCL (uL)'],
+                        reagent_barcodes['PhiX'],
+                        self.process.udf['PhiX (uL)'],
                         self.process.udf['Library Volume (uL)']
                     ]
                     # build a dictionary of the lines for the Hamilton input file with a key that facilitates
