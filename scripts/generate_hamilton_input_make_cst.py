@@ -43,11 +43,12 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
         # find the lot number, i.e. barcode, of the reagent.
 
         reagent_lots = list(self.process.step.reagent_lots)
+
         reagent_barcodes = {}
-        expected_reagent_names = ['EPX1', 'EPX2', 'EPX3', 'EPX Master Mix', 'NaOH', 'Tris-HCL', 'PhiX']
+        expected_reagent_names = ['EPX1', 'EPX2', 'EPX3', 'NaOH', 'TrisHCL', 'PhiX']
 
         for lot in reagent_lots:
-            reagent_barcodes[lot.name] = lot.lot_number
+            reagent_barcodes[lot.reagent_kit.name] = lot.lot_number
 
         for expected_reagent_name in expected_reagent_names:
             if not reagent_barcodes[expected_reagent_name]:
@@ -101,7 +102,6 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                         self.process.udf['EPX 2 (uL)'],
                         reagent_barcodes['EPX3'],
                         self.process.udf['EPX 3 (uL)'],
-                        reagent_barcodes['EPX Master Mix'],
                         self.process.udf['EPX Master Mix (uL)'],
                         reagent_barcodes['NaOH'],
                         self.process.udf['NaOH (uL)'],
