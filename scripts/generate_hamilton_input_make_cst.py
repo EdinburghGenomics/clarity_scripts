@@ -51,7 +51,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
             reagent_barcodes[lot.reagent_kit.name] = lot.lot_number
 
         for expected_reagent_name in expected_reagent_names:
-            if not reagent_barcodes[expected_reagent_name]:
+            if expected_reagent_name not in reagent_barcodes:
                 raise InvalidStepError(
                     message='Please assign ' + expected_reagent_name + ' lot before generating Hamilton input.')
 
