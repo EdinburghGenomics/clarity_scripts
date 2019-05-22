@@ -31,8 +31,8 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                           'EPX Master Mix',
                           'NaOH Barcode',
                           'NaOH',
-                          'Tris-HCL Barcode',
-                          'Tris-HCL',
+                          'TrisHCL Barcode',
+                          'TrisHCL',
                           'PhiX Barcode',
                           'PhiX']
 
