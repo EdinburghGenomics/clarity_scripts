@@ -26,7 +26,7 @@ class TestGenerateHamiltonInputMakeCST(TestEPP):
             NamedMock(real_name='EPX3', lot_number='LP9999999-EPX3'),
             NamedMock(real_name='EPX Master Mix', lot_number='LP9999999-EPXMM'),
             NamedMock(real_name='PhiX', lot_number='LP9999999-PHIX'),
-            NamedMock(real_name='Tris-HCL', lot_number='LP9999999-THCL'),
+            NamedMock(real_name='TrisHCL', lot_number='LP9999999-THCL'),
             NamedMock(real_name='NaOH', lot_number='LP9999999-NAOH'),
         ]
 

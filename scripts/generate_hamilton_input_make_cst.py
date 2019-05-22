@@ -105,8 +105,8 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                         self.process.udf['EPX Master Mix (uL)'],
                         reagent_barcodes['NaOH'],
                         self.process.udf['NaOH (uL)'],
-                        reagent_barcodes['Tris-HCL'],
-                        self.process.udf['Tris-HCL (uL)'],
+                        reagent_barcodes['TrisHCL'],
+                        self.process.udf['TrisHCL (uL)'],
                         reagent_barcodes['PhiX'],
                         self.process.udf['PhiX (uL)']
                     ]
