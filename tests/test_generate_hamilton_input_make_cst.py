@@ -6,7 +6,7 @@ from tests.test_common import TestEPP, NamedMock
 
 class TestGenerateHamiltonInputMakeCST(TestEPP):
     def setUp(self):
-        self.fake_output = Mock(location=[NamedMock(real_name='container3'), 'A:1'])
+        self.fake_output = Mock(location=[NamedMock(real_name='container3'), '1:1'])
 
         fake_input_artifact_list = [Mock(location=[NamedMock(real_name='container1'), 'A:1']),
                                     Mock(location=[NamedMock(real_name='container2'), 'A:1']),

@@ -75,9 +75,17 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                                            'This step is not compatible with replicates.' % input_art.name)
                 output = outputs[0]
 
-                # remove semi-colon from locations as this is not compatible with Hamilton Venus software
-                output_location = output.location[1].replace(':', '')
+                # LIMS outputs CST strip locations as numbers, convert to well positions used by Hamilton
+                hamilton_well_locations={'1:1':'A1',
+                                         '2:1':'B1',
+                                         '3:1':'C1',
+                                         '4:1':'D1',
+                                         '5:1':'E1',
+                                         '6:1':'F1',
+                                         '7:1':'G1',
+                                         '8:1':'H1'}
 
+                output_location = hamilton_well_locations[output.location[1]]
                 # obtain the list of artifacts that were used to make the pool
                 parent_process_artifacts = input_art.input_artifact_list()
 
