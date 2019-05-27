@@ -145,7 +145,7 @@ class TestPullSampleInfo(TestPopulator):
             'pc_mapped_reads': 75,
             'pc_duplicate_reads': 5,
             'mean_coverage': 30,
-            'gender_match': 'Match',
+            'sex_match': 'Match',
             'genotype_match': 'Match',
             'matching_species': ['Homo sapiens', 'Thingius thingy'],
         },

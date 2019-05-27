@@ -200,7 +200,7 @@ class PullSampleInfo(PullInfo):
         ('SR % Duplicates', 'aggregated.pc_duplicate_reads'),
         ('SR Mean Coverage', 'coverage.mean'),
         ('SR Species Found', 'aggregated.matching_species'),
-        ('SR Sex Check Match', 'aggregated.gender_match'),
+        ('SR Sex Check Match', 'aggregated.sex_match'),
         ('SR Genotyping Match', 'aggregated.genotype_match'),
         ('SR Freemix', 'sample_contamination.freemix'),
         ('SR Review Status', 'reviewed'),
