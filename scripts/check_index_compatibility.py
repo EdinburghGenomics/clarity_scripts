@@ -51,10 +51,10 @@ class CheckIndexCompatibility(StepEPP):
                 output.udf['Min I5 Hamming Distance'] = str(hamming_distance_i5_min)
                 outputs_to_put.append(output)
 
-                if output.location[0].type.name == 'Single Read PDP Batch ID':
+                if self.process.udf['Compatibility Check'] == 'Single Read':
                     if hamming_distance_i7_min < int(self.process.udf['Single Read Minimum Hamming Distance']):
                         raise InvalidStepError('Indexes not compatible within pool %s' % output.name)
-                elif output.location[0].type.name == 'Dual Read PDP Batch ID':
+                elif self.process.udf['Compatibility Check'] == 'Dual Read':
                     if hamming_distance_i7_min + hamming_distance_i5_min < int(
                         self.process.udf['Dual Read Minimum Hamming Distance']):
                         raise InvalidStepError('Indexes not compatible within pool %s' % output.name)
