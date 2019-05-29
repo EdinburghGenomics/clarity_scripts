@@ -21,7 +21,7 @@ class TestAutoplacement8Well(TestEPP):
         fem = FakeEntitiesMaker()
         self.epp.lims = fem.lims
         self.epp.process = fem.create_a_fake_process(nb_input=8, nb_input_container=1,
-                                                     input_container_type='Strip Tube',
+                                                     input_container_type='CST Batch ID',
                                                      output_container_type='Strip Tube')
 
         patch_step_set_placement = patch.object(Step, 'set_placements')

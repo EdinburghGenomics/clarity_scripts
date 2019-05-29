@@ -93,6 +93,10 @@ class FakeEntitiesMaker:
             plate_rows = ['1', '2', '3', '4', '5', '6', '7', '8']
             plate_columns = ['1']
 
+        elif container.type.name == 'CST Batch ID':
+            plate_rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+            plate_columns = ['1']
+
         if not last_position:
             return '%s:%s' % (plate_rows[0], plate_columns[0])
         # Find next position moving along the row fist
