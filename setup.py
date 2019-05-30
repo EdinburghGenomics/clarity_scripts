@@ -6,7 +6,7 @@ from os.path import join, abspath, dirname
 requirements_txt = join(abspath(dirname(__file__)), 'requirements.txt')
 requirements = [l.strip() for l in open(requirements_txt) if l and not l.startswith('#')]
 
-version = '0.12.2'
+version = '0.13.0.dev0'
 
 
 setup(
