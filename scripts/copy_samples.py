@@ -26,7 +26,7 @@ class CopySamples(StepEPP):
         s = Step.create(self.lims, protocol_step=stage.step, inputs=self.artifacts,
                         container_type_name='Tube')
         url = 'https://%s/clarity/work-complete/%s' % (platform.node(), self.process.id.split('-')[1])
-        s.details.udf['Reason for removal from processing:'] = 'Failed QC. See step %s' % url
+        s.details.udf['Reason for removal from processing:'] = 'Repeat samples requested. See step %s' % url
         s.details.put()
 
         # Move from "Record detail" window to the "Next Step"
