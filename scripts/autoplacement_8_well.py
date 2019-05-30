@@ -4,7 +4,8 @@ from EPPs.common import Autoplacement
 
 
 class Autoplacement8Well(Autoplacement):
-    #autoplacement for an 8 well strip tube
+    #1 to 1 autoplacement for an 8 well strip tube where the input container uses a "A:1" naming format
+    # and the output container uses a "1:1" naming format
     _max_nb_input_containers = 1
     _max_nb_output_containers = 1
 

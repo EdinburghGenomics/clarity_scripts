@@ -33,8 +33,7 @@ class TestAutoplacement8Well(TestEPP):
         fake_output_container = fem.object_store_per_type.get('Container')[1]
         # these are the output artifacts
         fake_outputs_artifacts = fem.object_store_per_type.get('Artifact')[8:]
-        # take the output artifact from first container first (even index)
-        # then from the second container (odd index)
+
         exp_placements = [
             (fake_outputs_artifacts[0], (fake_output_container, '1:1')),
             (fake_outputs_artifacts[1], (fake_output_container, '2:1')),
