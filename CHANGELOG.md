@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.13.0 (unreleased)
+0.12.2 (2019-05-30)
 -------------------
 
-- Nothing changed yet.
+- copy_samples.py: “Comments” step UDF in “Remove from processing” step now populated with description “Repeat samples requested.”
 
 
 0.12.1 (2019-05-09)
