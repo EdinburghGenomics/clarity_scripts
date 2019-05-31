@@ -5,6 +5,8 @@ from EPPs.common import StepEPP
 
 
 class PopulateBatchID(StepEPP):
+#CST batch ID has the format YY-MM-DD_CST_Batch#{1-9}{1,3} where {1-9}{1,3} represents the next available number for
+#that date
 
     def create_cst_batch_id(self):
         today = str(date.today())

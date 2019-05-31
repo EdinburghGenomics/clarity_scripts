@@ -14,13 +14,14 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
     # Define the output file
     output_file_name = 'MAKE_PDP.csv'
 
-    #Define the number of input containers that are permitted
+    # Define the number of input containers that are permitted (although the file created will have up to 10 input
+    # containers listed as this is the limit when creating a PDP batch and obtained from the parent process artifacts)
     _max_nb_input_containers = 1
 
-    #Define the number of output containers that are permitted
+    # Define the number of output containers that are permitted
     _max_nb_output_containers = 1
 
-    #create set of input parent containers
+    # create set of input parent containers
     parent_container_set = set()
 
     def _generate_csv_dict(self):
@@ -42,13 +43,11 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
                 # remove semi-colon from the output location as this is not compatible with Hamilton Venus software
                 output_location = output.location[1].replace(':', '')
 
-                #obtain the list of artifacts that were used to make the pool
-                parent_process_artifacts= input_art.input_artifact_list()
+                # obtain the list of artifacts that were used to make the pool
+                parent_process_artifacts = input_art.input_artifact_list()
 
-                #write a line of the csv for each of artifacts in the pool
-
+                # write a line of the csv for each of artifacts in the pool
                 for parent_artifact in parent_process_artifacts:
-
                     # remove semi-colon from locations as this is not compatible with Hamilton Venus software
                     parent_input_location = parent_artifact.location[1].replace(':', '')
 
@@ -56,17 +55,16 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
 
                     self.parent_container_set.add(parent_input_container)
 
-
                     # assemble each line of the Hamilton input file in the correct structure for the Hamilton
 
                     csv_line = [
                         parent_input_container, parent_input_location, output.location[0].name, output_location,
-                                   self.process.udf['Library Volume (uL)']
+                        self.process.udf['Library Volume (uL)']
                     ]
                     # build a dictionary of the lines for the Hamilton input file with a key that facilitates
                     # the lines being by input container then column then row
 
-                    csv_dict[parent_input_container+parent_artifact.location[1]] = csv_line
+                    csv_dict[parent_input_container + parent_artifact.location[1]] = csv_line
 
         return csv_dict
 
@@ -84,15 +82,12 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
 
         counter = 0
 
-        #create list of parent containers
-
-
-
+        # create list of parent containers
         for container in sorted(self.parent_container_set):
             for column in self.plate_columns:
                 for row in self.plate_rows:
                     if container + row + ":" + column in csv_dict.keys():
-                        csv_rows.append(csv_dict[container+row + ":" + column])
+                        csv_rows.append(csv_dict[container + row + ":" + column])
                         counter += 1
 
         if counter == 0:

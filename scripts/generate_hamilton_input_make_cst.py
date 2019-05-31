@@ -40,7 +40,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
     parent_container_set = set()
 
     def get_reagent_barcodes(self):
-        # find the lot number, i.e. barcode, of the reagent.
+        # find the lot number, i.e. barcode, of the reagent. Build a dictionary containing the reagent barcodes
 
         reagent_lots = list(self.process.step.reagent_lots)
 
@@ -50,6 +50,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
         for lot in reagent_lots:
             reagent_barcodes[lot.reagent_kit.name] = lot.lot_number
 
+        #generate error if user has forgotten to assign the barcode in the step
         for expected_reagent_name in expected_reagent_names:
             if expected_reagent_name not in reagent_barcodes:
                 raise InvalidStepError(

@@ -5,6 +5,11 @@ from EPPs.common import StepEPP
 
 
 class PopulatePoolBatchPools(StepEPP):
+    #populate the pool ids with format YY-MM-DD_PDP_Pool#{1-9}{1,3} where {1-9}{1,3} is the next available number for
+    #that date.
+    #populate the pool batch ids with format YY-MM-DD_PDP_Batch#{1-9}{1,3} where {1-9}{1,3} is the next available number for
+    #that date.
+    #populate the output artifact with the prep workflow and adapter type of the input
     _max_nb_output_containers = 1
 
     def create_pool_batch_id(self):
