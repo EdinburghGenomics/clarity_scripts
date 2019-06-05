@@ -59,7 +59,7 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
 
                     csv_line = [
                         parent_input_container, parent_input_location, output.location[0].name, output_location,
-                        self.process.udf['Library Volume (uL)']
+                        output.udf['NTP Volume (uL)']
                     ]
                     # build a dictionary of the lines for the Hamilton input file with a key that facilitates
                     # the lines being by input container then column then row

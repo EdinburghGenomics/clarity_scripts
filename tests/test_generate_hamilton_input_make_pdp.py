@@ -8,7 +8,7 @@ class TestGenerateHamiltonInputPDP(TestEPP):
 
     def setUp(self):
         fake_outputs_per_input = [
-            Mock(id='ao1', location=[NamedMock(real_name='container3'), 'A:1'])]
+            Mock(id='ao1', location=[NamedMock(real_name='container3'), 'A:1'], udf={'NTP Volume (uL)':5})]
 
         fake_input_artifact_list = [Mock(location=[NamedMock(real_name='container1'), 'A:1']),
                                     Mock(location=[NamedMock(real_name='container2'), 'A:1']),
@@ -18,13 +18,10 @@ class TestGenerateHamiltonInputPDP(TestEPP):
 
         fake_inputs = [fake_artifact]
 
-        step_udfs = {'Library Volume (uL)': '5'}
-
         self.patched_process1 = patch.object(
             GenerateHamiltonInputMakePDP,
             'process',
             new_callable=PropertyMock(return_value=Mock(all_inputs=Mock(return_value=fake_inputs),
-                                                        udf=step_udfs,
                                                         outputs_per_input=Mock(return_value=fake_outputs_per_input))
                                       ))
 
