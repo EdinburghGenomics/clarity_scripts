@@ -8,13 +8,13 @@ class TestGenerateHamiltonInputPDP(TestEPP):
 
     def setUp(self):
         fake_outputs_per_input = [
-            Mock(id='ao1', location=[NamedMock(real_name='container3'), 'A:1'], udf={'NTP Volume (uL)':5})]
+            Mock(id='ao1', location=[NamedMock(real_name='container3'), 'A:1'])]
 
         fake_input_artifact_list = [Mock(location=[NamedMock(real_name='container1'), 'A:1']),
                                     Mock(location=[NamedMock(real_name='container2'), 'A:1']),
                                     Mock(location=[NamedMock(real_name='container2'), 'B:1'])]
 
-        fake_artifact = Mock(type='Analyte', input_artifact_list=Mock(return_value=fake_input_artifact_list))
+        fake_artifact = Mock(type='Analyte',udf={'NTP Volume (uL)':5}, input_artifact_list=Mock(return_value=fake_input_artifact_list))
 
         fake_inputs = [fake_artifact]
 
