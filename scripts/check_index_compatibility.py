@@ -7,20 +7,20 @@ from EPPs.common import StepEPP, InvalidStepError
 
 
 class CheckIndexCompatibility(StepEPP):
-    #check the index compatibility within pools created in the step and populate artifact udfs with the Hamming
-    #distances separately for both the I7 and I5 indexes
+    '''Checks the index compatibility within pools created in the step and populate artifact udfs with the Hamming
+    distances separately for both the I7 and I5 indexes.'''
 
     def populate_output_udfs(selfs, hamming_distances, outputs_to_put, output):
         output.udf['Min I7 Hamming Distance'] = str(hamming_distances[0])
         output.udf['Min I5 Hamming Distance'] = str(hamming_distances[1])
         outputs_to_put.append(output)
 
-        return outputs_to_put
+
 
     def qc_check_hamming_distances(self, hamming_distances, output):
-        #compare the Hamming distances of the indexes against the thresholds defined by step UDFs.
-        # If for a "Single Read" sequencing run then there must be a difference in the I7 index. If for a "Dual Read"
-        #sequencing run then the difference can be in either the I7 or I5 (or both).
+        '''Compares the Hamming distances of the indexes against the thresholds defined by step UDFs.
+         If for a "Single Read" sequencing run then there must be a difference in the I7 index. If for a "Dual Read"
+        sequencing run then the difference can be in either the I7 or I5 (or both).'''
         if self.process.udf['Compatibility Check'] == 'Single Read':
             if hamming_distances[0] < int(self.process.udf['Single Read Minimum Hamming Distance']):
                 raise InvalidStepError('Indexes not compatible within pool %s' % output.name)
@@ -30,9 +30,9 @@ class CheckIndexCompatibility(StepEPP):
                 raise InvalidStepError('Indexes not compatible within pool %s' % output.name)
 
     def calculate_hamming_distances(self, indexes_list):
-        # calculate the minimum I7 and I5 Hamming distances for the indexes in the pool. Performs a pairwise comparison
-        #of all possible I7 pairs and all possible I5 pairs. Measures the length of the indexes in each pair and only
-        #compares a length from 0 to the length of the shortest index.
+        ''' Calculates the minimum I7 and I5 Hamming distances for the indexes in the pool. Performs a pairwise comparison
+        of all possible I7 pairs and all possible I5 pairs. Measures the length of the indexes in each pair and only
+        compares a length from 0 to the length of the shortest index.'''
         hamming_distance_i7_list = []
         hamming_distance_i5_list = []
         for indexes in combinations(indexes_list, 2):
@@ -62,11 +62,11 @@ class CheckIndexCompatibility(StepEPP):
             indexes_list.append(index_pair)
         return indexes_list
 
-    def run(self):
+    def _run(self):
 
         outputs_to_put = []
         # for each output pool find all the input artifacts, obtain their indexes and calculate the minimum Hamming
-        # distances between I7 and I5 indexes
+         #distances between I7 and I5 indexes
 
         for output in self.output_artifacts:
 
@@ -78,9 +78,10 @@ class CheckIndexCompatibility(StepEPP):
                 inputs = [io[0]['uri'] for io in inputs_outputs]
 
                 indexes_list = self.get_indexes_list(inputs)
+
                 hamming_distances = self.calculate_hamming_distances(indexes_list)
                 self.qc_check_hamming_distances(hamming_distances, output)
-                outputs_to_put = self.populate_output_udfs(hamming_distances,outputs_to_put, output)
+                self.populate_output_udfs(hamming_distances, outputs_to_put, output)
 
         self.lims.put_batch(outputs_to_put)
 

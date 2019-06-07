@@ -75,10 +75,8 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
         """
         csv_dict = self._generate_csv_dict()
 
-        if self.csv_column_headers:
-            csv_rows = [self.csv_column_headers]
-        else:
-            csv_rows = []
+
+        csv_rows = [self.csv_column_headers]
 
         counter = 0
 
@@ -91,7 +89,7 @@ class GenerateHamiltonInputMakePDP(GenerateHamiltonInputEPP):
                         counter += 1
 
         if counter == 0:
-            raise InvalidStepError("No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
+            raise InvalidStepError("No valid keys present in csv_dict. Key format must be container+row:column e.g. T1999P001A:1.")
 
         return csv_rows
 

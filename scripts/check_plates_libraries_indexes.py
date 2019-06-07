@@ -13,8 +13,8 @@ class CheckPlatesLibrariesIndexes(StepEPP):
         for art in self.artifacts:
 
             try:
-                library_types.add(art.samples[0].udf.get('Prep Workflow'))
-            except:
+                library_types.add(art.samples[0].udf['Prep Workflow'])
+            except KeyError:
                 raise InvalidStepError('Prep Workflow missing from artifact %s' % art.name)
 
             if len(art.reagent_labels)>1:

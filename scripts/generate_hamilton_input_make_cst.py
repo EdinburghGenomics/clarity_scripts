@@ -149,7 +149,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                         counter += 1
 
         if counter == 0:
-            raise InvalidStepError("No valid keys present in csv_dict. Key format must be row:column e.g. A:1.")
+            raise InvalidStepError("No valid keys present in csv_dict. Key format must be container+row:column e.g. T1999P001A:1.")
 
         return csv_rows
 
