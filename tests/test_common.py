@@ -218,7 +218,7 @@ class FakeEntitiesMaker:
         s._reagent_lots = self.create_instance(StepReagentLots)
         s.actions = self.create_instance(StepActions)
 
-        if not pool_size == None:
+        if pool_size is not None:
             s.pools = self.create_a_fake_steppools(output_artifacts, input_artifacts, pool_size, **kwargs)
         if output_artifacts:
             s.actions.next_actions = [{'artifact': a} for a in output_artifacts]
@@ -257,12 +257,14 @@ class FakeEntitiesMaker:
         artifact.location = (container, artifact_position)
         container.placements[artifact_position] = artifact
         self._add_udfs(artifact, artifact_udfs)
+
         if reagent_label:
             # allow user to provide reagent_labels as a list of variables and not just a single variable or a cycle
-            if type(_resolve_next(reagent_label)) == list:
-                artifact.reagent_labels = _resolve_next(reagent_label)
-            else:
-                artifact.reagent_labels = [_resolve_next(reagent_label)]
+            rl = _resolve_next(reagent_label)
+            if not isinstance(rl, list):
+                rl = [rl]
+            artifact.reagent_labels = rl
+
         return artifact
 
     def create_fake_artifacts(self, nb_artifacts, is_output_artifact, artifact_name, artifact_type, container,

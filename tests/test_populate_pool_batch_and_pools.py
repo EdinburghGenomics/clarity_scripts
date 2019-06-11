@@ -76,11 +76,11 @@ class TestPopulatePoolBatchPools(TestEPP):
 
         with patch.object(self.epp.lims, 'get_containers', side_effect=[['a']] * 1000 + [[]]), pytest.raises(InvalidStepError) as e:
             assert self.epp.create_pool_id()
-        assert str(e.value) == 'Cannot allocate more than 999 pool IDs with date 2019-06-05'
+        assert str(e.value) == 'Cannot allocate more than 999 pool IDs with date %s' % str(date.today())
 
     def test_create_pool_batch_id_error(self): #too many batches with today's date, limit is 999
         self.epp.lims = self.fem.lims
 
         with patch.object(self.epp.lims, 'get_containers', side_effect=[['a']] * 1000 + [[]]), pytest.raises(InvalidStepError) as e:
             assert self.epp.create_pool_batch_id()
-        assert str(e.value) == 'Cannot allocate more than 999 pool batch IDs with date 2019-06-05'
+        assert str(e.value) == 'Cannot allocate more than 999 pool batch IDs with date %s' % str(date.today())

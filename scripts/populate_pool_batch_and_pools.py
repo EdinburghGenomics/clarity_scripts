@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from datetime import date
 
+import math
+
 from EPPs.common import StepEPP, InvalidStepError
 
 
@@ -31,9 +33,7 @@ class PopulatePoolBatchPools(StepEPP):
 
         #find the number of lanes required, assuming that 10 of NTP is used in each CST well and only whole wells can
         #be used
-        number_of_lanes = -(-total_volume_of_ntp_for_yield//10) #using // always rounds down so if we make the
-        #numerator negative then rounding down is effectively rounding up if we then make the answer positive by adding
-        #another negative
+        number_of_lanes = math.ceil(total_volume_of_ntp_for_yield / 10)#rounds up
 
         #find the total volume ntp that is required to fill all required lanes and provide a dead volume of 5 ul
         total_volume_of_ntp = (number_of_lanes*10)+5
