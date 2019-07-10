@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.13.0 (unreleased)
+0.12.3 (2019-07-10)
 -------------------
 
-- Nothing changed yet.
+- 'gender' API key renamed to 'sex'
 
 
 0.12.2 (2019-05-30)
