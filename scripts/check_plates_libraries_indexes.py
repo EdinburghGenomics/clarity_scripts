@@ -3,6 +3,8 @@ from EPPs.common import StepEPP, InvalidStepError
 
 
 class CheckPlatesLibrariesIndexes(StepEPP):
+    """if multiple library types or adapter (reagent) types present then generates an error. Assumes that inputs can be pools
+    so may have multiple types"""
     _max_nb_input_containers = 10
 
     def check_index_and_libraries(self):
@@ -12,24 +14,20 @@ class CheckPlatesLibrariesIndexes(StepEPP):
         adapter_type_categories=set()
         for art in self.artifacts:
 
-            try:
-                library_types.add(art.samples[0].udf['Prep Workflow'])
-            except KeyError:
-                raise InvalidStepError('Prep Workflow missing from artifact %s' % art.name)
+            for sample in art.samples:
+                try:
+                    library_types.add(sample.udf['Prep Workflow'])
+                except KeyError:
+                    raise InvalidStepError('Prep Workflow missing from artifact %s' % art.name)
 
-            if len(art.reagent_labels)>1:
 
-                raise InvalidStepError('Multiple reagent labels present (indexes) on artifact %s. Only 1 permitted' % art.name)
-            else:
-                #create an instance of the reagent type by obtaining the reagent type with get reagent type using
-                # the reagent label as the name
 
-                reagent_type= self.lims.get_reagent_types(name=art.reagent_labels[0])[0]
-
-                # Note: each individual index is a "reagent_type", each index belongs to a group called a "category"
-                #now that we have an instance of the reagent_type we can obtain the class variable "category".
-
-                adapter_type_categories.add(reagent_type.category)
+            #create an instance of the reagent type by obtaining the reagent type with get reagent type using
+            # the reagent label as the name
+            # Note: each individual index is a "reagent_type", each index belongs to a group called a "category"
+            #now that we have an instance of the reagent_type we can obtain the class variable "category".
+            for reagent_label in art.reagent_labels:
+                adapter_type_categories.add(self.lims.get_reagent_types(name=reagent_label)[0].category)
 
         if len(library_types) > 1:
             raise InvalidStepError('Multiple library types (Prep Workflow) present in step. Only 1 permitted.')
