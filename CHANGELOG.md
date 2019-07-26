@@ -1,10 +1,21 @@
 Changelog for clarity_scripts
 =============================
 
-0.13 (unreleased)
+0.13 (2019-07-26)
 -----------------
 
-- Nothing changed yet.
+- Updating EGCG-Core to v0.11.1
+- New pooling and CST workflow scripts:
+  - autoplacement_8_well.py
+  - check_index_compatibility.py
+  - check_plates_libraries_indexes.py
+  - generate_hamilton_input_make_cst.py
+  - generate_hamilton_input_make_pdp.py
+  - generate_hamilton_input_make_pdp_mix.py
+  - populate_batch_id.py
+  - populate_pool_batch_and_pools.py
+  - transfer_udf_input_output.py
+  
 
 
 0.12.3 (2019-07-10)
