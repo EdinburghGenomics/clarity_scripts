@@ -505,7 +505,7 @@ class TestEmailManifestTrackingLetter(TestEmailEPP):
             self.epp._run()
             mocked_send_email.assert_called_with(
                 attachments=['a_manifest-Edinburgh_Genomics_Sample_Submission_Manifest_project1.xlsx',
-                             'tube requirements', 'a_letter-Edinburgh_Genomics_Sample_Tracking_Letter_project1.docx'],
+                             'tube requirements'],
                 msg=None,
                 subject='project1: Homo sapiens WGS Sample Submission',
                 mailhost='smtp.test.me',

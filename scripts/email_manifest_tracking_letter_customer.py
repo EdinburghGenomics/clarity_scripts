@@ -54,7 +54,6 @@ class EmailManifestLetter(SendMailEPP):
             template_name = 'customer_manifest.html'
         elif container_type_name == 'rack 96 positions':
             attachments_list.append(cfg.query('file_templates', 'requirements', 'tube'))
-            attachments_list.append(letter_filepath)
             template_name = 'customer_manifest.html'
         elif container_type_name == 'SGP rack 96 positions':
             attachments_list.append(letter_filepath)
