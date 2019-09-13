@@ -1,11 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.14 (unreleased)
+0.14 (2019-09-13)
 -----------------
 
-- Nothing changed yet.
-
+- Remove tracking letter from customer manifest
 
 0.13 (2019-07-26)
 -----------------
