@@ -18,10 +18,10 @@ class TestGenerateHumanTissueReport(TestEPP):
 
     #wmock the return value of the function get_human_artifacts that calls lims
     mock_submitted_samples = [NamedMock(real_name='Sample1',
-                                       project=NamedMock(real_name='X9999', udf=project_udfs),
+                                       project=NamedMock(real_name='X19999', udf=project_udfs),
                                        udf=sample_udfs1),
                               NamedMock(real_name='Sample2',
-                                        project=NamedMock(real_name='X9999', udf=project_udfs),
+                                        project=NamedMock(real_name='X19999', udf=project_udfs),
                                         udf=sample_udfs2)
                               ]
     #patch get human artifacts, patch email send and patch saving of report
