@@ -37,7 +37,7 @@ def create_excel_report(lims, report_path):
     columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     widths = [20, 15, 15, 25, 20, 60, 20, 20]
 
-    # populate the active worksheet with the column headers and widths as well as formatting fonr to bold
+    # populate the active worksheet with the column headers and widths as well as formatting font to bold
     for header, column, width in zip(column_headers, columns, widths):
         ws[column + '1'] = header
         ws[column + '1'].font = Font(bold=True)
@@ -55,7 +55,7 @@ def create_excel_report(lims, report_path):
     sample_keys_list = samples_dict.keys()
 
     # sort sample keys
-    sample_keys_list.sort(reverse=True)
+    sample_keys_list =sorted(sample_keys_list, reverse=True)
 
     # write excel file in sample name reverse alphanumerical order
     for key in sample_keys_list:

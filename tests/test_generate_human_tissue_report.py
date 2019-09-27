@@ -28,6 +28,7 @@ class TestGenerateHumanTissueReport(TestEPP):
     patched_get_human_artifacts = patch('scripts.generate_human_tissue_report.get_human_artifacts', return_value=mock_submitted_samples)
     patch_email = patch('egcg_core.notifications.email.send_email')
     patch_workbook_save = patch('openpyxl.workbook.workbook.Workbook.save')
+    patch_worksheet_populate_cell = patch('openpyxl.worksheet.worksheet.Worksheet.__setitem__')
 
     def setUp(self):
         self.epp = GenerateHumanTissueReport(self.default_argv)
@@ -54,3 +55,21 @@ class TestGenerateHumanTissueReport(TestEPP):
             #test that report is created without generating error
             mocked_report_save.assert_called_with(filename=self.report_path)
 
+    def test_email_contents(self): #test md5sum of the excel sheet
+        fem = FakeEntitiesMaker()
+        self.epp.lims = fem.lims
+        with self.patched_get_human_artifacts, self.patch_email:
+            self.epp._run()
+
+            expected_report_md5sum = '169e0618ce9fb608a9de66a8aef8e0e0'
+            actual_report_md5sum = self.stripped_md5(self.report_path)
+            assert actual_report_md5sum == actual_report_md5sum
+
+
+    def test_worksheet_setitem(self): #test worksheet is populated
+        fem = FakeEntitiesMaker()
+        self.epp.lims = fem.lims
+        with self.patched_get_human_artifacts, self.patch_email, self.patch_worksheet_populate_cell as mock_populate_cell:
+            self.epp._run()
+
+            mock_populate_cell.assert_called_with('H2','SHELF1')
