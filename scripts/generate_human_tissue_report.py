@@ -63,7 +63,7 @@ def create_excel_report(lims, report_path):
         project_name = samples_dict[key].project.name
         # only include samples where the freezer location is not "Sample Destroyed" and the project is an actual
         # project identified by starting with an X
-        if freezer_location != 'Sample Destroyed' and project_name[0] == 'X1':
+        if freezer_location != 'Sample Destroyed' and project_name[:2] == 'X1':
             shelf = samples_dict[key].udf.get('Shelf')
             ws['A' + str(row_counter)] = 'Edinburgh Genomics'
             ws['B' + str(row_counter)] = 'DNA'
