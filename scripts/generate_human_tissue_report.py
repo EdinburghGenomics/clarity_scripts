@@ -55,7 +55,7 @@ def create_excel_report(lims, report_path):
     sample_keys_list = samples_dict.keys()
 
     # sort sample keys
-    sample_keys_list = sorted(sample_keys_list, reverse=True)
+    sample_keys_list.sort(reverse=True)
 
     # write excel file in sample name reverse alphanumerical order
     for key in sample_keys_list:
