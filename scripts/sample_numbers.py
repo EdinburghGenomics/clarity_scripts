@@ -11,7 +11,7 @@ from EPPs.common import StepEPP
 class GenerateSampleNumbersGraph(StepEPP):
     # create variables for the months and years to be used in different functions
     months = ['01', '02', '03', '04', '05', '06', '07','08', '09', '10', '11', '12']
-    years = ['2016', '2017', '2018', '2019']
+    years = ['2015','2016', '2017', '2018', '2019']
 
 
 
@@ -65,10 +65,10 @@ class GenerateSampleNumbersGraph(StepEPP):
 
 
         app.layout = html.Div(children=[
-            html.H1(children='Sample Receipt 2019'),
+            html.H1(children='Sample Receipt 2015-2019'),
 
             html.Div(children='''
-                Number of Sample Receipt Steps Run in Dev in 2019.
+                Number of Samples Received By Month from 2015 to 2019.
             '''),
 
 
@@ -78,12 +78,12 @@ class GenerateSampleNumbersGraph(StepEPP):
                 figure={
                     'data': years_dictionaries_list,
                     'layout': {
-                        'title': 'Dash Data Visualization'
+                        'title': 'Samples Received'
                     }
                 }
             )
         ])
-        app.run_server(debug=True)
+        app.run_server(debug=False)
 
     def _run(self):
         sample_numbers = self.get_sample_numbers()
