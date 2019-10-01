@@ -53,6 +53,11 @@ email_notify:
     - lab@email.com
     - project@email.com
 
+  human_tissue:
+    recipients:
+      - lab@email.com
+      - project@email.com
+
 rest_api:
   url: localhost
   username: user
