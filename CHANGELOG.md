@@ -1,10 +1,12 @@
 Changelog for clarity_scripts
 =============================
 
-0.15 (unreleased)
+0.15 (2019-10-01)
 -----------------
 
-- Nothing changed yet.
+- New script for generating Human Tissue Storage Reports
+  - Details on samples recorded in the LIMS as being currently stored in the lab
+  - New config: human_tissue.recipients
 
 
 0.14 (2019-09-13)
