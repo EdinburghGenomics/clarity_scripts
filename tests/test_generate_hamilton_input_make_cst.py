@@ -49,17 +49,17 @@ class TestGenerateHamiltonInputMakeCST(TestEPP):
             expected_file = ['Input Container,Input Well,Library,Output Container,Output Well,EPX1 Barcode,EPX1,'
                              'EPX2 Barcode,EPX2,EPX3 Barcode,EPX3,EPX Master Mix,NaOH Barcode,NaOH,TrisHCL Barcode,'
                              'TrisHCL,PhiX Barcode,PhiX',
-                             'container1,A1,10,container3,A1,LP9999999-EPX1,231,LP9999999-EPX2,33,LP9999999-EPX3,121,'
-                             '35,LP9999999-NAOH,2.5,LP9999999-THCL,2.5,LP9999999-PHIX,1',
-                             'container2,A1,10,container3,A1,LP9999999-EPX1,231,LP9999999-EPX2,33,LP9999999-EPX3,121,'
-                             '35,LP9999999-NAOH,2.5,LP9999999-THCL,2.5,LP9999999-PHIX,1',
                              'container2,B1,10,container3,A1,LP9999999-EPX1,231,LP9999999-EPX2,33,LP9999999-EPX3,121,'
-                             '35,LP9999999-NAOH,2.5,LP9999999-THCL,2.5,LP9999999-PHIX,1']
+                             '35,LP9999999-NAOH,2.5,LP9999999-THCL,2.5,LP9999999-PHIX,1'
+                             ]
 
-            expected_md5s = "7c4ca08a0aa89afc9ab8d093436d01aa"
+            expected_md5s = "02e9ab963b32da5dbf1dee315eebc5cd"
+
 
             actual_file = self.file_content('a_file_location-hamilton_input.csv')
+
             actual_lims_md5s = self.stripped_md5('a_file_location-hamilton_input.csv')
+            print(actual_lims_md5s)
             actual_shared_drive_md5s = self.stripped_md5(self.epp.shared_drive_file_path)
 
             assert actual_file == expected_file

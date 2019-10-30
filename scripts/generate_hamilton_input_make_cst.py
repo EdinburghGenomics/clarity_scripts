@@ -50,7 +50,7 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
         for lot in reagent_lots:
             reagent_barcodes[lot.reagent_kit.name] = lot.lot_number
 
-        #generate error if user has forgotten to assign the barcode in the step
+        # generate error if user has forgotten to assign the barcode in the step
         for expected_reagent_name in expected_reagent_names:
             if expected_reagent_name not in reagent_barcodes:
                 raise InvalidStepError(
@@ -77,14 +77,14 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
                 output = outputs[0]
 
                 # LIMS outputs CST strip locations as numbers, convert to well positions used by Hamilton
-                hamilton_well_locations={'1:1':'A1',
-                                         '2:1':'B1',
-                                         '3:1':'C1',
-                                         '4:1':'D1',
-                                         '5:1':'E1',
-                                         '6:1':'F1',
-                                         '7:1':'G1',
-                                         '8:1':'H1'}
+                hamilton_well_locations = {'1:1': 'A1',
+                                           '2:1': 'B1',
+                                           '3:1': 'C1',
+                                           '4:1': 'D1',
+                                           '5:1': 'E1',
+                                           '6:1': 'F1',
+                                           '7:1': 'G1',
+                                           '8:1': 'H1'}
 
                 output_location = hamilton_well_locations[output.location[1]]
                 # obtain the list of artifacts that were used to make the pool
@@ -98,37 +98,37 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
 
                     self.parent_container_set.add(parent_input_container)
 
-                    # assemble each line of the Hamilton input file in the correct structure for the Hamilton
-                    csv_line = [
-                        parent_input_container,
-                        parent_input_location,
-                        self.process.udf['Library Volume (uL)'],
-                        output.location[0].name,
-                        output_location,
-                        reagent_barcodes['EPX1'],
-                        self.process.udf['EPX 1 (uL)'],
-                        reagent_barcodes['EPX2'],
-                        self.process.udf['EPX 2 (uL)'],
-                        reagent_barcodes['EPX3'],
-                        self.process.udf['EPX 3 (uL)'],
-                        self.process.udf['EPX Master Mix (uL)'],
-                        reagent_barcodes['NaOH'],
-                        self.process.udf['NaOH (uL)'],
-                        reagent_barcodes['TrisHCL'],
-                        self.process.udf['TrisHCL (uL)'],
-                        reagent_barcodes['PhiX'],
-                        self.process.udf['PhiX (uL)']
-                    ]
-                    # build a dictionary of the lines for the Hamilton input file with a key that facilitates
-                    # the lines being by input container then column then row
-                    csv_dict[parent_input_container + parent_artifact.location[1]] = csv_line
+                # assemble each line of the Hamilton input file in the correct structure for the Hamilton
+                csv_line = [
+                    parent_input_container,
+                    parent_input_location,
+                    self.process.udf['Library Volume (uL)'],
+                    output.location[0].name,
+                    output_location,
+                    reagent_barcodes['EPX1'],
+                    self.process.udf['EPX 1 (uL)'],
+                    reagent_barcodes['EPX2'],
+                    self.process.udf['EPX 2 (uL)'],
+                    reagent_barcodes['EPX3'],
+                    self.process.udf['EPX 3 (uL)'],
+                    self.process.udf['EPX Master Mix (uL)'],
+                    reagent_barcodes['NaOH'],
+                    self.process.udf['NaOH (uL)'],
+                    reagent_barcodes['TrisHCL'],
+                    self.process.udf['TrisHCL (uL)'],
+                    reagent_barcodes['PhiX'],
+                    self.process.udf['PhiX (uL)']
+                ]
+                # build a dictionary of the lines for the Hamilton input file with the output well as the key
+                # cst strips have eight wells and are always loaded from A1 to H1
+                csv_dict[output_location] = csv_line
 
         return csv_dict
 
     def generate_csv_array(self):
         """
         Generate the csv array from the implemented csv dictionary.
-        It sorts the csv lines by column (self.plate_columns) then row (self.plate_rows)
+        CST strips only have eight wells so the array is sorted by the well name i.e. A1,B1,C1,D1,E1,F1,G1,H1.
         """
         csv_dict = self._generate_csv_dict()
 
@@ -139,17 +139,16 @@ class GenerateHamiltonInputMakeCST(GenerateHamiltonInputEPP):
 
         counter = 0
 
-        # create list of parent containers
+        for column in self.plate_columns:
+            for row in self.plate_rows:
 
-        for container in sorted(self.parent_container_set):
-            for column in self.plate_columns:
-                for row in self.plate_rows:
-                    if container + row + ":" + column in csv_dict.keys():
-                        csv_rows.append(csv_dict[container + row + ":" + column])
-                        counter += 1
+                if row + column in csv_dict.keys():
+                    csv_rows.append(csv_dict[row + column])
+                    counter += 1
 
         if counter == 0:
-            raise InvalidStepError("No valid keys present in csv_dict. Key format must be container+row:column e.g. T1999P001A:1.")
+            raise InvalidStepError(
+                "No valid keys present in csv_dict. Key format must be container+row:column e.g. T1999P001A:1.")
 
         return csv_rows
 
