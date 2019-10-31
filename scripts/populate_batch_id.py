@@ -28,11 +28,11 @@ class PopulateBatchID(StepEPP):
         # assumes input artifacts have already been checked to allow only 1 library type at beginning of step
         prep_workflow = self.process.all_inputs()[0].samples[0].udf['Prep Workflow']
         # Name all pools and assign the prep workflow and adapter type to them then put into LIMS
-        for i_art in self.artifacts:          
-            o_art = self.process.outputs_per_input(i_art.id, Analyte=True)[0]
-            o_art.udf['Prep Workflow'] = prep_workflow
-            o_art.udf['Adapter Type'] = adapter_type
-            o_art.put()
+        for i_art in self.artifacts:
+            for o_art in self.process.outputs_per_input(i_art.id, Analyte=True):
+                o_art.udf['Prep Workflow'] = prep_workflow
+                o_art.udf['Adapter Type'] = adapter_type
+                o_art.put()
 
 
 if __name__ == "__main__":
