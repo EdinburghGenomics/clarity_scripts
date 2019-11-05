@@ -1,10 +1,10 @@
 Changelog for clarity_scripts
 =============================
 
-0.16 (unreleased)
+0.16 (2019-11-05)
 -----------------
 
-- Nothing changed yet.
+- Bug fixes in generate_hamilton_input_make_cst.py and populate_batch_id.py 
 
 
 0.15 (2019-10-01)
@@ -76,7 +76,7 @@ Other changes:
 - `generate_hamilton_input_UPL.py`: fixing blank lines in output file
 - `generate_manifest.py`: fixing UDF parsing - reverting refactor
 - `parse_fluidx_scan.py`: adding container name check
-- fixing StepEPP max_nb_input_container_types 
+-milton_input_make_cst.py fixing StepEPP max_nb_input_container_typea 
 
 
 0.11.1 (2019-04-02)
