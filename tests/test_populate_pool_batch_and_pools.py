@@ -22,12 +22,11 @@ class TestPopulatePoolBatchPools(TestEPP):
             'project_name': 'X99999',
             'sample_udfs': {
                 'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
-                'Remaining Yield (Gb)': 40
+                'Remaining Yield (Gb)': 80
             },
             'pool_size': 3,
         }
         self.today = str(date.today())
-
 
     def test_populate_pool_batch_and_pools_no_existing_objects_happy_path(self):
         self.epp.lims = self.fem.lims
@@ -45,8 +44,12 @@ class TestPopulatePoolBatchPools(TestEPP):
         expected_output_pool_name = self.today + '_PDP_Pool#1'
         actual_output_pool_name = self.epp.process.analytes()[0][0].name
 
-        expected_output_udfs = {'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
-                                'Adapter Type': 'rt1', 'NTP Volume (uL)': 5.0, 'Number of Lanes': 1.0}
+        expected_output_udfs = {
+            'Prep Workflow': 'TruSeq Nano DNA Sample Prep',
+             'Adapter Type': 'rt1',
+            'NTP Volume (uL)': 10,  # 10uL per library * 3 libraries = 30 = 2 lanes * 15uL
+            'Number of Lanes': 2  # 2 lanes needed for 80Gb
+        }
 
         actual_output_udfs = self.epp.process.analytes()[0][0].udf
 
@@ -54,12 +57,13 @@ class TestPopulatePoolBatchPools(TestEPP):
         assert actual_output_pool_name == expected_output_pool_name
         assert actual_output_udfs == expected_output_udfs
 
+
     def test_populate_pool_batch_and_pools_low_ntp_volume(self):
         self.epp.lims = self.fem.lims
         fem_params = self.fem_params
-        fem_params['nb_input']=20
-        fem_params['sample_udfs']['Remaining Yield (Gb)']= 10
-        fem_params['pool_size']= 10
+        fem_params['nb_input'] = 20
+        fem_params['sample_udfs']['Remaining Yield (Gb)'] = 10
+        fem_params['pool_size'] = 10
 
         self.epp.process = self.fem.create_a_fake_process(**fem_params)
         self.epp.lims.get_containers = Mock(return_value=[])

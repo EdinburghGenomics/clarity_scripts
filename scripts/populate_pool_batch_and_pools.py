@@ -31,20 +31,20 @@ class PopulatePoolBatchPools(StepEPP):
         # data in a balanced pool on one lane of a HiSeqX flowcell
         total_volume_of_ntp_for_yield = total_remaining_yield * 0.083
 
-        #find the number of lanes required, assuming that 10 of NTP is used in each CST well and only whole wells can
-        #be used
+        # find the number of lanes required, assuming that 10 of NTP is used in each CST well and only whole wells can
+        # be used
         number_of_lanes = math.ceil(total_volume_of_ntp_for_yield / 10)#rounds up
 
-        #find the total volume ntp that is required to fill all required lanes and provide a dead volume of 5 ul
-        total_volume_of_ntp = (number_of_lanes*10)+5
+        # find the total volume ntp that is required to fill all required lanes and provide a dead volume of 5 ul per lane
+        total_volume_of_ntp = number_of_lanes * (10 + 5)
 
         #volume of library (ntp) per sample is the total volume of ntp divided by the number of libraries in the pool as
         #equal amounts of each library is added to the pool
         volume_ntp_per_library = total_volume_of_ntp/len(inputs)
         if volume_ntp_per_library<2:
             raise InvalidStepError('NTP Volume (uL) cannot be less than 2. NTP Volume (uL) for libraries in %s is '
-                                   '%s' %(pool_name,volume_ntp_per_library))
-        return [volume_ntp_per_library,number_of_lanes]
+                                   '%s' % (pool_name, volume_ntp_per_library))
+        return volume_ntp_per_library, number_of_lanes
 
     def create_pool_batch_id(self):
         today = str(date.today())
@@ -84,7 +84,7 @@ class PopulatePoolBatchPools(StepEPP):
 
             o_art.udf['Prep Workflow'] = prep_workflow
             o_art.udf['Adapter Type'] = adapter_type
-            o_art.udf['NTP Volume (uL)'],o_art.udf['Number of Lanes'] = self.calculate_NTP_volume(original_output_name)
+            o_art.udf['NTP Volume (uL)'], o_art.udf['Number of Lanes'] = self.calculate_NTP_volume(original_output_name)
             o_art.put()
 
 
